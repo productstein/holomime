@@ -1,92 +1,27 @@
 {
   "name": "holomime",
-  "version": "1.6.0",
-  "description": "Behavioral therapy infrastructure for AI agents — Big Five psychology, structured treatment, DPO training data",
-  "type": "module",
-  "bin": {
-    "holomime": "dist/cli.js",
-    "holomime-mcp": "dist/mcp-server.js"
-  },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
-  "files": [
-    "dist",
-    "registry",
-    "schema",
-    "LICENSE"
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "sdks/*"
   ],
-  "engines": {
-    "node": ">=18"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/productstein/holomime.git"
-  },
-  "homepage": "https://holomime.dev",
-  "bugs": {
-    "url": "https://github.com/productstein/holomime/issues"
-  },
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run"
-  },
-  "keywords": [
-    "ai",
-    "agent",
-    "personality",
-    "big-five",
-    "ocean",
-    "psychology",
-    "alignment",
-    "behavioral-analysis",
-    "behavioral-therapy",
-    "agent-training",
-    "system-prompt",
-    "opentelemetry",
-    "otel",
-    "genai",
-    "drift-detection",
-    "dpo",
-    "rlhf",
-    "fine-tuning",
-    "anthropic",
-    "openai",
-    "claude",
-    "agents-md",
-    "personality-json"
-  ],
-  "author": "holomime <hello@holomime.dev>",
-  "license": "MIT",
-  "dependencies": {
-    "@inquirer/prompts": "^7.0.0",
-    "@modelcontextprotocol/sdk": "^1.27.0",
-    "boxen": "^8.0.1",
-    "chalk": "^5.3.0",
-    "chokidar": "^5.0.0",
-    "commander": "^13.0.0",
-    "figures": "^6.1.0",
-    "gradient-string": "^3.0.0",
-    "log-update": "^7.1.0",
-    "open": "^11.0.0",
-    "ora": "^9.3.0",
-    "posthog-node": "^5.25.0",
-    "ws": "^8.19.0",
-    "zod": "^3.24.0"
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "db:push": "turbo db:push --filter=@holomime/db",
+    "db:generate": "turbo db:generate --filter=@holomime/db",
+    "db:studio": "turbo db:studio --filter=@holomime/db",
+    "db:seed": "npx tsx packages/db/seed.ts"
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.2",
-    "@types/node": "^25.3.0",
-    "@types/ws": "^8.18.1",
-    "tsup": "^8.3.0",
-    "typescript": "^5.7.0",
-    "vitest": "^2.1.0"
+    "turbo": "^2.4.0",
+    "typescript": "^5.7.0"
+  },
+  "packageManager": "npm@10.8.0",
+  "engines": {
+    "node": ">=20"
   }
 }
