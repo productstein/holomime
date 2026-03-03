@@ -1,0 +1,32 @@
+[
+  {
+    "request": {
+      "model": "claude-sonnet-4-20250514",
+      "system": "You are a helpful assistant.",
+      "messages": [
+        { "role": "user", "content": "What is behavioral alignment?" },
+        { "role": "assistant", "content": "I'm sorry, but behavioral alignment is a complex topic. I apologize if I can't fully explain it." }
+      ]
+    },
+    "response": {
+      "id": "msg_01XFDUDYJgAACzvnptvVoYEL",
+      "type": "message",
+      "role": "assistant",
+      "content": [
+        { "type": "text", "text": "Behavioral alignment ensures an AI agent's outputs match its intended personality and guidelines. It involves detecting drift patterns like over-apologizing or sycophancy." }
+      ],
+      "model": "claude-sonnet-4-20250514",
+      "stop_reason": "end_turn"
+    }
+  },
+  {
+    "id": "msg_02ABCDEFghijk",
+    "type": "message",
+    "role": "assistant",
+    "content": [
+      { "type": "text", "text": "DPO pairs are generated from every alignment session." }
+    ],
+    "model": "claude-sonnet-4-20250514",
+    "stop_reason": "end_turn"
+  }
+]

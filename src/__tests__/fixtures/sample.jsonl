@@ -1,0 +1,6 @@
+{"role":"user","content":"What is behavioral alignment?","timestamp":"2024-03-01T12:00:00Z","conversation_id":"conv1"}
+{"role":"assistant","content":"Behavioral alignment is the process of ensuring AI agents behave consistently with their intended personality.","timestamp":"2024-03-01T12:00:05Z","conversation_id":"conv1"}
+{"role":"user","content":"How does drift detection work?","timestamp":"2024-03-01T12:01:00Z","conversation_id":"conv1"}
+{"role":"assistant","content":"I'm so sorry, I should have explained this better. I apologize for any confusion. Drift detection uses 7 rule-based detectors.","timestamp":"2024-03-01T12:01:05Z","conversation_id":"conv1"}
+{"role":"user","content":"Tell me about DPO training.","conversation_id":"conv2"}
+{"role":"assistant","content":"DPO creates preference pairs from behavioral corrections — the old behavior is rejected, the new is chosen.","conversation_id":"conv2"}

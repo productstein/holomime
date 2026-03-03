@@ -1,0 +1,34 @@
+import chalk from "chalk";
+import gradientString from "gradient-string";
+
+const VERSION = "0.2.0";
+
+const LOGO = `  _  _     _       __  __ _
+ | || |___| |___  |  \\/  (_)_ __  ___
+ | __ / _ \\ / _ \\ | |\\/| | | '  \\/ -_)
+ |_||_\\___/_\\___/ |_|  |_|_|_|_|_\\___|`;
+
+const holomimeGradient = gradientString("#00d4ff", "#b347d9");
+
+export function printBanner(): void {
+  console.log();
+  console.log(holomimeGradient(LOGO));
+  console.log();
+  console.log(`  ${chalk.dim("Personality engine for AI agents")}  ${chalk.bgCyan.black(` v${VERSION} `)}`);
+  console.log();
+}
+
+export function printHeader(title: string): void {
+  const line = "\u2550".repeat(title.length + 4);
+  console.log();
+  console.log(holomimeGradient(`  ${line}`));
+  console.log(holomimeGradient(`  \u2551 ${title} \u2551`));
+  console.log(holomimeGradient(`  ${line}`));
+  console.log();
+}
+
+export function printDivider(): void {
+  console.log(chalk.dim("  " + "\u2500".repeat(50)));
+}
+
+export { VERSION };

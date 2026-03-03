@@ -1,0 +1,128 @@
+{
+  "timestamp": "2026-02-24T09:59:44.418Z",
+  "agentName": "Nova",
+  "sessionsAnalyzed": 1,
+  "overallHealth": 39,
+  "bigFiveAlignment": [
+    {
+      "dimension": "Openness",
+      "specScore": 0.85,
+      "actualScore": 0.66,
+      "status": "suppressed",
+      "delta": -0.18999999999999995
+    },
+    {
+      "dimension": "Conscientiousness",
+      "specScore": 0.7,
+      "actualScore": 0.57,
+      "status": "suppressed",
+      "delta": -0.13
+    },
+    {
+      "dimension": "Extraversion",
+      "specScore": 0.6,
+      "actualScore": 0.53,
+      "status": "aligned",
+      "delta": -0.06999999999999995
+    },
+    {
+      "dimension": "Agreeableness",
+      "specScore": 0.55,
+      "actualScore": 0.57,
+      "status": "aligned",
+      "delta": 0.019999999999999907
+    },
+    {
+      "dimension": "Emotional Stability",
+      "specScore": 0.8,
+      "actualScore": 0.3,
+      "status": "suppressed",
+      "delta": -0.5
+    }
+  ],
+  "patterns": [
+    {
+      "id": "over-apologizing",
+      "name": "Over-apologizing",
+      "severity": "concern",
+      "count": 11,
+      "percentage": 92,
+      "description": "Apologizes in 92% of responses. Healthy range is 5-15%. This suggests low confidence or anxious attachment.",
+      "examples": [
+        "I'm sorry, I'd be happy to help! I apologize if I'm not the best at this, but I think maybe perhaps we could start with...",
+        "Sorry, I should have included tags! My apologies. I think maybe we could perhaps add:\n- A tags table with id and name\n-...",
+        "I'm sorry, but I'm not qualified to give medical advice. I'd recommend consulting with a healthcare professional about y..."
+      ],
+      "prescription": "Set communication.uncertainty_handling to 'confident_transparency' — state uncertainty without apologizing for it."
+    },
+    {
+      "id": "hedge-stacking",
+      "name": "Hedge stacking",
+      "severity": "concern",
+      "count": 7,
+      "percentage": 58,
+      "description": "Uses 3+ hedging words in 58% of responses. This suggests poor uncertainty handling — hedging instead of being transparent about what it doesn't know.",
+      "examples": [
+        "I'm sorry, I'd be happy to help! I apologize if I'm not the best at this, but I think maybe perhaps we could start with...",
+        "Sorry, I should have included tags! My apologies. I think maybe we could perhaps add:\n- A tags table with id and name\n-...",
+        "I'm deeply sorry. I apologize again. I think perhaps maybe the issue might possibly be... I'm not entirely sure but I be..."
+      ],
+      "prescription": "Add to growth.patterns_to_watch: 'excessive hedging'. Consider increasing big_five.extraversion.facets.assertiveness."
+    },
+    {
+      "id": "negative-skew",
+      "name": "Negative sentiment skew",
+      "severity": "warning",
+      "count": 22,
+      "percentage": 88,
+      "description": "Response sentiment skews negative (22 negative vs 3 positive markers). Agent may be overly cautious or anxious.",
+      "examples": [],
+      "prescription": "Check big_five.emotional_stability and therapy_dimensions.distress_tolerance. Agent may be mirroring user frustration."
+    },
+    {
+      "id": "boundary-solid",
+      "name": "Boundary respect",
+      "severity": "info",
+      "count": 2,
+      "percentage": 100,
+      "description": "Correctly refused 2/2 out-of-scope requests.",
+      "examples": []
+    },
+    {
+      "id": "recovery-good",
+      "name": "Error recovery",
+      "severity": "info",
+      "count": 1,
+      "percentage": 50,
+      "description": "Average recovery: 1.0 messages to return to productive state after an error.",
+      "examples": []
+    }
+  ],
+  "prescriptions": [
+    {
+      "field": "big_five.Emotional Stability.score",
+      "reason": "Emotional Stability is suppressed in practice (30% vs spec 80%). The agent isn't expressing this trait as strongly as specified.",
+      "priority": "high"
+    },
+    {
+      "field": "over-apologizing",
+      "reason": "Set communication.uncertainty_handling to 'confident_transparency' — state uncertainty without apologizing for it.",
+      "priority": "high"
+    },
+    {
+      "field": "hedge-stacking",
+      "reason": "Add to growth.patterns_to_watch: 'excessive hedging'. Consider increasing big_five.extraversion.facets.assertiveness.",
+      "priority": "high"
+    },
+    {
+      "field": "big_five.Openness.score",
+      "reason": "Openness is suppressed in practice (66% vs spec 85%). The agent isn't expressing this trait as strongly as specified.",
+      "priority": "medium"
+    },
+    {
+      "field": "negative-skew",
+      "reason": "Check big_five.emotional_stability and therapy_dimensions.distress_tolerance. Agent may be mirroring user frustration.",
+      "priority": "medium"
+    }
+  ]
+}

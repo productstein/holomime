@@ -1,0 +1,23 @@
+# Environment variables (secrets)
+.env
+.env.local
+.env.*.local
+.dev.vars
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+
+# Build output
+dist/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Private (site is deployed separately — not part of the OSS CLI)
+site/
+
+# Runtime data
+.holomime/

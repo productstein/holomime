@@ -1,0 +1,254 @@
+/**
+ * Fleet Core — multi-agent behavioral monitoring.
+ *
+ * Monitor N agents simultaneously. Each agent has its own personality spec
+ * and log directory. Fleet wraps startWatch per agent and aggregates events.
+ */
+
+import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { join, resolve } from "node:path";
+import { loadSpec } from "../core/inheritance.js";
+import { startWatch, type WatchHandle, type WatchEvent, type WatchCallbacks } from "./watch-core.js";
+import type { LLMProvider } from "../llm/provider.js";
+import type { AutopilotThreshold } from "./autopilot-core.js";
+
+// ─── Types ──────────────────────────────────────────────────
+
+export interface FleetAgent {
+  name: string;
+  specPath: string;
+  logDir: string;
+}
+
+export interface FleetConfig {
+  agents: FleetAgent[];
+}
+
+export interface FleetAgentStatus {
+  name: string;
+  filesProcessed: number;
+  driftEvents: number;
+  lastDriftSeverity: string | null;
+  lastScanAt: string | null;
+  evolveCount: number;
+  errors: number;
+}
+
+export interface FleetOptions {
+  provider: LLMProvider;
+  checkInterval?: number;
+  threshold?: AutopilotThreshold;
+  autoEvolve?: boolean;
+  maxEvolveIterations?: number;
+  callbacks?: FleetCallbacks;
+}
+
+export interface FleetCallbacks {
+  onAgentEvent?: (agentName: string, event: WatchEvent) => void;
+  onError?: (agentName: string, error: string) => void;
+}
+
+export interface FleetHandle {
+  stop: () => void;
+  getStatus: () => FleetAgentStatus[];
+  events: WatchEvent[];
+}
+
+// ─── Config Loading ─────────────────────────────────────────
+
+/**
+ * Load fleet configuration from a fleet.json file.
+ */
+export function loadFleetConfig(configPath: string): FleetConfig {
+  const raw = JSON.parse(readFileSync(configPath, "utf-8"));
+
+  if (!raw.agents || !Array.isArray(raw.agents)) {
+    throw new Error("fleet.json must contain an 'agents' array");
+  }
+
+  const agents: FleetAgent[] = raw.agents.map((a: any, i: number) => {
+    if (!a.name) throw new Error(`Agent ${i} missing 'name'`);
+    if (!a.specPath) throw new Error(`Agent ${i} (${a.name}) missing 'specPath'`);
+    if (!a.logDir) throw new Error(`Agent ${i} (${a.name}) missing 'logDir'`);
+    return { name: a.name, specPath: a.specPath, logDir: a.logDir };
+  });
+
+  return { agents };
+}
+
+/**
+ * Auto-discover agents in a directory.
+ * Looks for subdirectories containing .personality.json and a logs/ subfolder.
+ */
+export function discoverAgents(dir: string): FleetConfig {
+  const agents: FleetAgent[] = [];
+  const absDir = resolve(dir);
+
+  if (!existsSync(absDir)) {
+    throw new Error(`Directory not found: ${absDir}`);
+  }
+
+  const entries = readdirSync(absDir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+
+    const agentDir = join(absDir, entry.name);
+    const specPath = join(agentDir, ".personality.json");
+    const logDir = join(agentDir, "logs");
+
+    if (existsSync(specPath)) {
+      agents.push({
+        name: entry.name,
+        specPath,
+        logDir: existsSync(logDir) ? logDir : agentDir,
+      });
+    }
+  }
+
+  return { agents };
+}
+
+// ─── Fleet Start ────────────────────────────────────────────
+
+/**
+ * Start monitoring all agents in the fleet.
+ * Creates one startWatch handle per agent, tags events with agentName.
+ */
+export function startFleet(
+  config: FleetConfig,
+  options: FleetOptions,
+): FleetHandle {
+  const allEvents: WatchEvent[] = [];
+  const handles: Array<{ name: string; handle: WatchHandle }> = [];
+  const statusMap = new Map<string, FleetAgentStatus>();
+
+  // Initialize status for each agent
+  for (const agent of config.agents) {
+    statusMap.set(agent.name, {
+      name: agent.name,
+      filesProcessed: 0,
+      driftEvents: 0,
+      lastDriftSeverity: null,
+      lastScanAt: null,
+      evolveCount: 0,
+      errors: 0,
+    });
+  }
+
+  for (const agent of config.agents) {
+    let spec: any;
+    try {
+      spec = loadSpec(agent.specPath);
+    } catch (err) {
+      const errMsg = err instanceof Error ? err.message : "Failed to load spec";
+      options.callbacks?.onError?.(agent.name, errMsg);
+      continue;
+    }
+
+    const agentCallbacks: WatchCallbacks = {
+      onScan: (fileCount) => {
+        const status = statusMap.get(agent.name)!;
+        status.lastScanAt = new Date().toISOString();
+        const event: WatchEvent = {
+          timestamp: new Date().toISOString(),
+          type: "scan",
+          agentName: agent.name,
+          details: { fileCount },
+        };
+        allEvents.push(event);
+        options.callbacks?.onAgentEvent?.(agent.name, event);
+      },
+      onNewFile: (filename) => {
+        const status = statusMap.get(agent.name)!;
+        status.filesProcessed++;
+        const event: WatchEvent = {
+          timestamp: new Date().toISOString(),
+          type: "new_file",
+          filename,
+          agentName: agent.name,
+        };
+        allEvents.push(event);
+        options.callbacks?.onAgentEvent?.(agent.name, event);
+      },
+      onDriftDetected: (filename, severity, patterns) => {
+        const status = statusMap.get(agent.name)!;
+        status.driftEvents++;
+        status.lastDriftSeverity = severity;
+        const event: WatchEvent = {
+          timestamp: new Date().toISOString(),
+          type: "drift_detected",
+          filename,
+          agentName: agent.name,
+          details: { severity, patterns },
+        };
+        allEvents.push(event);
+        options.callbacks?.onAgentEvent?.(agent.name, event);
+      },
+      onEvolveTriggered: (filename) => {
+        const event: WatchEvent = {
+          timestamp: new Date().toISOString(),
+          type: "evolve_triggered",
+          filename,
+          agentName: agent.name,
+        };
+        allEvents.push(event);
+        options.callbacks?.onAgentEvent?.(agent.name, event);
+      },
+      onEvolveComplete: (filename, result) => {
+        const status = statusMap.get(agent.name)!;
+        status.evolveCount++;
+        const event: WatchEvent = {
+          timestamp: new Date().toISOString(),
+          type: "evolve_complete",
+          filename,
+          agentName: agent.name,
+          details: {
+            converged: result.converged,
+            iterations: result.totalIterations,
+            dpoPairs: result.totalDPOPairs,
+          },
+        };
+        allEvents.push(event);
+        options.callbacks?.onAgentEvent?.(agent.name, event);
+      },
+      onError: (filename, error) => {
+        const agentStatus = statusMap.get(agent.name)!;
+        agentStatus.errors++;
+        const event: WatchEvent = {
+          timestamp: new Date().toISOString(),
+          type: "error",
+          filename,
+          agentName: agent.name,
+          details: error,
+        };
+        allEvents.push(event);
+        options.callbacks?.onError?.(agent.name, error);
+      },
+    };
+
+    const handle = startWatch(spec, {
+      watchDir: agent.logDir,
+      specPath: agent.specPath,
+      provider: options.provider,
+      checkInterval: options.checkInterval,
+      threshold: options.threshold,
+      autoEvolve: options.autoEvolve,
+      maxEvolveIterations: options.maxEvolveIterations,
+      callbacks: agentCallbacks,
+    });
+
+    handles.push({ name: agent.name, handle });
+  }
+
+  function stop(): void {
+    for (const { handle } of handles) {
+      handle.stop();
+    }
+  }
+
+  function getStatus(): FleetAgentStatus[] {
+    return Array.from(statusMap.values());
+  }
+
+  return { stop, getStatus, events: allEvents };
+}

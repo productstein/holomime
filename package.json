@@ -1,0 +1,82 @@
+{
+  "name": "holomime",
+  "version": "1.1.0",
+  "description": "Behavioral alignment infrastructure for AI agents — Big Five psychology, guided refinement, DPO training data",
+  "type": "module",
+  "bin": {
+    "holomime": "./dist/cli.js",
+    "holomime-mcp": "./dist/mcp-server.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "schema",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/holomime/holomime.git"
+  },
+  "homepage": "https://holomime.dev",
+  "bugs": {
+    "url": "https://github.com/holomime/holomime/issues"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "personality",
+    "big-five",
+    "ocean",
+    "psychology",
+    "alignment",
+    "behavioral-analysis",
+    "agent-training",
+    "system-prompt",
+    "opentelemetry",
+    "otel",
+    "genai",
+    "drift-detection",
+    "dpo",
+    "rlhf",
+    "fine-tuning",
+    "anthropic",
+    "openai",
+    "claude",
+    "agents-md",
+    "personality-json"
+  ],
+  "author": "holomime <hello@holomime.dev>",
+  "license": "MIT",
+  "dependencies": {
+    "@inquirer/prompts": "^7.0.0",
+    "@modelcontextprotocol/sdk": "^1.27.0",
+    "boxen": "^8.0.1",
+    "chalk": "^5.3.0",
+    "commander": "^13.0.0",
+    "figures": "^6.1.0",
+    "gradient-string": "^3.0.0",
+    "log-update": "^7.1.0",
+    "ora": "^9.3.0",
+    "posthog-node": "^5.25.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.0",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}
