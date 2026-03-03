@@ -41,10 +41,27 @@ src/
   ui/                  Terminal UI, tier gating, formatting
   adapters/            Log format adapters (ChatGPT, Claude, etc.)
   __tests__/           Vitest test files
+site/                  Astro website (holomime.dev)
+  src/pages/           Pages (blog, docs, pricing, research, API routes)
+  src/components/      Astro components (Nav, Footer, BlogLayout, etc.)
+  src/lib/             Shared utilities (Supabase client, validation)
 paper/                 Research paper
 scripts/               Training scripts (HuggingFace TRL)
 agent/                 LiveKit voice agent (Python)
 ```
+
+## Website (holomime.dev)
+
+The site lives in `site/` and is built with Astro, deployed to Cloudflare Workers.
+
+```bash
+cd site
+npm install
+npm run dev           # Local dev server at localhost:4321
+npm run build         # Production build
+```
+
+Blog posts are `.astro` files in `site/src/pages/blog/`. Use `BlogLayout.astro` as the wrapper component.
 
 ## Tests
 
@@ -75,7 +92,8 @@ All PRs should maintain or improve test coverage. Write tests for new features.
 - Log format adapters (see `src/adapters/`)
 - Personality archetypes (see `src/templates/`)
 - Bug fixes and test improvements
-- Documentation
+- Blog posts (see `site/src/pages/blog/`)
+- Documentation and site improvements
 
 ## Questions?
 

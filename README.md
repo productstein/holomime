@@ -14,6 +14,8 @@
   <a href="https://www.npmjs.com/package/holomime"><img src="https://img.shields.io/npm/v/holomime.svg" alt="npm version" /></a>
   <a href="https://github.com/productstein/Holomime/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/holomime.svg" alt="license" /></a>
   <a href="https://holomime.dev"><img src="https://img.shields.io/badge/docs-holomime.dev-blue" alt="docs" /></a>
+  <a href="https://holomime.dev/blog"><img src="https://img.shields.io/badge/blog-holomime.dev%2Fblog-purple" alt="blog" /></a>
+  <a href="https://holomime.dev/research"><img src="https://img.shields.io/badge/research-paper-orange" alt="research" /></a>
 </p>
 
 ---
@@ -237,6 +239,13 @@ See [agent/](agent/) for setup instructions.
 See [Behavioral Alignment for Autonomous AI Agents](paper/behavioral-alignment.md) -- the research paper behind holomime's approach.
 
 Benchmark results: [BENCHMARK_RESULTS.md](BENCHMARK_RESULTS.md)
+
+## Resources
+
+- [Integration Docs](https://holomime.dev/docs) -- Export instructions and code examples for all 7 formats
+- [Blog](https://holomime.dev/blog) -- Articles on behavioral alignment, AGENTS.md, and agent personality
+- [Research Paper](https://holomime.dev/research) -- Behavioral Alignment for Autonomous AI Agents
+- [Pricing](https://holomime.dev/#pricing) -- Free tier + Pro license details
 
 ## Contributing
 
