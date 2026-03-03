@@ -12,7 +12,7 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/holomime"><img src="https://img.shields.io/npm/v/holomime.svg" alt="npm version" /></a>
-  <a href="https://github.com/holomime/holomime/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/holomime.svg" alt="license" /></a>
+  <a href="https://github.com/productstein/Holomime/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/holomime.svg" alt="license" /></a>
   <a href="https://holomime.dev"><img src="https://img.shields.io/badge/docs-holomime.dev-blue" alt="docs" /></a>
 </p>
 

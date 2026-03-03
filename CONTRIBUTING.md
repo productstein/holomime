@@ -5,8 +5,8 @@ Thanks for your interest in contributing to holomime. This document covers the b
 ## Development Setup
 
 ```bash
-git clone https://github.com/holomime/holomime.git
-cd holomime
+git clone https://github.com/productstein/Holomime.git
+cd Holomime
 npm install
 npm run build
 npm test
