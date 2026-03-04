@@ -2,6 +2,9 @@ import type { PersonalitySpec, Provider, Surface, CompiledConfig, BigFive } from
 import { generateSystemPrompt } from "./prompt-gen.js";
 import { PROVIDER_PARAMS, SURFACE_MULTIPLIERS } from "./parameters.js";
 
+export { compileEmbodied, computeMotionParameters, computeGazePolicy, computeProxemics, computeProsody, computeSyncProfile } from "./embodiment-compiler.js";
+export type { CompiledEmbodiedConfig } from "./embodiment-types.js";
+
 export interface CompileInput {
   spec: PersonalitySpec;
   provider: Provider;
@@ -31,7 +34,7 @@ export function compile(input: CompileInput): CompiledConfig {
     metadata: {
       personality_hash: hashSpec(spec),
       compiled_at: new Date().toISOString(),
-      holomime_version: "0.1.0",
+      holomime_version: "1.1.0",
     },
   };
 }

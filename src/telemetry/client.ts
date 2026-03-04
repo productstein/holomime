@@ -5,14 +5,16 @@
 import { PostHog } from "posthog-node";
 import { shouldTrack, getAnonymousId } from "./config.js";
 
-// PostHog project key — public (write-only, not a secret)
-const POSTHOG_KEY = "phc_holomime_placeholder";
-const POSTHOG_HOST = "https://us.i.posthog.com";
+// PostHog project key — read from env, disabled if not configured.
+// Set HOLOMIME_POSTHOG_KEY to enable telemetry collection.
+const POSTHOG_KEY = process.env.HOLOMIME_POSTHOG_KEY ?? "";
+const POSTHOG_HOST = process.env.HOLOMIME_POSTHOG_HOST ?? "https://us.i.posthog.com";
 
 let client: PostHog | null = null;
 
 function getClient(): PostHog | null {
   if (!shouldTrack()) return null;
+  if (!POSTHOG_KEY) return null; // No key configured — telemetry silently disabled
   if (!client) {
     client = new PostHog(POSTHOG_KEY, {
       host: POSTHOG_HOST,

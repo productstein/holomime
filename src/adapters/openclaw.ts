@@ -84,7 +84,7 @@ function generateSoul(spec: PersonalitySpec): string {
     lines.push("## Growth Areas");
     lines.push("");
     for (const a of spec.growth.areas) {
-      lines.push(`- ${a}`);
+      lines.push(`- ${typeof a === "string" ? a : a.area}`);
     }
     lines.push("");
   }

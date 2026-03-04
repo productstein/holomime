@@ -22,6 +22,9 @@ import { watchCommand } from "./commands/watch.js";
 import { certifyCommand } from "./commands/certify.js";
 import { daemonCommand } from "./commands/daemon.js";
 import { fleetCommand } from "./commands/fleet.js";
+import { networkCommand } from "./commands/network.js";
+import { shareCommand } from "./commands/share.js";
+import { prescribeCommand } from "./commands/prescribe.js";
 import { activateCommand } from "./commands/activate.js";
 import { telemetryCommand } from "./commands/telemetry-cmd.js";
 import { showTelemetryBannerIfNeeded } from "./telemetry/config.js";
@@ -32,7 +35,7 @@ const program = new Command();
 program
   .name("holomime")
   .description("Personality engine for AI agents — Big Five psychology, not RPG archetypes")
-  .version("1.0.0")
+  .version("1.1.0")
   .hook("preAction", (_thisCommand, actionCommand) => {
     printBanner();
 
@@ -69,7 +72,7 @@ program
   .command("compile")
   .description("Compile .personality.json into a provider-specific runtime config")
   .option("--provider <provider>", "Target provider (anthropic, openai, gemini, ollama)", "anthropic")
-  .option("--surface <surface>", "Target surface (chat, email, code_review, slack, api)", "chat")
+  .option("--surface <surface>", "Target surface (chat, email, code_review, slack, api, embodied)", "chat")
   .option("--for <format>", "Compile for a specific format (openclaw)")
   .option("-o, --output <path>", "Write output to file instead of stdout")
   .action(compileCommand);
@@ -164,6 +167,7 @@ program
   .option("--turns <n>", "Maximum session turns", "24")
   .option("--dry-run", "Show what would happen without running alignment")
   .option("--apply", "Apply recommendations to .personality.json after session")
+  .option("--oversight <mode>", "Oversight mode (none, review, approve, approve-specs)", "review")
   .action(autopilotCommand);
 
 program
@@ -265,6 +269,7 @@ program
   .option("--model <model>", "Model override")
   .option("--interval <ms>", "Check interval in milliseconds", "30000")
   .option("--threshold <level>", "Drift threshold (routine, targeted, intervention)", "targeted")
+  .option("--oversight <mode>", "Oversight mode (none, review, approve, approve-specs)", "review")
   .action(daemonCommand);
 
 program
@@ -278,5 +283,42 @@ program
   .option("--threshold <level>", "Drift threshold (routine, targeted, intervention)", "targeted")
   .option("--auto-evolve", "Auto-run evolve when drift detected")
   .action(fleetCommand);
+
+program
+  .command("network")
+  .description("Multi-agent therapy mesh — agents treating agents [Pro]")
+  .option("--dir <path>", "Auto-discover agents in directory")
+  .option("--config <path>", "Path to network.json config file")
+  .option("--pairing <strategy>", "Pairing strategy (severity, round-robin, complementary)", "severity")
+  .option("--therapist <path>", "Custom therapist personality spec")
+  .option("--oversight <mode>", "Oversight mode (none, review, approve, approve-specs)", "review")
+  .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
+  .option("--model <model>", "Model override")
+  .option("--max-sessions <n>", "Max sessions per agent", "3")
+  .option("--convergence <n>", "Convergence threshold 0-100", "85")
+  .option("--turns <n>", "Max turns per session", "20")
+  .option("--apply", "Write spec changes back to .personality.json")
+  .option("--export-dpo <path>", "Export DPO pairs to file")
+  .action(networkCommand);
+
+program
+  .command("share")
+  .description("Share DPO training pairs to the marketplace [Pro]")
+  .option("--sessions <dir>", "Session transcripts directory", ".holomime/sessions")
+  .option("--format <fmt>", "Export format (dpo, rlhf, alpaca)", "dpo")
+  .option("--anonymize", "Strip agent names from exported data")
+  .option("--tags <tags>", "Comma-separated tags for discoverability")
+  .action(shareCommand);
+
+program
+  .command("prescribe")
+  .description("Diagnose and prescribe DPO corrections from the behavioral corpus [Pro]")
+  .requiredOption("--personality <path>", "Path to .personality.json")
+  .requiredOption("--log <path>", "Path to conversation log")
+  .option("--format <format>", "Log format (holomime, chatgpt, claude, openai-api, anthropic-api, otel, jsonl)")
+  .option("--source <source>", "Correction source (corpus, marketplace, both)", "corpus")
+  .option("--apply", "Apply found corrections")
+  .option("-o, --output <path>", "Write prescription to file")
+  .action(prescribeCommand);
 
 program.parseAsync().then(() => flushTelemetry());

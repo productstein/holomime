@@ -40,4 +40,5 @@ export const SURFACE_MULTIPLIERS: Record<Surface, number> = {
   code_review: 2.0,
   slack: 0.8,
   api: 1.0,
+  embodied: 0.6,
 };

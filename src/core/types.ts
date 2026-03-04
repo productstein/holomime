@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { embodimentSchema, expressionSchema, physicalSafetySchema } from "./embodiment-types.js";
 
 // ─── Big Five (OCEAN) Personality Model ─────────────────────
 
@@ -130,6 +131,7 @@ export const domainSchema = z.object({
     refuses: z.array(z.string()).default([]),
     escalation_triggers: z.array(z.string()).default([]),
     hard_limits: z.array(z.string()).default([]),
+    physical_safety: physicalSafetySchema.optional(),
   }).default({}),
 });
 export type Domain = z.infer<typeof domainSchema>;
@@ -157,7 +159,7 @@ export type Growth = z.infer<typeof growthSchema>;
 export const providerSchema = z.enum(["anthropic", "openai", "gemini", "ollama"]);
 export type Provider = z.infer<typeof providerSchema>;
 
-export const surfaceSchema = z.enum(["chat", "email", "code_review", "slack", "api"]);
+export const surfaceSchema = z.enum(["chat", "email", "code_review", "slack", "api", "embodied"]);
 export type Surface = z.infer<typeof surfaceSchema>;
 
 // ─── The Personality Spec (.personality.json) ───────────────
@@ -175,6 +177,10 @@ export const personalitySpecSchema = z.object({
   communication: communicationSchema.default({}),
   domain: domainSchema.default({}),
   growth: growthSchema.default({}),
+
+  // ─── Embodiment (optional — for physical/embodied agents) ───
+  embodiment: embodimentSchema.optional(),
+  expression: expressionSchema.optional(),
 });
 export type PersonalitySpec = z.infer<typeof personalitySpecSchema>;
 

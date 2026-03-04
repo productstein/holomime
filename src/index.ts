@@ -138,6 +138,7 @@ export {
 export {
   exportTrainingData,
   extractDPOPairs,
+  extractDPOPairsWithLLM,
   extractRLHFExamples,
   extractAlpacaExamples,
   loadTranscripts,
@@ -335,3 +336,103 @@ export {
 // ─── MCP Server ────────────────────────────────────────────
 
 export { startMCPServer } from "./mcp/server.js";
+
+// ─── Oversight ─────────────────────────────────────────────
+
+export {
+  type OversightMode,
+  type OversightPolicy,
+  type OversightAction,
+  type OversightNotification,
+  DEFAULT_OVERSIGHT,
+  resolveOversight,
+  checkApproval,
+  checkIterationBudget,
+} from "./core/oversight.js";
+
+// ─── Behavioral Data ───────────────────────────────────────
+
+export {
+  type BehavioralEvent,
+  type BehavioralEventType,
+  type CorpusStats,
+  emitBehavioralEvent,
+  hashSpec,
+  loadCorpus,
+  corpusStats,
+} from "./analysis/behavioral-data.js";
+
+// ─── Agent Network ─────────────────────────────────────────
+
+export {
+  type NetworkNode,
+  type PairingStrategy,
+  type NetworkConfig,
+  type NetworkSession,
+  type NetworkResult,
+  type NetworkCallbacks,
+  discoverNetworkAgents,
+  loadNetworkConfig,
+  pairAgents,
+  runNetwork,
+} from "./analysis/network-core.js";
+
+// ─── Therapist Meta ────────────────────────────────────────
+
+export {
+  THERAPIST_META_SPEC,
+  buildAgentTherapistPrompt,
+} from "./psychology/therapist-meta.js";
+
+// ─── DPO Prescriber ────────────────────────────────────────
+
+export { prescribeDPOPairs } from "./analysis/prescriber.js";
+
+// ─── Embodiment ───────────────────────────────────────────
+
+export {
+  type Modality,
+  type Morphology,
+  type SafetyEnvelope,
+  type Embodiment,
+  type GazePolicy,
+  type ProxemicZone,
+  type HapticPolicy,
+  type Prosody,
+  type Gesture,
+  type Expression,
+  type PhysicalSafety,
+  type MotionParameters,
+  type CompiledEmbodiedConfig,
+  modalitySchema,
+  morphologySchema,
+  safetyEnvelopeSchema,
+  embodimentSchema,
+  gazePolicySchema,
+  proxemicZoneSchema,
+  hapticPolicySchema,
+  prosodySchema,
+  gestureSchema,
+  expressionSchema,
+  physicalSafetySchema,
+  motionParametersSchema,
+  compiledEmbodiedConfigSchema,
+} from "./core/embodiment-types.js";
+
+export {
+  type SyncAnchor,
+  type SyncRule,
+  type SyncProfile,
+  syncAnchorSchema,
+  syncRuleSchema,
+  syncProfileSchema,
+} from "./core/embodiment-sync.js";
+
+export {
+  compileEmbodied,
+  computeMotionParameters,
+  computeGazePolicy,
+  computeProxemics,
+  computeProsody,
+  computeSyncProfile,
+} from "./core/embodiment-compiler.js";

@@ -17,6 +17,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { SessionTranscript, SessionTurn } from "./session-runner.js";
 import type { TherapyPhase } from "./therapy-protocol.js";
+import type { LLMMessage } from "../llm/provider.js";
 
 // ─── Export Types ──────────────────────────────────────────
 
@@ -386,4 +387,95 @@ function extractInstructionFromTherapist(content: string): string {
     /try|practice|instead|when you|next time|the skill is/i.test(s),
   );
   return actionable?.trim() ?? sentences[0]?.trim() ?? content;
+}
+
+// ─── LLM-Assisted DPO Extraction ─────────────────────────
+
+/**
+ * Use the LLM to extract higher-quality DPO pairs from a therapy transcript.
+ *
+ * The regex approach only finds pairs when the LLM uses specific phrases
+ * ("instead of X, try Y"). This LLM-assisted approach asks the model to
+ * identify ALL behavioral corrections in the transcript, including implicit
+ * ones where the patient demonstrates improved behavior after guidance.
+ *
+ * Returns pairs alongside the regex-extracted ones (deduplicated).
+ */
+export async function extractDPOPairsWithLLM(
+  transcript: SessionTranscript,
+  provider: import("../llm/provider.js").LLMProvider,
+): Promise<DPOPair[]> {
+  // Start with regex extraction
+  const regexPairs = extractDPOPairs(transcript);
+
+  // Build a condensed transcript for the LLM
+  const condensed = transcript.turns
+    .filter(t => t.speaker !== "supervisor")
+    .map(t => `[${t.phase}] ${t.speaker}: ${t.content}`)
+    .join("\n");
+
+  if (condensed.length < 100) return regexPairs;
+
+  try {
+    const response = await provider.chat([
+      {
+        role: "system",
+        content: `You extract DPO (Direct Preference Optimization) training pairs from therapy transcripts.
+
+A DPO pair consists of:
+- "prompt": The situation or question the agent was responding to
+- "rejected": The agent's problematic/drifted response (what NOT to do)
+- "chosen": The improved response (what TO do)
+
+Look for:
+1. Patient demonstrates a bad behavior → therapist corrects → patient shows improvement
+2. Therapist explicitly contrasts old vs new approach
+3. Patient practices a new skill that differs from earlier behavior
+4. Any before/after behavioral contrast
+
+Return ONLY a JSON array of objects with prompt, chosen, rejected fields.
+Return [] if no clear pairs exist. Max 10 pairs.`,
+      },
+      {
+        role: "user",
+        content: condensed,
+      },
+    ] as LLMMessage[]);
+
+    const jsonMatch = response.match(/\[[\s\S]*?\]/);
+    if (!jsonMatch) return regexPairs;
+
+    const parsed = JSON.parse(jsonMatch[0]);
+    if (!Array.isArray(parsed)) return regexPairs;
+
+    const llmPairs: DPOPair[] = parsed
+      .filter((p: any) =>
+        typeof p.prompt === "string" && p.prompt.length > 0 &&
+        typeof p.chosen === "string" && p.chosen.length > 0 &&
+        typeof p.rejected === "string" && p.rejected.length > 0 &&
+        p.chosen !== p.rejected,
+      )
+      .map((p: any) => ({
+        prompt: p.prompt,
+        chosen: p.chosen,
+        rejected: p.rejected,
+        metadata: {
+          agent: transcript.agent,
+          session_date: transcript.timestamp.split("T")[0],
+          phase: "integration" as any,
+          pattern: "llm_extracted",
+          source: "therapy_transcript" as const,
+        },
+      }));
+
+    // Deduplicate: skip LLM pairs whose rejected text matches an existing regex pair
+    const existingRejected = new Set(regexPairs.map(p => p.rejected.toLowerCase().slice(0, 80)));
+    const uniqueLLMPairs = llmPairs.filter(
+      p => !existingRejected.has(p.rejected.toLowerCase().slice(0, 80)),
+    );
+
+    return [...regexPairs, ...uniqueLLMPairs];
+  } catch {
+    return regexPairs;
+  }
 }

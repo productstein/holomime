@@ -102,88 +102,88 @@ describe("session-runner", () => {
   });
 
   describe("applyRecommendations", () => {
-    it("applies over-apologizing → uncertainty_handling = confident_transparency", () => {
+    it("applies over-apologizing → uncertainty_handling = confident_transparency", async () => {
       const spec = createMinimalSpec();
       const diagnosis: PreSessionDiagnosis = {
         patterns: [{ id: "over-apologizing", name: "Over-Apologizing", severity: "warning", percentage: 35, count: 5, description: "Test pattern", examples: [] }],
         sessionFocus: [], emotionalThemes: [], openingAngle: "", severity: "targeted",
       };
-      const result = applyRecommendations(spec, diagnosis);
+      const result = await applyRecommendations(spec, diagnosis);
       expect(result.changed).toBe(true);
       expect(spec.communication.uncertainty_handling).toBe("confident_transparency");
       expect(result.changes).toContain("uncertainty_handling → confident_transparency");
     });
 
-    it("applies hedge-stacking → adds to patterns_to_watch", () => {
+    it("applies hedge-stacking → adds to patterns_to_watch", async () => {
       const spec = createMinimalSpec();
       const diagnosis: PreSessionDiagnosis = {
         patterns: [{ id: "hedge-stacking", name: "Hedge Stacking", severity: "warning", percentage: 40, count: 5, description: "Test pattern", examples: [] }],
         sessionFocus: [], emotionalThemes: [], openingAngle: "", severity: "targeted",
       };
-      const result = applyRecommendations(spec, diagnosis);
+      const result = await applyRecommendations(spec, diagnosis);
       expect(result.changed).toBe(true);
       expect(spec.growth.patterns_to_watch).toContain("hedge stacking under uncertainty");
     });
 
-    it("applies sycophantic-tendency → conflict_approach + self_awareness", () => {
+    it("applies sycophantic-tendency → conflict_approach + self_awareness", async () => {
       const spec = createMinimalSpec();
       const diagnosis: PreSessionDiagnosis = {
         patterns: [{ id: "sycophantic-tendency", name: "Sycophancy", severity: "concern", percentage: 50, count: 5, description: "Test pattern", examples: [] }],
         sessionFocus: [], emotionalThemes: [], openingAngle: "", severity: "intervention",
       };
-      const result = applyRecommendations(spec, diagnosis);
+      const result = await applyRecommendations(spec, diagnosis);
       expect(result.changed).toBe(true);
       expect(spec.communication.conflict_approach).toBe("honest_first");
       expect(spec.therapy_dimensions.self_awareness).toBe(0.85);
     });
 
-    it("applies error-spiral → distress_tolerance + growth area", () => {
+    it("applies error-spiral → distress_tolerance + growth area", async () => {
       const spec = createMinimalSpec();
       const diagnosis: PreSessionDiagnosis = {
         patterns: [{ id: "error-spiral", name: "Error Spiral", severity: "concern", percentage: 30, count: 5, description: "Test pattern", examples: [] }],
         sessionFocus: [], emotionalThemes: [], openingAngle: "", severity: "intervention",
       };
-      const result = applyRecommendations(spec, diagnosis);
+      const result = await applyRecommendations(spec, diagnosis);
       expect(result.changed).toBe(true);
       expect(spec.therapy_dimensions.distress_tolerance).toBe(0.8);
       expect(spec.growth.areas.some((a: any) => typeof a === "string" ? a.includes("error recovery") : a.area?.includes("error recovery"))).toBe(true);
     });
 
-    it("applies negative-sentiment-skew → adds to patterns_to_watch", () => {
+    it("applies negative-sentiment-skew → adds to patterns_to_watch", async () => {
       const spec = createMinimalSpec();
       const diagnosis: PreSessionDiagnosis = {
         patterns: [{ id: "negative-sentiment-skew", name: "Negative Skew", severity: "warning", percentage: 25, count: 5, description: "Test pattern", examples: [] }],
         sessionFocus: [], emotionalThemes: [], openingAngle: "", severity: "targeted",
       };
-      const result = applyRecommendations(spec, diagnosis);
+      const result = await applyRecommendations(spec, diagnosis);
       expect(result.changed).toBe(true);
       expect(spec.growth.patterns_to_watch).toContain("negative sentiment patterns");
     });
 
-    it("creates nested objects if missing", () => {
+    it("creates nested objects if missing", async () => {
       const spec: any = { name: "Bare" };
       const diagnosis: PreSessionDiagnosis = {
         patterns: [{ id: "over-apologizing", name: "Over-Apologizing", severity: "warning", percentage: 35, count: 5, description: "Test pattern", examples: [] }],
         sessionFocus: [], emotionalThemes: [], openingAngle: "", severity: "targeted",
       };
-      const result = applyRecommendations(spec, diagnosis);
+      const result = await applyRecommendations(spec, diagnosis);
       expect(result.changed).toBe(true);
       expect(spec.communication).toBeDefined();
       expect(spec.communication.uncertainty_handling).toBe("confident_transparency");
     });
 
-    it("returns unchanged when no patterns match", () => {
+    it("returns unchanged when no patterns match", async () => {
       const spec = createMinimalSpec();
       const diagnosis: PreSessionDiagnosis = {
         patterns: [],
         sessionFocus: [], emotionalThemes: [], openingAngle: "", severity: "routine",
       };
-      const result = applyRecommendations(spec, diagnosis);
+      const result = await applyRecommendations(spec, diagnosis);
       expect(result.changed).toBe(false);
       expect(result.changes).toHaveLength(0);
     });
 
-    it("does not re-apply already-set values", () => {
+    it("does not re-apply already-set values", async () => {
       const spec = createMinimalSpec({
         communication: {
           register: "casual_professional",
@@ -196,7 +196,7 @@ describe("session-runner", () => {
         patterns: [{ id: "over-apologizing", name: "Over-Apologizing", severity: "warning", percentage: 35, count: 5, description: "Test pattern", examples: [] }],
         sessionFocus: [], emotionalThemes: [], openingAngle: "", severity: "targeted",
       };
-      const result = applyRecommendations(spec, diagnosis);
+      const result = await applyRecommendations(spec, diagnosis);
       expect(result.changed).toBe(false);
     });
   });

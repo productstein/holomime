@@ -233,7 +233,7 @@ async function runLiveSession(
     // Apply if --apply flag
     if (apply) {
       const specPath = resolve(process.cwd(), ".personality.json");
-      const { changed, changes } = applyRecs(spec, diagnosis);
+      const { changed, changes } = await applyRecs(spec, diagnosis, transcript, provider);
       if (changed) {
         writeFileSync(specPath, JSON.stringify(spec, null, 2) + "\n");
         console.log();

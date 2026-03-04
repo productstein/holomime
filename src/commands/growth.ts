@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import figures from "figures";
-import { readdirSync, existsSync } from "node:fs";
+import { readdirSync, readFileSync, existsSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { loadSpec } from "../core/inheritance.js";
 import { printHeader } from "../ui/branding.js";

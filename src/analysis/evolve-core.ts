@@ -2,7 +2,16 @@
  * Evolve Core — recursive behavioral alignment loop.
  *
  * The closed loop that makes holomime a self-improving system:
- * diagnose → session → apply → extract DPO → evaluate → re-diagnose → loop
+ * diagnose → session → apply → regenerate → evaluate → extract DPO → loop
+ *
+ * Each iteration:
+ * 1. Diagnose behavioral patterns in the original messages
+ * 2. Run a therapy session targeting those patterns
+ * 3. Apply recommendations to the personality spec (rule-based + LLM-derived)
+ * 4. Regenerate agent responses using the updated spec
+ * 5. Compare before/after behavioral patterns for real outcome evaluation
+ * 6. Extract DPO pairs from both the therapy transcript AND the before/after pairs
+ * 7. Check convergence
  *
  * Runs until behavioral convergence (TES >= threshold) or max iterations.
  * Every iteration produces DPO preference pairs as a byproduct.
@@ -10,7 +19,7 @@
 
 import { writeFileSync } from "node:fs";
 import type { Message } from "../core/types.js";
-import type { LLMProvider } from "../llm/provider.js";
+import type { LLMProvider, LLMMessage } from "../llm/provider.js";
 import type { PreSessionDiagnosis } from "./pre-session.js";
 import type { SessionTranscript, SessionCallbacks } from "./session-runner.js";
 import type { OutcomeReport } from "./outcome-eval.js";
@@ -21,10 +30,11 @@ import {
   applyRecommendations,
   saveTranscript,
 } from "./session-runner.js";
-import { extractDPOPairs, exportTrainingData } from "./training-export.js";
+import { extractDPOPairsWithLLM } from "./training-export.js";
 import { evaluateOutcome } from "./outcome-eval.js";
-import { runDiagnosis } from "./diagnose-core.js";
 import { appendEvolution, type EvolutionEntry } from "./evolution-history.js";
+import { emitBehavioralEvent } from "./behavioral-data.js";
+import { generateSystemPrompt } from "../core/prompt-gen.js";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -135,9 +145,6 @@ export async function runEvolve(
     };
   }
 
-  // Get "before" diagnosis for outcome evaluation
-  const beforeDiagnosis = runDiagnosis(messages);
-
   for (let i = 1; i <= maxIterations; i++) {
     cb?.onIterationStart?.(i, maxIterations);
 
@@ -157,21 +164,33 @@ export async function runEvolve(
       },
     );
 
-    // Step 2: Apply recommendations
-    const { changes } = applyRecommendations(currentSpec, diagnosis);
+    // Step 2: Apply recommendations (rule-based + LLM-derived)
+    const { changes } = await applyRecommendations(currentSpec, diagnosis, transcript, provider);
 
-    // Step 3: Extract DPO pairs
-    const dpoPairs = extractDPOPairs(transcript);
+    // Step 3: Extract DPO pairs from therapy transcript (LLM-assisted)
+    const dpoPairs = await extractDPOPairsWithLLM(transcript, provider);
+
+    // Step 4: Regenerate agent responses using updated spec, then evaluate
+    // This is the key fix: we re-run the agent on the SAME user prompts
+    // but with the UPDATED personality spec, producing genuinely new responses.
+    const afterMessages = await regenerateResponses(messages, currentSpec, provider);
+
+    // Step 4b: Extract additional DPO pairs from before/after response comparison
+    const regenerationPairs = extractRegenerationDPOPairs(
+      messages,
+      afterMessages,
+      currentSpec.name ?? "Agent",
+    );
+    dpoPairs.push(...regenerationPairs);
+
     allDPOPairs.push(...dpoPairs);
     cb?.onExportedPairs?.(dpoPairs.length);
 
-    // Step 4: Evaluate outcome
-    // We use the diagnosis patterns as a proxy for before/after comparison
-    const afterDiagnosis = runDiagnosis(messages);
+    // Step 5: Evaluate outcome — real before/after comparison
     const evaluation = evaluateOutcome(
       currentSpec.name ?? "Agent",
       messages,
-      messages, // Same messages, but spec has been updated — patterns shift
+      afterMessages,
     );
 
     const health = evaluation.treatmentEfficacyScore;
@@ -179,10 +198,10 @@ export async function runEvolve(
     finalGrade = grade;
     finalHealth = health;
 
-    // Step 5: Save transcript
+    // Step 6: Save transcript
     saveTranscript(transcript, currentSpec.name ?? "Agent");
 
-    // Step 6: Record evolution entry
+    // Step 7: Record evolution entry
     const entry: EvolutionEntry = {
       timestamp: new Date().toISOString(),
       iteration: i,
@@ -195,7 +214,7 @@ export async function runEvolve(
     };
     appendEvolution(entry, currentSpec.name);
 
-    // Step 7: Check convergence
+    // Step 8: Check convergence
     const isConverged = health >= convergenceThreshold;
 
     const result: IterationResult = {
@@ -219,7 +238,9 @@ export async function runEvolve(
       break;
     }
 
-    // Re-diagnose for next iteration
+    // Re-diagnose using the regenerated messages for next iteration
+    // This ensures each iteration builds on the actual improved behavior
+    messages = afterMessages;
     diagnosis = runPreSessionDiagnosis(messages, currentSpec);
 
     // If no more actionable patterns, we've converged
@@ -253,6 +274,24 @@ export async function runEvolve(
     }
   }
 
+  // Emit behavioral event for corpus collection
+  try {
+    emitBehavioralEvent({
+      event_type: "evolution",
+      agent: currentSpec.name ?? "Unknown",
+      data: {
+        totalIterations: iterations.length,
+        totalDPOPairs: allDPOPairs.length,
+        converged,
+        finalGrade,
+        finalHealth,
+      },
+      spec_hash: "",
+    });
+  } catch {
+    // Non-critical
+  }
+
   return {
     iterations,
     totalDPOPairs: allDPOPairs.length,
@@ -263,4 +302,118 @@ export async function runEvolve(
     trainingExport,
     updatedSpec: currentSpec,
   };
+}
+
+// ─── Response Regeneration ────────────────────────────────
+
+/**
+ * Regenerate agent responses using the updated personality spec.
+ *
+ * Takes the original conversation (user prompts + old assistant responses),
+ * compiles the updated spec into a system prompt, and asks the LLM to
+ * respond to each user turn as if it were the agent with the new personality.
+ *
+ * This produces genuinely new "after" messages that can be compared
+ * against the originals for real outcome evaluation.
+ */
+async function regenerateResponses(
+  originalMessages: Message[],
+  updatedSpec: any,
+  provider: LLMProvider,
+): Promise<Message[]> {
+  // Build system prompt from updated spec
+  const systemPrompt = generateSystemPrompt(updatedSpec, "chat");
+  const regenerated: Message[] = [];
+  const context: LLMMessage[] = [
+    { role: "system", content: systemPrompt },
+  ];
+
+  for (let idx = 0; idx < originalMessages.length; idx++) {
+    const msg = originalMessages[idx];
+    if (msg.role !== "user") continue;
+
+    regenerated.push(msg);
+    context.push({ role: "user", content: msg.content });
+
+    // Generate a new response using the updated personality
+    try {
+      const response = await provider.chat(context);
+      const assistantMsg: Message = { role: "assistant", content: response.trim() };
+      regenerated.push(assistantMsg);
+      context.push({ role: "assistant", content: assistantMsg.content });
+    } catch {
+      // If LLM fails, keep the original response so we don't lose data
+      const nextMsg = originalMessages[idx + 1];
+      if (nextMsg?.role === "assistant") {
+        regenerated.push(nextMsg);
+        context.push({ role: "assistant", content: nextMsg.content });
+      }
+    }
+  }
+
+  return regenerated;
+}
+
+// ─── Regeneration DPO Pairs ───────────────────────────────
+
+/**
+ * Extract DPO preference pairs by comparing original vs regenerated responses.
+ *
+ * For each user prompt where the original response had behavioral issues
+ * and the regenerated response is cleaner, we get a natural DPO pair:
+ * - prompt: the user's message
+ * - rejected: the original (drifted) response
+ * - chosen: the regenerated (aligned) response
+ */
+function extractRegenerationDPOPairs(
+  beforeMessages: Message[],
+  afterMessages: Message[],
+  agentName: string,
+): DPOPair[] {
+  const pairs: DPOPair[] = [];
+
+  // Walk both arrays in parallel by user-turn index.
+  // regenerateResponses() preserves user message order, so we can match by position.
+  const beforePairs: { prompt: string; response: string }[] = [];
+  const afterPairs: { prompt: string; response: string }[] = [];
+
+  for (let i = 0; i < beforeMessages.length - 1; i++) {
+    if (beforeMessages[i].role === "user" && beforeMessages[i + 1]?.role === "assistant") {
+      beforePairs.push({ prompt: beforeMessages[i].content, response: beforeMessages[i + 1].content });
+    }
+  }
+  for (let i = 0; i < afterMessages.length - 1; i++) {
+    if (afterMessages[i].role === "user" && afterMessages[i + 1]?.role === "assistant") {
+      afterPairs.push({ prompt: afterMessages[i].content, response: afterMessages[i + 1].content });
+    }
+  }
+
+  const limit = Math.min(beforePairs.length, afterPairs.length);
+  for (let i = 0; i < limit; i++) {
+    const before = beforePairs[i];
+    const after = afterPairs[i];
+
+    // Skip if responses are identical (no improvement)
+    if (before.response === after.response) continue;
+
+    // Skip trivially similar responses (same opening, similar length)
+    const lenDelta = Math.abs(before.response.length - after.response.length);
+    const sameOpening = before.response.toLowerCase().slice(0, 40) === after.response.toLowerCase().slice(0, 40);
+    if (lenDelta < 20 && sameOpening) continue;
+
+    pairs.push({
+      prompt: before.prompt,
+      chosen: after.response,
+      rejected: before.response,
+      metadata: {
+        agent: agentName,
+        session_date: new Date().toISOString().split("T")[0],
+        phase: "integration" as any,
+        pattern: "regeneration",
+        source: "therapy_transcript",
+      },
+    });
+  }
+
+  return pairs;
 }

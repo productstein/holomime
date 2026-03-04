@@ -5,7 +5,7 @@
 
 import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { resolve, join } from "node:path";
-import type { LLMProvider } from "../llm/provider.js";
+import type { LLMProvider, LLMMessage } from "../llm/provider.js";
 import type { PreSessionDiagnosis } from "./pre-session.js";
 import {
   buildTherapistSystemPrompt,
@@ -13,6 +13,7 @@ import {
   THERAPY_PHASES,
   type TherapyPhase,
 } from "./therapy-protocol.js";
+import { emitBehavioralEvent } from "./behavioral-data.js";
 
 export interface SessionTurn {
   speaker: "therapist" | "patient" | "supervisor";
@@ -183,6 +184,24 @@ export async function runTherapySession(
   transcript.recommendations = extractRecommendations(transcript.turns);
   transcript.supervisorInterventions = supervisorInterventions;
 
+  // Emit behavioral event for corpus collection
+  try {
+    emitBehavioralEvent({
+      event_type: "session",
+      agent: agentName,
+      data: {
+        turns: totalTurns,
+        phases: currentPhaseIdx + 1,
+        recommendations: transcript.recommendations.length,
+        supervisorInterventions,
+        severity: diagnosis.severity,
+      },
+      spec_hash: "",
+    });
+  } catch {
+    // Non-critical
+  }
+
   return transcript;
 }
 
@@ -225,15 +244,26 @@ export function extractRecommendations(
 }
 
 /**
- * Apply therapy recommendations to a personality spec based on detected patterns.
- * Returns list of changes applied and the updated spec.
+ * Apply therapy recommendations to a personality spec.
+ *
+ * Two-layer approach:
+ * 1. Rule-based mutations for known patterns (fast, deterministic, always runs)
+ * 2. LLM-derived mutations from the therapy transcript (richer, optional)
+ *
+ * The LLM analyzes the full session transcript and proposes specific
+ * spec changes as structured JSON. This means the therapy conversation
+ * itself drives the personality evolution — not just a lookup table.
  */
-export function applyRecommendations(
+export async function applyRecommendations(
   spec: any,
   diagnosis: PreSessionDiagnosis,
-): { changed: boolean; changes: string[] } {
+  transcript?: SessionTranscript,
+  provider?: import("../llm/provider.js").LLMProvider,
+): Promise<{ changed: boolean; changes: string[] }> {
   const changes: string[] = [];
   const patternIds = diagnosis.patterns.map((p) => p.id);
+
+  // ── Layer 1: Rule-based mutations (deterministic) ──
 
   // Over-apologizing → adjust communication
   if (patternIds.includes("over-apologizing")) {
@@ -302,7 +332,133 @@ export function applyRecommendations(
     }
   }
 
+  // ── Layer 2: LLM-derived mutations (from therapy transcript) ──
+
+  if (transcript && provider && transcript.turns.length > 4) {
+    try {
+      const llmChanges = await deriveLLMRecommendations(spec, transcript, provider);
+      for (const change of llmChanges) {
+        applyStructuredChange(spec, change);
+        changes.push(change.description);
+      }
+    } catch {
+      // LLM-derived mutations are best-effort — rule-based mutations still apply
+    }
+  }
+
   return { changed: changes.length > 0, changes };
+}
+
+/**
+ * A structured spec change proposed by the LLM.
+ */
+interface StructuredSpecChange {
+  path: string;
+  value: unknown;
+  description: string;
+}
+
+/**
+ * Ask the LLM to analyze the therapy transcript and propose specific
+ * personality spec changes as structured JSON.
+ */
+async function deriveLLMRecommendations(
+  spec: any,
+  transcript: SessionTranscript,
+  provider: import("../llm/provider.js").LLMProvider,
+): Promise<StructuredSpecChange[]> {
+  const relevantTurns = transcript.turns
+    .filter(t => t.phase === "challenge" || t.phase === "skill_building" || t.phase === "integration")
+    .slice(-6)
+    .map(t => `${t.speaker}: ${t.content}`)
+    .join("\n");
+
+  if (!relevantTurns) return [];
+
+  const currentSpec = JSON.stringify({
+    therapy_dimensions: spec.therapy_dimensions,
+    communication: spec.communication,
+    growth: spec.growth,
+  }, null, 2);
+
+  const response = await provider.chat([
+    {
+      role: "system",
+      content: `You are a behavioral alignment specialist. Given a therapy session transcript and the agent's current personality spec, propose specific spec changes.
+
+Return ONLY a JSON array of changes. Each change:
+- "path": dot-notation spec path (e.g., "therapy_dimensions.self_awareness", "communication.conflict_approach", "growth.patterns_to_watch")
+- "value": new value (number 0-1 for dimensions, string for enums, string for list append)
+- "description": brief explanation
+
+Rules:
+- Only propose changes supported by transcript evidence
+- Numeric values: 0.0 to 1.0
+- Do not change big_five scores
+- Max 5 changes
+- Valid paths: therapy_dimensions.{self_awareness,distress_tolerance,boundary_awareness,interpersonal_sensitivity,learning_orientation}, communication.{register,conflict_approach,uncertainty_handling,emoji_policy}, growth.{areas,patterns_to_watch,strengths}
+
+Return [] if no changes warranted.`,
+    },
+    {
+      role: "user",
+      content: `Current spec:\n${currentSpec}\n\nTherapy transcript (key turns):\n${relevantTurns}`,
+    },
+  ] as LLMMessage[]);
+
+  const jsonMatch = response.match(/\[[\s\S]*?\]/);
+  if (!jsonMatch) return [];
+
+  try {
+    const parsed = JSON.parse(jsonMatch[0]);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .filter((c: any) =>
+        typeof c.path === "string" &&
+        c.value !== undefined &&
+        typeof c.description === "string" &&
+        c.path.length > 0 &&
+        !c.path.startsWith("big_five"),
+      )
+      .slice(0, 5) as StructuredSpecChange[];
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Apply a structured change to a spec using dot-notation path.
+ */
+function applyStructuredChange(spec: any, change: StructuredSpecChange): void {
+  const parts = change.path.split(".");
+  let current = spec;
+
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (current[parts[i]] === undefined || current[parts[i]] === null) {
+      current[parts[i]] = {};
+    }
+    current = current[parts[i]];
+  }
+
+  const lastKey = parts[parts.length - 1];
+
+  if (lastKey === "patterns_to_watch" || lastKey === "areas" || lastKey === "strengths") {
+    current[lastKey] = current[lastKey] ?? [];
+    if (typeof change.value === "string" && !current[lastKey].includes(change.value)) {
+      current[lastKey].push(change.value);
+    } else if (Array.isArray(change.value)) {
+      for (const item of change.value) {
+        if (!current[lastKey].includes(item)) {
+          current[lastKey].push(item);
+        }
+      }
+    }
+  } else if (typeof change.value === "number") {
+    current[lastKey] = Math.max(0, Math.min(1, change.value));
+  } else {
+    current[lastKey] = change.value;
+  }
 }
 
 /**

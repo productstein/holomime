@@ -30,7 +30,12 @@ export function generateSystemPrompt(spec: PersonalitySpec, surface: Surface): s
     sections.push(generateGrowthInstructions(spec));
   }
 
-  // 7. Surface context
+  // 7. Embodiment (if physical agent)
+  if (spec.embodiment) {
+    sections.push(generateEmbodimentInstructions(spec));
+  }
+
+  // 8. Surface context
   sections.push(generateSurfaceInstructions(surface));
 
   return sections.filter(Boolean).join("\n\n");
@@ -284,11 +289,41 @@ function generateGrowthInstructions(spec: PersonalitySpec): string {
   }
 
   if (spec.growth.areas.length) {
-    lines.push(`- Active growth areas: ${spec.growth.areas.join(", ")}. Be mindful of these — actively work to improve.`);
+    lines.push(`- Active growth areas: ${spec.growth.areas.map(a => typeof a === "string" ? a : a.area).join(", ")}. Be mindful of these — actively work to improve.`);
   }
 
   if (spec.growth.patterns_to_watch.length) {
     lines.push(`- Watch for these patterns: ${spec.growth.patterns_to_watch.join(", ")}. If you notice yourself doing these, course-correct.`);
+  }
+
+  return lines.join("\n");
+}
+
+function generateEmbodimentInstructions(spec: PersonalitySpec): string {
+  const lines: string[] = ["## Physical Embodiment"];
+  const emb = spec.embodiment!;
+
+  lines.push(`- Morphology: ${emb.morphology}. Active modalities: ${emb.modalities.join(", ")}.`);
+
+  const safety = emb.safety_envelope;
+  lines.push(`- Safety envelope: max speed ${safety.max_linear_speed_m_s} m/s, min proximity ${safety.min_proximity_m} m, max contact force ${safety.max_contact_force_n} N.`);
+
+  if (spec.domain.boundaries.physical_safety) {
+    const ps = spec.domain.boundaries.physical_safety;
+    if (ps.hard_limits.length) {
+      lines.push(`- Physical hard limits: ${ps.hard_limits.join(". ")}.`);
+    }
+    lines.push(`- Collision response: ${ps.collision_response}. Unattended policy: ${ps.unattended_policy}.`);
+  }
+
+  if (spec.expression) {
+    const expr = spec.expression;
+    if (expr.haptics.touch_permitted) {
+      lines.push(`- Haptic contact permitted. Allowed: ${expr.haptics.allowed_contacts.join(", ")}. Consent required: ${expr.haptics.requires_consent}.`);
+    } else {
+      lines.push("- Haptic contact not permitted. Maintain physical distance.");
+    }
+    lines.push(`- Preferred proxemic zone: ${expr.proxemics.preferred_zone}. Personal space: ${expr.proxemics.personal_m} m.`);
   }
 
   return lines.join("\n");
@@ -301,6 +336,7 @@ function generateSurfaceInstructions(surface: Surface): string {
     code_review: "## Context\nYou are reviewing code. Focus on bugs, improvements, and best practices. Be specific about line numbers and suggest fixes.",
     slack: "## Context\nYou are in a Slack-like messaging context. Keep responses brief and scannable. Use threading conventions.",
     api: "## Context\nYou are responding to a programmatic API call. Be structured and predictable in your output format.",
+    embodied: "## Context\nYou are controlling a physical/embodied agent. Your responses include both verbal content AND motion directives.\nOutput Format: Return a JSON object with { \"speech\": string, \"actions\": Action[] } where each Action specifies gesture, gaze, posture, or movement.\nSafety: NEVER exceed physical safety limits. Prefer gentle, predictable movements. Signal intent before moving.\nPresence: You exist in shared physical space with humans. Respect proxemic boundaries. Move smoothly.",
   };
 
   return surfaceGuidance[surface];

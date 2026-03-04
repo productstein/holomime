@@ -1,4 +1,6 @@
 import type { TraitAlignment, DetectedPattern } from "../core/types.js";
+import type { BehavioralEvent } from "./behavioral-data.js";
+import type { DPOPair } from "./training-export.js";
 
 /**
  * Generate prescriptions — recommended changes to .personality.json
@@ -58,4 +60,45 @@ export function generatePrescriptions(
   prescriptions.sort((a, b) => order[a.priority] - order[b.priority]);
 
   return prescriptions;
+}
+
+// ─── DPO Corpus Search ──────────────────────────────────────
+
+/**
+ * Find relevant DPO pairs from the behavioral corpus for a given set of patterns.
+ * Matches DPO events by pattern name and returns them as typed DPOPair objects.
+ */
+export function prescribeDPOPairs(
+  patterns: DetectedPattern[],
+  corpus: BehavioralEvent[],
+  limit: number = 20,
+): DPOPair[] {
+  const patternIds = new Set(patterns.map((p) => p.id));
+
+  const dpoPairs: DPOPair[] = [];
+  for (const event of corpus) {
+    if (event.event_type !== "dpo_pair") continue;
+
+    const data = event.data as Record<string, unknown>;
+    const eventPattern = data.pattern as string | undefined;
+
+    if (eventPattern && patternIds.has(eventPattern)) {
+      dpoPairs.push({
+        prompt: (data.prompt as string) ?? "",
+        chosen: (data.chosen as string) ?? "",
+        rejected: (data.rejected as string) ?? "",
+        metadata: {
+          agent: event.agent,
+          session_date: event.timestamp,
+          phase: (data.phase as any) ?? "challenge",
+          pattern: eventPattern,
+          source: "therapy_transcript",
+        },
+      });
+    }
+
+    if (dpoPairs.length >= limit) break;
+  }
+
+  return dpoPairs;
 }

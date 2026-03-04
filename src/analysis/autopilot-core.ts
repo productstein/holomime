@@ -94,7 +94,7 @@ export async function runAutopilot(
 
   // Step 4: Apply recommendations
   const specCopy = JSON.parse(JSON.stringify(spec));
-  const { changed, changes } = applyRecommendations(specCopy, diagnosis);
+  const { changed, changes } = await applyRecommendations(specCopy, diagnosis, transcript, provider);
 
   if (changed && options?.specPath) {
     writeFileSync(options.specPath, JSON.stringify(specCopy, null, 2) + "\n");

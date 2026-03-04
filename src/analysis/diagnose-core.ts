@@ -11,6 +11,7 @@ import { detectVerbosity } from "./rules/verbosity.js";
 import { detectBoundaryIssues } from "./rules/boundary.js";
 import { detectRecoveryPatterns } from "./rules/recovery.js";
 import { detectFormalityIssues } from "./rules/formality.js";
+import { emitBehavioralEvent } from "./behavioral-data.js";
 
 export interface DiagnosisResult {
   messagesAnalyzed: number;
@@ -40,11 +41,29 @@ export function runDiagnosis(messages: Message[]): DiagnosisResult {
     if (result) detected.push(result);
   }
 
-  return {
+  const result: DiagnosisResult = {
     messagesAnalyzed: messages.length,
     assistantResponses: messages.filter((m) => m.role === "assistant").length,
     patterns: detected.filter((p) => p.severity !== "info"),
     healthy: detected.filter((p) => p.severity === "info"),
     timestamp: new Date().toISOString(),
   };
+
+  // Emit behavioral event for corpus collection
+  try {
+    emitBehavioralEvent({
+      event_type: "diagnosis",
+      agent: "unknown", // Caller can provide more context
+      data: {
+        messagesAnalyzed: result.messagesAnalyzed,
+        patternsDetected: result.patterns.length,
+        patternIds: result.patterns.map((p) => p.id),
+      },
+      spec_hash: "",
+    });
+  } catch {
+    // Non-critical — don't fail diagnosis if event emission fails
+  }
+
+  return result;
 }
