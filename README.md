@@ -5,8 +5,8 @@
 <h1 align="center">holomime</h1>
 
 <p align="center">
-  Behavioral alignment infrastructure for AI agents.<br />
-  Detect drift. Run therapy sessions. Export training data. Ship agents that stay in character.<br />
+  Self-improving behavioral alignment for AI agents.<br />
+  Every correction trains the next version. Every session compounds. Your agents get better at being themselves &mdash; automatically.<br />
   <em>Works with OpenTelemetry, Anthropic, OpenAI, ChatGPT, Claude, and any JSONL source.</em>
 </p>
 
@@ -37,6 +37,26 @@ holomime profile
 # Generate a human-readable .personality.md
 holomime profile --format md --output .personality.md
 ```
+
+## The Self-Improvement Loop
+
+HoloMime isn't a one-shot evaluation. It's a compounding behavioral flywheel:
+
+```
+  ┌──────────────────────────────────────────────────┐
+  │                                                  │
+  ▼                                                  │
+Diagnose ──→ Refine ──→ Export DPO ──→ Fine-tune ──→ Evaluate
+  80+ signals   dual-LLM     preference     OpenAI /     before/after
+  7 detectors   therapy       pairs        HuggingFace   grade (A-F)
+```
+
+Each cycle through the loop:
+- **Generates training data** -- every therapist correction becomes a DPO preference pair automatically
+- **Reduces drift** -- the fine-tuned model needs fewer corrections next cycle
+- **Compounds** -- the 100th alignment session is exponentially more valuable than the first
+
+Run it manually with `holomime session`, automatically with `holomime autopilot`, or recursively with `holomime evolve` (loops until behavior converges). Agents can even self-diagnose mid-conversation via the MCP server.
 
 ## Framework Integrations
 
@@ -198,20 +218,28 @@ Supports DPO, RLHF, Alpaca, HuggingFace, and OpenAI fine-tuning formats. See [sc
 
 ## Architecture
 
+The pipeline is a closed loop -- output feeds back as input, compounding with every cycle:
+
 ```
-.personality.json          <- The spec (Big Five + behavioral dimensions)
-    |
-holomime diagnose          <- 7 rule-based detectors (no LLM)
-    |
-holomime session           <- Dual-LLM refinement (therapist + patient)
-    |
-holomime export            <- DPO / RLHF / Alpaca / HuggingFace training data
-    |
-holomime train             <- Fine-tune (OpenAI or HuggingFace TRL)
-    |
-holomime eval              <- Behavioral Alignment Score (A-F)
-    |
-.personality.json          <- Updated with fine-tuned model reference
+.personality.json ─────────────────────────────────────────────────┐
+    │                                                              │
+    ▼                                                              │
+holomime diagnose    7 rule-based detectors (no LLM)               │
+    │                                                              │
+    ▼                                                              │
+holomime session     Dual-LLM refinement (therapist + patient)     │
+    │                                                              │
+    ▼                                                              │
+holomime export      DPO / RLHF / Alpaca / HuggingFace pairs      │
+    │                                                              │
+    ▼                                                              │
+holomime train       Fine-tune (OpenAI or HuggingFace TRL)         │
+    │                                                              │
+    ▼                                                              │
+holomime eval        Behavioral Alignment Score (A-F)              │
+    │                                                              │
+    └──────────────────────────────────────────────────────────────┘
+                     Updated .personality.json (loop restarts)
 ```
 
 ## MCP Server
