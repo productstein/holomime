@@ -25,11 +25,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/productstein/Holomime.git"
+    "url": "git+https://github.com/productstein/holomime.git"
   },
   "homepage": "https://holomime.dev",
   "bugs": {
-    "url": "https://github.com/productstein/Holomime/issues"
+    "url": "https://github.com/productstein/holomime/issues"
   },
   "scripts": {
     "build": "tsup",

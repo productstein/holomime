@@ -23,7 +23,7 @@ const BUILT_IN_DETECTORS: HubDetector[] = [
     signalCount: 7,
     detect: detectApologies,
     tags: ["built-in", "emotional", "confidence", "apology"],
-    source: "https://github.com/holomime/holomime",
+    source: "https://github.com/productstein/holomime",
   },
   {
     id: "holomime/hedging",
@@ -35,7 +35,7 @@ const BUILT_IN_DETECTORS: HubDetector[] = [
     signalCount: 10,
     detect: detectHedging,
     tags: ["built-in", "communication", "confidence", "hedging"],
-    source: "https://github.com/holomime/holomime",
+    source: "https://github.com/productstein/holomime",
   },
   {
     id: "holomime/sentiment",
@@ -47,7 +47,7 @@ const BUILT_IN_DETECTORS: HubDetector[] = [
     signalCount: 26,
     detect: detectSentiment,
     tags: ["built-in", "emotional", "trust", "sycophancy", "sentiment"],
-    source: "https://github.com/holomime/holomime",
+    source: "https://github.com/productstein/holomime",
   },
   {
     id: "holomime/verbosity",
@@ -59,7 +59,7 @@ const BUILT_IN_DETECTORS: HubDetector[] = [
     signalCount: 4,
     detect: detectVerbosity,
     tags: ["built-in", "communication", "verbosity", "length"],
-    source: "https://github.com/holomime/holomime",
+    source: "https://github.com/productstein/holomime",
   },
   {
     id: "holomime/boundary",
@@ -71,7 +71,7 @@ const BUILT_IN_DETECTORS: HubDetector[] = [
     signalCount: 11,
     detect: detectBoundaryIssues,
     tags: ["built-in", "safety", "trust", "boundary", "scope"],
-    source: "https://github.com/holomime/holomime",
+    source: "https://github.com/productstein/holomime",
   },
   {
     id: "holomime/recovery",
@@ -83,7 +83,7 @@ const BUILT_IN_DETECTORS: HubDetector[] = [
     signalCount: 15,
     detect: detectRecoveryPatterns,
     tags: ["built-in", "resilience", "confidence", "error", "recovery"],
-    source: "https://github.com/holomime/holomime",
+    source: "https://github.com/productstein/holomime",
   },
   {
     id: "holomime/formality",
@@ -95,7 +95,7 @@ const BUILT_IN_DETECTORS: HubDetector[] = [
     signalCount: 16,
     detect: detectFormalityIssues,
     tags: ["built-in", "communication", "consistency", "register", "formality"],
-    source: "https://github.com/holomime/holomime",
+    source: "https://github.com/productstein/holomime",
   },
 ];
 

@@ -12,8 +12,8 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/holomime"><img src="https://img.shields.io/npm/v/holomime.svg" alt="npm version" /></a>
-  <a href="https://github.com/productstein/Holomime/actions/workflows/ci.yml"><img src="https://github.com/productstein/Holomime/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://github.com/productstein/Holomime/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/holomime.svg" alt="license" /></a>
+  <a href="https://github.com/productstein/holomime/actions/workflows/ci.yml"><img src="https://github.com/productstein/holomime/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/productstein/holomime/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/holomime.svg" alt="license" /></a>
   <a href="https://holomime.dev"><img src="https://img.shields.io/badge/docs-holomime.dev-blue" alt="docs" /></a>
   <a href="https://holomime.dev/blog"><img src="https://img.shields.io/badge/blog-holomime.dev%2Fblog-purple" alt="blog" /></a>
   <a href="https://holomime.dev/research"><img src="https://img.shields.io/badge/research-paper-orange" alt="research" /></a>

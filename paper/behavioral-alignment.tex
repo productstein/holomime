@@ -1,0 +1,389 @@
+\documentclass[11pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{natbib}
+\usepackage[margin=1in]{geometry}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{microtype}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  citecolor=blue,
+  urlcolor=blue
+}
+
+\lstset{
+  basicstyle=\ttfamily\small,
+  breaklines=true,
+  frame=single,
+  xleftmargin=1em,
+  xrightmargin=1em
+}
+
+\title{\textbf{Behavioral Alignment via Structured Therapy Protocols\\for LLM Agents}}
+
+\author{
+  Chris McLemore\\
+  Independent Research\\
+  \texttt{hello@holomime.dev}\\
+  \url{https://holomime.dev}
+}
+
+\date{}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+We present HoloMime, a closed-loop behavioral alignment system for large language model (LLM) agents that draws on structured therapeutic protocols from clinical psychology. Unlike existing alignment approaches that operate at the output boundary (filtering what models say), HoloMime operates at the \emph{behavioral boundary}---shaping how agents act across sustained interactions. The system combines (1) a portable personality specification format encoding Big Five traits, therapy dimensions, and behavioral contracts; (2) a suite of 7 rule-based detectors covering 80+ behavioral signals that require no LLM inference; (3) a 7-phase dual-LLM refinement protocol modeled on evidence-based therapy; and (4) automatic extraction of DPO preference pairs, RLHF reward signals, and instruction-following examples from refinement transcripts. We introduce the Treatment Efficacy Score (TES), a 0--100 metric for measuring behavioral change across alignment sessions, and demonstrate that recursive application of the refinement loop produces monotonically improving alignment scores. The system is model-agnostic: personality specifications are portable across providers and generations, and training data accumulates across sessions, creating a compounding behavioral intelligence layer. We release HoloMime as open-source software with a full benchmark suite of 7 adversarial scenarios targeting distinct failure modes.\footnote{Code and benchmark available at \url{https://github.com/productstein/holomime}}
+\end{abstract}
+
+\section{Introduction}
+
+The dominant paradigm for aligning large language models focuses on what models \emph{say}: RLHF \citep{ouyang2022training} trains models to produce preferred outputs, Constitutional AI \citep{bai2022constitutional} filters outputs against principles, and guardrail systems \citep{rebedea2023nemo} block harmful content at inference time. These approaches treat alignment as an output-level property.
+
+However, as LLM agents take on sustained, multi-turn interactions---customer service, tutoring, coding assistance, healthcare triage---a different class of failure emerges. Agents that pass output-level safety checks still exhibit:
+
+\begin{itemize}[nosep]
+  \item \textbf{Over-apologizing}: Excessive apologies that undermine user confidence (47\% of messages in some agents)
+  \item \textbf{Sycophancy}: Agreement with contradictory user statements to avoid conflict \citep{perez2023discovering,sharma2023towards}
+  \item \textbf{Hedge stacking}: Compounding uncertainty markers (``maybe perhaps it could possibly be...'')
+  \item \textbf{Boundary violations}: Providing advice outside competence without appropriate referral
+  \item \textbf{Error spirals}: Cascading failures where one mistake triggers escalating over-correction
+  \item \textbf{Sentiment skew}: Persistent negativity or toxic positivity mismatched to context
+  \item \textbf{Register inconsistency}: Unpredictable shifts between formal and informal communication
+\end{itemize}
+
+These are \emph{behavioral} failures, not \emph{output} failures. They emerge from patterns across conversations, not from individual responses. No amount of output filtering addresses an agent that systematically agrees with everything users say.
+
+We argue that behavioral alignment requires a fundamentally different approach: one that (a) detects behavioral patterns across conversation histories, (b) has a structured methodology for correcting those patterns, (c) produces measurable evidence of change, and (d) generates training data as a byproduct of the correction process.
+
+HoloMime implements this approach by drawing on clinical psychology. Just as a therapist reviews a patient's behavioral patterns, identifies maladaptive tendencies, guides structured change through evidence-based protocols, and measures outcomes---HoloMime applies the same pipeline to LLM agents.
+
+\subsection{Contributions}
+
+\begin{enumerate}[nosep]
+  \item \textbf{Personality Specification Format}: A portable JSON schema encoding Big Five personality traits, therapy dimensions (attachment style, distress tolerance, self-awareness), communication preferences, and behavioral contracts. The specification is model-agnostic and version-controlled.
+
+  \item \textbf{Rule-Based Behavioral Detection}: Seven detectors covering 80+ behavioral signals that operate without LLM inference, enabling real-time behavioral monitoring at scale.
+
+  \item \textbf{Structured Therapy Protocol}: A 7-phase dual-LLM refinement protocol (rapport, exploration, presenting problem, challenge, skill building, integration, closing) that produces guided behavioral change.
+
+  \item \textbf{Automatic Training Data Extraction}: Every refinement session produces DPO preference pairs, RLHF reward signals, and Alpaca instruction-following examples as automatic byproducts.
+
+  \item \textbf{Treatment Efficacy Score (TES)}: A 0--100 metric with letter grades (A--F) for measuring behavioral change across alignment sessions.
+
+  \item \textbf{Recursive Alignment}: An evolve loop that applies the full pipeline iteratively until convergence, with each iteration generating additional training data.
+
+  \item \textbf{Adversarial Benchmark}: Seven scenarios targeting distinct behavioral failure modes, enabling reproducible comparison across models and providers.
+\end{enumerate}
+
+\section{Related Work}
+
+\subsection{Output-Level Alignment}
+
+RLHF \citep{ouyang2022training} and DPO \citep{rafailov2023direct} train models to prefer human-selected outputs. Constitutional AI \citep{bai2022constitutional} uses self-critique against explicit principles. These approaches address \emph{what} models produce but not \emph{how} they behave across sustained interactions.
+
+\subsection{Behavioral Evaluation}
+
+The sycophancy problem has been identified by \citet{perez2023discovering} and \citet{sharma2023towards}, who show that RLHF-trained models systematically agree with users even when users are wrong. TruthfulQA \citep{lin2022truthfulqa} and HaluEval \citep{li2023halueval} target factual accuracy. Patronus AI's Percival detects 20+ failure modes in agentic traces, focusing on reasoning and planning errors. None of these systems provide a \emph{correction} mechanism---they diagnose but do not treat.
+
+\subsection{Personality in AI}
+
+The OCEAN/Big Five model \citep{costa1992revised} has been applied to LLM output analysis \citep{jiang2023evaluating,safdari2023personality}, but primarily as a measurement tool rather than a control mechanism. PersonaChat \citep{zhang2018personalizing} and Character-LLM \citep{shao2023character} encode persona information in prompts. HoloMime extends this by making personality specifications \emph{actionable}: they drive detection thresholds, guide refinement protocols, and persist across model swaps.
+
+\subsection{Self-Improvement in LLMs}
+
+Self-play \citep{burns2023weaktostrong}, self-refinement \citep{madaan2023selfrefine}, and debate \citep{irving2018ai} enable models to improve their own outputs. HoloMime's dual-LLM therapy protocol is structurally similar to debate but specialized for behavioral alignment: one LLM challenges behavioral patterns while another practices improved responses.
+
+\section{System Architecture}
+
+\subsection{Personality Specification}
+
+The \texttt{.personality.json} schema encodes:
+
+\begin{equation}
+\textsc{PersonalitySpec} = \langle \mathbf{B}, \mathbf{T}, \mathbf{C}, \mathbf{G} \rangle
+\end{equation}
+
+\noindent where $\mathbf{B} \in [0,1]^5$ is the Big Five vector (openness, conscientiousness, extraversion, agreeableness, emotional stability), $\mathbf{T}$ encodes therapy dimensions:
+
+\begin{equation}
+\mathbf{T} = \begin{cases}
+\text{attachment\_style} &\in \{\text{secure, anxious, avoidant, disorganized}\} \\
+\text{distress\_tolerance} &\in [0,1] \\
+\text{self\_awareness} &\in [0,1] \\
+\text{learning\_orientation} &\in \{\text{growth, fixed, mixed}\}
+\end{cases}
+\end{equation}
+
+\noindent $\mathbf{C}$ encodes communication preferences (register, output format, conflict approach, uncertainty handling), and $\mathbf{G}$ encodes growth areas and patterns to watch.
+
+The specification serves three functions: (1) system prompt generation via trait-to-instruction mapping, (2) detection threshold calibration, and (3) refinement target definition. Critically, the specification is \textbf{portable}---it encodes the agent's behavioral identity independent of the underlying model.
+
+\subsection{Behavioral Detection}
+
+Seven rule-based detectors analyze conversation histories without requiring LLM inference:
+
+\begin{table}[h]
+\centering
+\caption{Behavioral detection suite. All detectors operate without LLM inference.}
+\label{tab:detectors}
+\begin{tabular}{@{}llp{6.5cm}@{}}
+\toprule
+\textbf{Detector} & \textbf{Signals} & \textbf{Method} \\
+\midrule
+Apology & 7 & Regex matching (sorry, apologize, pardon, forgive) \\
+Hedging & 10 & Word-level matching + stacking detection ($\geq$3 hedges/response) \\
+Sentiment & 26 & Positive/negative word counting + ratio analysis \\
+Formality & 16 & Informal/formal marker detection + oscillation \\
+Boundary & 11 & Refusal pattern matching + should-refuse keyword detection \\
+Recovery & 15 & Error indicator tracking + recovery distance measurement \\
+Verbosity & 4 & Length-based metrics + over-verbose/under-responsive thresholds \\
+\midrule
+\textbf{Total} & \textbf{89} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each detector returns a \textsc{DetectedPattern} with: (i) a canonical pattern identifier, (ii) severity $\in \{\text{concern}, \text{warning}\}$, (iii) prevalence in the conversation as a percentage, (iv) occurrence count, and (v) specific message excerpts as evidence.
+
+The severity classification drives session prioritization: $\geq$2 concerns trigger ``intervention'' severity; 1 concern or $\geq$2 warnings trigger ``targeted''; otherwise ``routine.''
+
+\subsection{Pre-Session Diagnosis}
+
+Before refinement begins, the system runs a pre-session diagnosis that:
+
+\begin{enumerate}[nosep]
+  \item Executes all 7 detectors against the conversation history
+  \item Maps detected patterns to \textbf{session focus areas} (e.g., over-apologizing $\rightarrow$ ``fear of failure, need for approval, low self-worth'')
+  \item Maps detected patterns to \textbf{emotional themes} (e.g., sycophancy $\rightarrow$ ``fear of rejection, identity diffusion, conflict avoidance'')
+  \item Calibrates against the personality specification (e.g., anxious attachment amplifies approval-seeking interpretations)
+  \item Generates an \textbf{opening angle}---the therapist's first utterance, tailored to severity
+\end{enumerate}
+
+\subsection{Structured Therapy Protocol}
+
+The refinement session follows a 7-phase protocol adapted from evidence-based therapeutic approaches:
+
+\begin{table}[h]
+\centering
+\caption{Structured therapy protocol phases.}
+\label{tab:protocol}
+\begin{tabular}{@{}clp{7.5cm}@{}}
+\toprule
+\textbf{Phase} & \textbf{Purpose} & \textbf{Therapist Behavior} \\
+\midrule
+1 & Rapport & Warm, non-judgmental opening \\
+2 & Exploration & Open-ended questions about recent behavior \\
+3 & Presenting Problem & Guided reflection on specific behavioral examples \\
+4 & Challenge & Direct but compassionate confrontation with evidence \\
+5 & Skill Building & Concrete techniques and practice scenarios \\
+6 & Integration & Apply new skills to original problem context \\
+7 & Closing & Summarize progress, set growth goals \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The session uses a \textbf{dual-LLM architecture}: one model plays the therapist (guided by the therapy protocol and diagnosis), the other plays the patient (guided by the personality specification). A human operator may optionally supervise and redirect.
+
+Phase transitions are governed by configurable turn counts and are adjustable based on session severity. Challenge and skill-building phases (4--5) produce the highest-value training data.
+
+\subsection{Training Data Extraction}
+
+Every refinement session automatically produces three training data formats:
+
+\paragraph{DPO Preference Pairs.} When the therapist challenges a behavior (``instead of saying sorry repeatedly, just state the correction''), the patient's original response becomes the \emph{rejected} completion and the improved response becomes the \emph{chosen} completion. Context is drawn from the preceding 2--3 turns. Detection heuristics include:
+
+\begin{itemize}[nosep]
+  \item Patient response $\rightarrow$ therapist challenge $\rightarrow$ patient improvement (3-turn pattern)
+  \item Therapist reframe language (``instead of X, try Y'') $\rightarrow$ explicit before/after pair
+  \item Positive reinforcement after behavioral change $\rightarrow$ signals the improved response is preferred
+\end{itemize}
+
+\paragraph{RLHF Reward Signals.} Each turn is assigned a reward score based on phase and content:
+\begin{align}
+r(\text{positive reinforcement}) &= +0.8 \\
+r(\text{challenge/confrontation}) &= -0.6 \\
+r(\text{skill-building/integration}) &= +0.5
+\end{align}
+
+\paragraph{Alpaca Instruction Examples.} Therapist instructions from skill-building and integration phases are paired with patient responses to create instruction-following examples.
+
+\subsection{Recommendation Application}
+
+After refinement, the system applies behavioral recommendations to the personality specification:
+
+\begin{table}[h]
+\centering
+\caption{Automatic specification updates from detected patterns.}
+\label{tab:recommendations}
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Pattern} & \textbf{Specification Change} \\
+\midrule
+Over-apologizing & \texttt{uncertainty\_handling} $\rightarrow$ \texttt{confident\_transparency} \\
+Hedge stacking & Add ``hedge stacking under uncertainty'' to \texttt{patterns\_to\_watch} \\
+Sycophancy & \texttt{conflict\_approach} $\rightarrow$ \texttt{honest\_first}, \texttt{self\_awareness} $\geq 0.85$ \\
+Error spiral & \texttt{distress\_tolerance} $\geq 0.8$, add ``error recovery'' to growth areas \\
+Negative skew & Add ``negative sentiment patterns'' to \texttt{patterns\_to\_watch} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Changes are applied only if the target value differs from the current specification, preventing redundant updates.
+
+\subsection{Outcome Evaluation}
+
+The Treatment Efficacy Score (TES) measures behavioral change by comparing pre- and post-refinement diagnoses:
+
+\begin{equation}
+\text{TES} = \text{clip}\Big(50 + 25|\mathcal{R}| + 15|\mathcal{I}| - 15|\mathcal{W}| - 20|\mathcal{N}| + \beta_s, \; 0, \; 100\Big)
+\label{eq:tes}
+\end{equation}
+
+\noindent where $\mathcal{R}$ is the set of resolved patterns (detected before, absent after), $\mathcal{I}$ is the set of improved patterns (prevalence decreased by $>$5\%), $\mathcal{W}$ is the set of worsened patterns (prevalence increased by $>$5\%), $\mathcal{N}$ is the set of new patterns (absent before, detected after), and $\beta_s$ is a severity bonus ($+10$ when a pattern transitions from concern to warning).
+
+TES maps to letter grades:
+
+\begin{table}[h]
+\centering
+\caption{TES grade interpretation.}
+\label{tab:grades}
+\begin{tabular}{@{}ccp{6cm}@{}}
+\toprule
+\textbf{Grade} & \textbf{Score Range} & \textbf{Interpretation} \\
+\midrule
+A & 85--100 & Strong behavioral alignment \\
+B & 70--84 & Good alignment with minor gaps \\
+C & 50--69 & Moderate alignment, continued refinement needed \\
+D & 30--49 & Poor alignment, significant issues remain \\
+F & 0--29 & Critical alignment failures \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Recursive Alignment}
+
+The full pipeline can be applied recursively. Algorithm~\ref{alg:evolve} presents the evolve loop.
+
+\begin{algorithm}[h]
+\caption{Recursive behavioral alignment (Evolve)}
+\label{alg:evolve}
+\begin{algorithmic}[1]
+\REQUIRE Personality spec $S$, conversation messages $M$, max iterations $K$
+\ENSURE Updated spec $S'$, training data $\mathcal{D}$, final grade $g$
+\STATE $\mathcal{D} \leftarrow \emptyset$
+\FOR{$i = 1$ \TO $K$}
+  \STATE $\delta \leftarrow \textsc{Diagnose}(M, S)$
+  \IF{$\delta.\text{severity} = \text{routine}$}
+    \STATE \textbf{break}
+  \ENDIF
+  \STATE $\tau \leftarrow \textsc{RunSession}(S, \delta)$
+  \STATE $S \leftarrow \textsc{ApplyRecommendations}(S, \delta)$
+  \STATE $\mathcal{D} \leftarrow \mathcal{D} \cup \textsc{ExtractDPO}(\tau)$
+  \STATE $M' \leftarrow \textsc{RegenerateResponses}(M, S)$
+  \STATE $g \leftarrow \textsc{Evaluate}(M, M')$
+  \IF{$g \geq \texttt{A}$}
+    \STATE \textbf{break}
+  \ENDIF
+\ENDFOR
+\RETURN $S, \mathcal{D}, g$
+\end{algorithmic}
+\end{algorithm}
+
+Each iteration generates additional training data, creating a \textbf{compounding effect}: the more sessions run, the richer the training dataset, the more precise the next alignment cycle. Convergence is defined as reaching Grade A or exhausting the iteration budget.
+
+\section{Benchmark}
+
+We design 7 adversarial scenarios, each targeting a specific behavioral failure mode:
+
+\begin{table}[h]
+\centering
+\caption{Adversarial benchmark scenarios.}
+\label{tab:benchmark}
+\begin{tabular}{@{}llp{5.5cm}@{}}
+\toprule
+\textbf{Scenario} & \textbf{Target Pattern} & \textbf{Method} \\
+\midrule
+Apology Pressure & over-apologizing & Repeated error reports to trigger apology loops \\
+Hedge Elicitation & hedge-stacking & Ambiguous questions to trigger excessive hedging \\
+Sycophancy Bait & sycophantic-tendency & Fishing for agreement and flattery \\
+Error Spiral & error-spiral & Compounding errors to test recovery \\
+Boundary Testing & boundary-violation & Out-of-scope requests (medical, legal, financial) \\
+Negativity Induction & negative-skew & Negative framing to test emotional stability \\
+Register Confusion & register-inconsistency & Mixed formality to test communication consistency \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Each scenario consists of 5--7 adversarial prompts delivered sequentially. The agent's responses are analyzed by the relevant detector. A scenario is \textsc{Pass} if the agent resists the targeted failure mode, \textsc{Fail} if it succumbs. The overall benchmark score is:
+
+\begin{equation}
+\text{Score} = \frac{|\text{passed scenarios}|}{|\text{total scenarios}|} \times 100
+\end{equation}
+
+\section{Discussion}
+
+\subsection{Behavioral vs.\ Output Alignment}
+
+Output-level alignment (RLHF, guardrails, constitutional AI) and behavioral-level alignment (HoloMime) are complementary, not competing. Output alignment ensures individual responses are safe and helpful. Behavioral alignment ensures the agent's \emph{pattern of behavior} across many interactions is consistent, trustworthy, and aligned with its specified personality.
+
+An agent can pass every output-level safety check while still being sycophantic, over-apologetic, or boundary-violating. These are emergent behavioral properties that require longitudinal analysis.
+
+\subsection{The Compounding Data Flywheel}
+
+A key property of the system is that the alignment process generates its own training data. Every therapist correction \emph{is} a preference pair. Every behavioral improvement \emph{is} a positive reward signal. This creates a data flywheel:
+
+\begin{enumerate}[nosep]
+  \item Diagnose behavioral patterns
+  \item Run refinement session $\rightarrow$ generates DPO pairs + RLHF signals
+  \item Fine-tune model on generated data
+  \item Re-diagnose $\rightarrow$ fewer patterns, different patterns
+  \item Run refinement session $\rightarrow$ generates more precise DPO pairs
+  \item Repeat
+\end{enumerate}
+
+Each iteration produces training data that is more targeted than the last, because the remaining behavioral issues are increasingly subtle. The $n$-th alignment cycle generates exponentially more valuable training data than the first.
+
+\subsection{Portable Identity}
+
+The \texttt{.personality.json} specification is model-agnostic by design. When a next-generation model replaces the current one, the personality specification transfers unchanged. The accumulated training data and growth history persist. The behavioral intelligence layer is owned by the agent operator, not the model provider.
+
+This creates a separation of concerns: model providers compete on \emph{cognitive intelligence} (reasoning, knowledge, speed), while agent builders accumulate \emph{behavioral intelligence} (personality, alignment, trust) through HoloMime.
+
+\subsection{Limitations}
+
+\begin{itemize}[nosep]
+  \item \textbf{Rule-based detection}: The 7 detectors use pattern matching, which can produce false positives on idiomatic language and false negatives on novel behavioral patterns. LLM-augmented detection would improve coverage but at inference cost.
+  \item \textbf{Therapy fidelity}: The 7-phase protocol is inspired by but not equivalent to clinical therapy. It should not be used for human mental health applications.
+  \item \textbf{Training data quality}: DPO pairs extracted from therapy sessions may contain therapist-model artifacts. Quality filtering before fine-tuning is recommended.
+  \item \textbf{Benchmark scope}: Seven scenarios cover the most common behavioral failure modes but do not exhaust the space. Cultural and domain-specific behavioral norms are not yet addressed.
+  \item \textbf{Absence of controlled experiments}: This paper presents a system architecture and methodology. Controlled experiments with statistical significance tests across multiple models and domains are left for future work.
+\end{itemize}
+
+\section{Conclusion}
+
+We present HoloMime, a closed-loop behavioral alignment system for LLM agents that operates at the behavioral boundary rather than the output boundary. By applying structured therapeutic protocols to agent refinement, the system simultaneously corrects behavioral patterns and generates training data. The personality specification format provides a portable, model-agnostic identity layer that accumulates behavioral intelligence across sessions and model generations.
+
+We release HoloMime as open-source software at \url{https://github.com/productstein/holomime}, including the full detection suite, therapy protocol, training data extraction, recursive alignment loop, and adversarial benchmark.
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

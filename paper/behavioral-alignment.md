@@ -291,7 +291,7 @@ This creates a separation of concerns: model providers compete on cognitive inte
 
 We present HoloMime, a closed-loop behavioral alignment system for LLM agents that operates at the behavioral boundary rather than the output boundary. By applying structured therapeutic protocols to agent refinement, the system simultaneously corrects behavioral patterns and generates training data. The personality specification format provides a portable, model-agnostic identity layer that accumulates behavioral intelligence across sessions and model generations.
 
-We release HoloMime as open-source software at `https://github.com/holomime/holomime`, including the full detection suite, therapy protocol, training data extraction, recursive alignment loop, and adversarial benchmark.
+We release HoloMime as open-source software at `https://github.com/productstein/holomime`, including the full detection suite, therapy protocol, training data extraction, recursive alignment loop, and adversarial benchmark.
 
 ---
 
