@@ -252,3 +252,33 @@ export function startFleet(
 
   return { stop, getStatus, events: allEvents };
 }
+
+// ─── Cloud Reporting ─────────────────────────────────────────
+
+/**
+ * Report a fleet agent's status to the HoloMime cloud API.
+ * Called by the CLI fleet monitor when configured with an agent key.
+ */
+export async function reportToCloud(
+  agentKey: string,
+  status: FleetAgentStatus,
+  apiUrl = "https://holomime.dev",
+): Promise<void> {
+  try {
+    await fetch(`${apiUrl}/api/v1/fleet/report`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Agent-Key": agentKey,
+      },
+      body: JSON.stringify({
+        driftEvents: status.driftEvents,
+        patterns: [],
+        riskLevel: status.lastDriftSeverity ?? "low",
+        messagesProcessed: status.filesProcessed,
+      }),
+    });
+  } catch {
+    // Silently fail — cloud reporting is best-effort
+  }
+}

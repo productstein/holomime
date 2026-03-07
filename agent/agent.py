@@ -32,10 +32,17 @@ from livekit.plugins import cartesia, deepgram, elevenlabs, openai, silero
 
 from personality import build_system_prompt
 from voice_map import get_voice_config
+from cloud import (
+    SessionMetrics, is_enabled as cloud_enabled,
+    load_custom_detectors, run_drift_check, run_custom_detectors, report_session,
+)
 
 load_dotenv()
 
 logger = logging.getLogger("holomime-agent")
+
+# Load custom detectors at startup (if cloud is configured)
+_custom_detectors = load_custom_detectors() if cloud_enabled() else []
 
 
 async def entrypoint(ctx: JobContext):
@@ -60,6 +67,9 @@ async def entrypoint(ctx: JobContext):
         f"Starting voice session: archetype={archetype_id}, "
         f"tts={tts_provider}, participant={participant.identity}"
     )
+
+    # Initialize session metrics for cloud reporting
+    metrics = SessionMetrics()
 
     # Build personality-aware system prompt
     system_prompt = build_system_prompt(archetype_id)
@@ -91,11 +101,13 @@ async def entrypoint(ctx: JobContext):
     # Send transcript updates to the browser via data channel
     @session.on("user_speech_committed")
     def on_user_speech(msg):
+        text = msg.content if hasattr(msg, 'content') else str(msg)
+        metrics.add_message("user", text)
         try:
             data = json.dumps({
                 "type": "transcript",
                 "role": "user",
-                "text": msg.content if hasattr(msg, 'content') else str(msg),
+                "text": text,
                 "final": True,
             }).encode()
             ctx.room.local_participant.publish_data(data, reliable=True)
@@ -104,16 +116,30 @@ async def entrypoint(ctx: JobContext):
 
     @session.on("agent_speech_committed")
     def on_agent_speech(msg):
+        text = msg.content if hasattr(msg, 'content') else str(msg)
+        metrics.add_message("agent", text)
         try:
             data = json.dumps({
                 "type": "transcript",
                 "role": "agent",
-                "text": msg.content if hasattr(msg, 'content') else str(msg),
+                "text": text,
                 "final": True,
             }).encode()
             ctx.room.local_participant.publish_data(data, reliable=True)
         except Exception as e:
             logger.warning(f"Failed to send agent transcript: {e}")
+
+    # Report metrics when participant disconnects
+    @ctx.room.on("participant_disconnected")
+    def on_disconnect(p):
+        if p.identity == participant.identity:
+            run_drift_check(metrics)
+            run_custom_detectors(metrics, _custom_detectors)
+            report_session(metrics)
+            logger.info(
+                f"Session ended: {metrics.messages_processed} messages, "
+                f"{metrics.drift_events} drift events, risk={metrics.risk_level}"
+            )
 
     # Start the voice pipeline
     session.start(ctx.room, participant)

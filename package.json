@@ -1,11 +1,11 @@
 {
   "name": "holomime",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Behavioral alignment infrastructure for AI agents — Big Five psychology, guided refinement, DPO training data",
   "type": "module",
   "bin": {
-    "holomime": "./dist/cli.js",
-    "holomime-mcp": "./dist/mcp-server.js"
+    "holomime": "dist/cli.js",
+    "holomime-mcp": "dist/mcp-server.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -20,13 +20,16 @@
     "schema",
     "LICENSE"
   ],
+  "engines": {
+    "node": ">=18"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/holomime/holomime.git"
+    "url": "git+https://github.com/productstein/Holomime.git"
   },
   "homepage": "https://holomime.dev",
   "bugs": {
-    "url": "https://github.com/holomime/holomime/issues"
+    "url": "https://github.com/productstein/Holomime/issues"
   },
   "scripts": {
     "build": "tsup",

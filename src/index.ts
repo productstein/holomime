@@ -321,6 +321,10 @@ export { registerBuiltInDetectors, BUILT_IN_DETECTORS } from "./hub/built-in.js"
 
 export { Guard, type GuardResult, type GuardEntry } from "./hub/guard.js";
 
+// ─── SDK Wrapper ─────────────────────────────────────────
+
+export { wrapAgent, type WrapAgentOptions, type WrappedAgent } from "./agent-wrapper.js";
+
 // ─── Behavioral Index ─────────────────────────────────────
 
 export {

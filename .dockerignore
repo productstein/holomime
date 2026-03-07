@@ -1,0 +1,14 @@
+node_modules
+.git
+.env
+.env.*
+dist
+.wrangler
+.astro
+*.log
+.DS_Store
+agent/
+src/
+tests/
+docs/
+*.md
