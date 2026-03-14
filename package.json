@@ -1,7 +1,7 @@
 {
   "name": "holomime",
   "version": "1.1.1",
-  "description": "Behavioral alignment infrastructure for AI agents — Big Five psychology, guided refinement, DPO training data",
+  "description": "Behavioral therapy infrastructure for AI agents — Big Five psychology, structured treatment, DPO training data",
   "type": "module",
   "bin": {
     "holomime": "dist/cli.js",
@@ -46,6 +46,7 @@
     "psychology",
     "alignment",
     "behavioral-analysis",
+    "behavioral-therapy",
     "agent-training",
     "system-prompt",
     "opentelemetry",

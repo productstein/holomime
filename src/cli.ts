@@ -240,7 +240,7 @@ program
 
 program
   .command("watch")
-  .description("Continuous drift detection — monitor logs and auto-align [Pro]")
+  .description("Continuous relapse detection — monitor logs and auto-align [Pro]")
   .requiredOption("--personality <path>", "Path to .personality.json")
   .requiredOption("--dir <path>", "Directory to watch for conversation logs")
   .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
@@ -262,7 +262,7 @@ program
 
 program
   .command("daemon")
-  .description("Background drift detection with auto-evolve — proactive alignment [Pro]")
+  .description("Background relapse detection with auto-evolve — proactive alignment [Pro]")
   .requiredOption("--dir <path>", "Directory to watch for conversation logs")
   .option("--personality <path>", "Path to .personality.json", ".personality.json")
   .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
@@ -312,12 +312,12 @@ program
 
 program
   .command("prescribe")
-  .description("Diagnose and prescribe DPO corrections from the behavioral corpus [Pro]")
+  .description("Diagnose and prescribe DPO treatments from the behavioral corpus [Pro]")
   .requiredOption("--personality <path>", "Path to .personality.json")
   .requiredOption("--log <path>", "Path to conversation log")
   .option("--format <format>", "Log format (holomime, chatgpt, claude, openai-api, anthropic-api, otel, jsonl)")
   .option("--source <source>", "Correction source (corpus, marketplace, both)", "corpus")
-  .option("--apply", "Apply found corrections")
+  .option("--apply", "Apply found treatments")
   .option("-o, --output <path>", "Write prescription to file")
   .action(prescribeCommand);
 

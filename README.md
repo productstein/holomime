@@ -5,8 +5,8 @@
 <h1 align="center">holomime</h1>
 
 <p align="center">
-  Self-improving behavioral alignment for AI agents.<br />
-  Every correction trains the next version. Every session compounds. Your agents get better at being themselves &mdash; automatically.<br />
+  Behavioral therapy infrastructure for AI agents.<br />
+  Every therapy session trains the next version. Every session compounds. Your agents get better at being themselves &mdash; automatically.<br />
   <em>Works with OpenTelemetry, Anthropic, OpenAI, ChatGPT, Claude, and any JSONL source.</em>
 </p>
 
@@ -29,7 +29,7 @@ npm install -g holomime
 # Create a personality profile (Big Five + behavioral dimensions)
 holomime init
 
-# Diagnose drift from any log format
+# Diagnose behavioral symptoms from any log format
 holomime diagnose --log agent.jsonl
 
 # View your agent's personality
@@ -47,14 +47,14 @@ HoloMime isn't a one-shot evaluation. It's a compounding behavioral flywheel:
   ┌──────────────────────────────────────────────────┐
   │                                                  │
   ▼                                                  │
-Diagnose ──→ Refine ──→ Export DPO ──→ Fine-tune ──→ Evaluate
+Diagnose ──→ Treat ──→ Export DPO ──→ Fine-tune ──→ Evaluate
   80+ signals   dual-LLM     preference     OpenAI /     before/after
   7 detectors   therapy       pairs        HuggingFace   grade (A-F)
 ```
 
 Each cycle through the loop:
-- **Generates training data** -- every therapist correction becomes a DPO preference pair automatically
-- **Reduces drift** -- the fine-tuned model needs fewer corrections next cycle
+- **Generates training data** -- every therapy session becomes a DPO preference pair automatically
+- **Reduces relapse** -- the fine-tuned model needs fewer interventions next cycle
 - **Compounds** -- the 100th alignment session is exponentially more valuable than the first
 
 Run it manually with `holomime session`, automatically with `holomime autopilot`, or recursively with `holomime evolve` (loops until behavior converges). Agents can even self-diagnose mid-conversation via the MCP server.
@@ -103,7 +103,7 @@ This project uses [holomime](https://holomime.dev) for agent behavioral alignmen
 
 - **Spec**: `.personality.json` defines the agent's behavioral profile
 - **Readable**: `.personality.md` is a human-readable summary
-- **Diagnose**: `holomime diagnose --log <path>` detects behavioral drift
+- **Diagnose**: `holomime diagnose --log <path>` detects behavioral symptoms
 - **Align**: `holomime evolve --personality .personality.json --log <path>`
 
 The `.personality.json` governs *how the agent behaves*.
@@ -151,7 +151,7 @@ Seven rule-based detectors that analyze real conversations without any LLM calls
 <details>
 <summary><strong>All Commands</strong></summary>
 
-### Free Tier
+### Free Clinic
 
 | Command | What It Does |
 |---------|-------------|
@@ -164,9 +164,9 @@ Seven rule-based detectors that analyze real conversations without any LLM calls
 | `holomime browse` | Browse community personality hub |
 | `holomime pull` | Download a personality from the hub |
 | `holomime publish` | Share your personality to the hub |
-| `holomime activate` | Activate a Pro license key |
+| `holomime activate` | Activate a Practice license key |
 
-### Pro Tier
+### Practice
 
 | Command | What It Does |
 |---------|-------------|
@@ -183,17 +183,17 @@ Seven rule-based detectors that analyze real conversations without any LLM calls
 | `holomime eval` | Before/after behavioral comparison with letter grades |
 | `holomime growth` | Track behavioral improvement over time |
 
-[Get a Pro license](https://holomime.dev/#pricing)
+[Get a Practice license](https://holomime.dev/#pricing)
 
 </details>
 
 ## Continuous Monitoring
 
 ```bash
-# Watch mode -- alert on drift
+# Watch mode -- alert on relapse
 holomime watch --dir ./logs --personality agent.personality.json
 
-# Daemon mode -- auto-heal drift without intervention
+# Daemon mode -- auto-heal relapse without intervention
 holomime daemon --dir ./logs --personality agent.personality.json
 
 # Fleet mode -- monitor multiple agents simultaneously
@@ -219,7 +219,7 @@ Supports DPO, RLHF, Alpaca, HuggingFace, and OpenAI fine-tuning formats. See [sc
 
 ## Architecture
 
-The pipeline is a closed loop -- output feeds back as input, compounding with every cycle:
+The pipeline is a closed loop -- output feeds back as input, compounding with every therapy cycle:
 
 ```
 .personality.json ─────────────────────────────────────────────────┐
@@ -251,7 +251,7 @@ Expose the full pipeline as MCP tools for self-healing agents:
 holomime-mcp
 ```
 
-Four tools: `holomime_diagnose`, `holomime_assess`, `holomime_profile`, `holomime_autopilot`. Your agents can self-diagnose behavioral drift and trigger their own alignment sessions.
+Four tools: `holomime_diagnose`, `holomime_assess`, `holomime_profile`, `holomime_autopilot`. Your agents can self-diagnose behavioral symptoms and trigger their own therapy sessions.
 
 ## Voice Agent
 
@@ -274,7 +274,7 @@ Benchmark results: [BENCHMARK_RESULTS.md](BENCHMARK_RESULTS.md)
 - [Integration Docs](https://holomime.dev/docs) -- Export instructions and code examples for all 7 formats
 - [Blog](https://holomime.dev/blog) -- Articles on behavioral alignment, AGENTS.md, and agent personality
 - [Research Paper](https://holomime.dev/research) -- Behavioral Alignment for Autonomous AI Agents
-- [Pricing](https://holomime.dev/#pricing) -- Free tier + Pro license details
+- [Pricing](https://holomime.dev/#pricing) -- Free Clinic + Practice license details
 
 ## Contributing
 
