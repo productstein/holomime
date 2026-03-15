@@ -3,7 +3,7 @@
  * Fetches personality profiles from a GitHub-hosted JSON registry.
  */
 
-const REGISTRY_URL = "https://raw.githubusercontent.com/holomime/registry/main/index.json";
+const REGISTRY_URL = "https://raw.githubusercontent.com/productstein/holomime-registry/main/index.json";
 
 export interface RegistryEntry {
   handle: string;
@@ -28,7 +28,7 @@ export async function fetchRegistry(): Promise<Registry> {
   const response = await fetch(REGISTRY_URL);
 
   if (!response.ok) {
-    throw new Error(`Registry unavailable (${response.status}). Check https://github.com/holomime/registry`);
+    throw new Error(`Registry unavailable (${response.status}). Check https://github.com/productstein/holomime-registry`);
   }
 
   return response.json() as Promise<Registry>;

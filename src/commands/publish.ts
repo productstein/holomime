@@ -66,7 +66,7 @@ export async function publishCommand(options: PublishOptions): Promise<void> {
     console.log();
     console.log(chalk.bold("  To publish manually:"));
     console.log(chalk.dim("  1. Create a public GitHub Gist with your .personality.json"));
-    console.log(chalk.dim("  2. Submit a PR to https://github.com/holomime/registry"));
+    console.log(chalk.dim("  2. Submit a PR to https://github.com/productstein/holomime-registry"));
     console.log(chalk.dim("     adding your entry to index.json"));
     console.log();
     return;
@@ -90,7 +90,7 @@ export async function publishCommand(options: PublishOptions): Promise<void> {
   console.log();
 
   console.log(chalk.bold("  Next steps:"));
-  console.log(chalk.dim("  Submit a PR to https://github.com/holomime/registry"));
+  console.log(chalk.dim("  Submit a PR to https://github.com/productstein/holomime-registry"));
   console.log(chalk.dim("  to add your personality to the public index."));
   console.log();
 }

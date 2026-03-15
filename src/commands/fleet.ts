@@ -11,7 +11,8 @@ import {
   type FleetConfig,
   type FleetHandle,
 } from "../analysis/fleet-core.js";
-import { createProvider } from "../llm/provider.js";
+import { getOllamaModels, OllamaProvider } from "../llm/ollama.js";
+import { createProvider, type LLMProvider } from "../llm/provider.js";
 import type { AutopilotThreshold } from "../analysis/autopilot-core.js";
 
 interface FleetOptions {
@@ -62,10 +63,49 @@ export async function fleetCommand(options: FleetOptions): Promise<void> {
   const threshold = (options.threshold ?? "targeted") as AutopilotThreshold;
 
   // Create LLM provider
-  const provider = createProvider({
-    provider: (options.provider ?? "ollama") as any,
-    model: options.model,
-  });
+  const providerName = options.provider ?? "ollama";
+  let provider: LLMProvider;
+
+  if (providerName === "ollama") {
+    try {
+      const models = await getOllamaModels();
+      if (models.length === 0) {
+        console.log(chalk.yellow("  Ollama is running but no models are installed."));
+        console.log(chalk.dim("  Run: ollama pull llama3"));
+        console.log();
+        return;
+      }
+      const modelName = options.model ?? models[0].name;
+      provider = new OllamaProvider(modelName);
+    } catch {
+      console.log(chalk.yellow("  Ollama is not running."));
+      console.log(chalk.dim("  Install Ollama (ollama.com) or use --provider anthropic/openai"));
+      console.log();
+      return;
+    }
+  } else if (providerName === "anthropic") {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      console.log(chalk.yellow("  ANTHROPIC_API_KEY not set."));
+      console.log(chalk.dim("  Set it: export ANTHROPIC_API_KEY=sk-ant-..."));
+      console.log();
+      return;
+    }
+    provider = createProvider({ provider: "anthropic", apiKey, model: options.model });
+  } else if (providerName === "openai") {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      console.log(chalk.yellow("  OPENAI_API_KEY not set."));
+      console.log(chalk.dim("  Set it: export OPENAI_API_KEY=sk-..."));
+      console.log();
+      return;
+    }
+    provider = createProvider({ provider: "openai", apiKey, model: options.model });
+  } else {
+    console.log(chalk.yellow(`  Unknown provider: ${providerName}`));
+    console.log();
+    return;
+  }
 
   console.log();
   console.log(chalk.bold(`  Fleet: ${config.agents.length} agent(s)`));
