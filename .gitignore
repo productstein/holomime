@@ -18,6 +18,7 @@ Thumbs.db
 
 # Private (site is deployed separately — not part of the OSS CLI)
 site/
+workers/
 
 # Runtime data
 .holomime/
