@@ -18,6 +18,7 @@ import { inferMethod } from "../analysis/train-provider.js";
 import { OpenAITrainProvider } from "../analysis/train-openai.js";
 import { HuggingFaceTrainProvider } from "../analysis/train-huggingface.js";
 import { runAutoEval, runHFAutoEval, generateTestPrompts } from "../analysis/train-eval.js";
+import { runFullVerification, type VerificationResult } from "../analysis/train-verify.js";
 
 interface TrainCommandOptions {
   data?: string;
@@ -32,6 +33,8 @@ interface TrainCommandOptions {
   dryRun?: boolean;
   push?: boolean;
   hubRepo?: string;
+  verify?: boolean;
+  passThreshold?: string;
 }
 
 /**
@@ -379,6 +382,53 @@ export async function trainCommand(options: TrainCommandOptions): Promise<void> 
       }
 
       console.log(chalk.dim(`  ${report.summary}`));
+      console.log();
+    }
+  }
+
+  // ─── Verification ────────────────────────────────────────
+
+  if (options.verify && result) {
+    console.log(chalk.bold("  Post-Training Verification:"));
+    console.log();
+
+    const verifyResult = await withSpinner(
+      "Running behavioral verification against fine-tuned model...",
+      async () => {
+        return runFullVerification(
+          provider as "openai" | "huggingface",
+          agentName,
+          options.baseModel,
+          result!.modelId,
+          data,
+          { passThreshold: options.passThreshold ? parseInt(options.passThreshold, 10) : 50 },
+          (completed, total) => {
+            // Progress tracked by spinner
+          },
+        );
+      },
+    );
+
+    console.log();
+
+    const verifyIcon = verifyResult.passed
+      ? chalk.green(figures.tick)
+      : chalk.red(figures.cross);
+    const verifyLabel = verifyResult.passed ? "PASSED" : "FAILED";
+
+    printBox(
+      `Verification: ${verifyIcon} ${verifyLabel}\n` +
+        `Score: ${verifyResult.fineTunedScore}/100 (Grade: ${verifyResult.grade})\n` +
+        `Improved: ${verifyResult.patternsImproved.length} | Regressed: ${verifyResult.patternsRegressed.length}`,
+      verifyResult.passed ? "success" : "warning",
+      "Verification Result",
+    );
+    console.log();
+
+    if (verifyResult.regressionWarnings.length > 0) {
+      for (const warning of verifyResult.regressionWarnings) {
+        console.log(`  ${chalk.yellow(figures.warning)} ${warning}`);
+      }
       console.log();
     }
   }

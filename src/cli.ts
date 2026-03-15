@@ -28,6 +28,10 @@ import { prescribeCommand } from "./commands/prescribe.js";
 import { interviewCommand } from "./commands/interview.js";
 import { activateCommand } from "./commands/activate.js";
 import { telemetryCommand } from "./commands/telemetry-cmd.js";
+import { embodyCommand } from "./commands/embody.js";
+import { voiceCommand } from "./commands/voice.js";
+import { installCommand } from "./commands/install.js";
+import { cureCommand } from "./commands/cure.js";
 import { showTelemetryBannerIfNeeded } from "./telemetry/config.js";
 import { trackEvent, flushTelemetry } from "./telemetry/client.js";
 
@@ -49,7 +53,7 @@ program
     // Track command usage (fire-and-forget)
     trackEvent("cli_command", { command: commandName });
 
-    const skipPersonalityCheck = ["init", "browse", "use", "activate", "telemetry"];
+    const skipPersonalityCheck = ["init", "browse", "use", "install", "activate", "telemetry"];
     if (!skipPersonalityCheck.includes(commandName) && !checkPersonalityExists()) {
       showWelcome();
       process.exit(0);
@@ -109,8 +113,12 @@ program
 
 program
   .command("browse")
-  .description("Browse shared personality profiles from the community registry")
+  .description("Browse the community marketplace")
   .option("--tag <tag>", "Filter by tag")
+  .option("--type <type>", "Asset type: personality, detector, intervention, training-pairs")
+  .option("--search <query>", "Full-text search query")
+  .option("--sort <field>", "Sort by: downloads, rating, created_at, updated_at, name", "downloads")
+  .option("--page <number>", "Page number for paginated results")
   .action(browseCommand);
 
 program
@@ -121,10 +129,39 @@ program
   .action(useCommand);
 
 program
+  .command("install")
+  .description("Install a community asset from the marketplace")
+  .argument("<handle>", "Asset handle to install")
+  .option("--type <type>", "Asset type: personality, detector, intervention, training-pairs")
+  .option("--output <dir>", "Custom install directory")
+  .action(installCommand);
+
+program
   .command("publish")
-  .description("Share your personality profile to the community registry")
+  .description("Share assets to the community marketplace")
   .option("--personality <path>", "Path to .personality.json", ".personality.json")
+  .option("--type <type>", "Asset type: personality, detector, intervention, training-pairs")
+  .option("--path <path>", "Path to the asset file to publish")
+  .option("--name <name>", "Asset name")
+  .option("--description <desc>", "Asset description")
+  .option("--author <author>", "Author name")
+  .option("--version <ver>", "Asset version", "1.0.0")
+  .option("--tags <tags>", "Comma-separated tags")
   .action(publishCommand);
+
+program
+  .command("embody")
+  .description("Start an embodiment runtime — push personality to robots/avatars in real-time")
+  .requiredOption("--personality <path>", "Path to .personality.json")
+  .requiredOption("--adapter <adapter>", "Runtime adapter (ros2, unity, webhook)")
+  .option("--endpoint <url>", "WebSocket URL for ROS2 rosbridge (default: ws://localhost:9090)")
+  .option("--port <port>", "Port for Unity HTTP server (default: 8765)")
+  .option("--url <url>", "Webhook URL for HTTP adapter")
+  .option("--headers <headers>", "Custom headers for webhook (Key:Value,Key2:Value2)")
+  .option("--bearer-token <token>", "Bearer token for webhook auth")
+  .option("--topic-prefix <prefix>", "ROS2 topic prefix (default: /holomime)")
+  .option("--transition <ms>", "Unity transition duration in ms (default: 500)")
+  .action(embodyCommand);
 
 // ─── Account & Settings ────────────────────────────────────
 
@@ -203,6 +240,8 @@ program
   .option("--dry-run", "Preview training plan without starting")
   .option("--push", "Push trained model to HuggingFace Hub (HF only)")
   .option("--hub-repo <repo>", "HuggingFace Hub repo name for push (e.g. user/model-name)")
+  .option("--verify", "Run behavioral verification after training")
+  .option("--pass-threshold <n>", "Minimum verification score (0-100)", "50")
   .action(trainCommand);
 
 program
@@ -353,5 +392,37 @@ program
   .option("--apply", "Apply found treatments")
   .option("-o, --output <path>", "Write prescription to file")
   .action(prescribeCommand);
+
+program
+  .command("voice")
+  .description("Monitor voice conversations for behavioral drift in real-time [Pro]")
+  .requiredOption("--personality <path>", "Path to .personality.json")
+  .option("--platform <name>", "Voice platform: livekit, vapi, retell, generic", "generic")
+  .option("--room <name>", "LiveKit room name")
+  .option("--server-url <url>", "LiveKit server URL")
+  .option("--webhook-port <port>", "Vapi webhook port (default: 3001)")
+  .option("--agent-id <id>", "Retell agent ID")
+  .option("--input <path>", "Input transcript file (JSONL) for offline analysis")
+  .option("--interval <ms>", "Diagnosis interval in milliseconds (default: 15000)")
+  .option("--threshold <level>", "Alert threshold: warning or concern (default: warning)")
+  .action(voiceCommand);
+
+program
+  .command("cure")
+  .description("End-to-end behavioral fix: diagnose → export → train → verify [Pro]")
+  .requiredOption("--personality <path>", "Path to .personality.json")
+  .requiredOption("--log <path>", "Path to conversation log (JSON)")
+  .option("--provider <provider>", "Training provider (openai, huggingface)", "openai")
+  .option("--base-model <model>", "Base model to fine-tune", "gpt-4o-mini-2024-07-18")
+  .option("--method <method>", "Training method (auto, sft, dpo)", "auto")
+  .option("--epochs <n>", "Number of training epochs")
+  .option("--suffix <name>", "Model name suffix")
+  .option("--skip-train", "Skip training step (diagnose + export only)")
+  .option("--skip-verify", "Skip post-training verification")
+  .option("--dry-run", "Preview pipeline plan without executing")
+  .option("--push", "Push trained model to HuggingFace Hub")
+  .option("--hub-repo <repo>", "HuggingFace Hub repo (user/model-name)")
+  .option("--pass-threshold <n>", "Minimum verification score (0-100)", "50")
+  .action(cureCommand);
 
 program.parseAsync().then(() => flushTelemetry());

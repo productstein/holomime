@@ -299,6 +299,28 @@ export {
   type RegistryEntry,
 } from "./marketplace/registry.js";
 
+export {
+  type AssetType,
+  type MarketplaceAsset,
+  type MarketplaceSearchQuery,
+  type MarketplaceSearchResult,
+  type PublishRequest,
+  type AssetReview,
+  type SortField,
+  type MarketplaceBackend,
+} from "./marketplace/types.js";
+
+export {
+  MarketplaceClient,
+  getMarketplaceClient,
+  resetMarketplaceClient,
+} from "./marketplace/api.js";
+
+export {
+  LocalMarketplaceBackend,
+  seedBuiltInPersonalities,
+} from "./marketplace/local-backend.js";
+
 // ─── Detector Hub ─────────────────────────────────────────
 
 export {

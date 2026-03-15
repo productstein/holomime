@@ -6,8 +6,8 @@ import { homedir } from "node:os";
 
 export type Tier = "free" | "pro" | "enterprise";
 
-const FREE_COMMANDS = ["init", "compile", "validate", "profile", "diagnose", "assess", "browse", "use", "publish", "activate", "telemetry"];
-const PRO_COMMANDS = ["session", "growth", "autopilot", "export", "train", "eval", "evolve", "benchmark", "watch", "certify", "daemon", "fleet", "network", "share", "prescribe"];
+const FREE_COMMANDS = ["init", "compile", "validate", "profile", "diagnose", "assess", "browse", "use", "install", "publish", "activate", "telemetry", "embody"];
+const PRO_COMMANDS = ["session", "growth", "autopilot", "export", "train", "eval", "evolve", "benchmark", "watch", "certify", "daemon", "fleet", "network", "share", "prescribe", "voice", "cure"];
 
 /**
  * Check if a command requires the pro tier.
