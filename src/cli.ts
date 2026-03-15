@@ -433,12 +433,14 @@ program
   .option("--agent <agent>", "Agent type override (claude-code, cline, manual)")
   .option("--port <port>", "Server port (default: 3838)", "3838")
   .option("--no-open", "Don't auto-open browser")
+  .option("--share", "Capture a brain snapshot and generate a shareable link")
   .option("--personality <path>", "Personality spec for assessment context")
   .action((opts) => liveCommand({
     watchPath: opts.watch,
     agent: opts.agent,
     port: parseInt(opts.port, 10),
     noOpen: opts.open === false,
+    share: opts.share === true,
     personality: opts.personality,
   }));
 

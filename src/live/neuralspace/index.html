@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NeuralSpace — HoloMime Brain</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako_inflate.min.js"></script>
   <script type="importmap">
   { "imports": {
     "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
@@ -55,6 +56,12 @@
       <div id="reconnect-banner">
         <div class="spinner"></div>
         <span>Reconnecting to agent...</span>
+      </div>
+
+      <div id="snapshot-cta">
+        <span>See your own agent's brain</span>
+        <code>npx holomime brain</code>
+        <a href="https://holomime.dev/brain">Learn more</a>
       </div>
 
       <div id="watermark">Powered by HoloMime</div>

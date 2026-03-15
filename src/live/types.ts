@@ -45,6 +45,7 @@ export interface LiveConfig {
   agent?: string;
   port: number;
   noOpen: boolean;
+  share?: boolean;
   personality?: string;
 }
 

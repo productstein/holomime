@@ -834,8 +834,71 @@ function animate(){
   composer.render();
 }
 
+// ═══════════ SNAPSHOT MODE ═══════════
+
+function initSnapshot(encoded) {
+  try {
+    // Decode base64url → Uint8Array → inflate → JSON
+    const b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+    const bin = atob(b64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    const inflated = window.pako.inflate(bytes, { to: 'string' });
+    const compact = JSON.parse(inflated);
+
+    // Expand compact format → full BrainEvent
+    const event = {
+      type: 'diagnosis',
+      timestamp: new Date().toISOString(),
+      health: compact.h,
+      grade: compact.g,
+      messageCount: compact.m || 0,
+      regions: (compact.r || []).map(r => ({
+        id: r.i,
+        intensity: r.n,
+        patterns: [],
+      })),
+      patterns: (compact.p || []).map(p => ({
+        id: p.i,
+        name: p.i.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+        severity: p.s,
+        percentage: p.c,
+        description: '',
+      })),
+      activity: null,
+    };
+
+    // Update UI
+    handleInit({ type: 'init', agent: compact.a || 'unknown', sessionPath: 'snapshot', startedAt: new Date().toISOString() });
+    handleDiagnosis(event);
+
+    // Update status to "Snapshot"
+    statusEl.className = 'status-badge';
+    statusEl.querySelector('span').textContent = 'Snapshot';
+    statusEl.querySelector('.status-dot').style.background = 'var(--accent)';
+    statusEl.querySelector('.status-dot').style.boxShadow = '0 0 8px var(--accent)';
+    statusEl.querySelector('.status-dot').style.animation = 'none';
+
+    // Show snapshot CTA
+    const ctaEl = document.getElementById('snapshot-cta');
+    if (ctaEl) ctaEl.classList.add('visible');
+
+  } catch (err) {
+    console.error('Failed to decode snapshot:', err);
+    statusEl.className = 'status-badge disconnected';
+    statusEl.querySelector('span').textContent = 'Invalid snapshot';
+  }
+}
+
 // ═══════════ INIT ═══════════
 
 updateHealth(100, 'A');
-connect();
+
+const urlParams = new URLSearchParams(window.location.search);
+const snapshotParam = urlParams.get('d');
+if (snapshotParam) {
+  initSnapshot(snapshotParam);
+} else {
+  connect();
+}
 animate();
