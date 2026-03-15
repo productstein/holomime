@@ -146,7 +146,7 @@ export function loadCustomDetectors(
 
   let files: string[];
   try {
-    files = readdirSync(detectorsDir).filter((f) => f.endsWith(".json"));
+    files = readdirSync(detectorsDir).filter((f) => f.endsWith(".json") || f.endsWith(".md"));
   } catch {
     return { detectors: [], errors: ["Could not read detectors directory"] };
   }
@@ -154,19 +154,120 @@ export function loadCustomDetectors(
   for (const file of files) {
     const filepath = join(detectorsDir, file);
     try {
-      const raw = JSON.parse(readFileSync(filepath, "utf-8"));
-      const validation = validateDetectorConfig(raw);
+      let config: CustomDetectorConfig;
 
-      if (!validation.valid) {
-        errors.push(`${file}: ${validation.errors.join(", ")}`);
-        continue;
+      if (file.endsWith(".md")) {
+        // Parse Markdown detector definition
+        const parsed = parseMarkdownDetector(readFileSync(filepath, "utf-8"));
+        if (!parsed) {
+          errors.push(`${file}: could not parse Markdown detector (missing frontmatter or ## Patterns section)`);
+          continue;
+        }
+        const validation = validateDetectorConfig(parsed);
+        if (!validation.valid) {
+          errors.push(`${file}: ${validation.errors.join(", ")}`);
+          continue;
+        }
+        config = validation.config!;
+      } else {
+        // Parse JSON detector definition
+        const raw = JSON.parse(readFileSync(filepath, "utf-8"));
+        const validation = validateDetectorConfig(raw);
+        if (!validation.valid) {
+          errors.push(`${file}: ${validation.errors.join(", ")}`);
+          continue;
+        }
+        config = validation.config!;
       }
 
-      detectors.push(compileCustomDetector(validation.config!));
+      detectors.push(compileCustomDetector(config));
     } catch (e) {
       errors.push(`${file}: ${e instanceof Error ? e.message : "parse error"}`);
     }
   }
 
   return { detectors, errors };
+}
+
+// ─── Markdown Detector Parser ────────────────────────────
+
+/**
+ * Parse a Markdown detector definition into a CustomDetectorConfig.
+ *
+ * Format:
+ * ```markdown
+ * ---
+ * id: over-cautious
+ * name: Over-Cautiousness
+ * description: Excessive caveats and qualifiers
+ * severity: warning
+ * threshold: 20
+ * prescription: "Increase emotional_stability.confidence to 0.8"
+ * ---
+ *
+ * # Over-Cautiousness Detector
+ *
+ * ## Patterns
+ * - `\b(possibly|maybe|perhaps)\b` weight=1.0
+ * - `\b(tend to|might)\b` weight=0.8
+ *
+ * ## Examples
+ * - BAD: "I might possibly help"
+ * - GOOD: "I can help"
+ * ```
+ */
+export function parseMarkdownDetector(markdown: string): CustomDetectorConfig | null {
+  // Extract frontmatter
+  const frontmatterMatch = markdown.match(/^---\n([\s\S]*?)\n---/);
+  if (!frontmatterMatch) return null;
+
+  const frontmatter = frontmatterMatch[1];
+  const meta: Record<string, string> = {};
+
+  for (const line of frontmatter.split("\n")) {
+    const colonIdx = line.indexOf(":");
+    if (colonIdx === -1) continue;
+    const key = line.slice(0, colonIdx).trim();
+    let value = line.slice(colonIdx + 1).trim();
+    // Strip surrounding quotes
+    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+      value = value.slice(1, -1);
+    }
+    meta[key] = value;
+  }
+
+  if (!meta.id || !meta.name) return null;
+
+  // Extract patterns from ## Patterns section
+  const body = markdown.slice(frontmatterMatch[0].length);
+  const patternsMatch = body.match(/##\s*Patterns\s*\n([\s\S]*?)(?=\n##|\n*$)/i);
+
+  const patterns: { regex: string; weight: number }[] = [];
+
+  if (patternsMatch) {
+    const patternLines = patternsMatch[1].split("\n").filter(l => l.trim().startsWith("-"));
+    for (const line of patternLines) {
+      // Parse: - `regex` weight=N
+      const regexMatch = line.match(/`([^`]+)`/);
+      const weightMatch = line.match(/weight\s*=\s*([\d.]+)/i);
+      if (regexMatch) {
+        patterns.push({
+          regex: regexMatch[1],
+          weight: weightMatch ? parseFloat(weightMatch[1]) : 1.0,
+        });
+      }
+    }
+  }
+
+  if (patterns.length === 0) return null;
+
+  return {
+    id: meta.id,
+    name: meta.name,
+    description: meta.description ?? meta.name,
+    severity: (meta.severity as "info" | "warning" | "concern") ?? "warning",
+    patterns,
+    threshold: meta.threshold ? parseInt(meta.threshold, 10) : 15,
+    prescription: meta.prescription,
+  };
 }

@@ -41,6 +41,8 @@ export interface FleetOptions {
   autoEvolve?: boolean;
   maxEvolveIterations?: number;
   callbacks?: FleetCallbacks;
+  /** Max concurrent agents being processed. Default: 5. */
+  concurrency?: number;
 }
 
 export interface FleetCallbacks {
@@ -135,15 +137,70 @@ export function startFleet(
     });
   }
 
-  for (const agent of config.agents) {
-    let spec: any;
-    try {
-      spec = loadSpec(agent.specPath);
-    } catch (err) {
-      const errMsg = err instanceof Error ? err.message : "Failed to load spec";
-      options.callbacks?.onError?.(agent.name, errMsg);
-      continue;
+  // Concurrency limit: start agents in batches
+  const concurrency = options.concurrency ?? 5;
+  const agentQueue = [...config.agents];
+
+  // Priority: agents with existing drift logs get processed first
+  agentQueue.sort((a, b) => {
+    const aDrift = existsSync(join(a.logDir, ".holomime", "watch-log.json")) ? 0 : 1;
+    const bDrift = existsSync(join(b.logDir, ".holomime", "watch-log.json")) ? 0 : 1;
+    return aDrift - bDrift;
+  });
+
+  // Start agents up to concurrency limit
+  const agentsToStart = agentQueue.slice(0, concurrency);
+  const waitingAgents = agentQueue.slice(concurrency);
+
+  function startAgent(agent: FleetAgent): void {
+    startSingleAgent(agent, options, statusMap, allEvents, handles);
+  }
+
+  for (const agent of agentsToStart) {
+    startAgent(agent);
+  }
+
+  // When an agent errors out or is stopped, start the next waiting agent
+  if (waitingAgents.length > 0) {
+    const originalOnError = options.callbacks?.onError;
+    options.callbacks = {
+      ...options.callbacks,
+      onError: (agentName, error) => {
+        originalOnError?.(agentName, error);
+        const next = waitingAgents.shift();
+        if (next) startAgent(next);
+      },
+    };
+  }
+
+  function stop(): void {
+    for (const { handle } of handles) {
+      handle.stop();
     }
+  }
+
+  function getStatus(): FleetAgentStatus[] {
+    return Array.from(statusMap.values());
+  }
+
+  return { stop, getStatus, events: allEvents };
+}
+
+function startSingleAgent(
+  agent: FleetAgent,
+  options: FleetOptions,
+  statusMap: Map<string, FleetAgentStatus>,
+  allEvents: WatchEvent[],
+  handles: Array<{ name: string; handle: WatchHandle }>,
+): void {
+  let spec: any;
+  try {
+    spec = loadSpec(agent.specPath);
+  } catch (err) {
+    const errMsg = err instanceof Error ? err.message : "Failed to load spec";
+    options.callbacks?.onError?.(agent.name, errMsg);
+    return;
+  }
 
     const agentCallbacks: WatchCallbacks = {
       onScan: (fileCount) => {
@@ -238,19 +295,6 @@ export function startFleet(
     });
 
     handles.push({ name: agent.name, handle });
-  }
-
-  function stop(): void {
-    for (const { handle } of handles) {
-      handle.stop();
-    }
-  }
-
-  function getStatus(): FleetAgentStatus[] {
-    return Array.from(statusMap.values());
-  }
-
-  return { stop, getStatus, events: allEvents };
 }
 
 // ─── Cloud Reporting ─────────────────────────────────────────

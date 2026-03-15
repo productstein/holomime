@@ -186,6 +186,7 @@ export {
   type EvolveOptions,
   type EvolveCallbacks,
   type IterationResult,
+  type StagingDiff,
 } from "./analysis/evolve-core.js";
 
 export {
@@ -229,6 +230,10 @@ export {
   generateComparisonMarkdown,
   type PublishedBenchmark,
   type BenchmarkComparison,
+  publishToLeaderboard,
+  fetchLeaderboard,
+  type LeaderboardSubmission,
+  type LeaderboardEntry,
 } from "./analysis/benchmark-publish.js";
 
 // ─── Watch (Drift Detection) ─────────────────────────────
@@ -348,6 +353,20 @@ export { Guard, type GuardResult, type GuardEntry } from "./hub/guard.js";
 
 export { wrapAgent, type WrapAgentOptions, type WrappedAgent } from "./agent-wrapper.js";
 
+// ─── Runtime Guard Middleware ────────────────────────────
+
+export {
+  createGuardMiddleware,
+  type GuardMiddleware,
+  type GuardMiddlewareOptions,
+  type GuardMode,
+  type GuardViolation,
+  type GuardFilterResult,
+  type GuardWrapResult,
+  type GuardMiddlewareStats,
+  type WrapOptions,
+} from "./guard/middleware.js";
+
 // ─── Behavioral Index ─────────────────────────────────────
 
 export {
@@ -392,6 +411,7 @@ export {
   type PatternTracker,
   type PatternStatus,
   type RollingContext,
+  decayUnseenPatterns,
 } from "./analysis/therapy-memory.js";
 
 // ─── Knowledge Graph ─────────────────────────────────────
@@ -459,12 +479,20 @@ export {
   type ReACTAction,
 } from "./analysis/react-therapist.js";
 
+// ─── Progressive Context Layers ─────────────────────────
+
+export {
+  getPhaseContext,
+  type ContextLayerInput,
+} from "./session/context-layers.js";
+
 // ─── Custom Detectors ────────────────────────────────────
 
 export {
   loadCustomDetectors,
   compileCustomDetector,
   validateDetectorConfig,
+  parseMarkdownDetector,
   type CustomDetectorConfig,
 } from "./analysis/custom-detectors.js";
 
@@ -494,6 +522,9 @@ export {
   loadCorpus,
   corpusStats,
   queryCorpus,
+  shareAnonymizedPatterns,
+  buildAnonymizedReport,
+  type AnonymizedPatternReport,
 } from "./analysis/behavioral-data.js";
 
 // ─── Agent Network ─────────────────────────────────────────
@@ -521,6 +552,21 @@ export {
 // ─── DPO Prescriber ────────────────────────────────────────
 
 export { prescribeDPOPairs } from "./analysis/prescriber.js";
+
+// ─── Compliance & Audit Trail ────────────────────────────
+
+export {
+  appendAuditEntry,
+  loadAuditLog,
+  verifyAuditChain,
+  generateComplianceReport,
+  generateMonitoringCertificate,
+  formatComplianceReportMarkdown,
+  type AuditEntry,
+  type AuditEventType,
+  type ComplianceReport,
+  type MonitoringCertificate,
+} from "./compliance/audit-trail.js";
 
 // ─── Embodiment ───────────────────────────────────────────
 

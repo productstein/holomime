@@ -41,6 +41,37 @@ holomime brain --share
 
 ---
 
+## Runtime Guard Middleware
+
+Intercept every LLM call and enforce behavioral alignment **before** the response reaches your users. Not post-hoc filtering — real-time correction at the API boundary.
+
+```typescript
+import { createGuardMiddleware } from "holomime";
+import { readFileSync } from "fs";
+
+const spec = JSON.parse(readFileSync(".personality.json", "utf-8"));
+const guard = createGuardMiddleware(spec, { mode: "enforce" });
+
+// Wrap any OpenAI or Anthropic call — sycophancy, hedging, over-apologizing
+// get corrected before they leave your server
+const response = await guard.wrap(
+  openai.chat.completions.create({
+    model: "gpt-4o",
+    messages: [{ role: "user", content: "Help me with..." }],
+  })
+);
+
+// Or filter an existing response
+const result = guard.filter(conversationHistory, rawResponse);
+if (result.violations.length > 0) {
+  console.log("Corrected:", result.correctedContent);
+}
+```
+
+Three modes: `monitor` (log violations), `enforce` (auto-correct), `strict` (block on violation). Auto-detects OpenAI and Anthropic response shapes.
+
+---
+
 ## Quick Start
 
 ```bash
@@ -199,6 +230,8 @@ Seven rule-based detectors that analyze real conversations without any LLM calls
 6. **Sentiment skew** -- Unnaturally positive or negative tone
 7. **Formality drift** -- Register inconsistency over time
 
+Plus support for **custom detectors** in JSON or Markdown format — drop `.json` or `.md` files in `.holomime/detectors/` and they're automatically loaded.
+
 <details>
 <summary><strong>All Commands</strong></summary>
 
@@ -250,7 +283,12 @@ holomime daemon --dir ./logs --personality agent.personality.json
 
 # Fleet mode -- monitor multiple agents simultaneously
 holomime fleet --dir ./agents
+
+# Fleet with concurrency control (default: 5)
+holomime fleet --dir ./agents --concurrency 10
 ```
+
+Confidence-scored behavioral memory tracks pattern trends across sessions. Patterns detected once carry lower weight than patterns seen across 20 sessions. Confidence decays when patterns aren't observed, so resolved issues fade naturally.
 
 ## Training Pipeline
 
@@ -314,6 +352,44 @@ cd agent && python agent.py dev
 ```
 
 See [agent/](agent/) for setup instructions.
+
+## Compliance & Audit Trail
+
+Tamper-evident audit logging for EU AI Act, NIST AI RMF, and enterprise compliance requirements.
+
+```bash
+# Generate a compliance report for a time period
+holomime certify --agent my-agent --from 2026-01-01 --to 2026-03-15
+
+# Continuous monitoring certificate
+holomime certify --certificate --agent my-agent --from 2026-01-01 --to 2026-03-15
+```
+
+Every diagnosis, session, and evolution is recorded in a chained-hash audit log. Reports reference EU AI Act Articles 9 & 12 and NIST AI RMF 1.0. Monitoring certificates attest that an agent maintained a behavioral grade over a period.
+
+```typescript
+import { appendAuditEntry, verifyAuditChain, generateComplianceReport } from "holomime";
+
+// Append to tamper-evident log
+appendAuditEntry("diagnosis", "my-agent", { patterns: ["sycophancy"], grade: "B" });
+
+// Verify chain integrity
+const entries = loadAuditLog("my-agent");
+const intact = verifyAuditChain(entries); // true if no tampering
+
+// Generate compliance report
+const report = generateComplianceReport("my-agent", "2026-01-01", "2026-03-15");
+```
+
+## Behavioral Leaderboard
+
+Publish benchmark results to the public leaderboard at [holomime.dev/leaderboard](https://holomime.dev/leaderboard):
+
+```bash
+holomime benchmark --personality .personality.json --publish
+```
+
+Compare your agent's behavioral alignment against others across providers and models.
 
 ## Research
 

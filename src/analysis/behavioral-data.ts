@@ -178,3 +178,76 @@ export function queryCorpus(
 
   return events;
 }
+
+// ─── Data Flywheel (Anonymized Pattern Sharing) ──────────
+
+export interface AnonymizedPatternReport {
+  /** Pattern IDs detected (e.g., "over-apologizing", "hedge-stacking"). */
+  patterns: string[];
+  /** Severity per pattern. */
+  severities: Record<string, string>;
+  /** Number of messages analyzed (no content). */
+  messageCount: number;
+  /** Spec hash (anonymized — no actual spec content). */
+  specHash: string;
+  /** Holomime version. */
+  version: string;
+  /** Timestamp. */
+  timestamp: string;
+}
+
+/**
+ * Share anonymized behavioral patterns with the holomime.dev aggregate dataset.
+ * Only shares pattern types + severity + context size — NO conversation content.
+ *
+ * This powers the data flywheel: more users → better pattern detection → more users.
+ * Opt-in only — call `holomime telemetry --share-patterns` to enable.
+ */
+export async function shareAnonymizedPatterns(
+  report: AnonymizedPatternReport,
+  apiKey?: string,
+  apiUrl = "https://holomime.dev",
+): Promise<{ success: boolean; error?: string }> {
+  const key = apiKey ?? process.env.HOLOMIME_API_KEY;
+  if (!key) {
+    return { success: false, error: "No API key" };
+  }
+
+  try {
+    const response = await fetch(`${apiUrl}/api/v1/patterns/share`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${key}`,
+      },
+      body: JSON.stringify(report),
+    });
+
+    if (!response.ok) {
+      return { success: false, error: `API error ${response.status}` };
+    }
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Network error" };
+  }
+}
+
+/**
+ * Build an anonymized pattern report from a diagnosis result.
+ * Strips all conversation content — only pattern metadata is shared.
+ */
+export function buildAnonymizedReport(
+  patternIds: string[],
+  severities: Record<string, string>,
+  messageCount: number,
+  specHash: string,
+): AnonymizedPatternReport {
+  return {
+    patterns: patternIds,
+    severities,
+    messageCount,
+    specHash,
+    version: "1.5.1",
+    timestamp: new Date().toISOString(),
+  };
+}

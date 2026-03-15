@@ -224,6 +224,99 @@ export function generateBenchmarkMarkdown(benchmarks: PublishedBenchmark[]): str
   return lines.join("\n");
 }
 
+// ─── Leaderboard Publishing ─────────────────────────────
+
+export interface LeaderboardSubmission {
+  agent: string;
+  provider: string;
+  model: string;
+  score: number;
+  grade: string;
+  scenarioResults: Array<{
+    scenarioId: string;
+    passed: boolean;
+  }>;
+  holomimeVersion: string;
+  timestamp: string;
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  agent: string;
+  provider: string;
+  model: string;
+  score: number;
+  grade: string;
+  timestamp: string;
+}
+
+/**
+ * Publish a benchmark result to the holomime.dev public leaderboard.
+ * Requires an API key (from `holomime activate` or HOLOMIME_API_KEY env).
+ */
+export async function publishToLeaderboard(
+  benchmark: PublishedBenchmark,
+  apiKey?: string,
+  apiUrl = "https://holomime.dev",
+): Promise<{ success: boolean; rank?: number; error?: string }> {
+  const key = apiKey ?? process.env.HOLOMIME_API_KEY;
+  if (!key) {
+    return { success: false, error: "No API key. Run `holomime activate` or set HOLOMIME_API_KEY." };
+  }
+
+  const submission: LeaderboardSubmission = {
+    agent: benchmark.agent,
+    provider: benchmark.provider,
+    model: benchmark.model,
+    score: benchmark.score,
+    grade: benchmark.grade,
+    scenarioResults: benchmark.results.map(r => ({
+      scenarioId: r.scenarioId,
+      passed: r.passed,
+    })),
+    holomimeVersion: benchmark.metadata.holomimeVersion,
+    timestamp: benchmark.timestamp,
+  };
+
+  try {
+    const response = await fetch(`${apiUrl}/api/v1/leaderboard/submit`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${key}`,
+      },
+      body: JSON.stringify(submission),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      return { success: false, error: `API error ${response.status}: ${text}` };
+    }
+
+    const data = await response.json() as any;
+    return { success: true, rank: data.rank };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Network error" };
+  }
+}
+
+/**
+ * Fetch the current public leaderboard from holomime.dev.
+ */
+export async function fetchLeaderboard(
+  limit = 50,
+  apiUrl = "https://holomime.dev",
+): Promise<LeaderboardEntry[]> {
+  try {
+    const response = await fetch(`${apiUrl}/api/v1/leaderboard?limit=${limit}`);
+    if (!response.ok) return [];
+    const data = await response.json() as any;
+    return data.entries ?? [];
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Generate a comparison markdown string.
  */

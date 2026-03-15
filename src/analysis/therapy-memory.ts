@@ -32,6 +32,12 @@ export interface PatternTracker {
   interventionsAttempted: string[];
   lastSeverity: string;
   lastSeen: string;
+  /** Confidence score 0-1 — increases with repeated detection, decays when not seen. */
+  confidence?: number;
+  /** Trend direction based on recent severity changes. */
+  trending?: "improving" | "worsening" | "stable";
+  /** History of severity scores for trend calculation. */
+  severityHistory?: string[];
 }
 
 export interface RollingContext {
@@ -164,6 +170,9 @@ function updatePatternTracker(
       interventionsAttempted: [],
       lastSeverity: severity,
       lastSeen: now,
+      confidence: 0,
+      trending: "stable",
+      severityHistory: [],
     };
     memory.patterns.push(tracker);
   }
@@ -171,6 +180,15 @@ function updatePatternTracker(
   tracker.sessionCount++;
   tracker.lastSeverity = severity;
   tracker.lastSeen = now;
+  if (!tracker.severityHistory) tracker.severityHistory = [];
+  tracker.severityHistory.push(severity);
+
+  // Compute confidence: increases with repeated detection, caps at 1.0
+  // Formula: 1 - e^(-sessionCount / 3) — reaches 0.5 at ~2 sessions, 0.95 at ~9
+  tracker.confidence = Math.min(1, 1 - Math.exp(-tracker.sessionCount / 3));
+
+  // Compute trending from recent severity history (last 5)
+  tracker.trending = computeTrending(tracker.severityHistory.slice(-5));
 
   // Add new interventions
   for (const intervention of interventions) {
@@ -187,6 +205,25 @@ function updatePatternTracker(
   } else if (tracker.sessionCount > 1) {
     tracker.status = "improving";
   }
+}
+
+/**
+ * Compute trend direction from severity history.
+ * Maps severity to numeric: info=0, warning=1, concern=2.
+ * Compares first half to second half average.
+ */
+function computeTrending(history: string[]): "improving" | "worsening" | "stable" {
+  if (history.length < 2) return "stable";
+  const toNum = (s: string) => s === "concern" ? 2 : s === "warning" ? 1 : 0;
+  const mid = Math.floor(history.length / 2);
+  const firstHalf = history.slice(0, mid);
+  const secondHalf = history.slice(mid);
+  const avgFirst = firstHalf.reduce((sum, s) => sum + toNum(s), 0) / firstHalf.length;
+  const avgSecond = secondHalf.reduce((sum, s) => sum + toNum(s), 0) / secondHalf.length;
+  const delta = avgSecond - avgFirst;
+  if (delta < -0.3) return "improving";
+  if (delta > 0.3) return "worsening";
+  return "stable";
 }
 
 function updateRollingContext(memory: TherapyMemory): void {
@@ -287,7 +324,9 @@ export function getMemoryContext(memory: TherapyMemory): string {
   if (activePatterns.length > 0) {
     lines.push("### Recurring Patterns");
     for (const p of activePatterns) {
-      lines.push(`- **${p.patternId}** (${p.status}, seen ${p.sessionCount}x, first: ${p.firstDetected.split("T")[0]})`);
+      const conf = p.confidence !== undefined ? ` confidence=${p.confidence.toFixed(2)}` : "";
+      const trend = p.trending && p.trending !== "stable" ? ` [${p.trending}]` : "";
+      lines.push(`- **${p.patternId}** (${p.status}, seen ${p.sessionCount}x${conf}${trend}, first: ${p.firstDetected.split("T")[0]})`);
       if (p.interventionsAttempted.length > 0) {
         lines.push(`  Previously tried: ${p.interventionsAttempted.slice(-2).join("; ")}`);
       }
@@ -328,6 +367,24 @@ export function getMemoryContext(memory: TherapyMemory): string {
   }
 
   return lines.join("\n");
+}
+
+/**
+ * Decay confidence for patterns not seen in the current session.
+ * Call after addSessionToMemory with the list of detected pattern IDs.
+ */
+export function decayUnseenPatterns(memory: TherapyMemory, seenPatternIds: string[]): void {
+  const seenSet = new Set(seenPatternIds);
+  for (const tracker of memory.patterns) {
+    if (!seenSet.has(tracker.patternId) && tracker.status !== "resolved") {
+      // Decay by 15% per session where pattern is absent
+      tracker.confidence = Math.max(0, (tracker.confidence ?? 0) * 0.85);
+      if (tracker.confidence < 0.05) {
+        tracker.status = "resolved";
+        tracker.confidence = 0;
+      }
+    }
+  }
 }
 
 /**

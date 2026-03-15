@@ -56,6 +56,27 @@ export interface EvolveOptions {
   specPath?: string;
   exportDpoPath?: string;
   callbacks?: EvolveCallbacks;
+  /**
+   * Use staging spec workflow (default: true).
+   * Changes write to .personality.staging.json first.
+   * Only committed to real spec on explicit approval.
+   */
+  useStaging?: boolean;
+  /** Auto-approve staging changes without prompt (for CI/automation). */
+  autoApprove?: boolean;
+  /** Called with the staging diff for approval. Return true to commit. */
+  onStagingReview?: (diff: StagingDiff) => Promise<boolean>;
+}
+
+export interface StagingDiff {
+  /** Path to the staging spec file. */
+  stagingPath: string;
+  /** Human-readable diff of changes. */
+  changes: string[];
+  /** Before spec (original). */
+  before: any;
+  /** After spec (staged). */
+  after: any;
 }
 
 export interface IterationResult {
@@ -297,9 +318,46 @@ export async function runEvolve(
     }
   }
 
-  // Write updated spec if requested
+  // Write updated spec — staging workflow or direct write
   if (options?.specPath) {
-    writeFileSync(options.specPath, JSON.stringify(currentSpec, null, 2) + "\n");
+    const useStaging = options?.useStaging !== false; // default true
+
+    if (useStaging) {
+      // Write to staging file first
+      const stagingPath = options.specPath.replace(/\.json$/, ".staging.json");
+      writeFileSync(stagingPath, JSON.stringify(currentSpec, null, 2) + "\n");
+
+      // Compute diff
+      const allChanges = iterations.flatMap(i => i.appliedChanges);
+      const diff: StagingDiff = {
+        stagingPath,
+        changes: allChanges,
+        before: spec,
+        after: currentSpec,
+      };
+
+      // Check approval
+      let approved = options?.autoApprove ?? false;
+      if (!approved && options?.onStagingReview) {
+        approved = await options.onStagingReview(diff);
+      }
+
+      if (approved) {
+        // Commit staging to real spec
+        writeFileSync(options.specPath, JSON.stringify(currentSpec, null, 2) + "\n");
+        // Clean up staging file
+        try {
+          const { unlinkSync } = await import("node:fs");
+          unlinkSync(stagingPath);
+        } catch {
+          // Staging cleanup is best-effort
+        }
+      }
+      // If not approved, staging file remains for manual review
+    } else {
+      // Direct write (legacy behavior)
+      writeFileSync(options.specPath, JSON.stringify(currentSpec, null, 2) + "\n");
+    }
   }
 
   // Build training export if DPO pairs were generated

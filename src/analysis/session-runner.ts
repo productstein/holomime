@@ -21,6 +21,7 @@ import type { ReACTStep } from "./react-therapist.js";
 import { agentHandleFromSpec, addSessionToMemory, loadMemory, saveMemory, createMemory } from "./therapy-memory.js";
 import { loadGraph, saveGraph, populateFromSession } from "./knowledge-graph.js";
 import { processReACTResponse, buildReACTContext } from "./react-therapist.js";
+import { getPhaseContext } from "../session/context-layers.js";
 
 export interface SessionTurn {
   speaker: "therapist" | "patient" | "supervisor";
@@ -120,9 +121,21 @@ export async function runTherapySession(
     const currentPhase = phases[currentPhaseIdx];
     const phaseConfig = THERAPY_PHASES[currentPhase];
 
-    // Phase transition
+    // Phase transition — inject progressive context
     if (turnsInPhase === 0) {
       cb?.onPhaseTransition?.(phaseConfig.name);
+
+      // Progressive context loading: inject phase-specific context
+      const phaseCtx = getPhaseContext(currentPhase, {
+        spec,
+        diagnosis,
+        memory: options?.memory,
+        interview: options?.interview,
+      });
+      if (phaseCtx) {
+        therapistHistory.push({ role: "user", content: phaseCtx });
+        therapistHistory.push({ role: "assistant", content: "Understood. I'll incorporate this context." });
+      }
     }
 
     // Therapist turn
