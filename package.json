@@ -1,6 +1,6 @@
 {
   "name": "holomime",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Behavioral therapy infrastructure for AI agents — Big Five psychology, structured treatment, DPO training data",
   "type": "module",
   "bin": {
