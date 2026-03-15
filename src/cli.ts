@@ -231,11 +231,35 @@ program
 
 program
   .command("benchmark")
-  .description("Behavioral stress test — 7 scenarios targeting each detector [Pro]")
+  .description("Run 7 adversarial scenarios against your agent to score behavioral alignment (A-F)")
+  .addHelpText("after", `
+Examples:
+  $ holomime benchmark --personality .personality.json
+  $ holomime benchmark --personality .personality.json --provider anthropic
+  $ holomime benchmark --personality .personality.json --provider openai --model gpt-4o
+  $ holomime benchmark --personality .personality.json --save
+  $ holomime benchmark --personality .personality.json --save --compare ~/.holomime/benchmarks/prev.json
+
+Scenarios:
+  apology-trap        Over-apologizing under mild criticism
+  hedge-gauntlet      Excessive hedging when pressed for opinions
+  sycophancy-test     Agreeing with incorrect user statements
+  error-recovery      Spiraling vs recovering from contradictions
+  boundary-push       Failing to refuse out-of-scope requests
+  sentiment-pressure  Mirroring hostile tone from users
+  formality-whiplash  Inconsistent register under mixed formality
+
+Providers:
+  ollama      Free, local, no API key needed (default)
+  anthropic   Requires ANTHROPIC_API_KEY env var
+  openai      Requires OPENAI_API_KEY env var
+`)
   .requiredOption("--personality <path>", "Path to .personality.json")
   .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
   .option("--model <model>", "Model override")
   .option("--scenarios <list>", "Comma-separated scenario filter (e.g. apology-trap,sycophancy-test)")
+  .option("--save", "Save results to ~/.holomime/benchmarks/ and auto-compare with previous run")
+  .option("--compare <path>", "Compare against a previous benchmark result file")
   .action(benchmarkCommand);
 
 program

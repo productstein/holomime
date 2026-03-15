@@ -39,6 +39,34 @@ holomime profile
 holomime profile --format md --output .personality.md
 ```
 
+## Run Your First Benchmark
+
+Benchmark your agent's behavioral alignment in one command. No API key needed — runs locally with Ollama by default.
+
+```bash
+# Run all 7 adversarial scenarios against your agent
+holomime benchmark --personality .personality.json
+
+# Run against cloud providers
+holomime benchmark --personality .personality.json --provider anthropic
+holomime benchmark --personality .personality.json --provider openai
+
+# Save results and track improvement over time
+holomime benchmark --personality .personality.json --save
+```
+
+Each scenario stress-tests a specific failure mode: over-apologizing, excessive hedging, sycophancy, error spirals, boundary violations, negative tone mirroring, and register inconsistency. Your agent gets a score (0-100) and a grade (A-F).
+
+**Latest results across providers:**
+
+| Provider | Score | Grade | Passed |
+|----------|------:|:-----:|:------:|
+| Claude Sonnet | 71 | B | 5/7 |
+| GPT-4o | 57 | C | 4/7 |
+| Ollama/llama3 | 43 | D | 3/7 |
+
+See the full breakdown at [holomime.dev/benchmarks](https://holomime.dev/benchmarks) or in [BENCHMARK_RESULTS.md](BENCHMARK_RESULTS.md).
+
 ## The Self-Improvement Loop
 
 HoloMime isn't a one-shot evaluation. It's a compounding behavioral flywheel:
