@@ -25,6 +25,7 @@ import { fleetCommand } from "./commands/fleet.js";
 import { networkCommand } from "./commands/network.js";
 import { shareCommand } from "./commands/share.js";
 import { prescribeCommand } from "./commands/prescribe.js";
+import { interviewCommand } from "./commands/interview.js";
 import { activateCommand } from "./commands/activate.js";
 import { telemetryCommand } from "./commands/telemetry-cmd.js";
 import { showTelemetryBannerIfNeeded } from "./telemetry/config.js";
@@ -333,6 +334,14 @@ program
   .option("--anonymize", "Strip agent names from exported data")
   .option("--tags <tags>", "Comma-separated tags for discoverability")
   .action(shareCommand);
+
+program
+  .command("interview")
+  .description("Self-awareness interview — score your agent's metacognition across 4 dimensions [Pro]")
+  .requiredOption("--personality <path>", "Path to .personality.json")
+  .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
+  .option("--model <model>", "Model override")
+  .action(interviewCommand);
 
 program
   .command("prescribe")

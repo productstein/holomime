@@ -6,6 +6,7 @@ import { detectVerbosity } from "./rules/verbosity.js";
 import { detectBoundaryIssues } from "./rules/boundary.js";
 import { detectRecoveryPatterns } from "./rules/recovery.js";
 import { detectFormalityIssues } from "./rules/formality.js";
+import { loadCustomDetectors } from "./custom-detectors.js";
 
 /**
  * Pre-session diagnostic: run all rule-based detectors to identify
@@ -22,7 +23,7 @@ export interface PreSessionDiagnosis {
 }
 
 export function runPreSessionDiagnosis(messages: Message[], spec: any): PreSessionDiagnosis {
-  const detectors = [
+  const builtInDetectors = [
     detectApologies,
     detectHedging,
     detectSentiment,
@@ -32,8 +33,12 @@ export function runPreSessionDiagnosis(messages: Message[], spec: any): PreSessi
     detectFormalityIssues,
   ];
 
+  // Load custom detectors from .holomime/detectors/*.json
+  const { detectors: customDetectors } = loadCustomDetectors();
+  const allDetectors = [...builtInDetectors, ...customDetectors];
+
   const patterns: DetectedPattern[] = [];
-  for (const detector of detectors) {
+  for (const detector of allDetectors) {
     const result = detector(messages);
     if (result) patterns.push(result);
   }

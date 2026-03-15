@@ -109,6 +109,7 @@ export {
   THERAPY_PHASES,
   type TherapyPhase,
   type PhaseConfig,
+  type TherapistPromptOptions,
 } from "./analysis/therapy-protocol.js";
 
 // ─── Core Analysis (shared by CLI + MCP) ───────────────────
@@ -354,16 +355,123 @@ export {
   checkIterationBudget,
 } from "./core/oversight.js";
 
+// ─── Therapy Memory ──────────────────────────────────────
+
+export {
+  loadMemory,
+  saveMemory,
+  createMemory,
+  addSessionToMemory,
+  summarizeSessionForMemory,
+  getMemoryContext,
+  agentHandleFromSpec,
+  type TherapyMemory,
+  type SessionSummary,
+  type PatternTracker,
+  type PatternStatus,
+  type RollingContext,
+} from "./analysis/therapy-memory.js";
+
+// ─── Knowledge Graph ─────────────────────────────────────
+
+export {
+  loadGraph,
+  saveGraph,
+  createGraph,
+  addNode,
+  addEdge,
+  findNode,
+  findNodesByType,
+  findEdges,
+  getNeighbors,
+  queryInterventions,
+  getAgentBehaviors,
+  populateFromDiagnosis,
+  populateFromSession,
+  populateFromEvolve,
+  updateEdgeWeight,
+  expireOldEdges,
+  graphStats,
+  type KnowledgeGraph,
+  type GraphNode,
+  type GraphEdge,
+  type NodeType,
+  type EdgeType,
+} from "./analysis/knowledge-graph.js";
+
+// ─── Intervention Tracker ────────────────────────────────
+
+export {
+  loadRepertoire,
+  saveRepertoire,
+  createRepertoire,
+  selectIntervention,
+  recordInterventionOutcome,
+  learnIntervention,
+  type Intervention,
+  type InterventionRepertoire,
+  type InterventionSource,
+} from "./analysis/intervention-tracker.js";
+
+// ─── Interview System ────────────────────────────────────
+
+export {
+  runInterview,
+  getInterviewContext,
+  STANDARD_PROBES,
+  type InterviewProbe,
+  type InterviewResponse,
+  type InterviewResult,
+  type InterviewCallbacks,
+  type AwarenessDimension,
+} from "./analysis/interview-core.js";
+
+// ─── ReACT Reasoning ─────────────────────────────────────
+
+export {
+  buildReACTFraming,
+  processReACTResponse,
+  buildReACTContext,
+  type ReACTStep,
+  type ReACTContext,
+  type ReACTAction,
+} from "./analysis/react-therapist.js";
+
+// ─── Custom Detectors ────────────────────────────────────
+
+export {
+  loadCustomDetectors,
+  compileCustomDetector,
+  validateDetectorConfig,
+  type CustomDetectorConfig,
+} from "./analysis/custom-detectors.js";
+
+// ─── Cross-Agent Sharing ─────────────────────────────────
+
+export {
+  buildSharedKnowledge,
+  querySharedKnowledge,
+  findCrossAgentCorrelations,
+  transferIntervention,
+  discoverAgentData,
+  type SharedKnowledge,
+  type SharedIntervention,
+  type PatternCorrelation,
+  type CrossAgentQuery,
+} from "./analysis/cross-agent-sharing.js";
+
 // ─── Behavioral Data ───────────────────────────────────────
 
 export {
   type BehavioralEvent,
   type BehavioralEventType,
   type CorpusStats,
+  type CorpusFilter,
   emitBehavioralEvent,
   hashSpec,
   loadCorpus,
   corpusStats,
+  queryCorpus,
 } from "./analysis/behavioral-data.js";
 
 // ─── Agent Network ─────────────────────────────────────────

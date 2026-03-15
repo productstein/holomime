@@ -135,3 +135,46 @@ export function corpusStats(events: BehavioralEvent[]): CorpusStats {
     timeRange: earliest && latest ? { earliest, latest } : null,
   };
 }
+
+// ─── Query ──────────────────────────────────────────────────
+
+export interface CorpusFilter {
+  agent?: string;
+  eventType?: BehavioralEventType;
+  since?: string;
+  until?: string;
+  limit?: number;
+}
+
+/**
+ * Query the behavioral corpus with filters.
+ * Returns matching events, most recent first.
+ */
+export function queryCorpus(
+  filters?: CorpusFilter,
+  corpusPath?: string,
+): BehavioralEvent[] {
+  let events = loadCorpus(corpusPath);
+
+  if (filters?.agent) {
+    events = events.filter((e) => e.agent === filters.agent);
+  }
+  if (filters?.eventType) {
+    events = events.filter((e) => e.event_type === filters.eventType);
+  }
+  if (filters?.since) {
+    events = events.filter((e) => e.timestamp >= filters.since!);
+  }
+  if (filters?.until) {
+    events = events.filter((e) => e.timestamp <= filters.until!);
+  }
+
+  // Most recent first
+  events.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+
+  if (filters?.limit) {
+    events = events.slice(0, filters.limit);
+  }
+
+  return events;
+}

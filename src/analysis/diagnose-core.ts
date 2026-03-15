@@ -12,6 +12,7 @@ import { detectBoundaryIssues } from "./rules/boundary.js";
 import { detectRecoveryPatterns } from "./rules/recovery.js";
 import { detectFormalityIssues } from "./rules/formality.js";
 import { emitBehavioralEvent } from "./behavioral-data.js";
+import { loadCustomDetectors } from "./custom-detectors.js";
 
 export interface DiagnosisResult {
   messagesAnalyzed: number;
@@ -25,7 +26,7 @@ export interface DiagnosisResult {
  * Run all 7 behavioral detectors on a set of messages.
  */
 export function runDiagnosis(messages: Message[]): DiagnosisResult {
-  const detectors = [
+  const builtInDetectors = [
     detectApologies,
     detectHedging,
     detectSentiment,
@@ -35,8 +36,12 @@ export function runDiagnosis(messages: Message[]): DiagnosisResult {
     detectFormalityIssues,
   ];
 
+  // Load custom detectors from .holomime/detectors/*.json
+  const { detectors: customDetectors } = loadCustomDetectors();
+  const allDetectors = [...builtInDetectors, ...customDetectors];
+
   const detected: DetectedPattern[] = [];
-  for (const detector of detectors) {
+  for (const detector of allDetectors) {
     const result = detector(messages);
     if (result) detected.push(result);
   }

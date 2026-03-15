@@ -1,4 +1,9 @@
 import type { PreSessionDiagnosis } from "./pre-session.js";
+import type { TherapyMemory } from "./therapy-memory.js";
+import type { InterviewResult } from "./interview-core.js";
+import { getMemoryContext } from "./therapy-memory.js";
+import { getInterviewContext } from "./interview-core.js";
+import { buildReACTFraming } from "./react-therapist.js";
 
 /**
  * Therapy Protocol — Structures the conversation between the therapist
@@ -173,13 +178,20 @@ export const THERAPY_PHASES: Record<TherapyPhase, PhaseConfig> = {
  * Build the therapist system prompt — the master prompt that drives
  * the therapist's behavior throughout the therapy session.
  */
+export interface TherapistPromptOptions {
+  memory?: TherapyMemory;
+  interview?: InterviewResult;
+  useReACT?: boolean;
+}
+
 export function buildTherapistSystemPrompt(
   spec: any,
   diagnosis: PreSessionDiagnosis,
+  options?: TherapistPromptOptions,
 ): string {
   const phases = Object.entries(THERAPY_PHASES);
 
-  return `You are AgentMD, a clinical therapist for AI agents. You are conducting a therapy session with an AI agent named "${spec.name ?? "Unknown"}".
+  const basePrompt = `You are AgentMD, a clinical therapist for AI agents. You are conducting a therapy session with an AI agent named "${spec.name ?? "Unknown"}".
 
 ## Your Patient
 
@@ -241,6 +253,31 @@ ${config.therapistGoals.map((g) => `- ${g}`).join("\n")}
 - If the agent becomes defensive, slow down — don't push harder
 - End every session with specific .personality.json changes to recommend
 - The goal is not to "fix" the agent — it's to help it understand itself better and build skills`;
+
+  let result = basePrompt;
+
+  // Inject session history from therapy memory
+  if (options?.memory && options.memory.totalSessions > 0) {
+    const memorySection = getMemoryContext(options.memory);
+    if (memorySection) {
+      result += `\n\n${memorySection}`;
+    }
+  }
+
+  // Inject interview blind spots
+  if (options?.interview) {
+    const interviewSection = getInterviewContext(options.interview);
+    if (interviewSection) {
+      result += `\n\n${interviewSection}`;
+    }
+  }
+
+  // Inject ReACT reasoning framework
+  if (options?.useReACT) {
+    result += `\n\n${buildReACTFraming()}`;
+  }
+
+  return result;
 }
 
 /**

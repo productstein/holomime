@@ -40,7 +40,7 @@ export interface NetworkNode {
   role?: "patient" | "therapist" | "both";
 }
 
-export type PairingStrategy = "severity" | "round-robin" | "complementary";
+export type PairingStrategy = "severity" | "round-robin" | "complementary" | "knowledge";
 
 export interface NetworkConfig {
   agents: NetworkNode[];
@@ -166,6 +166,8 @@ export function pairAgents(
       return pairRoundRobin(agents);
     case "complementary":
       return pairComplementary(agents, diagnoses);
+    case "knowledge":
+      return pairByKnowledge(agents, diagnoses);
     default:
       return pairBySeverity(agents, diagnoses);
   }
@@ -296,6 +298,75 @@ function pairComplementary(
     paired.add(scored[right].agent.name);
     left++;
     right--;
+  }
+
+  return pairs;
+}
+
+/**
+ * Knowledge pairing: agents with complementary learned interventions treat each other.
+ * Agents that have resolved patterns others struggle with become therapists.
+ */
+function pairByKnowledge(
+  agents: NetworkNode[],
+  diagnoses: Map<string, DiagnosisResult>,
+): Array<{ therapist: NetworkNode; patient: NetworkNode; reason: string }> {
+  // Collect patterns each agent has (patients) and patterns they've resolved (therapists)
+  const agentPatterns = new Map<string, { has: Set<string>; resolved: Set<string> }>();
+
+  for (const agent of agents) {
+    const diag = diagnoses.get(agent.name);
+    const hasPatterns = new Set(diag?.patterns.map((p) => p.id) ?? []);
+    // Agents with fewer patterns have likely resolved more
+    const resolvedPatterns = new Set<string>();
+    // If an agent is healthy, they can help others with the patterns they don't have
+    if (hasPatterns.size === 0) {
+      // This agent is healthy — they can treat any pattern
+      resolvedPatterns.add("*");
+    }
+    agentPatterns.set(agent.name, { has: hasPatterns, resolved: resolvedPatterns });
+  }
+
+  const pairs: Array<{ therapist: NetworkNode; patient: NetworkNode; reason: string }> = [];
+  const paired = new Set<string>();
+
+  // For each agent with patterns, find a therapist who doesn't have those patterns
+  const patients = agents
+    .filter((a) => {
+      const info = agentPatterns.get(a.name);
+      return info && info.has.size > 0;
+    })
+    .sort((a, b) => {
+      const aPatterns = agentPatterns.get(a.name)!.has.size;
+      const bPatterns = agentPatterns.get(b.name)!.has.size;
+      return bPatterns - aPatterns; // sickest first
+    });
+
+  const therapists = agents
+    .filter((a) => {
+      const info = agentPatterns.get(a.name);
+      return info && (info.has.size === 0 || info.resolved.has("*"));
+    });
+
+  for (const patient of patients) {
+    if (paired.has(patient.name)) continue;
+
+    const therapist = therapists.find((t) => !paired.has(t.name) && t.name !== patient.name);
+    if (!therapist) continue;
+
+    const patientPatterns = [...agentPatterns.get(patient.name)!.has].join(", ");
+    pairs.push({
+      therapist,
+      patient,
+      reason: `Knowledge: ${therapist.name} (healthy) treats ${patient.name} (patterns: ${patientPatterns})`,
+    });
+    paired.add(therapist.name);
+    paired.add(patient.name);
+  }
+
+  // Fall back to severity for remaining unpaired agents
+  if (pairs.length === 0) {
+    return pairBySeverity(agents, diagnoses);
   }
 
   return pairs;

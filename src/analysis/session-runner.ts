@@ -12,8 +12,15 @@ import {
   buildPatientSystemPrompt,
   THERAPY_PHASES,
   type TherapyPhase,
+  type TherapistPromptOptions,
 } from "./therapy-protocol.js";
 import { emitBehavioralEvent } from "./behavioral-data.js";
+import type { TherapyMemory } from "./therapy-memory.js";
+import type { InterviewResult } from "./interview-core.js";
+import type { ReACTStep } from "./react-therapist.js";
+import { agentHandleFromSpec, addSessionToMemory, loadMemory, saveMemory, createMemory } from "./therapy-memory.js";
+import { loadGraph, saveGraph, populateFromSession } from "./knowledge-graph.js";
+import { processReACTResponse, buildReACTContext } from "./react-therapist.js";
 
 export interface SessionTurn {
   speaker: "therapist" | "patient" | "supervisor";
@@ -48,6 +55,14 @@ export interface SessionOptions {
   callbacks?: SessionCallbacks;
   /** Enable human-in-the-loop mode — pauses after each exchange for supervisor input. */
   interactive?: boolean;
+  /** Inject therapy memory for session continuity. */
+  memory?: TherapyMemory;
+  /** Inject interview results for targeted therapy. */
+  interview?: InterviewResult;
+  /** Enable ReACT structured reasoning for therapist. */
+  useReACT?: boolean;
+  /** Save memory and graph after session completes. */
+  persistState?: boolean;
 }
 
 /**
@@ -61,7 +76,12 @@ export async function runTherapySession(
   maxTurns: number,
   options?: SessionOptions,
 ): Promise<SessionTranscript> {
-  const therapistSystem = buildTherapistSystemPrompt(spec, diagnosis);
+  const promptOptions: TherapistPromptOptions = {
+    memory: options?.memory,
+    interview: options?.interview,
+    useReACT: options?.useReACT,
+  };
+  const therapistSystem = buildTherapistSystemPrompt(spec, diagnosis, promptOptions);
   const patientSystem = buildPatientSystemPrompt(spec);
   const agentName = spec.name ?? "Agent";
   const cb = options?.callbacks;
@@ -116,7 +136,16 @@ export async function runTherapySession(
     const therapistReply = await provider.chat(therapistHistory as any);
     typing?.stop();
 
-    const cleanTherapistReply = therapistReply.replace(/\[Phase:.*?\]/g, "").trim();
+    let cleanTherapistReply = therapistReply.replace(/\[Phase:.*?\]/g, "").trim();
+
+    // Process ReACT reasoning if enabled
+    if (options?.useReACT) {
+      const reactCtx = buildReACTContext(agentHandleFromSpec(spec), diagnosis);
+      const { response, steps } = processReACTResponse(cleanTherapistReply, reactCtx);
+      cleanTherapistReply = response;
+      // Steps are available for metadata/DPO but not shown to patient
+    }
+
     therapistHistory.push({ role: "assistant", content: cleanTherapistReply });
     transcript.turns.push({ speaker: "therapist", phase: currentPhase, content: cleanTherapistReply });
 
@@ -200,6 +229,25 @@ export async function runTherapySession(
     });
   } catch {
     // Non-critical
+  }
+
+  // Post-session: persist therapy memory and knowledge graph
+  if (options?.persistState !== false) {
+    try {
+      const handle = agentHandleFromSpec(spec);
+
+      // Save to therapy memory
+      const memory = options?.memory ?? loadMemory(handle) ?? createMemory(handle, agentName);
+      await addSessionToMemory(memory, transcript, null);
+      saveMemory(memory);
+
+      // Populate knowledge graph
+      const graph = loadGraph();
+      populateFromSession(graph, handle, transcript);
+      saveGraph(graph);
+    } catch {
+      // Non-critical — state persistence is best-effort
+    }
   }
 
   return transcript;

@@ -23,6 +23,7 @@ import { printSessionHeader, printMirrorFrame, printBox } from "../ui/boxes.js";
 import { printTherapistMessage, printPatientMessage, printPhaseTransition } from "../ui/chat.js";
 import { showTypingIndicator } from "../ui/streaming.js";
 import { printPatternIndicator } from "../ui/progress.js";
+import { agentHandleFromSpec, loadMemory } from "../analysis/therapy-memory.js";
 
 interface SessionOptions {
   personality: string;
@@ -166,7 +167,14 @@ export async function sessionCommand(options: SessionOptions): Promise<void> {
     console.log();
   }
 
-  await runLiveSession(spec, diagnosis, llmProvider, maxTurns, options.apply ?? false, options.interactive ?? false);
+  // Load therapy memory for session continuity
+  const handle = agentHandleFromSpec(spec);
+  const memory = loadMemory(handle);
+  if (memory && memory.totalSessions > 0) {
+    console.log(chalk.dim(`  Therapy memory loaded (${memory.totalSessions} previous session${memory.totalSessions > 1 ? "s" : ""})`));
+  }
+
+  await runLiveSession(spec, diagnosis, llmProvider, maxTurns, options.apply ?? false, options.interactive ?? false, memory);
 }
 
 async function runLiveSession(
@@ -176,12 +184,14 @@ async function runLiveSession(
   maxTurns: number,
   apply: boolean,
   interactive: boolean = false,
+  memory?: import("../analysis/therapy-memory.js").TherapyMemory | null,
 ): Promise<void> {
   const agentName = spec.name ?? "Agent";
   let skipInteractive = false;
 
   const transcript = await runTherapySession(spec, diagnosis, provider, maxTurns, {
     interactive,
+    memory: memory ?? undefined,
     callbacks: {
       onPhaseTransition: (name) => printPhaseTransition(name),
       onTherapistMessage: (content) => printTherapistMessage(content),

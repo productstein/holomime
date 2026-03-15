@@ -35,6 +35,9 @@ import { evaluateOutcome } from "./outcome-eval.js";
 import { appendEvolution, type EvolutionEntry } from "./evolution-history.js";
 import { emitBehavioralEvent } from "./behavioral-data.js";
 import { generateSystemPrompt } from "../core/prompt-gen.js";
+import { agentHandleFromSpec, loadMemory, saveMemory, createMemory, addSessionToMemory } from "./therapy-memory.js";
+import { loadGraph, saveGraph, populateFromDiagnosis, populateFromEvolve } from "./knowledge-graph.js";
+import { loadRepertoire, saveRepertoire, selectIntervention, recordInterventionOutcome, learnIntervention } from "./intervention-tracker.js";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -110,8 +113,17 @@ export async function runEvolve(
   let finalGrade = "C";
   let finalHealth = 50;
 
+  // Load persistent state
+  const agentHandle = agentHandleFromSpec(currentSpec);
+  const memory = loadMemory(agentHandle) ?? createMemory(agentHandle, currentSpec.name ?? "Agent");
+  const graph = loadGraph();
+  const repertoire = loadRepertoire();
+
   // Initial diagnosis
   let diagnosis = runPreSessionDiagnosis(messages, currentSpec);
+
+  // Populate graph from initial diagnosis
+  populateFromDiagnosis(graph, agentHandle, currentSpec.name ?? "Agent", diagnosis.patterns);
 
   // If already healthy, return early
   if (diagnosis.severity === "routine" && diagnosis.patterns.filter(p => p.severity !== "info").length === 0) {
@@ -148,13 +160,21 @@ export async function runEvolve(
   for (let i = 1; i <= maxIterations; i++) {
     cb?.onIterationStart?.(i, maxIterations);
 
-    // Step 1: Run therapy session
+    // Step 0.5: Select best intervention for primary pattern
+    const primaryPattern = diagnosis.patterns.find((p) => p.severity !== "info");
+    const selectedIntervention = primaryPattern
+      ? selectIntervention(repertoire, primaryPattern.id, graph)
+      : null;
+
+    // Step 1: Run therapy session (with memory, disable internal persistence)
     const transcript = await runTherapySession(
       currentSpec,
       diagnosis,
       provider,
       maxTurnsPerSession,
       {
+        memory,
+        persistState: false, // evolve manages its own state persistence
         callbacks: {
           onPhaseTransition: cb?.onPhaseTransition,
           onTherapistMessage: cb?.onTherapistMessage,
@@ -213,6 +233,31 @@ export async function runEvolve(
       changesApplied: changes,
     };
     appendEvolution(entry, currentSpec.name);
+
+    // Step 7b: Persist state (memory, graph, repertoire)
+    try {
+      await addSessionToMemory(memory, transcript, health);
+      saveMemory(memory);
+
+      const patternsDetected = diagnosis.patterns.filter((p) => p.severity !== "info").map((p) => p.id);
+      const patternsResolved = evaluation.patterns.filter((p) => p.status === "resolved").map((p) => p.patternId);
+      populateFromEvolve(graph, agentHandle, patternsDetected, patternsResolved, changes, health);
+      saveGraph(graph);
+
+      // Record intervention outcome
+      if (selectedIntervention) {
+        const success = health >= 70;
+        recordInterventionOutcome(repertoire, selectedIntervention.id, success);
+      }
+
+      // Learn new interventions from successful sessions
+      if (health >= 70) {
+        await learnIntervention(repertoire, transcript, health, provider);
+      }
+      saveRepertoire(repertoire);
+    } catch {
+      // State persistence is best-effort
+    }
 
     // Step 8: Check convergence
     const isConverged = health >= convergenceThreshold;
