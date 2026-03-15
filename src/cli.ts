@@ -10,7 +10,7 @@ import { assessCommand } from "./commands/assess.js";
 import { sessionCommand } from "./commands/session.js";
 import { growthCommand } from "./commands/growth.js";
 import { browseCommand } from "./commands/browse.js";
-import { pullCommand } from "./commands/pull.js";
+import { useCommand } from "./commands/use.js";
 import { publishCommand } from "./commands/publish.js";
 import { autopilotCommand } from "./commands/autopilot.js";
 import { exportCommand } from "./commands/export.js";
@@ -42,14 +42,14 @@ program
 
     const commandName = actionCommand.name();
 
-    // First-run detection: if not `init`/`browse`/`pull` and no .personality.json, show welcome
+    // First-run detection: if not `init`/`browse`/`use` and no .personality.json, show welcome
     // Show telemetry banner on first run
     showTelemetryBannerIfNeeded();
 
     // Track command usage (fire-and-forget)
     trackEvent("cli_command", { command: commandName });
 
-    const skipPersonalityCheck = ["init", "browse", "pull", "activate", "telemetry"];
+    const skipPersonalityCheck = ["init", "browse", "use", "activate", "telemetry"];
     if (!skipPersonalityCheck.includes(commandName) && !checkPersonalityExists()) {
       showWelcome();
       process.exit(0);
@@ -114,11 +114,11 @@ program
   .action(browseCommand);
 
 program
-  .command("pull")
-  .description("Download a personality profile from the registry")
-  .argument("<handle>", "Personality handle to pull")
+  .command("use")
+  .description("Use a personality from the registry")
+  .argument("<handle>", "Personality handle to use")
   .option("-o, --output <path>", "Output path", ".personality.json")
-  .action(pullCommand);
+  .action(useCommand);
 
 program
   .command("publish")

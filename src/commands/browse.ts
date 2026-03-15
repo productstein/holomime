@@ -51,6 +51,6 @@ export async function browseCommand(options: BrowseOptions): Promise<void> {
     console.log();
   }
 
-  console.log(chalk.dim(`  Pull a personality: ${chalk.cyan("holomime pull <handle>")}`));
+  console.log(chalk.dim(`  Use a personality: ${chalk.cyan("holomime use <handle>")}`));
   console.log();
 }

@@ -9,12 +9,12 @@ import { printHeader } from "../ui/branding.js";
 import { withSpinner } from "../ui/spinner.js";
 import { printBox } from "../ui/boxes.js";
 
-interface PullOptions {
+interface UseOptions {
   output?: string;
 }
 
-export async function pullCommand(handle: string, options: PullOptions): Promise<void> {
-  printHeader("Pull Personality");
+export async function useCommand(handle: string, options: UseOptions): Promise<void> {
+  printHeader("Use Personality");
 
   const registry = await withSpinner("Fetching registry...", async () => {
     return fetchRegistry();
@@ -74,7 +74,7 @@ export async function pullCommand(handle: string, options: PullOptions): Promise
   writeFileSync(outputPath, JSON.stringify(result.data, null, 2) + "\n");
 
   console.log();
-  printBox(`${figures.tick} Pulled ${entry.name} (@${entry.handle}) to ${outputPath}`, "success");
+  printBox(`${figures.tick} Using ${entry.name} (@${entry.handle}) → ${outputPath}`, "success");
   console.log();
   console.log(chalk.dim(`  Next: ${chalk.cyan("holomime profile")} to view the personality summary.`));
   console.log();

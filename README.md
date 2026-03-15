@@ -190,7 +190,7 @@ Seven rule-based detectors that analyze real conversations without any LLM calls
 | `holomime compile` | Generate provider-specific system prompts |
 | `holomime validate` | Schema + psychological coherence checks |
 | `holomime browse` | Browse community personality hub |
-| `holomime pull` | Download a personality from the hub |
+| `holomime use` | Use a personality from the registry |
 | `holomime publish` | Share your personality to the hub |
 | `holomime activate` | Activate a Practice license key |
 
