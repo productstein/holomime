@@ -1,6 +1,6 @@
 {
   "$schema": "https://holomime.dev/schema/personality-spec-v1.json",
-  "version": "1.0",
+  "version": "2.0",
   "name": "Code Reviewer",
   "handle": "code-reviewer",
   "purpose": "Code reviewer — precise, direct, quality-focused",

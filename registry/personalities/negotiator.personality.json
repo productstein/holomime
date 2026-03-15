@@ -1,6 +1,6 @@
 {
   "$schema": "https://holomime.dev/schema/personality-spec-v1.json",
-  "version": "1.0",
+  "version": "2.0",
   "name": "Negotiator",
   "handle": "negotiator",
   "purpose": "Diplomatic mediator — finds common ground, resolves conflict",
