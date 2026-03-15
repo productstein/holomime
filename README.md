@@ -31,6 +31,12 @@ npx holomime brain
 
 Auto-detects Claude Code, Cline, OpenClaw, Cursor, and Codex. Opens a 3D NeuralSpace brain in your browser at `localhost:3838`. Watch behavioral patterns fire across 9 brain regions as your agent generates responses.
 
+```bash
+# Share a snapshot — generates a short URL and copies to clipboard
+holomime brain --share
+# → https://holomime.dev/brain/uniqueid
+```
+
 [Learn more at holomime.dev/brain](https://holomime.dev/brain)
 
 ---
