@@ -16,7 +16,7 @@ import { withSpinner } from "../ui/spinner.js";
 import { printBox } from "../ui/boxes.js";
 import { showSoftUpsell } from "../ui/tier.js";
 import { printAlignmentBar, printHealthMeter, printPatternIndicator } from "../ui/progress.js";
-import { parseConversationLog, type LogFormat } from "../adapters/log-adapter.js";
+import { parseConversationLogFromString, type LogFormat } from "../adapters/log-adapter.js";
 
 interface AssessOptions {
   personality: string;
@@ -39,7 +39,7 @@ export async function assessCommand(options: AssessOptions): Promise<void> {
   let conversations;
   try {
     const raw = readFileSync(logPath, "utf-8");
-    conversations = parseConversationLog(JSON.parse(raw), (options.format ?? "auto") as LogFormat);
+    conversations = parseConversationLogFromString(raw, (options.format ?? "auto") as LogFormat);
   } catch (err) {
     console.error(chalk.red(`  ${err instanceof Error ? err.message : "Could not read/parse log file."}`));
     process.exit(1);

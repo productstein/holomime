@@ -32,6 +32,7 @@ import { embodyCommand } from "./commands/embody.js";
 import { voiceCommand } from "./commands/voice.js";
 import { installCommand } from "./commands/install.js";
 import { cureCommand } from "./commands/cure.js";
+import { liveCommand } from "./commands/live.js";
 import { showTelemetryBannerIfNeeded } from "./telemetry/config.js";
 import { trackEvent, flushTelemetry } from "./telemetry/client.js";
 
@@ -53,7 +54,7 @@ program
     // Track command usage (fire-and-forget)
     trackEvent("cli_command", { command: commandName });
 
-    const skipPersonalityCheck = ["init", "browse", "use", "install", "activate", "telemetry"];
+    const skipPersonalityCheck = ["init", "browse", "use", "install", "activate", "telemetry", "brain"];
     if (!skipPersonalityCheck.includes(commandName) && !checkPersonalityExists()) {
       showWelcome();
       process.exit(0);
@@ -424,5 +425,21 @@ program
   .option("--hub-repo <repo>", "HuggingFace Hub repo (user/model-name)")
   .option("--pass-threshold <n>", "Minimum verification score (0-100)", "50")
   .action(cureCommand);
+
+program
+  .command("brain")
+  .description("See your agent's brain — real-time NeuralSpace visualization [Pro]")
+  .option("--watch <path>", "Manual path to conversation log file")
+  .option("--agent <agent>", "Agent type override (claude-code, cline, manual)")
+  .option("--port <port>", "Server port (default: 3838)", "3838")
+  .option("--no-open", "Don't auto-open browser")
+  .option("--personality <path>", "Personality spec for assessment context")
+  .action((opts) => liveCommand({
+    watchPath: opts.watch,
+    agent: opts.agent,
+    port: parseInt(opts.port, 10),
+    noOpen: opts.open === false,
+    personality: opts.personality,
+  }));
 
 program.parseAsync().then(() => flushTelemetry());

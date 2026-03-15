@@ -21,6 +21,20 @@
 
 ---
 
+## See Your Agent's Brain
+
+While your AI coding agent works, watch its brain light up in real time. One command, zero config.
+
+```bash
+npx holomime brain
+```
+
+Auto-detects Claude Code, Cline, OpenClaw, Cursor, and Codex. Opens a 3D NeuralSpace brain in your browser at `localhost:3838`. Watch behavioral patterns fire across 9 brain regions as your agent generates responses.
+
+[Learn more at holomime.dev/brain](https://holomime.dev/brain)
+
+---
+
 ## Quick Start
 
 ```bash
@@ -31,6 +45,9 @@ holomime init
 
 # Diagnose behavioral symptoms from any log format
 holomime diagnose --log agent.jsonl
+
+# Watch your agent's brain in real time
+holomime brain
 
 # View your agent's personality
 holomime profile
@@ -202,6 +219,7 @@ Seven rule-based detectors that analyze real conversations without any LLM calls
 | `holomime autopilot` | Automated diagnose -> refine -> apply loop |
 | `holomime evolve` | Recursive alignment -- evolve until converged |
 | `holomime benchmark` | 7-scenario behavioral stress test with letter grades |
+| `holomime brain` | Real-time 3D brain visualization while your agent works |
 | `holomime watch` | Continuous drift detection on a directory |
 | `holomime daemon` | Background drift detection with auto-healing |
 | `holomime fleet` | Monitor multiple agents from a single dashboard |

@@ -1,0 +1,112 @@
+/**
+ * `holomime brain` — Real-time NeuralSpace brain visualization for AI coding agents.
+ * Watches agent conversation logs, runs behavioral diagnosis, and broadcasts
+ * brain region activations to a 3D visualization in the browser.
+ */
+
+import chalk from "chalk";
+import { detectAgent, manualAgent } from "../live/agent-detector.js";
+import { startWatcher } from "../live/watcher.js";
+import { startServer } from "../live/server.js";
+import type { LiveConfig, BrainEvent } from "../live/types.js";
+
+export async function liveCommand(options: LiveConfig) {
+  const port = options.port || 3838;
+
+  // ─── Detect or resolve agent ───
+  let agent;
+
+  if (options.watchPath) {
+    agent = manualAgent(options.watchPath);
+    console.log(chalk.green("  ✓") + ` Manual watch: ${chalk.dim(agent.logPath)}`);
+  } else {
+    console.log(chalk.dim("  Scanning for active agents..."));
+    agent = detectAgent();
+    if (!agent) {
+      console.log("");
+      console.log(chalk.red("  ✗ No active agent detected."));
+      console.log("");
+      console.log(chalk.dim("  Make sure an AI coding agent is running, or specify a path:"));
+      console.log(chalk.cyan("    holomime brain --watch <path-to-conversation-log>"));
+      console.log("");
+      console.log(chalk.dim("  Supported agents: Claude Code, Cline, OpenClaw, Codex, Cursor"));
+      process.exit(1);
+    }
+    console.log(chalk.green("  ✓") + ` Detected ${chalk.bold(agent.agent)} session`);
+    console.log(chalk.green("  ✓") + ` Watching: ${chalk.dim(agent.logPath)}`);
+  }
+
+  // ─── Start server ───
+  let server;
+  try {
+    server = await startServer(port);
+    console.log(chalk.green("  ✓") + ` NeuralSpace: ${chalk.cyan(`http://localhost:${server.port}`)}`);
+  } catch (err) {
+    console.log(chalk.red(`  ✗ ${(err as Error).message}`));
+    process.exit(1);
+  }
+
+  // ─── Send init message ───
+  server.broadcast({
+    type: "init",
+    agent: agent.agent,
+    sessionPath: agent.logPath,
+    startedAt: new Date().toISOString(),
+  });
+
+  // ─── Open browser ───
+  if (!options.noOpen) {
+    try {
+      const open = (await import("open")).default;
+      await open(`http://localhost:${server.port}`);
+      console.log(chalk.dim("  Opening browser..."));
+    } catch {
+      // open is optional
+    }
+  }
+
+  // ─── Start watcher ───
+  let lastHealth = 100;
+  let lastPatternCount = 0;
+  let msgCount = 0;
+
+  const watcher = startWatcher(agent, {
+    onEvent(event: BrainEvent) {
+      server.broadcast(event);
+      msgCount = event.messageCount;
+      lastHealth = event.health;
+      lastPatternCount = event.patterns.length;
+
+      // Terminal status line
+      const healthColor = event.health >= 85 ? chalk.green : event.health >= 70 ? chalk.yellow : event.health >= 50 ? chalk.hex('#f97316') : chalk.red;
+      const patternStr = event.patterns.length > 0
+        ? event.patterns.map(p => {
+            const c = p.severity === 'concern' ? chalk.red : p.severity === 'warning' ? chalk.yellow : chalk.dim;
+            return c(p.id);
+          }).join(', ')
+        : chalk.green('none');
+
+      process.stdout.write(`\r  ${chalk.dim('│')} Health: ${healthColor(`${event.health}/100`)} (${event.grade}) ${chalk.dim('│')} Patterns: ${patternStr} ${chalk.dim('│')} Messages: ${chalk.white(String(msgCount))}    `);
+    },
+    onError(err) {
+      console.error(chalk.red(`\n  ✗ Watcher error: ${err.message}`));
+    },
+    onReady() {
+      console.log("");
+      console.log(chalk.green("  ● ") + chalk.bold("Monitoring agent behavior in real-time"));
+      console.log(chalk.dim("  │ Press Ctrl+C to stop"));
+      console.log("");
+    },
+  });
+
+  // ─── Graceful shutdown ───
+  const shutdown = () => {
+    console.log(chalk.dim("\n\n  Stopping..."));
+    watcher.stop();
+    server.close();
+    process.exit(0);
+  };
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
+}

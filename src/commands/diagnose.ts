@@ -15,7 +15,7 @@ import { printHeader } from "../ui/branding.js";
 import { withSpinner } from "../ui/spinner.js";
 import { printBox } from "../ui/boxes.js";
 import { printPatternIndicator, printHealthyIndicator } from "../ui/progress.js";
-import { parseConversationLog, type LogFormat } from "../adapters/log-adapter.js";
+import { parseConversationLogFromString, type LogFormat } from "../adapters/log-adapter.js";
 
 interface DiagnoseOptions {
   log: string;
@@ -36,7 +36,7 @@ export async function diagnoseCommand(options: DiagnoseOptions): Promise<void> {
 
   let conversations;
   try {
-    conversations = parseConversationLog(JSON.parse(raw), (options.format ?? "auto") as LogFormat);
+    conversations = parseConversationLogFromString(raw, (options.format ?? "auto") as LogFormat);
   } catch (err) {
     console.error(chalk.red(`  ${err instanceof Error ? err.message : "Invalid conversation log format."}`));
     process.exit(1);
