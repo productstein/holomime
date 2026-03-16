@@ -1,0 +1,268 @@
+---
+/**
+ * Pipeline — The closed-loop behavioral alignment system.
+ * 5 steps: Diagnose → Treat → Export → Fine-tune → Verify → loop
+ */
+const steps = [
+  {
+    title: "Diagnose",
+    description: "8 rule-based detectors across 80+ behavioral signals. Tiered personality loading (L0/L1/L2) cuts token costs up to 91%. Runs locally, no LLM calls.",
+    command: "holomime diagnose",
+    color: "#f59e0b",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>`,
+  },
+  {
+    title: "Treat",
+    description: "Dual-LLM correction with behavioral memory that persists across sessions. Agents self-observe. The 100th session is more valuable than the 1st.",
+    command: "holomime session",
+    color: "#06b6d4",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>`,
+  },
+  {
+    title: "Export",
+    description: "Every correction becomes a DPO training pair automatically. The therapy generates its own data.",
+    command: "holomime export",
+    color: "#10b981",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>`,
+  },
+  {
+    title: "Fine-tune",
+    description: "Apply the fix to the base model. One command. The change is permanent.",
+    command: "holomime train",
+    color: "#8b5cf6",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0015 0m-15 0a7.5 7.5 0 1115 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077l1.41-.513m14.095-5.13l1.41-.513M5.106 17.785l1.15-.964m11.49-9.642l1.149-.964M7.501 19.795l.75-1.3m7.5-12.99l.75-1.3m-6.063 16.658l.26-1.477m2.605-14.772l.26-1.477m0 17.726l-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205L12 12m0 0l4.5-7.795M12 12l-4.5 7.794M12 12l4.5 7.794"/></svg>`,
+  },
+  {
+    title: "Verify",
+    description: "Before/after behavioral comparison. Proof the therapy worked — with letter grades.",
+    command: "holomime eval",
+    color: "#f43f5e",
+    icon: `<svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
+  },
+];
+---
+
+<section id="pipeline" class="py-24 px-6 relative overflow-hidden bg-[#131c31]">
+  <!-- Aurora animated gradient -->
+  <div class="aurora-wrap absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div class="aurora-blob aurora-1"></div>
+    <div class="aurora-blob aurora-2"></div>
+    <div class="aurora-blob aurora-3"></div>
+    <div class="aurora-blob aurora-4"></div>
+    <div class="aurora-blob aurora-5"></div>
+    <div class="absolute inset-0" style="background: radial-gradient(ellipse at center, transparent 55%, #131c31 95%);"></div>
+  </div>
+
+  <div class="max-w-6xl mx-auto relative z-10">
+    <!-- Section header -->
+    <div class="text-center mb-16">
+      <span class="inline-block px-3 py-1 rounded-full text-xs font-medium tracking-wider uppercase bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 mb-4">
+        The Alignment Loop
+      </span>
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+        Diagnose. Treat. Train. Verify. <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-400">Repeat.</span>
+      </h2>
+      <p class="text-lg text-slate-400 max-w-2xl mx-auto">
+        Every cycle exports training data. Every fix compounds. The loop gets smarter each time it runs.
+      </p>
+    </div>
+
+    <!-- Pipeline visualization -->
+    <div class="relative">
+      <!-- Connecting line (desktop) -->
+      <div class="hidden lg:block absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent -translate-y-1/2 z-0"></div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 relative z-10">
+        {steps.map((step, i) => (
+          <div class="pipeline-step group" data-step={i + 1}>
+            <div class="pipeline-card">
+              <div class="pipeline-icon group-hover:brightness-125" style={`background: ${step.color}20; color: ${step.color};`}>
+                <Fragment set:html={step.icon} />
+              </div>
+              <h3 class="text-white font-semibold text-lg mt-4 mb-2">{step.title}</h3>
+              <p class="text-slate-400 text-sm leading-relaxed">
+                {step.description}
+              </p>
+              <code class="inline-block mt-3 px-2 py-1 rounded bg-slate-800/50 text-xs font-mono" style={`color: ${step.color};`}>
+                {step.command}
+              </code>
+            </div>
+            {i < steps.length - 1 && (
+              <div class="hidden lg:flex items-center justify-center absolute -right-3 top-1/2 -translate-y-1/2 z-20">
+                <svg class="w-6 h-6 text-cyan-500/40" fill="currentColor" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <!-- Loop-back arrow (desktop) -->
+      <div class="hidden lg:block mt-8">
+        <div class="flex items-center justify-center">
+          <div class="relative w-full max-w-3xl mx-auto">
+            <div class="h-px bg-gradient-to-r from-rose-500/30 via-cyan-500/20 to-amber-500/30"></div>
+            <div class="absolute left-0 top-1/2 -translate-y-1/2">
+              <svg class="w-4 h-4 text-amber-400 -rotate-90" fill="currentColor" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6z"/></svg>
+            </div>
+            <div class="absolute left-1/2 -translate-x-1/2 -top-3 px-3 py-1 rounded-full bg-slate-800/70 backdrop-blur-sm border border-slate-700 text-xs text-slate-400">
+              continuous alignment loop
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  .aurora-blob {
+    position: absolute;
+    border-radius: 50%;
+    will-change: transform;
+  }
+
+  .aurora-1 {
+    width: 55vw; height: 55vw; max-width: 900px; max-height: 900px;
+    background: radial-gradient(circle, rgba(249, 112, 102, 0.6) 0%, rgba(249, 112, 102, 0) 70%);
+    top: -15%; left: -10%; filter: blur(80px);
+    animation: auroraDrift1 14s ease-in-out infinite;
+  }
+  .aurora-2 {
+    width: 50vw; height: 50vw; max-width: 800px; max-height: 800px;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.55) 0%, rgba(139, 92, 246, 0) 70%);
+    top: -8%; right: -12%; filter: blur(90px);
+    animation: auroraDrift2 18s ease-in-out infinite;
+  }
+  .aurora-3 {
+    width: 65vw; height: 65vw; max-width: 1050px; max-height: 1050px;
+    background: radial-gradient(circle, rgba(20, 184, 166, 0.5) 0%, rgba(20, 184, 166, 0) 70%);
+    top: 15%; left: 20%; filter: blur(100px);
+    animation: auroraDrift3 16s ease-in-out infinite;
+  }
+  .aurora-4 {
+    width: 40vw; height: 40vw; max-width: 640px; max-height: 640px;
+    background: radial-gradient(circle, rgba(245, 158, 11, 0.45) 0%, rgba(245, 158, 11, 0) 70%);
+    bottom: -12%; left: 5%; filter: blur(80px);
+    animation: auroraDrift4 20s ease-in-out infinite;
+  }
+  .aurora-5 {
+    width: 45vw; height: 45vw; max-width: 720px; max-height: 720px;
+    background: radial-gradient(circle, rgba(6, 182, 212, 0.45) 0%, rgba(6, 182, 212, 0) 70%);
+    bottom: 0%; right: -5%; filter: blur(90px);
+    animation: auroraDrift5 12s ease-in-out infinite;
+  }
+
+  @keyframes auroraDrift1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(8vw, 5vw) scale(1.12); }
+    50% { transform: translate(3vw, 10vw) scale(0.9); }
+    75% { transform: translate(-5vw, 4vw) scale(1.08); }
+  }
+  @keyframes auroraDrift2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-8vw, 6vw) scale(1.15); }
+    66% { transform: translate(5vw, -4vw) scale(0.88); }
+  }
+  @keyframes auroraDrift3 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    20% { transform: translate(6vw, -5vw) scale(1.1); }
+    40% { transform: translate(-4vw, 6vw) scale(0.9); }
+    60% { transform: translate(-7vw, -2vw) scale(1.12); }
+    80% { transform: translate(4vw, 3vw) scale(0.95); }
+  }
+  @keyframes auroraDrift4 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(10vw, -5vw) scale(1.2); }
+  }
+  @keyframes auroraDrift5 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-6vw, -7vw) scale(1.15); }
+    66% { transform: translate(7vw, 3vw) scale(0.85); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .aurora-blob { animation: none !important; }
+  }
+</style>
+
+<style>
+  .pipeline-step { position: relative; }
+
+  .pipeline-card {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    border: 1px solid rgba(51, 65, 85, 0.5);
+    background: rgba(19, 28, 49, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: all 0.3s ease;
+    height: 100%;
+  }
+  .pipeline-card:hover {
+    border-color: rgba(6, 182, 212, 0.3);
+    background: rgba(19, 28, 49, 0.8);
+    transform: translateY(-2px);
+  }
+
+  .pipeline-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background-color 0.3s ease;
+  }
+
+  .pipeline-step {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  .pipeline-step.visible {
+    animation: pipelineIn 0.5s ease forwards;
+  }
+
+  @keyframes pipelineIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+
+<script>
+  function initPipeline() {
+    const section = document.getElementById('pipeline');
+    if (!section) return;
+
+    let triggered = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !triggered) {
+          triggered = true;
+          observer.disconnect();
+          const steps = section.querySelectorAll('.pipeline-step');
+          steps.forEach((step, i) => {
+            setTimeout(() => step.classList.add('visible'), i * 150);
+          });
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    requestAnimationFrame(() => {
+      const rect = section.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        triggered = true;
+        const steps = section.querySelectorAll('.pipeline-step');
+        steps.forEach((step, i) => {
+          setTimeout(() => step.classList.add('visible'), i * 150);
+        });
+      } else {
+        observer.observe(section);
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initPipeline);
+  } else {
+    requestAnimationFrame(initPipeline);
+  }
+  document.addEventListener("astro:page-load", initPipeline);
+</script>

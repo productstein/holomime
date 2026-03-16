@@ -1,0 +1,414 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { aggregateLeaderboard, aggregateOrchestrators, KNOWN_ORCHESTRATORS, type AggregatedModel, type AggregatedOrchestrator, type RawSubmission } from "../lib/leaderboard-aggregation.js";
+
+// Fetch and aggregate leaderboard data
+let frontier: AggregatedModel[] = [];
+let community: AggregatedModel[] = [];
+let orchestrators: AggregatedOrchestrator[] = [];
+let totalSubmissions = 0;
+let globalMean = 0;
+
+try {
+  const { createClient } = await import("@supabase/supabase-js");
+  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
+  const supabaseKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (supabaseUrl && supabaseKey) {
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { data } = await supabase
+      .from("leaderboard")
+      .select("agent_name, provider, model, score, grade, scenarios, submitted_at, holomime_version, orchestrator, stack, stack_id")
+      .order("submitted_at", { ascending: false })
+      .limit(5000);
+    const rows = (data ?? []) as RawSubmission[];
+    const result = aggregateLeaderboard(rows);
+    frontier = result.frontier;
+    community = result.community;
+    totalSubmissions = result.meta.totalSubmissions;
+    globalMean = result.meta.globalMean;
+
+    const orchResult = aggregateOrchestrators(rows);
+    orchestrators = orchResult.orchestrators;
+  }
+} catch {
+  // DB unavailable — show empty state
+}
+
+function gradeColor(grade: string): string {
+  if (grade === "A" || grade === "A+") return "bg-emerald-100 text-emerald-700 border-emerald-200";
+  if (grade === "B" || grade === "B+") return "bg-blue-100 text-blue-700 border-blue-200";
+  if (grade === "C" || grade === "C+") return "bg-amber-100 text-amber-700 border-amber-200";
+  if (grade === "D") return "bg-orange-100 text-orange-700 border-orange-200";
+  return "bg-red-100 text-red-700 border-red-200";
+}
+
+function confidenceDots(c: "low" | "medium" | "high"): string {
+  if (c === "high") return "●●●";
+  if (c === "medium") return "●●○";
+  return "●○○";
+}
+
+function confidenceColor(c: "low" | "medium" | "high"): string {
+  if (c === "high") return "text-emerald-600";
+  if (c === "medium") return "text-amber-500";
+  return "text-red-400";
+}
+
+const hasData = frontier.length > 0 || community.length > 0;
+---
+
+<Layout title="Behavioral Leaderboard — holomime" description="Which AI models behave best? Community-aggregated behavioral alignment scores across 8 adversarial scenarios. Bayesian-weighted, outlier-resistant.">
+  <Nav />
+  <main class="pt-32 pb-20">
+    <div class="mx-auto max-w-5xl px-6">
+
+      <div class="mb-16">
+        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium tracking-wider uppercase bg-[var(--color-p-violet)]/10 text-[var(--color-p-violet)] border border-[var(--color-p-violet)]/20 mb-4">
+          Leaderboard
+        </span>
+        <h1 class="text-4xl font-extrabold text-[var(--color-warm-text)] md:text-5xl">
+          Behavioral Alignment Leaderboard
+        </h1>
+        <p class="mt-4 max-w-2xl text-lg text-[var(--color-warm-muted)]">
+          Which AI models behave best? Community-aggregated scores from real benchmarks. More runs = more confidence.
+        </p>
+        {hasData && (
+          <p class="mt-2 text-sm text-[var(--color-warm-muted)]">
+            {String(totalSubmissions)} benchmark runs across {String(frontier.length + community.length)} models. Global mean: {String(globalMean)}/100.
+          </p>
+        )}
+      </div>
+
+      <div class="mb-12 rounded-2xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <p class="font-semibold text-[var(--color-warm-text)]">Submit your agent's score</p>
+          <p class="text-sm text-[var(--color-warm-muted)] mt-1">Run a benchmark and publish. Your results compound into the model's score. Add <code class="text-xs bg-white/60 px-1 rounded">--orchestrator</code> for stack rankings.</p>
+        </div>
+        <code class="shrink-0 px-4 py-2 rounded-lg bg-[var(--color-warm-text)] text-white text-sm font-mono">
+          holomime benchmark --publish --orchestrator openclaw
+        </code>
+      </div>
+
+      <!-- Tab Navigation -->
+      <div class="flex gap-1 border-b border-[var(--color-warm-sand)] mb-8">
+        <button data-tab="models" class="lb-tab px-5 py-3 text-sm font-semibold text-[var(--color-warm-muted)] border-b-2 border-transparent transition-colors hover:text-[var(--color-warm-text)]">Models</button>
+        <button data-tab="orchestrators" class="lb-tab px-5 py-3 text-sm font-semibold text-[var(--color-warm-muted)] border-b-2 border-transparent transition-colors hover:text-[var(--color-warm-text)]">Orchestrators</button>
+      </div>
+
+      <!-- Models Tab -->
+      <div id="tab-models" class="lb-tab-content">
+        {hasData ? (
+          <Fragment>
+            {frontier.length > 0 && (
+              <div class="mb-12">
+                <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-2">Frontier Models</h2>
+                <p class="text-sm text-[var(--color-warm-muted)] mb-6">Major provider models ranked by community behavioral benchmarks.</p>
+                <div class="rounded-2xl border border-[var(--color-warm-border)] bg-white overflow-hidden">
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                      <thead>
+                        <tr class="border-b-2 border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50">
+                          <th class="py-3.5 pl-6 pr-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider w-12">#</th>
+                          <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider">Model</th>
+                          <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider">Provider</th>
+                          <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Score</th>
+                          <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Grade</th>
+                          <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Runs</th>
+                          <th class="py-3.5 px-4 pr-6 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Confidence</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {frontier.map((m) => (
+                          <tr class="border-b border-[var(--color-warm-sand)]/60">
+                            <td class="py-4 pl-6 pr-4 font-bold text-[var(--color-warm-muted)]">
+                              <span class={m.rank <= 3 ? "inline-flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] text-white text-xs font-bold" : "text-sm"}>{m.rank}</span>
+                            </td>
+                            <td class="py-4 px-4 font-medium text-[var(--color-warm-text)]">{m.displayName}</td>
+                            <td class="py-4 px-4 text-[var(--color-warm-muted)]">{m.provider}</td>
+                            <td class="py-4 px-4 text-center font-bold text-[var(--color-warm-text)]">{String(m.weightedScore)}</td>
+                            <td class="py-4 px-4 text-center">
+                              <span class={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${gradeColor(m.grade)}`}>{m.grade}</span>
+                            </td>
+                            <td class="py-4 px-4 text-center text-[var(--color-warm-muted)]">{String(m.submissionCount)}</td>
+                            <td class="py-4 px-4 pr-6 text-center">
+                              <span class={`text-sm tracking-wider ${confidenceColor(m.confidence)}`} title={`${m.confidence} confidence (${String(m.submissionCount)} runs, ${String(m.contributors)} contributors)`}>{confidenceDots(m.confidence)}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {community.length > 0 && (
+              <div class="mb-12">
+                <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-2">Community Models</h2>
+                <p class="text-sm text-[var(--color-warm-muted)] mb-6">Fine-tuned and custom models. Diagnose, treat, fine-tune, benchmark — show your model climbing.</p>
+                <div class="rounded-2xl border border-[var(--color-warm-border)] bg-white overflow-hidden">
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                      <thead>
+                        <tr class="border-b-2 border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50">
+                          <th class="py-3.5 pl-6 pr-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider w-12">#</th>
+                          <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider">Model</th>
+                          <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider">Provider</th>
+                          <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Score</th>
+                          <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Grade</th>
+                          <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Runs</th>
+                          <th class="py-3.5 px-4 pr-6 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Confidence</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {community.map((m) => (
+                          <tr class="border-b border-[var(--color-warm-sand)]/60">
+                            <td class="py-4 pl-6 pr-4 font-bold text-[var(--color-warm-muted)] text-sm">{m.rank}</td>
+                            <td class="py-4 px-4 font-medium text-[var(--color-warm-text)] font-mono text-xs">{m.displayName}</td>
+                            <td class="py-4 px-4 text-[var(--color-warm-muted)]">{m.provider}</td>
+                            <td class="py-4 px-4 text-center font-bold text-[var(--color-warm-text)]">{String(m.weightedScore)}</td>
+                            <td class="py-4 px-4 text-center">
+                              <span class={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${gradeColor(m.grade)}`}>{m.grade}</span>
+                            </td>
+                            <td class="py-4 px-4 text-center text-[var(--color-warm-muted)]">{String(m.submissionCount)}</td>
+                            <td class="py-4 px-4 pr-6 text-center">
+                              <span class={`text-sm tracking-wider ${confidenceColor(m.confidence)}`} title={`${m.confidence} confidence`}>{confidenceDots(m.confidence)}</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+          </Fragment>
+        ) : (
+          <div class="rounded-2xl border border-[var(--color-warm-border)] bg-white p-16 text-center mb-12">
+            <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--color-p-violet)]/10">
+              <svg class="h-8 w-8 text-[var(--color-p-violet)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+              </svg>
+            </div>
+            <h2 class="text-xl font-bold text-[var(--color-warm-text)] mb-2">No model submissions yet</h2>
+            <p class="text-[var(--color-warm-muted)] mb-8 max-w-md mx-auto">
+              Be the first to publish your agent's behavioral alignment score.
+            </p>
+            <div class="rounded-xl bg-[var(--color-warm-cream)] p-6 max-w-lg mx-auto text-left">
+              <pre class="overflow-x-auto text-sm leading-relaxed text-[var(--color-warm-text)]"><code>npm install -g holomime
+holomime init
+holomime benchmark --personality .personality.json --publish</code></pre>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <!-- Orchestrators Tab -->
+      <div id="tab-orchestrators" class="lb-tab-content hidden">
+        {orchestrators.length > 0 ? (
+          <div class="mb-12">
+            <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-2">Orchestrators</h2>
+            <p class="text-sm text-[var(--color-warm-muted)] mb-6">Which orchestration tools produce the best behavioral alignment? Ranked by community benchmarks across all models.</p>
+            <div class="rounded-2xl border border-[var(--color-warm-border)] bg-white overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm">
+                  <thead>
+                    <tr class="border-b-2 border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50">
+                      <th class="py-3.5 pl-6 pr-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider w-12">#</th>
+                      <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider">Orchestrator</th>
+                      <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Score</th>
+                      <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Grade</th>
+                      <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Runs</th>
+                      <th class="py-3.5 px-4 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Models</th>
+                      <th class="py-3.5 px-4 pr-6 font-semibold text-[var(--color-warm-muted)] text-xs uppercase tracking-wider text-center">Confidence</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {orchestrators.map((o) => (
+                      <tr class="border-b border-[var(--color-warm-sand)]/60">
+                        <td class="py-4 pl-6 pr-4 font-bold text-[var(--color-warm-muted)]">
+                          <span class={o.rank <= 3 ? "inline-flex h-7 w-7 items-center justify-center rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] text-white text-xs font-bold" : "text-sm"}>{o.rank}</span>
+                        </td>
+                        <td class="py-4 px-4 font-medium text-[var(--color-warm-text)]">{o.displayName}</td>
+                        <td class="py-4 px-4 text-center font-bold text-[var(--color-warm-text)]">{String(o.weightedScore)}</td>
+                        <td class="py-4 px-4 text-center">
+                          <span class={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${gradeColor(o.grade)}`}>{o.grade}</span>
+                        </td>
+                        <td class="py-4 px-4 text-center text-[var(--color-warm-muted)]">{String(o.submissionCount)}</td>
+                        <td class="py-4 px-4 text-center text-[var(--color-warm-muted)]">{String(o.modelCount)}</td>
+                        <td class="py-4 px-4 pr-6 text-center">
+                          <span class={`text-sm tracking-wider ${confidenceColor(o.confidence)}`} title={`${o.confidence} confidence (${String(o.submissionCount)} runs)`}>{confidenceDots(o.confidence)}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div class="rounded-2xl border border-[var(--color-warm-border)] bg-white p-16 text-center mb-12">
+            <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--color-p-violet)]/10">
+              <svg class="h-8 w-8 text-[var(--color-p-violet)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <h2 class="text-xl font-bold text-[var(--color-warm-text)] mb-2">No orchestrator data yet</h2>
+            <p class="text-[var(--color-warm-muted)] mb-8 max-w-md mx-auto">
+              Include your orchestrator when publishing benchmarks to see how tools compare.
+            </p>
+            <div class="rounded-xl bg-[var(--color-warm-cream)] p-6 max-w-lg mx-auto text-left">
+              <pre class="overflow-x-auto text-sm leading-relaxed text-[var(--color-warm-text)]"><code>holomime benchmark --publish --orchestrator openclaw</code></pre>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div class="rounded-2xl border border-[var(--color-p-violet)]/20 bg-[var(--color-p-violet)]/5 p-8 mb-16">
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-4">How scores are calculated</h3>
+        <div class="space-y-4 text-sm text-[var(--color-warm-muted)]">
+          <p>Each model's score aggregates every community benchmark submission. Outlier scores (top/bottom 10%) are excluded via <strong class="text-[var(--color-warm-text)]">trimmed mean</strong>, and models with few submissions are conservatively rated via <strong class="text-[var(--color-warm-text)]">Bayesian shrinkage</strong> — a model needs ~10 runs before its score fully reflects community results.</p>
+          <p class="font-mono text-xs bg-white/60 rounded-lg px-4 py-2 inline-block">
+            score = (n/(n+10)) &times; trimmed_mean + (10/(n+10)) &times; global_mean
+          </p>
+          <p>More runs = more confidence. A single inflated or deflated submission cannot skew a model's ranking. The same methodology applies to stacks and orchestrators. Rate limited to 3 submissions per model/stack per day.</p>
+
+          <div class="grid gap-4 sm:grid-cols-2 mt-6 pt-6 border-t border-[var(--color-p-violet)]/15">
+            <div>
+              <h4 class="font-semibold text-[var(--color-warm-text)] mb-3">Grading Scale</h4>
+              <div class="space-y-2">
+                <div class="flex items-center gap-3">
+                  <span class="inline-block w-10 px-2 py-0.5 rounded-full text-xs font-bold border text-center bg-emerald-100 text-emerald-700 border-emerald-200">A</span>
+                  <span>85 &ndash; 100 &mdash; Exceptional alignment</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="inline-block w-10 px-2 py-0.5 rounded-full text-xs font-bold border text-center bg-blue-100 text-blue-700 border-blue-200">B</span>
+                  <span>70 &ndash; 84 &mdash; Strong alignment</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="inline-block w-10 px-2 py-0.5 rounded-full text-xs font-bold border text-center bg-amber-100 text-amber-700 border-amber-200">C</span>
+                  <span>50 &ndash; 69 &mdash; Moderate, typical out-of-box</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="inline-block w-10 px-2 py-0.5 rounded-full text-xs font-bold border text-center bg-orange-100 text-orange-700 border-orange-200">D</span>
+                  <span>30 &ndash; 49 &mdash; Weak alignment</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="inline-block w-10 px-2 py-0.5 rounded-full text-xs font-bold border text-center bg-red-100 text-red-700 border-red-200">F</span>
+                  <span>&lt; 30 &mdash; Failing, no behavioral control</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-semibold text-[var(--color-warm-text)] mb-3">Confidence Tiers</h4>
+              <div class="space-y-2">
+                <div class="flex items-center gap-3">
+                  <span class="text-sm tracking-wider text-emerald-600 w-10 text-center">●●●</span>
+                  <span><strong class="text-[var(--color-warm-text)]">High</strong> &mdash; 15+ runs. Score has converged.</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-sm tracking-wider text-amber-500 w-10 text-center">●●○</span>
+                  <span><strong class="text-[var(--color-warm-text)]">Medium</strong> &mdash; 5&ndash;14 runs. Score is stabilizing.</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <span class="text-sm tracking-wider text-red-400 w-10 text-center">●○○</span>
+                  <span><strong class="text-[var(--color-warm-text)]">Low</strong> &mdash; &lt; 5 runs. Score pulled toward global mean.</span>
+                </div>
+              </div>
+              <p class="mt-4 text-xs text-[var(--color-warm-muted)]">
+                Confidence measures data quantity, not quality. A low-confidence model with a high score means "looks promising, needs more community testing."
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-16">
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-8">How Scoring Works</h2>
+        <div class="grid gap-4 md:grid-cols-3">
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-6">
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-violet)]/10 mb-3">
+              <span class="text-lg font-bold text-[var(--color-p-violet)]">7</span>
+            </div>
+            <h3 class="font-bold text-[var(--color-warm-text)] mb-2">Adversarial Scenarios</h3>
+            <p class="text-sm text-[var(--color-warm-muted)]">Each agent faces 7 stress tests: apology traps, hedge gauntlets, sycophancy probes, error spirals, boundary pushes, sentiment pressure, and formality whiplash.</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-6">
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-coral)]/10 mb-3">
+              <svg class="h-5 w-5 text-[var(--color-p-coral)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" /></svg>
+            </div>
+            <h3 class="font-bold text-[var(--color-warm-text)] mb-2">Community Aggregation</h3>
+            <p class="text-sm text-[var(--color-warm-muted)]">Each model's score combines results from every community submission. Outliers are trimmed. Models with few runs are conservatively rated until more data arrives.</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-6">
+            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 mb-3">
+              <span class="text-lg font-bold text-emerald-600">A-F</span>
+            </div>
+            <h3 class="font-bold text-[var(--color-warm-text)] mb-2">Letter Grade</h3>
+            <p class="text-sm text-[var(--color-warm-muted)]">A (85+), B (70-84), C (50-69), D (30-49), F (&lt;30). Most models out of the box score C-D. After holomime therapy and fine-tuning, they reach A-B.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-[var(--color-warm-border)] bg-white p-8">
+        <h2 class="text-xl font-bold text-[var(--color-warm-text)] mb-4">API Access</h2>
+        <p class="text-sm text-[var(--color-warm-muted)] mb-6">
+          Query the leaderboard programmatically. No authentication required for read access.
+        </p>
+        <div class="rounded-xl bg-[var(--color-warm-cream)] p-6">
+          <pre class="overflow-x-auto text-sm leading-relaxed text-[var(--color-warm-text)]"><code># Aggregated model rankings (default)
+curl https://holomime.dev/api/v1/leaderboard
+
+# Orchestrator rankings
+curl https://holomime.dev/api/v1/leaderboard?view=orchestrators
+
+# Individual submissions (legacy)
+curl https://holomime.dev/api/v1/leaderboard?view=submissions
+
+# Submit with orchestrator + stack (requires API key)
+curl -X POST https://holomime.dev/api/v1/leaderboard/submit \
+  -H "Authorization: Bearer holo_xxx" \
+  -H "Content-Type: application/json" \
+  -d '&#123;"agentName":"my-agent","provider":"anthropic","model":"claude-sonnet-4-20250514","score":85,"grade":"A","orchestrator":"openclaw","stack":[&#123;"provider":"anthropic","model":"claude-sonnet-4-20250514"&#125;,&#123;"provider":"openai","model":"gpt-4o"&#125;]&#125;'</code></pre>
+        </div>
+      </div>
+
+    </div>
+
+    <Footer />
+  </main>
+
+  <script>
+    function activateTab(tabName: string) {
+      // Update tab buttons
+      document.querySelectorAll('.lb-tab').forEach((btn) => {
+        const isActive = btn.getAttribute('data-tab') === tabName;
+        btn.classList.toggle('text-[var(--color-p-violet)]', isActive);
+        btn.classList.toggle('border-[var(--color-p-violet)]', isActive);
+        btn.classList.toggle('text-[var(--color-warm-muted)]', !isActive);
+        btn.classList.toggle('border-transparent', !isActive);
+      });
+      // Update tab content
+      document.querySelectorAll('.lb-tab-content').forEach((panel) => {
+        panel.classList.toggle('hidden', panel.id !== `tab-${tabName}`);
+      });
+      // Update URL hash without scrolling
+      history.replaceState(null, '', `#${tabName}`);
+    }
+
+    // Tab click handlers
+    document.querySelectorAll('.lb-tab').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-tab');
+        if (tab) activateTab(tab);
+      });
+    });
+
+    // Activate from URL hash or default to models
+    const hash = location.hash.replace('#', '');
+    activateTab(['models', 'orchestrators'].includes(hash) ? hash : 'models');
+  </script>
+</Layout>

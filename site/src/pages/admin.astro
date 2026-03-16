@@ -1,0 +1,352 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { createClient } from "@supabase/supabase-js";
+import { isAdminUser } from "../lib/admin-auth.js";
+
+const user = Astro.locals.user;
+if (!user) return Astro.redirect("/login?redirect=/admin");
+if (!isAdminUser(user.email)) return Astro.redirect("/dashboard");
+
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
+const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !serviceKey) {
+  return new Response("Admin: missing Supabase config", { status: 503 });
+}
+
+const supabase = createClient(supabaseUrl, serviceKey);
+
+// Stats
+const [{ count: totalLicenses }, { count: totalOrgs }] = await Promise.all([
+  supabase.from("licenses").select("*", { count: "exact", head: true }),
+  supabase.from("organizations").select("*", { count: "exact", head: true }),
+]);
+
+const { count: totalApiCalls } = await supabase
+  .from("api_usage")
+  .select("*", { count: "exact", head: true });
+
+const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+const { data: activeRows } = await supabase
+  .from("api_usage")
+  .select("license_id")
+  .gte("created_at", thirtyDaysAgo);
+const activeUsers = new Set((activeRows ?? []).map((r: any) => r.license_id)).size;
+
+// Licenses table
+const { data: licenses } = await supabase
+  .from("licenses")
+  .select("id, key, customer_email, tier, status, created_at")
+  .order("created_at", { ascending: false })
+  .limit(250);
+
+// Orgs table
+const { data: orgs } = await supabase
+  .from("organizations")
+  .select("id, name, slug, created_at, owner_license_id, licenses(customer_email)")
+  .order("created_at", { ascending: false })
+  .limit(100);
+
+const orgWithCounts = await Promise.all(
+  (orgs ?? []).map(async (org: any) => {
+    const { count } = await supabase
+      .from("org_members")
+      .select("*", { count: "exact", head: true })
+      .eq("org_id", org.id);
+    return {
+      id: org.id,
+      name: org.name,
+      slug: org.slug,
+      ownerEmail: org.licenses?.customer_email ?? "unknown",
+      memberCount: count ?? 0,
+      createdAt: new Date(org.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    };
+  }),
+);
+
+// API Keys table
+const { data: apiKeys } = await supabase
+  .from("api_keys")
+  .select("id, name, key, status, last_used_at, created_at, license_id, licenses(customer_email)")
+  .order("created_at", { ascending: false })
+  .limit(500);
+
+// Audit logs (last 50 across all orgs)
+const { data: auditLogs } = await supabase
+  .from("audit_logs")
+  .select("id, action, created_at, metadata, org_id, actor_license_id, organizations(name), licenses(customer_email)")
+  .order("created_at", { ascending: false })
+  .limit(50);
+---
+
+<Layout title="Admin Console — holomime">
+  <Nav />
+  <main class="min-h-screen bg-[var(--color-warm-cream)] pt-28 pb-20">
+    <div class="mx-auto max-w-6xl px-6">
+
+      <!-- Header -->
+      <div class="mb-8 flex items-center gap-4">
+        <h1 class="text-2xl font-bold text-[var(--color-warm-text)]">Admin Console</h1>
+        <span class="rounded-full bg-red-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-red-600">Admin</span>
+        <span class="ml-auto text-sm text-[var(--color-warm-muted)]">{user.email}</span>
+      </div>
+
+      <!-- Stats row -->
+      <div class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {[
+          { label: "Total Licenses", value: totalLicenses ?? 0 },
+          { label: "Total Orgs", value: totalOrgs ?? 0 },
+          { label: "Total API Calls", value: totalApiCalls ?? 0 },
+          { label: "Active Users (30d)", value: activeUsers },
+        ].map((stat) => (
+          <div class="rounded-2xl bg-white p-5 shadow-xl shadow-black/5 border border-[var(--color-warm-border)] text-center">
+            <p class="text-2xl font-bold text-[var(--color-warm-text)]">{stat.value.toLocaleString()}</p>
+            <p class="mt-1 text-xs text-[var(--color-warm-muted)]">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <!-- Licenses table -->
+      <div class="mb-8 rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+        <div class="mb-4 flex items-center justify-between">
+          <h2 class="text-base font-bold text-[var(--color-warm-text)]">Licenses</h2>
+          <button id="issue-license-btn" class="flex items-center gap-1.5 rounded-lg bg-[var(--color-p-violet)] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 transition-opacity">
+            + Issue License
+          </button>
+        </div>
+
+        <!-- Issue license form -->
+        <div id="issue-license-form" class="hidden mb-4 rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+          <p class="mb-3 text-sm font-medium text-[var(--color-warm-text)]">Issue new license</p>
+          <div class="flex flex-wrap gap-2">
+            <input id="issue-email" type="email" placeholder="customer@example.com" class="flex-1 min-w-48 rounded-lg border border-[var(--color-warm-border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20" />
+            <select id="issue-tier" class="rounded-lg border border-[var(--color-warm-border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-p-violet)]">
+              <option value="pro">Pro</option>
+              <option value="developer">Developer</option>
+              <option value="enterprise">Enterprise</option>
+            </select>
+            <button id="issue-license-submit" class="rounded-lg bg-[var(--color-p-violet)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-opacity">Issue</button>
+            <button id="issue-license-cancel" class="rounded-lg border border-[var(--color-warm-border)] px-4 py-2 text-sm text-[var(--color-warm-muted)] hover:bg-white transition-colors">Cancel</button>
+          </div>
+          <div id="issue-result" class="hidden mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3 font-mono text-xs text-emerald-800 break-all"></div>
+          <div id="issue-error" class="hidden mt-2 text-xs text-red-600"></div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-[var(--color-warm-border)] text-xs text-[var(--color-warm-muted)]">
+                <th class="pb-2 text-left font-medium">Email</th>
+                <th class="pb-2 text-left font-medium">Tier</th>
+                <th class="pb-2 text-left font-medium">Status</th>
+                <th class="pb-2 text-left font-medium">Key</th>
+                <th class="pb-2 text-left font-medium">Created</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--color-warm-border)]">
+              {(licenses ?? []).map((lic: any) => (
+                <tr>
+                  <td class="py-2 pr-4 text-[var(--color-warm-text)]">{lic.customer_email}</td>
+                  <td class="py-2 pr-4">
+                    <span class={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${lic.tier === "enterprise" ? "bg-amber-100 text-amber-700" : lic.tier === "developer" ? "bg-cyan-100 text-cyan-700" : "bg-violet-100 text-violet-700"}`}>{lic.tier}</span>
+                  </td>
+                  <td class="py-2 pr-4">
+                    <span class={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${lic.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-600"}`}>{lic.status}</span>
+                  </td>
+                  <td class="py-2 pr-4 font-mono text-xs text-[var(--color-warm-muted)]">{lic.key.slice(0, 16)}…</td>
+                  <td class="py-2 text-xs text-[var(--color-warm-muted)]">{new Date(lic.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Orgs table -->
+      <div class="mb-8 rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+        <h2 class="mb-4 text-base font-bold text-[var(--color-warm-text)]">Organizations</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-[var(--color-warm-border)] text-xs text-[var(--color-warm-muted)]">
+                <th class="pb-2 text-left font-medium">Name</th>
+                <th class="pb-2 text-left font-medium">Slug</th>
+                <th class="pb-2 text-left font-medium">Owner</th>
+                <th class="pb-2 text-left font-medium">Members</th>
+                <th class="pb-2 text-left font-medium">Created</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--color-warm-border)]">
+              {orgWithCounts.map((org) => (
+                <tr>
+                  <td class="py-2 pr-4 font-medium text-[var(--color-warm-text)]">{org.name}</td>
+                  <td class="py-2 pr-4 font-mono text-xs text-[var(--color-warm-muted)]">{org.slug}</td>
+                  <td class="py-2 pr-4 text-xs text-[var(--color-warm-muted)]">{org.ownerEmail}</td>
+                  <td class="py-2 pr-4 text-[var(--color-warm-text)]">{org.memberCount}</td>
+                  <td class="py-2 text-xs text-[var(--color-warm-muted)]">{org.createdAt}</td>
+                </tr>
+              ))}
+              {orgWithCounts.length === 0 && (
+                <tr><td colspan="5" class="py-4 text-center text-sm text-[var(--color-warm-muted)]">No organizations yet.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- API Keys table -->
+      <div class="mb-8 rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+        <h2 class="mb-4 text-base font-bold text-[var(--color-warm-text)]">API Keys</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-[var(--color-warm-border)] text-xs text-[var(--color-warm-muted)]">
+                <th class="pb-2 text-left font-medium">License Email</th>
+                <th class="pb-2 text-left font-medium">Key Name</th>
+                <th class="pb-2 text-left font-medium">Key</th>
+                <th class="pb-2 text-left font-medium">Status</th>
+                <th class="pb-2 text-left font-medium">Last Used</th>
+                <th class="pb-2 text-left font-medium">Created</th>
+                <th class="pb-2"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--color-warm-border)]">
+              {(apiKeys ?? []).map((k: any) => (
+                <tr>
+                  <td class="py-2 pr-4 text-xs text-[var(--color-warm-muted)]">{k.licenses?.customer_email ?? k.license_id.slice(0, 8)}</td>
+                  <td class="py-2 pr-4 font-medium text-[var(--color-warm-text)]">{k.name}</td>
+                  <td class="py-2 pr-4 font-mono text-xs text-[var(--color-warm-muted)]">{k.key.slice(0, 12)}…</td>
+                  <td class="py-2 pr-4">
+                    <span class={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${k.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-600"}`}>{k.status}</span>
+                  </td>
+                  <td class="py-2 pr-4 text-xs text-[var(--color-warm-muted)]">{k.last_used_at ? new Date(k.last_used_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Never"}</td>
+                  <td class="py-2 pr-4 text-xs text-[var(--color-warm-muted)]">{new Date(k.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
+                  <td class="py-2">
+                    {k.status === "active" && (
+                      <form method="POST" action="/api/admin/keys" class="admin-revoke-form" data-key-id={k.id}>
+                        <button type="submit" class="text-xs text-red-500 hover:text-red-700 transition-colors">Revoke</button>
+                      </form>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {(apiKeys ?? []).length === 0 && (
+                <tr><td colspan="7" class="py-4 text-center text-sm text-[var(--color-warm-muted)]">No API keys yet.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Audit logs -->
+      <div class="rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+        <h2 class="mb-4 text-base font-bold text-[var(--color-warm-text)]">Recent Audit Logs</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-[var(--color-warm-border)] text-xs text-[var(--color-warm-muted)]">
+                <th class="pb-2 text-left font-medium">Action</th>
+                <th class="pb-2 text-left font-medium">Actor</th>
+                <th class="pb-2 text-left font-medium">Org</th>
+                <th class="pb-2 text-left font-medium">When</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[var(--color-warm-border)]">
+              {(auditLogs ?? []).map((log: any) => (
+                <tr>
+                  <td class="py-2 pr-4 font-mono text-xs text-[var(--color-warm-text)]">{log.action}</td>
+                  <td class="py-2 pr-4 text-xs text-[var(--color-warm-muted)]">{log.licenses?.customer_email ?? log.actor_license_id?.slice(0, 8) ?? "—"}</td>
+                  <td class="py-2 pr-4 text-xs text-[var(--color-warm-muted)]">{log.organizations?.name ?? log.org_id?.slice(0, 8)}</td>
+                  <td class="py-2 text-xs text-[var(--color-warm-muted)]">{new Date(log.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}</td>
+                </tr>
+              ))}
+              {(auditLogs ?? []).length === 0 && (
+                <tr><td colspan="4" class="py-4 text-center text-sm text-[var(--color-warm-muted)]">No audit logs yet.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  // Issue license form
+  const issueLicenseBtn = document.getElementById("issue-license-btn");
+  const issueLicenseForm = document.getElementById("issue-license-form");
+  const issueLicenseCancel = document.getElementById("issue-license-cancel");
+  const issueLicenseSubmit = document.getElementById("issue-license-submit");
+  const issueEmail = document.getElementById("issue-email") as HTMLInputElement | null;
+  const issueTier = document.getElementById("issue-tier") as HTMLSelectElement | null;
+  const issueResult = document.getElementById("issue-result");
+  const issueError = document.getElementById("issue-error");
+
+  issueLicenseBtn?.addEventListener("click", () => {
+    issueLicenseForm?.classList.remove("hidden");
+    issueLicenseBtn.classList.add("hidden");
+    issueEmail?.focus();
+  });
+
+  issueLicenseCancel?.addEventListener("click", () => {
+    issueLicenseForm?.classList.add("hidden");
+    issueLicenseBtn?.classList.remove("hidden");
+    if (issueEmail) issueEmail.value = "";
+    issueResult?.classList.add("hidden");
+    issueError?.classList.add("hidden");
+  });
+
+  issueLicenseSubmit?.addEventListener("click", async () => {
+    const email = issueEmail?.value.trim();
+    const tier = issueTier?.value ?? "pro";
+    if (!email) { if (issueError) { issueError.textContent = "Please enter an email."; issueError.classList.remove("hidden"); } return; }
+    issueLicenseSubmit.setAttribute("disabled", "true");
+    issueLicenseSubmit.textContent = "Issuing…";
+    issueError?.classList.add("hidden");
+    try {
+      const res = await fetch("/api/admin/licenses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, tier }),
+      });
+      const json = await res.json() as any;
+      if (!res.ok) throw new Error(json.error || "Failed");
+      if (issueResult) {
+        issueResult.textContent = `Key: ${json.license.key}`;
+        issueResult.classList.remove("hidden");
+      }
+      issueLicenseSubmit.setAttribute("disabled", "true");
+    } catch (err: any) {
+      if (issueError) { issueError.textContent = err.message; issueError.classList.remove("hidden"); }
+      issueLicenseSubmit.removeAttribute("disabled");
+      issueLicenseSubmit.textContent = "Issue";
+    }
+  });
+
+  // Admin revoke key (via fetch, reload after)
+  document.querySelectorAll<HTMLFormElement>(".admin-revoke-form").forEach((form) => {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const id = form.dataset.keyId;
+      if (!id || !confirm("Revoke this API key?")) return;
+      try {
+        const res = await fetch("/api/admin/keys", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        });
+        if (res.ok) window.location.reload();
+        else {
+          const json = await res.json() as any;
+          alert(json.error || "Failed to revoke key");
+        }
+      } catch {
+        alert("Network error");
+      }
+    });
+  });
+</script>

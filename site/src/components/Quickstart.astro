@@ -1,0 +1,84 @@
+---
+// SDK quickstart code snippet for homepage
+// Code HTML is stored as a string to prevent Astro from interpreting { } as expressions
+const codeHtml = `<span class="text-[#c792ea]">import</span> <span class="text-white">{ wrapAgent }</span> <span class="text-[#c792ea]">from</span> <span class="text-[#c3e88d]">"holomime"</span><span class="text-white/50">;</span>
+
+<span class="text-[#c792ea]">const</span> <span class="text-[#82aaff]">agent</span> <span class="text-[#89ddff]">=</span> <span class="text-[#82aaff]">wrapAgent</span><span class="text-white">({</span>
+  <span class="text-white">name:</span> <span class="text-[#c3e88d]">"support-agent"</span><span class="text-white/50">,</span>
+  <span class="text-white">provider:</span> <span class="text-[#c3e88d]">"anthropic"</span><span class="text-white/50">,</span>
+<span class="text-white">})</span><span class="text-white/50">;</span>
+
+<span class="text-white/40">// Detect behavioral symptoms — runs locally, no API calls</span>
+<span class="text-[#c792ea]">const</span> <span class="text-[#82aaff]">result</span> <span class="text-[#89ddff]">=</span> <span class="text-white">agent.</span><span class="text-[#82aaff]">guard</span><span class="text-white">(messages)</span><span class="text-white/50">;</span>
+
+<span class="text-white/40">// Or detect + correct in one call</span>
+<span class="text-[#c792ea]">const</span> <span class="text-white">{ guard, correction }</span> <span class="text-[#89ddff]">=</span> <span class="text-[#c792ea]">await</span> <span class="text-white">agent.</span><span class="text-[#82aaff]">guardAndCorrect</span><span class="text-white">(messages)</span><span class="text-white/50">;</span>`;
+---
+
+<section class="py-16 md:py-20 bg-[var(--color-warm-cream)]">
+  <div class="mx-auto max-w-3xl px-6">
+    <p class="text-center text-sm font-semibold tracking-wider uppercase" style="color: var(--color-p-violet);">
+      5 Lines to Your First Diagnosis
+    </p>
+    <h2 class="mt-3 text-center text-2xl font-extrabold text-[var(--color-warm-text)] md:text-3xl">
+      Your agent's first therapy session starts here.
+    </h2>
+    <p class="mx-auto mt-3 max-w-lg text-center text-sm text-[var(--color-warm-muted)]">
+      Diagnosis runs locally with zero API calls. Therapy sessions run on your own LLM provider. The intake form is five lines of code.
+    </p>
+
+    <div class="relative mt-8 rounded-2xl border border-[var(--color-warm-border)] bg-[var(--color-holo-dark)] shadow-xl shadow-black/10 overflow-hidden">
+      <!-- Header bar -->
+      <div class="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+        <div class="flex items-center gap-2">
+          <span class="h-3 w-3 rounded-full bg-red-400/80"></span>
+          <span class="h-3 w-3 rounded-full bg-yellow-400/80"></span>
+          <span class="h-3 w-3 rounded-full bg-green-400/80"></span>
+          <span class="ml-3 text-xs text-white/40 font-mono">agent.ts</span>
+        </div>
+        <button
+          id="quickstart-copy-btn"
+          class="rounded px-2 py-1 text-xs text-white/50 transition-colors hover:text-white/80 hover:bg-white/10"
+        >
+          Copy
+        </button>
+      </div>
+
+      <!-- Code block -->
+      <pre class="overflow-x-auto p-5 text-sm leading-relaxed"><code id="quickstart-code" set:html={codeHtml} /></pre>
+    </div>
+
+    <div class="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+      <div class="rounded-xl bg-[var(--color-holo-slate)] px-4 py-2 font-mono text-sm text-white">
+        <span class="text-slate-500">$</span> npm i -g holomime
+      </div>
+      <a href="/blog/case-study-sycophantic-support-agent" class="text-sm font-semibold text-[var(--color-p-violet)] hover:underline underline-offset-2">
+        See it in action &rarr;
+      </a>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.getElementById("quickstart-copy-btn")?.addEventListener("click", () => {
+    const code = `import { wrapAgent } from "holomime";
+
+const agent = wrapAgent({
+  name: "support-agent",
+  provider: "anthropic",
+});
+
+// Detect behavioral symptoms — runs locally, no API calls
+const result = agent.guard(messages);
+
+// Or detect + correct in one call
+const { guard, correction } = await agent.guardAndCorrect(messages);`;
+
+    navigator.clipboard.writeText(code);
+    const btn = document.getElementById("quickstart-copy-btn");
+    if (btn) {
+      btn.textContent = "Copied!";
+      setTimeout(() => { btn.textContent = "Copy"; }, 2000);
+    }
+  });
+</script>

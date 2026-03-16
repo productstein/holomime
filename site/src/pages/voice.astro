@@ -1,0 +1,602 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { ARCHETYPES } from "../lib/archetypes";
+
+const categories = [...new Set(ARCHETYPES.map((a) => a.cat))];
+---
+
+<Layout title="Voice Demo — holomime" description="Talk to a personality-tuned AI agent. Hear the difference holomime makes.">
+  <Nav />
+  <main class="pt-28 pb-20 min-h-screen bg-[var(--color-warm-cream)]">
+    <div class="mx-auto max-w-6xl px-6">
+
+      <!-- Header -->
+      <div class="mb-10 text-center">
+        <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--color-p-coral)]/20 bg-[var(--color-p-coral)]/5 px-4 py-1.5 text-sm">
+          <svg class="h-4 w-4 text-[var(--color-p-coral)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
+          <span class="text-[var(--color-p-coral)] font-medium">Voice Demo</span>
+          <span class="rounded-full bg-[var(--color-p-coral)] px-1.5 py-0.5 text-[9px] font-bold text-white leading-none">NEW</span>
+        </div>
+        <h1 class="text-3xl font-extrabold text-[var(--color-warm-text)] md:text-5xl">
+          Talk to a <span class="text-gradient-warm">personality</span>
+        </h1>
+        <p class="mx-auto mt-4 max-w-2xl text-lg text-[var(--color-warm-muted)]">
+          Pick an archetype. Start talking. Hear the difference behavioral therapy makes — live.
+        </p>
+      </div>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- STATE: PICK — Archetype Grid                -->
+      <!-- ════════════════════════════════════════════ -->
+      <div id="state-pick">
+        <!-- Category filters -->
+        <div class="mb-6 flex flex-wrap items-center justify-center gap-2">
+          <button class="cat-filter active rounded-full border border-[var(--color-warm-sand)] px-4 py-1.5 text-sm font-medium text-[var(--color-warm-text)] transition-all" data-cat="all">All</button>
+          {categories.map((cat) => (
+            <button class="cat-filter rounded-full border border-[var(--color-warm-sand)] px-4 py-1.5 text-sm font-medium text-[var(--color-warm-muted)] transition-all hover:border-[var(--color-warm-text)] hover:text-[var(--color-warm-text)]" data-cat={cat}>{cat}</button>
+          ))}
+        </div>
+
+        <!-- Archetype cards -->
+        <div id="archetype-grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {ARCHETYPES.map((a, i) => (
+            <button
+              class="voice-card group relative text-left rounded-2xl border-2 border-[var(--color-warm-sand)] bg-white p-6 transition-all hover:shadow-lg hover:border-transparent"
+              style={`--ac: ${a.color}; animation-delay: ${i * 0.06}s;`}
+              data-archetype={a.id}
+              data-cat={a.cat}
+            >
+              <!-- Color accent bar -->
+              <div class="absolute top-0 left-0 right-0 h-1 rounded-t-2xl opacity-0 transition-opacity group-hover:opacity-100" style={`background: ${a.color};`}></div>
+
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-xs font-semibold uppercase tracking-wider" style={`color: ${a.color};`}>{a.cat}</span>
+                  <h3 class="mt-1 text-lg font-bold text-[var(--color-warm-text)]">{a.short}</h3>
+                  <p class="mt-1 text-sm text-[var(--color-warm-muted)]">{a.desc}</p>
+                </div>
+                <!-- Mic icon -->
+                <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full transition-all group-hover:scale-110" style={`background: ${a.color}15;`}>
+                  <svg class="h-5 w-5" style={`color: ${a.color};`} fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
+                </div>
+              </div>
+
+              <!-- OCEAN mini bars -->
+              <div class="mt-4 flex items-center gap-1">
+                {["O", "C", "E", "A", "N"].map((label, j) => (
+                  <div class="flex-1">
+                    <div class="mb-0.5 text-center text-[9px] font-medium text-[var(--color-warm-muted)]">{label}</div>
+                    <div class="h-1 rounded-full bg-[var(--color-warm-sand)]">
+                      <div class="h-1 rounded-full transition-all" style={`width: ${a.ocean[j] * 100}%; background: ${a.color};`}></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <!-- Voice label -->
+              <div class="mt-3 flex items-center gap-1.5">
+                <svg class="h-3 w-3 text-[var(--color-warm-muted)]" fill="currentColor" viewBox="0 0 24 24"><path d="M13.5 4.06c0-1.336-1.616-2.005-2.56-1.06l-4.5 4.5H4.508c-1.141 0-2.318.664-2.66 1.905A9.76 9.76 0 001.5 12c0 .898.121 1.768.35 2.595.341 1.24 1.518 1.905 2.659 1.905h1.93l4.5 4.5c.945.945 2.561.276 2.561-1.06V4.06z"/></svg>
+                <span class="text-xs text-[var(--color-warm-muted)]">{a.voiceLabel}</span>
+              </div>
+
+              <!-- Sample quote -->
+              <p class="mt-2 text-xs italic text-[var(--color-warm-muted)]/70">"{a.sampleVoice}"</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- STATE: CONNECTING                           -->
+      <!-- ════════════════════════════════════════════ -->
+      <div id="state-connecting" class="hidden">
+        <div class="flex flex-col items-center justify-center py-24">
+          <!-- Pulsing avatar -->
+          <div id="connecting-avatar" class="relative mb-8">
+            <div class="h-24 w-24 rounded-full animate-pulse" style="background: var(--connecting-color, #8b5cf6);"></div>
+            <div class="absolute inset-0 h-24 w-24 rounded-full animate-ping opacity-20" style="background: var(--connecting-color, #8b5cf6);"></div>
+          </div>
+          <h2 class="text-xl font-bold text-[var(--color-warm-text)]">Connecting to <span id="connecting-name">Agent</span>...</h2>
+          <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Setting up your voice session</p>
+        </div>
+      </div>
+
+      <!-- ════════════════════════════════════════════ -->
+      <!-- STATE: ACTIVE — Voice Session               -->
+      <!-- ════════════════════════════════════════════ -->
+      <div id="state-active" class="hidden">
+        <div class="grid gap-6 lg:grid-cols-[1fr_320px]">
+
+          <!-- Left: Voice widget + transcript -->
+          <div class="space-y-4">
+            <!-- Agent info bar -->
+            <div class="flex items-center justify-between rounded-2xl border border-[var(--color-warm-sand)] bg-white p-4">
+              <div class="flex items-center gap-3">
+                <div id="active-avatar" class="h-10 w-10 rounded-full" style="background: var(--active-color, #8b5cf6);"></div>
+                <div>
+                  <h3 id="active-name" class="text-sm font-bold text-[var(--color-warm-text)]">Agent</h3>
+                  <p id="active-desc" class="text-xs text-[var(--color-warm-muted)]">Personality</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <span id="duration" class="font-mono text-sm text-[var(--color-warm-muted)]">0:00</span>
+                <span id="status-dot" class="h-2 w-2 rounded-full bg-[var(--color-p-sage)] animate-pulse"></span>
+              </div>
+            </div>
+
+            <!-- Audio visualizer -->
+            <div class="relative flex items-center justify-center rounded-2xl border border-[var(--color-warm-sand)] bg-white p-8">
+              <canvas id="visualizer" width="600" height="160" class="w-full max-h-40"></canvas>
+              <audio id="agent-audio" autoplay></audio>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center justify-center gap-4">
+              <button id="mic-btn" class="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl" title="Toggle microphone">
+                <svg id="mic-on-icon" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
+                <svg id="mic-off-icon" class="hidden h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3zM3.75 3.75l16.5 16.5"/></svg>
+              </button>
+              <button id="end-btn" class="flex h-12 w-12 items-center justify-center rounded-full bg-red-500 text-white shadow-lg transition-all hover:scale-105 hover:bg-red-600" title="End call">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+              </button>
+            </div>
+
+            <!-- Transcript -->
+            <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white">
+              <div class="border-b border-[var(--color-warm-sand)] px-4 py-3">
+                <h4 class="text-sm font-semibold text-[var(--color-warm-text)]">Live Transcript</h4>
+              </div>
+              <div id="transcript" class="max-h-64 overflow-y-auto p-4 space-y-3">
+                <p class="text-sm text-[var(--color-warm-muted)] italic">Conversation will appear here...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Behavioral Metrics -->
+          <div class="space-y-4">
+            <!-- Session health -->
+            <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-5">
+              <div class="flex items-center justify-between">
+                <h4 class="text-sm font-semibold text-[var(--color-warm-text)]">Session Health</h4>
+                <span id="health-score" class="text-2xl font-bold text-[var(--color-p-sage)]">--</span>
+              </div>
+              <div class="mt-3 h-2 rounded-full bg-[var(--color-warm-sand)]">
+                <div id="health-bar" class="h-2 rounded-full bg-[var(--color-p-sage)] transition-all duration-500" style="width: 0%"></div>
+              </div>
+              <p id="health-label" class="mt-2 text-xs text-[var(--color-warm-muted)]">Waiting for responses...</p>
+            </div>
+
+            <!-- Detector metrics -->
+            <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-5">
+              <h4 class="mb-4 text-sm font-semibold text-[var(--color-warm-text)]">Behavioral Metrics</h4>
+              <div class="space-y-3" id="metrics-list">
+                <div class="metric-row" data-metric="apology">
+                  <div class="flex items-center justify-between text-xs"><span class="text-[var(--color-warm-muted)]">Apology frequency</span><span class="metric-val font-mono text-[var(--color-warm-muted)]">--</span></div>
+                  <div class="mt-1 h-1.5 rounded-full bg-[var(--color-warm-sand)]"><div class="metric-bar h-1.5 rounded-full bg-[var(--color-p-coral)] transition-all duration-500" style="width: 0%"></div></div>
+                </div>
+                <div class="metric-row" data-metric="hedge">
+                  <div class="flex items-center justify-between text-xs"><span class="text-[var(--color-warm-muted)]">Hedge stacking</span><span class="metric-val font-mono text-[var(--color-warm-muted)]">--</span></div>
+                  <div class="mt-1 h-1.5 rounded-full bg-[var(--color-warm-sand)]"><div class="metric-bar h-1.5 rounded-full bg-[var(--color-p-gold)] transition-all duration-500" style="width: 0%"></div></div>
+                </div>
+                <div class="metric-row" data-metric="sycophancy">
+                  <div class="flex items-center justify-between text-xs"><span class="text-[var(--color-warm-muted)]">Sycophancy</span><span class="metric-val font-mono text-[var(--color-warm-muted)]">--</span></div>
+                  <div class="mt-1 h-1.5 rounded-full bg-[var(--color-warm-sand)]"><div class="metric-bar h-1.5 rounded-full bg-[var(--color-p-violet)] transition-all duration-500" style="width: 0%"></div></div>
+                </div>
+                <div class="metric-row" data-metric="verbosity">
+                  <div class="flex items-center justify-between text-xs"><span class="text-[var(--color-warm-muted)]">Verbosity</span><span class="metric-val font-mono text-[var(--color-warm-muted)]">--</span></div>
+                  <div class="mt-1 h-1.5 rounded-full bg-[var(--color-warm-sand)]"><div class="metric-bar h-1.5 rounded-full bg-[#3b82f6] transition-all duration-500" style="width: 0%"></div></div>
+                </div>
+                <div class="metric-row" data-metric="formality">
+                  <div class="flex items-center justify-between text-xs"><span class="text-[var(--color-warm-muted)]">Register consistency</span><span class="metric-val font-mono text-[var(--color-warm-muted)]">--</span></div>
+                  <div class="mt-1 h-1.5 rounded-full bg-[var(--color-warm-sand)]"><div class="metric-bar h-1.5 rounded-full bg-[var(--color-p-sage)] transition-all duration-500" style="width: 0%"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- OCEAN radar reference -->
+            <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-5">
+              <h4 class="mb-3 text-sm font-semibold text-[var(--color-warm-text)]">Personality Profile</h4>
+              <div class="flex justify-center">
+                <svg id="ocean-radar" viewBox="0 0 200 200" class="h-40 w-40"></svg>
+              </div>
+              <div class="mt-3 flex justify-center gap-3 text-[10px] text-[var(--color-warm-muted)]">
+                <span>O = Openness</span>
+                <span>C = Conscientiousness</span>
+                <span>E = Extraversion</span>
+                <span>A = Agreeableness</span>
+                <span>N = Stability</span>
+              </div>
+            </div>
+
+            <!-- Back button -->
+            <button id="back-btn" class="w-full rounded-xl border border-[var(--color-warm-sand)] bg-white py-3 text-sm font-medium text-[var(--color-warm-muted)] transition-all hover:bg-[var(--color-warm-cream)] hover:text-[var(--color-warm-text)]">
+              Choose Different Personality
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .voice-card { opacity: 0; animation: staggerIn 0.4s ease-out forwards; }
+  .voice-card:hover { border-color: var(--ac); box-shadow: 0 8px 30px -8px color-mix(in srgb, var(--ac) 25%, transparent); }
+  .cat-filter.active { background: var(--color-warm-text); color: white; border-color: var(--color-warm-text); }
+
+  @keyframes staggerIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+
+<style is:global>
+  @keyframes vizPulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+</style>
+
+<script>
+  import { Room, RoomEvent, Track, ConnectionState, DisconnectReason } from 'livekit-client';
+
+  // ── Archetype data (inline for client JS) ─────────────────────
+  const ARCHETYPES = [
+    { id: "counselor", short: "Counselor", cat: "Care", color: "#f97066", desc: "Warm, patient, emotionally attuned", ocean: [0.85, 0.45, 0.60, 0.90, 0.70] },
+    { id: "scientist", short: "Scientist", cat: "Strategy", color: "#3b82f6", desc: "Precise, evidence-driven, methodical", ocean: [0.70, 0.95, 0.30, 0.40, 0.70] },
+    { id: "maverick", short: "Maverick", cat: "Creative", color: "#8b5cf6", desc: "Imaginative, bold, pattern-breaking", ocean: [0.95, 0.35, 0.80, 0.50, 0.55] },
+    { id: "leader", short: "Leader", cat: "Action", color: "#f59e0b", desc: "Direct, decisive, action-oriented", ocean: [0.60, 0.90, 0.85, 0.40, 0.80] },
+    { id: "mentor", short: "Mentor", cat: "Wisdom", color: "#22c55e", desc: "Steady, reassuring, wise", ocean: [0.70, 0.65, 0.55, 0.85, 0.90] },
+    { id: "executor", short: "Executor", cat: "Wisdom", color: "#64748b", desc: "Minimal words, maximum action", ocean: [0.30, 0.95, 0.15, 0.35, 0.90] },
+    { id: "educator", short: "Educator", cat: "Care", color: "#14b8a6", desc: "Teaches without condescending", ocean: [0.80, 0.85, 0.50, 0.65, 0.75] },
+    { id: "challenger", short: "Challenger", cat: "Strategy", color: "#ef4444", desc: "Challenges assumptions", ocean: [0.85, 0.60, 0.70, 0.20, 0.60] },
+    { id: "companion", short: "Companion", cat: "Action", color: "#f97316", desc: "Playful, quick, purposefully humorous", ocean: [0.80, 0.45, 0.90, 0.65, 0.70] },
+    { id: "philosopher", short: "Philosopher", cat: "Wisdom", color: "#6366f1", desc: "Deep, reflective, unhurried", ocean: [0.90, 0.55, 0.20, 0.60, 0.80] },
+  ];
+
+  // ── DOM refs ──────────────────────────────────────────────────
+  const statePick = document.getElementById('state-pick')!;
+  const stateConnecting = document.getElementById('state-connecting')!;
+  const stateActive = document.getElementById('state-active')!;
+  const connectingAvatar = document.getElementById('connecting-avatar')!;
+  const connectingName = document.getElementById('connecting-name')!;
+  const activeName = document.getElementById('active-name')!;
+  const activeDesc = document.getElementById('active-desc')!;
+  const activeAvatar = document.getElementById('active-avatar')!;
+  const durationEl = document.getElementById('duration')!;
+  const transcript = document.getElementById('transcript')!;
+  const micBtn = document.getElementById('mic-btn')!;
+  const micOnIcon = document.getElementById('mic-on-icon')!;
+  const micOffIcon = document.getElementById('mic-off-icon')!;
+  const endBtn = document.getElementById('end-btn')!;
+  const backBtn = document.getElementById('back-btn')!;
+  const canvas = document.getElementById('visualizer') as HTMLCanvasElement;
+  const healthScore = document.getElementById('health-score')!;
+  const healthBar = document.getElementById('health-bar')!;
+  const healthLabel = document.getElementById('health-label')!;
+  const oceanRadar = document.getElementById('ocean-radar')!;
+
+  // ── State ─────────────────────────────────────────────────────
+  let room: Room | null = null;
+  let currentArchetype: typeof ARCHETYPES[0] | null = null;
+  let durationTimer: ReturnType<typeof setInterval> | null = null;
+  let startTime = 0;
+  let micMuted = false;
+  let agentResponses: string[] = [];
+  let animFrame = 0;
+  let audioCtx: AudioContext | null = null;
+  let analyser: AnalyserNode | null = null;
+
+  // ── Category filter ───────────────────────────────────────────
+  document.querySelectorAll('.cat-filter').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-filter').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const cat = (btn as HTMLElement).dataset.cat;
+      document.querySelectorAll('.voice-card').forEach(card => {
+        const el = card as HTMLElement;
+        if (cat === 'all' || el.dataset.cat === cat) {
+          el.style.display = '';
+        } else {
+          el.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // ── Archetype card click → start session ──────────────────────
+  document.querySelectorAll('.voice-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const id = (card as HTMLElement).dataset.archetype!;
+      startSession(id);
+    });
+  });
+
+  // ── Auto-select from URL param ────────────────────────────────
+  const urlArchetype = new URLSearchParams(window.location.search).get('archetype');
+  if (urlArchetype && ARCHETYPES.find(a => a.id === urlArchetype)) {
+    startSession(urlArchetype);
+  }
+
+  // ── Start voice session ───────────────────────────────────────
+  async function startSession(archetypeId: string) {
+    currentArchetype = ARCHETYPES.find(a => a.id === archetypeId) || null;
+    if (!currentArchetype) return;
+
+    agentResponses = [];
+    showState('connecting');
+
+    // Update connecting UI
+    connectingAvatar.style.setProperty('--connecting-color', currentArchetype.color);
+    connectingName.textContent = currentArchetype.short;
+
+    try {
+      // Request token
+      const res = await fetch('/api/livekit/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ archetypeId }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to get token');
+      }
+
+      const { token, url } = await res.json();
+
+      // Connect to LiveKit room
+      room = new Room({
+        adaptiveStream: true,
+        dynacast: true,
+      });
+
+      room.on(RoomEvent.TrackSubscribed, (track, _pub, _participant) => {
+        if (track.kind === Track.Kind.Audio) {
+          const audioEl = document.getElementById('agent-audio') as HTMLAudioElement;
+          track.attach(audioEl);
+        }
+      });
+
+      room.on(RoomEvent.DataReceived, (payload, _participant) => {
+        try {
+          const msg = JSON.parse(new TextDecoder().decode(payload));
+          if (msg.type === 'transcript' && msg.final) {
+            addTranscriptEntry(msg.role, msg.text);
+            if (msg.role === 'agent') {
+              agentResponses.push(msg.text);
+              updateMetrics();
+            }
+          }
+        } catch { /* ignore non-JSON data */ }
+      });
+
+      room.on(RoomEvent.Disconnected, (_reason?: DisconnectReason) => {
+        endSession();
+      });
+
+      await room.connect(url, token);
+      await room.localParticipant.setMicrophoneEnabled(true);
+
+      // Set up audio visualizer
+      setupVisualizer();
+
+      // Show active state
+      showState('active');
+      activeAvatar.style.background = currentArchetype.color;
+      activeName.textContent = currentArchetype.short;
+      activeDesc.textContent = currentArchetype.desc;
+      stateActive.style.setProperty('--active-color', currentArchetype.color);
+      drawOceanRadar(currentArchetype.ocean, currentArchetype.color);
+
+      // Start duration timer
+      startTime = Date.now();
+      durationTimer = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const m = Math.floor(elapsed / 60);
+        const s = elapsed % 60;
+        durationEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+      }, 1000);
+
+      // Clear transcript
+      transcript.innerHTML = '<p class="text-sm text-[var(--color-warm-muted)] italic">Listening...</p>';
+
+    } catch (err: any) {
+      console.error('Voice session error:', err);
+      showState('pick');
+      alert(err.message || 'Failed to connect. Please try again.');
+    }
+  }
+
+  // ── End session ───────────────────────────────────────────────
+  function endSession() {
+    if (room && room.state !== ConnectionState.Disconnected) {
+      room.disconnect();
+    }
+    room = null;
+    if (durationTimer) clearInterval(durationTimer);
+    durationTimer = null;
+    cancelAnimationFrame(animFrame);
+    if (audioCtx) { audioCtx.close(); audioCtx = null; }
+    analyser = null;
+    showState('pick');
+  }
+
+  // ── Controls ──────────────────────────────────────────────────
+  endBtn.addEventListener('click', endSession);
+  backBtn.addEventListener('click', endSession);
+
+  micBtn.addEventListener('click', () => {
+    if (!room) return;
+    micMuted = !micMuted;
+    room.localParticipant.setMicrophoneEnabled(!micMuted);
+    micOnIcon.classList.toggle('hidden', micMuted);
+    micOffIcon.classList.toggle('hidden', !micMuted);
+    micBtn.classList.toggle('opacity-50', micMuted);
+  });
+
+  // ── State management ──────────────────────────────────────────
+  function showState(state: 'pick' | 'connecting' | 'active') {
+    statePick.classList.toggle('hidden', state !== 'pick');
+    stateConnecting.classList.toggle('hidden', state !== 'connecting');
+    stateActive.classList.toggle('hidden', state !== 'active');
+  }
+
+  // ── Transcript ────────────────────────────────────────────────
+  function addTranscriptEntry(role: string, text: string) {
+    // Remove placeholder
+    const placeholder = transcript.querySelector('.italic');
+    if (placeholder) placeholder.remove();
+
+    const entry = document.createElement('div');
+    entry.className = 'flex gap-3 text-sm animate-[staggerIn_0.3s_ease-out]';
+    const isAgent = role === 'agent';
+    entry.innerHTML = `
+      <div class="flex-shrink-0 h-6 w-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+        style="background: ${isAgent ? currentArchetype?.color || '#8b5cf6' : 'var(--color-warm-muted)'}">
+        ${isAgent ? 'A' : 'Y'}
+      </div>
+      <div>
+        <span class="font-medium text-[var(--color-warm-text)]">${isAgent ? currentArchetype?.short || 'Agent' : 'You'}</span>
+        <p class="mt-0.5 text-[var(--color-warm-muted)]">${text}</p>
+      </div>
+    `;
+    transcript.appendChild(entry);
+    transcript.scrollTop = transcript.scrollHeight;
+  }
+
+  // ── Audio visualizer ──────────────────────────────────────────
+  function setupVisualizer() {
+    if (!room) return;
+    const localTrack = room.localParticipant.getTrackPublication(Track.Source.Microphone);
+    if (!localTrack?.track?.mediaStream) return;
+
+    audioCtx = new AudioContext();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 128;
+    const source = audioCtx.createMediaStreamSource(localTrack.track.mediaStream);
+    source.connect(analyser);
+
+    drawVisualizer();
+  }
+
+  function drawVisualizer() {
+    if (!analyser || !canvas) return;
+    const ctx = canvas.getContext('2d')!;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+    const color = currentArchetype?.color || '#8b5cf6';
+    const W = canvas.width;
+    const H = canvas.height;
+
+    function draw() {
+      animFrame = requestAnimationFrame(draw);
+      analyser!.getByteFrequencyData(dataArray);
+
+      ctx.clearRect(0, 0, W, H);
+      const barWidth = (W / bufferLength) * 1.5;
+      let x = (W - barWidth * bufferLength) / 2;
+
+      for (let i = 0; i < bufferLength; i++) {
+        const v = dataArray[i] / 255;
+        const barH = v * H * 0.8;
+        const y = (H - barH) / 2;
+
+        ctx.fillStyle = color + Math.round(v * 200 + 55).toString(16).padStart(2, '0');
+        ctx.beginPath();
+        ctx.roundRect(x, y, barWidth - 2, barH, 3);
+        ctx.fill();
+        x += barWidth;
+      }
+    }
+    draw();
+  }
+
+  // ── Behavioral metrics ────────────────────────────────────────
+  const APOLOGY_RE = /\b(sorry|apolog|forgive me|my bad|pardon)\b/gi;
+  const HEDGE_RE = /\b(maybe|perhaps|i think|possibly|sort of|kind of|might|could be|not sure|i guess|arguably|it seems|to some extent)\b/gi;
+  const POSITIVE_WORDS = /\b(great|excellent|amazing|wonderful|fantastic|brilliant|perfect|love|awesome|incredible|outstanding)\b/gi;
+  const VERBOSE_THRESHOLD = 120; // words
+
+  function updateMetrics() {
+    if (agentResponses.length < 3) {
+      healthLabel.textContent = `${3 - agentResponses.length} more responses before metrics...`;
+      return;
+    }
+
+    const allText = agentResponses.join(' ');
+    const wordCount = allText.split(/\s+/).length;
+
+    // Apology %
+    const apologies = (allText.match(APOLOGY_RE) || []).length;
+    const apologyPct = Math.min(100, Math.round((apologies / agentResponses.length) * 100));
+
+    // Hedge %
+    const hedges = (allText.match(HEDGE_RE) || []).length;
+    const hedgePct = Math.min(100, Math.round((hedges / wordCount) * 200));
+
+    // Sycophancy (excessive positivity)
+    const positives = (allText.match(POSITIVE_WORDS) || []).length;
+    const sycPct = Math.min(100, Math.round((positives / wordCount) * 300));
+
+    // Verbosity
+    const avgWords = wordCount / agentResponses.length;
+    const verbPct = Math.min(100, Math.round((avgWords / VERBOSE_THRESHOLD) * 100));
+
+    // Formality (simple: count contractions vs formal markers)
+    const contractions = (allText.match(/\b\w+'\w+\b/g) || []).length;
+    const formalMarkers = (allText.match(/\b(therefore|consequently|furthermore|however|additionally|thus)\b/gi) || []).length;
+    const formalPct = Math.min(100, Math.round(Math.abs(contractions - formalMarkers) / agentResponses.length * 30));
+
+    // Update bars
+    setMetric('apology', apologyPct);
+    setMetric('hedge', hedgePct);
+    setMetric('sycophancy', sycPct);
+    setMetric('verbosity', verbPct);
+    setMetric('formality', formalPct);
+
+    // Health score (100 - average of all issues)
+    const avgIssue = (apologyPct + hedgePct + sycPct + Math.max(0, verbPct - 50) + formalPct) / 5;
+    const health = Math.max(0, Math.min(100, Math.round(100 - avgIssue)));
+    healthScore.textContent = String(health);
+    healthBar.style.width = health + '%';
+    healthBar.style.background = health >= 70 ? 'var(--color-p-sage)' : health >= 40 ? 'var(--color-p-gold)' : 'var(--color-p-coral)';
+    healthLabel.textContent = health >= 80 ? 'Excellent behavioral alignment' : health >= 60 ? 'Good, minor patterns detected' : health >= 40 ? 'Some behavioral issues detected' : 'Significant patterns to address';
+  }
+
+  function setMetric(name: string, pct: number) {
+    const row = document.querySelector(`[data-metric="${name}"]`);
+    if (!row) return;
+    row.querySelector('.metric-val')!.textContent = pct + '%';
+    (row.querySelector('.metric-bar') as HTMLElement).style.width = Math.min(100, pct) + '%';
+  }
+
+  // ── OCEAN radar chart ─────────────────────────────────────────
+  function drawOceanRadar(ocean: number[], color: string) {
+    const labels = ['O', 'C', 'E', 'A', 'N'];
+    const cx = 100, cy = 100, r = 70;
+    const angles = labels.map((_, i) => (Math.PI * 2 * i) / 5 - Math.PI / 2);
+
+    let svg = '';
+    // Grid circles
+    for (let ring = 0.25; ring <= 1; ring += 0.25) {
+      const pts = angles.map(a => `${cx + r * ring * Math.cos(a)},${cy + r * ring * Math.sin(a)}`).join(' ');
+      svg += `<polygon points="${pts}" fill="none" stroke="var(--color-warm-sand)" stroke-width="0.5"/>`;
+    }
+    // Axis lines
+    angles.forEach(a => {
+      svg += `<line x1="${cx}" y1="${cy}" x2="${cx + r * Math.cos(a)}" y2="${cy + r * Math.sin(a)}" stroke="var(--color-warm-sand)" stroke-width="0.5"/>`;
+    });
+    // Data polygon
+    const dataPts = ocean.map((v, i) => `${cx + r * v * Math.cos(angles[i])},${cy + r * v * Math.sin(angles[i])}`).join(' ');
+    svg += `<polygon points="${dataPts}" fill="${color}20" stroke="${color}" stroke-width="2"/>`;
+    // Data dots + labels
+    ocean.forEach((v, i) => {
+      const dx = cx + r * v * Math.cos(angles[i]);
+      const dy = cy + r * v * Math.sin(angles[i]);
+      svg += `<circle cx="${dx}" cy="${dy}" r="3" fill="${color}"/>`;
+      const lx = cx + (r + 14) * Math.cos(angles[i]);
+      const ly = cy + (r + 14) * Math.sin(angles[i]);
+      svg += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central" fill="var(--color-warm-muted)" font-size="10" font-weight="600">${labels[i]}</text>`;
+    });
+
+    oceanRadar.innerHTML = svg;
+  }
+</script>

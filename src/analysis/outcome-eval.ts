@@ -5,8 +5,8 @@
  * produce measurable behavioral change?
  *
  * This module:
- * 1. Runs all 7 detectors on "before" conversation logs
- * 2. Runs all 7 detectors on "after" conversation logs
+ * 1. Runs all 8 detectors on "before" conversation logs
+ * 2. Runs all 8 detectors on "after" conversation logs
  * 3. Computes per-pattern deltas
  * 4. Calculates a composite Treatment Efficacy Score (TES)
  * 5. Generates a human-readable outcome report

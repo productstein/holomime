@@ -1,0 +1,215 @@
+---
+import BlogLayout from "../../components/BlogLayout.astro";
+---
+
+<BlogLayout
+  title="AGENTS.md tells your agent how to code. .personality.json tells it how to behave."
+  description="The repo is becoming the single source of truth for agent behavior. AGENTS.md governs code conventions. .personality.json governs behavioral conventions. Here's how they work together."
+  date="2026-03-02"
+  category="Integration"
+  readTime="6 min read"
+>
+
+<p>
+  The repo is becoming the single source of truth for how AI agents work. Not the prompt. Not the platform. The repo.
+</p>
+
+<p>
+  <a href="https://github.com/anthropics/claude-code/blob/main/CLAUDE.md">CLAUDE.md</a>, <a href="https://cursor.com/blog/rules-for-ai">.cursorrules</a>, and the new open <a href="https://agents-md.org">AGENTS.md standard</a> — backed by Google, OpenAI, Cursor, Factory, and Sourcegraph under the Linux Foundation — all point to the same trend: developers want agent behavior defined in version-controlled config files, not scattered across SaaS dashboards.
+</p>
+
+<p>
+  But there's a gap.
+</p>
+
+<h2>The gap: code conventions vs. behavioral conventions</h2>
+
+<p>
+  AGENTS.md and its equivalents solve an important problem: they tell an AI coding agent <strong>how to write code</strong> for your project. Tabs vs. spaces. TypeScript strict mode. Test framework. Naming conventions.
+</p>
+
+<p>
+  What they don't cover is <strong>how the agent behaves</strong>. Should it be blunt or diplomatic? When should it push back on a user? How does it handle uncertainty — hedge everything, or commit to a position? What's its communication register — casual, formal, technical?
+</p>
+
+<p>
+  Your agent knows your lint rules. It doesn't know its own personality.
+</p>
+
+<h2>Two files, one repo</h2>
+
+<p>
+  The solution is straightforward: <strong>AGENTS.md</strong> for code conventions, <strong>.personality.json</strong> for behavioral conventions. Both live in the repo root. Both are version-controlled. Both govern a different axis of agent behavior.
+</p>
+
+<pre><code>your-project/
+├── AGENTS.md              # How the agent codes
+├── .personality.json      # How the agent behaves
+├── .personality.md        # Human-readable summary
+├── src/
+└── package.json</code></pre>
+
+<p>
+  Here's how they complement each other:
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>AGENTS.md</th>
+      <th>.personality.json</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Governs</strong></td>
+      <td>Code style, test strategy, build process</td>
+      <td>Communication style, conflict approach, boundaries</td>
+    </tr>
+    <tr>
+      <td><strong>Example rule</strong></td>
+      <td>"Use Vitest for unit tests"</td>
+      <td>"Push back on vague requirements"</td>
+    </tr>
+    <tr>
+      <td><strong>Format</strong></td>
+      <td>Markdown (human + machine readable)</td>
+      <td>JSON (machine-first, with .personality.md for humans)</td>
+    </tr>
+    <tr>
+      <td><strong>Standard</strong></td>
+      <td>Linux Foundation open standard</td>
+      <td>holomime open format</td>
+    </tr>
+    <tr>
+      <td><strong>Changes when</strong></td>
+      <td>You change your tech stack</td>
+      <td>You learn from production behavior</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>How .personality.json works</h2>
+
+<p>
+  A personality spec is a structured profile based on the <strong>Big Five personality model</strong> — the same framework used in organizational psychology for decades. It defines 5 dimensions with 20 facets, plus behavioral dimensions from therapeutic frameworks:
+</p>
+
+<ul>
+  <li><strong>Openness</strong> — curiosity, creativity, willingness to explore unconventional solutions</li>
+  <li><strong>Conscientiousness</strong> — precision, thoroughness, follow-through</li>
+  <li><strong>Extraversion</strong> — enthusiasm, assertiveness, how proactive the agent is</li>
+  <li><strong>Agreeableness</strong> — cooperation, empathy, conflict avoidance vs. directness</li>
+  <li><strong>Emotional Stability</strong> — resilience under pressure, handling ambiguity</li>
+</ul>
+
+<p>
+  Beyond the Big Five, the spec includes <strong>behavioral dimensions</strong> drawn from therapeutic psychology: self-awareness, distress tolerance, attachment style, boundary awareness, and interpersonal sensitivity. These govern how the agent handles difficult conversations — when to yield, when to hold firm, how to say "I don't know."
+</p>
+
+<p>
+  The spec also defines <strong>communication style</strong> (register, emoji policy, reasoning transparency, conflict approach) and <strong>domain boundaries</strong> (what the agent should refuse outright).
+</p>
+
+<p>
+  You create one with a single command:
+</p>
+
+<pre><code>holomime init</code></pre>
+
+<p>
+  And view the full profile:
+</p>
+
+<pre><code>holomime profile</code></pre>
+
+<p>
+  Or generate a human-readable markdown version:
+</p>
+
+<pre><code>holomime profile --format md --output .personality.md</code></pre>
+
+<h2>The flywheel: production behavior drives spec evolution</h2>
+
+<p>
+  The real power isn't in the initial spec — it's in the feedback loop. Holomime connects your agent's <strong>production behavior</strong> back to the spec through a structured cycle:
+</p>
+
+<ol>
+  <li><strong>Diagnose</strong> — Analyze real conversation logs for behavioral drift (over-apologizing, sycophancy, hedge stacking, identity confusion, boundary violations, and more)</li>
+  <li><strong>Evolve</strong> — Run structured self-therapy against the spec to propose personality updates</li>
+  <li><strong>Export</strong> — Generate DPO training pairs from every alignment session for fine-tuning</li>
+</ol>
+
+<pre><code># Analyze production logs for drift
+holomime diagnose --log agent.log
+
+# Run self-therapy
+holomime evolve --personality .personality.json --log agent.log
+
+# Export training data
+holomime export --format dpo --output training-pairs.jsonl</code></pre>
+
+<p>
+  Every therapy session improves the next. The spec evolves with your agent, in your repo, under version control. No dashboard required.
+</p>
+
+<p>
+  Holomime supports <strong>7 log formats</strong> out of the box — including OpenTelemetry GenAI, Anthropic API, OpenAI API, ChatGPT exports, Claude exports, JSONL, and its native format. If your agent talks to an LLM, holomime can analyze the conversation.
+</p>
+
+<h2>Adding .personality.json to your AGENTS.md</h2>
+
+<p>
+  If you already use AGENTS.md, integrating .personality.json is one section:
+</p>
+
+<pre><code># AGENTS.md
+
+## Code Conventions
+- Use TypeScript strict mode
+- Prefer functional patterns over classes
+- Run `npm test` before committing
+
+## Behavioral Personality
+
+This project uses [holomime](https://holomime.dev) for agent behavioral alignment.
+
+- **Spec**: `.personality.json` defines the agent's behavioral profile
+- **Readable version**: `.personality.md` is a human-readable summary
+- **Diagnose**: `holomime diagnose --log &lt;path&gt;` detects behavioral drift
+- **Align**: `holomime evolve --personality .personality.json --log &lt;path&gt;`
+
+The `.personality.json` governs *how the agent behaves*.
+The rest of this file governs *how the agent codes*.</code></pre>
+
+<p>
+  That's it. The two files coexist naturally because they govern orthogonal concerns.
+</p>
+
+<h2>Get started</h2>
+
+<p>
+  Three commands to add behavioral alignment to any project:
+</p>
+
+<pre><code>npm i -g holomime
+holomime init
+holomime profile --format md --output .personality.md</code></pre>
+
+<p>
+  You now have a <code>.personality.json</code> (canonical spec), a <code>.personality.md</code> (human-readable), and a CLI that can diagnose drift, run self-therapy, and export training data.
+</p>
+
+<p>
+  Add a "Behavioral Personality" section to your AGENTS.md. Commit both files. Your agent now has code conventions <em>and</em> behavioral conventions — defined in the repo, versioned with the code, evolved from production.
+</p>
+
+<hr />
+
+<p>
+  <strong>Learn more:</strong> <a href="/docs">Integration guides</a> for all 7 supported log formats, or explore the <a href="https://github.com/productstein/holomime">source on GitHub</a>.
+</p>
+
+</BlogLayout>

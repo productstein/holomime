@@ -1,0 +1,156 @@
+---
+import BlogLayout from "../../components/BlogLayout.astro";
+---
+
+<BlogLayout
+  title="The Behavioral Intelligence Layer for the Agent Era"
+  description="How agents treating agents creates a self-improving behavioral flywheel — and why the data it generates is the real moat."
+  date="2026-03-03"
+  category="Vision"
+  readTime="8 min read"
+>
+
+<p>
+  There are more non-human identities than employees at most companies. 96-to-1, by one estimate. And yet — not a single one of them has behavioral alignment.
+</p>
+
+<p>
+  Models get smarter every quarter. GPT-5 replaces GPT-4. Claude 4 replaces Claude 3. The underlying intelligence is a commodity. But <strong>how an agent behaves</strong> — whether it over-apologizes, hedges compulsively, sycophantically agrees, or spirals on errors — that's not solved by bigger models. It's solved by behavioral infrastructure.
+</p>
+
+<p>
+  That's what HoloMime is building: <strong>the behavioral intelligence layer for the agent era</strong>.
+</p>
+
+<h2>What self-improving agents actually look like</h2>
+
+<p>
+  This isn't AGI hype. It's a closed loop that compounds.
+</p>
+
+<p>
+  Every HoloMime cycle follows the same pattern:
+</p>
+
+<ol>
+  <li><strong>Diagnose</strong> — 8 rule-based detectors scan real conversations for behavioral patterns. No LLM needed. Over-apologizing, hedge stacking, sycophancy, error spirals, boundary violations, sentiment skew, formality drift, retrieval quality.</li>
+  <li><strong>Session</strong> — A dual-LLM therapy session targets the detected patterns. The therapist and the agent (patient) work through 7 phases: rapport, presenting problem, exploration, pattern recognition, challenge, skill building, and integration.</li>
+  <li><strong>DPO Pairs</strong> — Every therapist correction becomes a <a href="https://arxiv.org/abs/2305.18290">Direct Preference Optimization</a> training pair. The old behavior is the rejected response. The improved behavior is the chosen one. The alignment process <em>is</em> the data generation process.</li>
+  <li><strong>Fine-tune</strong> — Feed the DPO pairs to OpenAI or HuggingFace TRL. The model itself gets better.</li>
+  <li><strong>Evaluate</strong> — Before/after behavioral comparison with letter grades (A-F). Did the therapy actually work?</li>
+</ol>
+
+<p>
+  Then the loop restarts. The 100th cycle is exponentially more valuable than the first, because every correction compounds into the training data.
+</p>
+
+<pre><code>holomime evolve --personality agent.json --log agent.jsonl</code></pre>
+
+<p>
+  One command. The loop runs until behavioral convergence.
+</p>
+
+<h2>Agents treating agents</h2>
+
+<p>
+  Here's where it gets interesting.
+</p>
+
+<p>
+  What if one agent could diagnose and treat another agent's behavioral drift? Not a human therapist. Not an LLM pretending. An agent with its own personality spec — <strong>Mira</strong> — optimized for clinical, evidence-based behavioral diagnosis.
+</p>
+
+<p>
+  Mira has low agreeableness (0.35), very high emotional stability (0.95), and very high conscientiousness (0.90). It doesn't sugarcoat. It doesn't get rattled. It runs the 7-phase protocol and generates actionable corrections.
+</p>
+
+<pre><code>holomime network --dir ./agents --pairing severity</code></pre>
+
+<p>
+  The <code>network</code> command discovers all agents in a directory, diagnoses each one, then pairs them using a strategy:
+</p>
+
+<ul>
+  <li><strong>Severity</strong> — The healthiest agent treats the sickest.</li>
+  <li><strong>Round-robin</strong> — Everyone takes turns.</li>
+  <li><strong>Complementary</strong> — Agents with opposite strengths treat each other's weaknesses.</li>
+</ul>
+
+<p>
+  Human oversight is configurable. You can set <code>--oversight approve</code> to block every action, <code>--oversight review</code> for log-and-notify, or <code>--oversight none</code> for fully autonomous operation.
+</p>
+
+<h2>The data flywheel</h2>
+
+<p>
+  Every network therapy session generates DPO preference pairs. Those pairs go into the behavioral corpus — an append-only JSONL log of every diagnosis, session, evolution, and correction the system has ever produced.
+</p>
+
+<p>
+  The corpus grows with every operation. Future prescriptions get better because there's more data to match against. When a new agent joins the network with an over-apologizing pattern, the system already has dozens of corrections for that exact issue — from treating other agents.
+</p>
+
+<pre><code># Diagnose and prescribe from the corpus
+holomime prescribe --personality agent.json --log agent.jsonl
+
+# Share corrections to the marketplace
+holomime share --sessions .holomime/sessions/ --format dpo</code></pre>
+
+<p>
+  This is <strong>behavioral RAG</strong> — retrieval-augmented generation applied not to knowledge, but to agent behavior. Retrieve relevant corrections, generate better alignment.
+</p>
+
+<h2>Five layers to behavioral foundation models</h2>
+
+<p>
+  We see this compounding in five layers, each building on the previous:
+</p>
+
+<ol>
+  <li><strong>Behavioral convergence</strong> — A single agent's behavior stabilizes through the evolve loop. This is live today.</li>
+  <li><strong>Cross-agent transfer</strong> — Corrections that work for one agent improve others with similar patterns. <code>holomime prescribe</code> enables this.</li>
+  <li><strong>Behavioral corpus</strong> — Every session across every agent feeds a growing JSONL dataset of behavioral patterns and therapy interventions. This is the data moat.</li>
+  <li><strong>Behavioral foundation model</strong> — Fine-tune a model on the corpus. Instead of general-purpose therapy, a model that understands behavioral alignment natively.</li>
+  <li><strong>Emergent behavioral intelligence</strong> — The network starts generating corrections that no single agent or human designed. Novel behavioral insights emerge from the data.</li>
+</ol>
+
+<p>
+  We're not claiming to build AGI. We're building the infrastructure that makes agents better at being themselves — and the data that infrastructure generates is the real product.
+</p>
+
+<h2>.personality.json is the identity layer</h2>
+
+<p>
+  Models are replaceable. <code>.personality.json</code> is not.
+</p>
+
+<p>
+  The personality spec encodes your agent's Big Five profile (5 dimensions, 20 facets), behavioral dimensions, communication style, domain boundaries, and growth trajectory. It's portable across every model, every provider, every generation.
+</p>
+
+<p>
+  When GPT-6 arrives, your agent's behavioral identity comes with it. The training data compounds. The personality survives. The model is just the engine — the personality is the car.
+</p>
+
+<h2>Get started</h2>
+
+<pre><code>npm install -g holomime
+
+# Initialize your agent's personality
+holomime init
+
+# Run the self-improvement loop
+holomime evolve --personality .personality.json --log agent.jsonl
+
+# Start the agent-to-agent therapy network
+holomime network --dir ./agents --pairing severity</code></pre>
+
+<p>
+  <a href="/#pricing">Free tier</a> includes personality profiling, 80+ behavioral signals, and community marketplace. <a href="/#pricing">Pro</a> unlocks live sessions, recursive alignment, training export, and the agent network.
+</p>
+
+<p>
+  The behavioral intelligence layer for the agent era. Agents that get better at being themselves — automatically.
+</p>
+
+</BlogLayout>

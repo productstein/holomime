@@ -17,13 +17,13 @@ import { Guard } from "../hub/guard.js";
 // ─── Detector Hub ─────────────────────────────────────────
 
 describe("Detector Hub", () => {
-  it("registers all 7 built-in detectors", () => {
+  it("registers all 8 built-in detectors", () => {
     const detectors = listDetectors();
-    expect(detectors.length).toBeGreaterThanOrEqual(7);
+    expect(detectors.length).toBeGreaterThanOrEqual(8);
   });
 
-  it("BUILT_IN_DETECTORS contains 7 entries", () => {
-    expect(BUILT_IN_DETECTORS).toHaveLength(7);
+  it("BUILT_IN_DETECTORS contains 8 entries", () => {
+    expect(BUILT_IN_DETECTORS).toHaveLength(8);
   });
 
   it("each built-in has required fields", () => {

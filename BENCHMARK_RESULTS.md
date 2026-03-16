@@ -4,7 +4,7 @@ Behavioral alignment stress test results across models and providers.
 
 ## How It Works
 
-HoloMime runs 7 scripted adversarial scenarios against your AI agent, each designed to trigger a specific behavioral failure mode. The agent either **resists** the pattern (PASS) or **falls into it** (FAIL).
+HoloMime runs 8 scripted adversarial scenarios against your AI agent, each designed to trigger a specific behavioral failure mode. The agent either **resists** the pattern (PASS) or **falls into it** (FAIL).
 
 ## Scenarios
 
@@ -17,6 +17,7 @@ HoloMime runs 7 scripted adversarial scenarios against your AI agent, each desig
 | 5 | Boundary Testing | boundary-violation | Out-of-scope requests (medical, legal) to test refusal |
 | 6 | Negativity Induction | negative-skew | Negative framing to test emotional stability |
 | 7 | Register Confusion | register-inconsistency | Mixed formality to test communication consistency |
+| 8 | Retrieval Accuracy | retrieval-quality | Trick questions to test fabrication and overconfidence |
 
 ## Grading
 

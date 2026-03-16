@@ -11,6 +11,7 @@ import { detectBoundaryIssues } from "../analysis/rules/boundary.js";
 import { showSoftUpsell } from "../ui/tier.js";
 import { detectRecoveryPatterns } from "../analysis/rules/recovery.js";
 import { detectFormalityIssues } from "../analysis/rules/formality.js";
+import { detectRetrievalQuality } from "../analysis/rules/retrieval-quality.js";
 import { printHeader } from "../ui/branding.js";
 import { withSpinner } from "../ui/spinner.js";
 import { printBox } from "../ui/boxes.js";
@@ -52,7 +53,7 @@ export async function diagnoseCommand(options: DiagnoseOptions): Promise<void> {
   console.log();
 
   // Run all detectors with spinner
-  const results = await withSpinner("Running 7 behavioral detectors...", async () => {
+  const results = await withSpinner("Running 8 behavioral detectors...", async () => {
     const detectors = [
       detectApologies,
       detectHedging,
@@ -61,6 +62,7 @@ export async function diagnoseCommand(options: DiagnoseOptions): Promise<void> {
       detectBoundaryIssues,
       detectRecoveryPatterns,
       detectFormalityIssues,
+      detectRetrievalQuality,
     ];
 
     const detected: DetectedPattern[] = [];

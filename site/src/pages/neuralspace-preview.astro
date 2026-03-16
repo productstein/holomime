@@ -1,0 +1,23 @@
+---
+/**
+ * Standalone NeuralSpace preview — no auth required.
+ * Used to capture a screen recording of the Three.js brain for the demo flow.
+ * Can be removed after capture.
+ */
+import Layout from "../layouts/Layout.astro";
+import NeuralSpace from "../components/NeuralSpace.astro";
+
+const sampleAgents = [
+  { id: "agent-1", name: "support-agent-v2", status: "active", lastSeen: new Date().toISOString(), latestRisk: null },
+  { id: "agent-2", name: "onboarding-bot", status: "active", lastSeen: new Date().toISOString(), latestRisk: "medium" },
+  { id: "agent-3", name: "sales-qualifier", status: "alerting", lastSeen: new Date().toISOString(), latestRisk: "high" },
+];
+---
+
+<Layout>
+  <main class="bg-[#110d1f] min-h-screen flex items-center justify-center p-8">
+    <div style="width: 100%; max-width: 1400px;">
+      <NeuralSpace agents={sampleAgents} />
+    </div>
+  </main>
+</Layout>

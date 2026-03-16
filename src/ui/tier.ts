@@ -131,7 +131,7 @@ export function showUpgradePrompt(command: string): void {
     `${chalk.dim("Pro features include:")}`,
     `  ${chalk.cyan("\u2022")} Live alignment sessions with supervisor mode`,
     `  ${chalk.cyan("\u2022")} Recursive alignment (evolve until converged)`,
-    `  ${chalk.cyan("\u2022")} 7-scenario behavioral stress testing`,
+    `  ${chalk.cyan("\u2022")} 8-scenario behavioral stress testing`,
     `  ${chalk.cyan("\u2022")} Continuous drift detection & auto-alignment`,
     `  ${chalk.cyan("\u2022")} Training data export (DPO, RLHF, Alpaca)`,
     `  ${chalk.cyan("\u2022")} ML fine-tuning (OpenAI, HuggingFace TRL)`,

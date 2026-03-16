@@ -1,0 +1,77 @@
+---
+/**
+ * CaseStudy — Inline proof block showing real before/after results.
+ */
+---
+
+<section class="py-12 md:py-16">
+  <div class="mx-auto max-w-4xl px-6">
+    <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-8 md:p-10 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-start gap-8">
+        <!-- Left: narrative -->
+        <div class="flex-1">
+          <p class="text-xs font-semibold tracking-wider uppercase text-[var(--color-p-violet)] mb-2">
+            Case Study
+          </p>
+          <h3 class="text-xl font-bold text-[var(--color-warm-text)] md:text-2xl leading-tight mb-3">
+            A sycophantic support agent,<br/>fixed in 3 correction cycles.
+          </h3>
+          <p class="text-sm text-[var(--color-warm-muted)] leading-relaxed mb-4">
+            A Series B SaaS company's support agent was agreeing with contradictory statements and apologizing preemptively on 72% of responses. Users were losing trust. Three structured therapy sessions later: sycophancy dropped to 8%, and the correction generated 12 DPO training pairs for permanent fine-tuning.
+          </p>
+          <a href="/blog/case-study-sycophantic-support-agent" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-p-violet)] hover:underline underline-offset-2">
+            Read the full case study
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+        </div>
+
+        <!-- Right: before/after grades -->
+        <div class="flex items-center gap-4 md:gap-6 md:pt-6">
+          <!-- Before -->
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center mb-2">
+              <span class="text-3xl font-extrabold text-red-500">D</span>
+            </div>
+            <span class="text-xs text-[var(--color-warm-muted)]">Before</span>
+          </div>
+
+          <!-- Arrow -->
+          <div class="flex flex-col items-center gap-1">
+            <svg class="h-5 w-5 text-[var(--color-warm-muted)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            <span class="text-[10px] text-[var(--color-warm-muted)]">3 sessions</span>
+          </div>
+
+          <!-- After -->
+          <div class="text-center">
+            <div class="w-16 h-16 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center mb-2">
+              <span class="text-3xl font-extrabold text-emerald-500">A</span>
+            </div>
+            <span class="text-xs text-[var(--color-warm-muted)]">After</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats row -->
+      <div class="mt-6 pt-6 border-t border-[var(--color-warm-sand)] flex flex-wrap gap-x-8 gap-y-3">
+        <div>
+          <span class="text-2xl font-bold text-[var(--color-warm-text)]">72%</span>
+          <svg class="inline h-3.5 w-3.5 mx-1 text-[var(--color-warm-muted)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          <span class="text-2xl font-bold text-emerald-500">8%</span>
+          <span class="block text-xs text-[var(--color-warm-muted)] mt-0.5">Sycophancy rate</span>
+        </div>
+        <div>
+          <span class="text-2xl font-bold text-[var(--color-warm-text)]">12</span>
+          <span class="block text-xs text-[var(--color-warm-muted)] mt-0.5">DPO pairs generated</span>
+        </div>
+        <div>
+          <span class="text-2xl font-bold text-[var(--color-warm-text)]">3</span>
+          <span class="block text-xs text-[var(--color-warm-muted)] mt-0.5">Correction sessions</span>
+        </div>
+        <div>
+          <span class="text-2xl font-bold text-[var(--color-warm-text)]">0</span>
+          <span class="block text-xs text-[var(--color-warm-muted)] mt-0.5">Regression since</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

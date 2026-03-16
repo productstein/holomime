@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NeuralSpace — HoloMime Brain</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako_inflate.min.js"></script>
+  <script type="importmap">
+  { "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.172.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.172.0/examples/jsm/"
+  }}
+  </script>
+</head>
+<body>
+  <div id="app">
+    <div id="canvas-area">
+      <div id="top-bar">
+        <div class="brand">holomime<span>.live</span></div>
+        <div id="status" class="status-badge disconnected">
+          <div class="status-dot"></div>
+          <span>Connecting...</span>
+        </div>
+      </div>
+
+      <div id="health-display">
+        <div class="health-ring">
+          <svg viewBox="0 0 90 90">
+            <circle class="bg-ring" cx="45" cy="45" r="38" />
+            <circle class="fg-ring" id="health-ring-fg" cx="45" cy="45" r="38"
+              stroke-dasharray="238.76" stroke-dashoffset="0" />
+          </svg>
+          <div class="health-value">
+            <div class="number" id="health-number">--</div>
+            <div class="grade" id="health-grade">--</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="msg-count">
+        <div class="number" id="msg-number">0</div>
+        messages
+      </div>
+
+      <div id="region-card">
+        <div class="rc-name"></div>
+        <div class="rc-function"></div>
+        <div class="rc-intensity">
+          <span class="rc-label">Intensity</span>
+          <div class="rc-bar"><div class="rc-bar-fill"></div></div>
+        </div>
+        <div class="rc-patterns"></div>
+      </div>
+
+      <div id="reconnect-banner">
+        <div class="spinner"></div>
+        <span>Reconnecting to agent...</span>
+      </div>
+
+      <div id="snapshot-cta">
+        <span>See your own agent's brain</span>
+        <code>npx holomime brain</code>
+        <a href="https://holomime.dev/brain">Learn more</a>
+      </div>
+
+      <div id="watermark">Powered by HoloMime</div>
+    </div>
+
+    <div id="sidebar">
+      <div class="sidebar-header">
+        <h2>Behavioral Patterns</h2>
+        <div class="agent-info" id="agent-info">Waiting for agent...</div>
+      </div>
+      <div id="pattern-list">
+        <div class="empty-state" id="empty-state">
+          <div class="icon">&#x1f9e0;</div>
+          <h3>Waiting for activity</h3>
+          <p>Brain regions will light up as your agent generates responses and behavioral patterns are detected.</p>
+        </div>
+      </div>
+      <div id="activity-feed">
+        <div class="feed-header">Activity</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="neuralspace.js"></script>
+</body>
+</html>

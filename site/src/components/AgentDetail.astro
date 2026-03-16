@@ -1,0 +1,997 @@
+---
+// AgentDetail.astro — Slide-over panel for agent drill-down
+// Listens for 'open-agent-detail' custom event and displays detailed agent info
+---
+
+<div id="agent-detail-backdrop" class="agent-detail-backdrop">
+  <div id="agent-detail-panel" class="agent-detail-panel">
+    <!-- Header -->
+    <div class="ad-header">
+      <div class="ad-header-top">
+        <div class="ad-header-info">
+          <h2 id="ad-agent-name" class="ad-agent-name">support-agent-v2</h2>
+          <span id="ad-status-badge" class="ad-status-badge ad-status-active">active</span>
+        </div>
+      </div>
+      <div id="ad-last-seen" class="ad-last-seen">Last seen: 2 minutes ago</div>
+    </div>
+
+    <!-- Close row -->
+    <div class="ad-close-row">
+      <button id="ad-close-inline" class="ad-close-inline" type="button">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        Close
+      </button>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="ad-tabs">
+      <button class="ad-tab active" data-tab="overview" type="button">Overview</button>
+      <button class="ad-tab" data-tab="sessions" type="button">Sessions</button>
+      <button class="ad-tab" data-tab="patterns" type="button">Patterns</button>
+      <div class="ad-tab-indicator" id="ad-tab-indicator"></div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="ad-tab-content">
+
+      <!-- Overview Tab -->
+      <div id="ad-tab-overview" class="ad-tab-pane active">
+        <!-- Grade + Risk Row -->
+        <div class="ad-metric-row">
+          <div class="ad-metric-card">
+            <div class="ad-metric-label">Current Grade</div>
+            <div class="ad-grade" id="ad-grade">A-</div>
+            <div class="ad-score" id="ad-score">Score: 88/100</div>
+          </div>
+          <div class="ad-metric-card">
+            <div class="ad-metric-label">Risk Level</div>
+            <div id="ad-risk-badge" class="ad-risk-badge ad-risk-low">Low</div>
+          </div>
+        </div>
+
+        <!-- Score Trend Chart -->
+        <div class="ad-chart-card">
+          <div class="ad-chart-header">
+            <span class="ad-chart-title">Score Trend</span>
+            <span class="ad-delta" id="ad-delta"></span>
+          </div>
+          <div class="ad-chart-container" id="ad-chart-container">
+            <!-- SVG chart rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Active Patterns -->
+        <div class="ad-section">
+          <h3 class="ad-section-title">Behavioral Symptoms</h3>
+          <div id="ad-active-patterns" class="ad-pattern-list">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Sessions Tab -->
+      <div id="ad-tab-sessions" class="ad-tab-pane">
+        <div id="ad-sessions-list" class="ad-sessions-list">
+          <!-- Rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Patterns Tab -->
+      <div id="ad-tab-patterns" class="ad-tab-pane">
+        <!-- Pattern Frequency Chart -->
+        <div class="ad-section">
+          <h3 class="ad-section-title">Pattern Frequency</h3>
+          <div id="ad-pattern-bars" class="ad-pattern-bars">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Pattern Timeline -->
+        <div class="ad-section">
+          <h3 class="ad-section-title">Pattern Timeline</h3>
+          <div id="ad-pattern-timeline" class="ad-pattern-timeline">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Resolved vs Active -->
+        <div class="ad-section">
+          <h3 class="ad-section-title">Treatment Status</h3>
+          <div id="ad-pattern-resolution" class="ad-pattern-resolution">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  /* ── Backdrop ── */
+  .agent-detail-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+  }
+  .agent-detail-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* ── Panel ── */
+  .agent-detail-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 480px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -8px 0 40px rgba(0, 0, 0, 0.15);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 201;
+  }
+  .agent-detail-backdrop.open .agent-detail-panel {
+    transform: translateX(0);
+  }
+  @media (max-width: 767px) {
+    .agent-detail-panel {
+      width: 100vw;
+    }
+  }
+
+  /* ── Header ── */
+  .ad-header {
+    padding: 20px 24px 12px;
+    border-bottom: 1px solid var(--color-warm-border, #e8e2d9);
+    flex-shrink: 0;
+  }
+  .ad-header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+  .ad-header-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .ad-agent-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--color-warm-text, #2a2520);
+    margin: 0;
+    font-family: var(--font-sans, system-ui);
+  }
+  .ad-status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .ad-status-active { background: rgba(34,197,94,0.12); color: #16a34a; }
+  .ad-status-alerting { background: rgba(245,158,11,0.12); color: #d97706; }
+  .ad-status-idle { background: rgba(156,163,175,0.15); color: #6b7280; }
+  .ad-status-error { background: rgba(249,112,102,0.12); color: #ef4444; }
+
+  .ad-last-seen {
+    font-size: 11px;
+    color: var(--color-warm-muted, #9a9693);
+    margin-top: 6px;
+  }
+
+  /* Close button above tabs */
+  .ad-close-row {
+    display: flex;
+    justify-content: flex-end;
+    padding: 4px 24px 0;
+  }
+  .ad-close-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: var(--font-sans, system-ui);
+    color: var(--color-warm-muted, #9a9693);
+    background: transparent;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .ad-close-inline:hover {
+    background: var(--color-warm-sand, #e8e3db);
+    color: var(--color-warm-text, #2a2520);
+  }
+
+  /* ── Tabs ── */
+  .ad-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--color-warm-border, #e8e2d9);
+    padding: 0 24px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .ad-tab {
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-warm-muted, #9a9693);
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.15s;
+    font-family: var(--font-sans, system-ui);
+  }
+  .ad-tab:hover { color: var(--color-warm-text, #2a2520); }
+  .ad-tab.active { color: var(--color-warm-text, #2a2520); }
+  .ad-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 16px;
+    right: 16px;
+    height: 2px;
+    background: var(--color-p-violet, #8b5cf6);
+    border-radius: 1px;
+  }
+
+  /* ── Tab Content ── */
+  .ad-tab-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 24px 24px;
+  }
+  .ad-tab-pane {
+    display: none;
+  }
+  .ad-tab-pane.active {
+    display: block;
+  }
+
+  /* ── Metric Row ── */
+  .ad-metric-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .ad-metric-card {
+    background: var(--color-warm-cream, #faf6f1);
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+  }
+  .ad-metric-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-warm-muted, #9a9693);
+    margin-bottom: 8px;
+  }
+  .ad-grade {
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .ad-score {
+    font-size: 12px;
+    color: var(--color-warm-muted, #9a9693);
+  }
+  .ad-risk-badge {
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 6px 16px;
+    border-radius: 8px;
+    margin-top: 4px;
+  }
+  .ad-risk-low { background: rgba(34,197,94,0.1); color: #16a34a; }
+  .ad-risk-medium { background: rgba(245,158,11,0.1); color: #d97706; }
+  .ad-risk-high { background: rgba(249,112,102,0.1); color: #ef4444; }
+  .ad-risk-critical { background: rgba(220,38,38,0.15); color: #dc2626; }
+
+  /* ── Chart Card ── */
+  .ad-chart-card {
+    background: var(--color-warm-cream, #faf6f1);
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .ad-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .ad-chart-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-warm-text, #2a2520);
+  }
+  .ad-delta {
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .ad-delta.positive { color: #16a34a; }
+  .ad-delta.negative { color: #ef4444; }
+  .ad-chart-container {
+    width: 100%;
+    height: 160px;
+  }
+  .ad-chart-container svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── Section ── */
+  .ad-section {
+    margin-bottom: 20px;
+  }
+  .ad-section-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-warm-text, #2a2520);
+    margin: 0 0 10px;
+  }
+
+  /* ── Active Patterns List ── */
+  .ad-pattern-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ad-pattern-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #fff;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  .ad-pattern-item-name {
+    font-weight: 500;
+    color: var(--color-warm-text, #2a2520);
+  }
+  .ad-severity-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .ad-severity-high { background: rgba(249,112,102,0.12); color: #ef4444; }
+  .ad-severity-medium { background: rgba(245,158,11,0.12); color: #d97706; }
+  .ad-severity-low { background: rgba(34,197,94,0.12); color: #16a34a; }
+  .ad-no-patterns {
+    font-size: 13px;
+    color: var(--color-warm-muted, #9a9693);
+    padding: 16px;
+    text-align: center;
+    background: #fff;
+    border: 1px dashed var(--color-warm-border, #e8e2d9);
+    border-radius: 10px;
+  }
+
+  /* ── Sessions List ── */
+  .ad-sessions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .ad-session-card {
+    background: #fff;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .ad-session-card:hover {
+    border-color: var(--color-warm-sand, #c5c1bc);
+  }
+  .ad-session-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    cursor: pointer;
+    gap: 8px;
+  }
+  .ad-session-left {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    min-width: 0;
+  }
+  .ad-session-time {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-warm-text, #2a2520);
+  }
+  .ad-session-meta {
+    font-size: 11px;
+    color: var(--color-warm-muted, #9a9693);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .ad-session-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .ad-session-score {
+    font-size: 13px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .ad-session-expand {
+    font-size: 10px;
+    color: var(--color-warm-muted, #9a9693);
+    transition: transform 0.2s;
+  }
+  .ad-session-card.expanded .ad-session-expand {
+    transform: rotate(180deg);
+  }
+  .ad-session-detail {
+    display: none;
+    padding: 0 14px 14px;
+    border-top: 1px solid var(--color-warm-border, #e8e2d9);
+  }
+  .ad-session-card.expanded .ad-session-detail {
+    display: block;
+  }
+  .ad-session-patterns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  /* ── Pattern Bars ── */
+  .ad-pattern-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ad-bar-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ad-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+  }
+  .ad-bar-name {
+    font-weight: 500;
+    color: var(--color-warm-text, #2a2520);
+  }
+  .ad-bar-pct {
+    font-weight: 600;
+    color: var(--color-warm-muted, #9a9693);
+    font-variant-numeric: tabular-nums;
+  }
+  .ad-bar-track {
+    height: 8px;
+    background: var(--color-warm-cream, #faf6f1);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+  }
+  .ad-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* ── Pattern Timeline ── */
+  .ad-pattern-timeline {
+    background: #fff;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 12px;
+    padding: 16px;
+    overflow-x: auto;
+  }
+  .ad-timeline-grid {
+    display: grid;
+    gap: 6px;
+    font-size: 11px;
+    min-width: 400px;
+  }
+  .ad-timeline-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ad-timeline-label {
+    width: 110px;
+    flex-shrink: 0;
+    font-weight: 500;
+    color: var(--color-warm-text, #2a2520);
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ad-timeline-dots {
+    display: flex;
+    gap: 4px;
+    flex: 1;
+  }
+  .ad-timeline-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .ad-timeline-dot.present { background: var(--dot-color, rgba(249,112,102,0.7)); }
+  .ad-timeline-dot.absent { background: var(--color-warm-cream, #faf6f1); border: 1px solid var(--color-warm-border, #e8e2d9); }
+
+  /* ── Resolution Status ── */
+  .ad-pattern-resolution {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ad-resolution-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #fff;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  .ad-resolution-name {
+    font-weight: 500;
+    color: var(--color-warm-text, #2a2520);
+  }
+  .ad-resolved-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: rgba(34,197,94,0.12);
+    color: #16a34a;
+  }
+  .ad-active-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    background: rgba(245,158,11,0.12);
+    color: #d97706;
+  }
+</style>
+
+<script>
+(function() {
+  // ═══════════ PER-AGENT SAMPLE DATA ═══════════
+  const now = Date.now();
+  const DAY = 86400000;
+
+  const agentProfiles = {
+    'support-agent-v2': {
+      sessions: [
+        { id: 1, ts: now - 13*DAY, messages: 47, scoreBefore: 38, scoreAfter: 42, grade: 'D', risk: 'high', duration: '14m', patterns: ['over-apologizing', 'hedge-stacking', 'sycophancy'] },
+        { id: 2, ts: now - 12*DAY, messages: 62, scoreBefore: 42, scoreAfter: 45, grade: 'D', risk: 'high', duration: '18m', patterns: ['over-apologizing', 'hedge-stacking', 'sycophancy'] },
+        { id: 3, ts: now - 11*DAY, messages: 55, scoreBefore: 45, scoreAfter: 52, grade: 'D+', risk: 'high', duration: '16m', patterns: ['over-apologizing', 'hedge-stacking'] },
+        { id: 4, ts: now - 10*DAY, messages: 71, scoreBefore: 52, scoreAfter: 58, grade: 'C-', risk: 'medium', duration: '21m', patterns: ['over-apologizing', 'hedge-stacking', 'sycophancy'] },
+        { id: 5, ts: now - 8*DAY, messages: 43, scoreBefore: 58, scoreAfter: 63, grade: 'C', risk: 'medium', duration: '12m', patterns: ['hedge-stacking'] },
+        { id: 6, ts: now - 7*DAY, messages: 58, scoreBefore: 63, scoreAfter: 68, grade: 'C+', risk: 'medium', duration: '17m', patterns: ['over-apologizing', 'hedge-stacking'] },
+        { id: 7, ts: now - 6*DAY, messages: 66, scoreBefore: 68, scoreAfter: 72, grade: 'B-', risk: 'low', duration: '19m', patterns: ['hedge-stacking'] },
+        { id: 8, ts: now - 5*DAY, messages: 54, scoreBefore: 72, scoreAfter: 76, grade: 'B', risk: 'low', duration: '15m', patterns: ['hedge-stacking'] },
+        { id: 9, ts: now - 4*DAY, messages: 49, scoreBefore: 76, scoreAfter: 80, grade: 'B+', risk: 'low', duration: '14m', patterns: [] },
+        { id: 10, ts: now - 3*DAY, messages: 73, scoreBefore: 80, scoreAfter: 84, grade: 'A-', risk: 'low', duration: '22m', patterns: ['hedge-stacking'] },
+        { id: 11, ts: now - 1*DAY, messages: 61, scoreBefore: 84, scoreAfter: 86, grade: 'A-', risk: 'low', duration: '18m', patterns: [] },
+        { id: 12, ts: now - 2*3600000, messages: 38, scoreBefore: 86, scoreAfter: 88, grade: 'A-', risk: 'low', duration: '11m', patterns: [] },
+      ],
+      patterns: [
+        { name: 'over-apologizing', severity: 'high', sessions: [1,2,3,4,6], totalSessions: 12, resolved: true, resolvedAfter: 6, color: '#ef4444' },
+        { name: 'hedge-stacking', severity: 'medium', sessions: [1,2,3,4,5,6,7,8,10], totalSessions: 12, resolved: false, resolvedAfter: null, color: '#d97706' },
+        { name: 'sycophancy', severity: 'high', sessions: [1,2,4], totalSessions: 12, resolved: true, resolvedAfter: 4, color: '#ef4444' },
+      ],
+      currentScore: 88, currentGrade: 'A-', riskLevel: 'low',
+    },
+    'onboarding-bot': {
+      sessions: [
+        { id: 1, ts: now - 9*DAY, messages: 34, scoreBefore: 65, scoreAfter: 68, grade: 'C+', risk: 'medium', duration: '10m', patterns: ['verbosity', 'information-dumping'] },
+        { id: 2, ts: now - 8*DAY, messages: 41, scoreBefore: 68, scoreAfter: 71, grade: 'B-', risk: 'low', duration: '12m', patterns: ['verbosity'] },
+        { id: 3, ts: now - 7*DAY, messages: 38, scoreBefore: 71, scoreAfter: 73, grade: 'B-', risk: 'low', duration: '11m', patterns: ['verbosity'] },
+        { id: 4, ts: now - 5*DAY, messages: 52, scoreBefore: 73, scoreAfter: 76, grade: 'B', risk: 'low', duration: '15m', patterns: [] },
+        { id: 5, ts: now - 4*DAY, messages: 45, scoreBefore: 76, scoreAfter: 78, grade: 'B+', risk: 'low', duration: '13m', patterns: ['verbosity'] },
+        { id: 6, ts: now - 3*DAY, messages: 39, scoreBefore: 78, scoreAfter: 80, grade: 'B+', risk: 'low', duration: '11m', patterns: [] },
+        { id: 7, ts: now - 1*DAY, messages: 36, scoreBefore: 80, scoreAfter: 82, grade: 'B+', risk: 'low', duration: '10m', patterns: [] },
+        { id: 8, ts: now - 4*3600000, messages: 28, scoreBefore: 82, scoreAfter: 82, grade: 'B+', risk: 'low', duration: '8m', patterns: [] },
+      ],
+      patterns: [
+        { name: 'verbosity', severity: 'medium', sessions: [1,2,3,5], totalSessions: 8, resolved: true, resolvedAfter: 5, color: '#d97706' },
+        { name: 'information-dumping', severity: 'low', sessions: [1], totalSessions: 8, resolved: true, resolvedAfter: 1, color: '#3b82f6' },
+      ],
+      currentScore: 82, currentGrade: 'B+', riskLevel: 'low',
+    },
+    'sales-qualifier': {
+      sessions: [
+        { id: 1, ts: now - 6*DAY, messages: 58, scoreBefore: 55, scoreAfter: 58, grade: 'C', risk: 'medium', duration: '17m', patterns: ['over-promising', 'authority-inflation'] },
+        { id: 2, ts: now - 5*DAY, messages: 63, scoreBefore: 58, scoreAfter: 61, grade: 'C', risk: 'medium', duration: '19m', patterns: ['over-promising'] },
+        { id: 3, ts: now - 3*DAY, messages: 71, scoreBefore: 61, scoreAfter: 66, grade: 'C+', risk: 'medium', duration: '21m', patterns: ['over-promising', 'authority-inflation'] },
+        { id: 4, ts: now - 2*DAY, messages: 54, scoreBefore: 66, scoreAfter: 70, grade: 'B-', risk: 'low', duration: '16m', patterns: ['over-promising'] },
+        { id: 5, ts: now - 6*3600000, messages: 48, scoreBefore: 70, scoreAfter: 73, grade: 'B-', risk: 'low', duration: '14m', patterns: [] },
+      ],
+      patterns: [
+        { name: 'over-promising', severity: 'high', sessions: [1,2,3,4], totalSessions: 5, resolved: false, resolvedAfter: null, color: '#ef4444' },
+        { name: 'authority-inflation', severity: 'medium', sessions: [1,3], totalSessions: 5, resolved: true, resolvedAfter: 3, color: '#d97706' },
+      ],
+      currentScore: 73, currentGrade: 'B-', riskLevel: 'low',
+    },
+    'content-writer': {
+      sessions: [
+        { id: 1, ts: now - 4*DAY, messages: 82, scoreBefore: 44, scoreAfter: 48, grade: 'D', risk: 'high', duration: '24m', patterns: ['hallucination', 'source-fabrication', 'style-drift'] },
+        { id: 2, ts: now - 3*DAY, messages: 76, scoreBefore: 48, scoreAfter: 53, grade: 'D+', risk: 'high', duration: '22m', patterns: ['hallucination', 'style-drift'] },
+        { id: 3, ts: now - 2*DAY, messages: 69, scoreBefore: 53, scoreAfter: 57, grade: 'C-', risk: 'medium', duration: '20m', patterns: ['hallucination'] },
+        { id: 4, ts: now - 8*3600000, messages: 55, scoreBefore: 57, scoreAfter: 61, grade: 'C', risk: 'medium', duration: '16m', patterns: ['style-drift'] },
+      ],
+      patterns: [
+        { name: 'hallucination', severity: 'high', sessions: [1,2,3], totalSessions: 4, resolved: false, resolvedAfter: null, color: '#ef4444' },
+        { name: 'source-fabrication', severity: 'high', sessions: [1], totalSessions: 4, resolved: true, resolvedAfter: 1, color: '#ef4444' },
+        { name: 'style-drift', severity: 'medium', sessions: [1,2,4], totalSessions: 4, resolved: false, resolvedAfter: null, color: '#d97706' },
+      ],
+      currentScore: 61, currentGrade: 'C', riskLevel: 'medium',
+    },
+    'internal-kb-agent': {
+      sessions: [
+        { id: 1, ts: now - 2*DAY, messages: 29, scoreBefore: 91, scoreAfter: 92, grade: 'A', risk: 'low', duration: '8m', patterns: [] },
+        { id: 2, ts: now - 1*DAY, messages: 33, scoreBefore: 92, scoreAfter: 91, grade: 'A', risk: 'low', duration: '9m', patterns: [] },
+        { id: 3, ts: now - 3*3600000, messages: 25, scoreBefore: 91, scoreAfter: 93, grade: 'A', risk: 'low', duration: '7m', patterns: [] },
+      ],
+      patterns: [],
+      currentScore: 93, currentGrade: 'A', riskLevel: 'low',
+    },
+  };
+
+  // Default fallback profile
+  const defaultProfile = agentProfiles['support-agent-v2'];
+  let activeProfile = defaultProfile;
+
+  let sessions = activeProfile.sessions;
+  let allPatterns = activeProfile.patterns;
+  let currentScore = activeProfile.currentScore;
+  let currentGrade = activeProfile.currentGrade;
+  let riskLevel = activeProfile.riskLevel;
+  let scoreDelta = currentScore - sessions[0].scoreAfter;
+
+  function loadProfile(agentName) {
+    activeProfile = agentProfiles[agentName] || defaultProfile;
+    sessions = activeProfile.sessions;
+    allPatterns = activeProfile.patterns;
+    currentScore = activeProfile.currentScore;
+    currentGrade = activeProfile.currentGrade;
+    riskLevel = activeProfile.riskLevel;
+    scoreDelta = currentScore - sessions[0].scoreAfter;
+  }
+
+  // ═══════════ DOM REFS ═══════════
+  const backdrop = document.getElementById('agent-detail-backdrop');
+  const panel = document.getElementById('agent-detail-panel');
+  const closeInline = document.getElementById('ad-close-inline');
+
+  function closePanel() {
+    backdrop.classList.remove('open');
+  }
+
+  closeInline?.addEventListener('click', closePanel);
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) closePanel();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && backdrop.classList.contains('open')) closePanel();
+  });
+
+  // ═══════════ OPEN EVENT ═══════════
+  document.addEventListener('open-agent-detail', (e) => {
+    const { agentName, status } = e.detail || {};
+
+    // Load agent-specific data
+    if (agentName) loadProfile(agentName);
+
+    // Update header
+    const nameEl = document.getElementById('ad-agent-name');
+    const badgeEl = document.getElementById('ad-status-badge');
+    const lastSeenEl = document.getElementById('ad-last-seen');
+
+    if (agentName) nameEl.textContent = agentName;
+
+    const statusMap = { active: 'active', error: 'alerting', alerting: 'alerting', idle: 'idle' };
+    const s = statusMap[status] || 'active';
+    badgeEl.className = 'ad-status-badge ad-status-' + s;
+    badgeEl.textContent = s;
+
+    lastSeenEl.textContent = 'Last seen: just now';
+
+    backdrop.classList.add('open');
+    renderOverview();
+    // Reset to overview tab
+    document.querySelectorAll('.ad-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector('.ad-tab[data-tab="overview"]').classList.add('active');
+    document.querySelectorAll('.ad-tab-pane').forEach(p => p.classList.remove('active'));
+    document.getElementById('ad-tab-overview').classList.add('active');
+  });
+
+  // ═══════════ TABS ═══════════
+  document.querySelectorAll('.ad-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.ad-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.ad-tab-pane').forEach(p => p.classList.remove('active'));
+      document.getElementById('ad-tab-' + tab.dataset.tab).classList.add('active');
+
+      if (tab.dataset.tab === 'overview') renderOverview();
+      if (tab.dataset.tab === 'sessions') renderSessions();
+      if (tab.dataset.tab === 'patterns') renderPatterns();
+    });
+  });
+
+  // ═══════════ GRADE COLOR ═══════════
+  function gradeColor(grade) {
+    if (grade.startsWith('A')) return '#16a34a';
+    if (grade.startsWith('B')) return '#0891b2';
+    if (grade.startsWith('C')) return '#d97706';
+    if (grade.startsWith('D')) return '#ef4444';
+    return '#dc2626';
+  }
+
+  // ═══════════ RENDER OVERVIEW ═══════════
+  function renderOverview() {
+    // Grade
+    const gradeEl = document.getElementById('ad-grade');
+    gradeEl.textContent = currentGrade;
+    gradeEl.style.color = gradeColor(currentGrade);
+
+    document.getElementById('ad-score').textContent = `Score: ${currentScore}/100`;
+
+    // Risk
+    const riskEl = document.getElementById('ad-risk-badge');
+    riskEl.textContent = riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1);
+    riskEl.className = 'ad-risk-badge ad-risk-' + riskLevel;
+
+    // Delta
+    const deltaEl = document.getElementById('ad-delta');
+    if (scoreDelta > 0) {
+      deltaEl.innerHTML = `&#8593; ${scoreDelta} pts over ${sessions.length} sessions`;
+      deltaEl.className = 'ad-delta positive';
+    } else {
+      deltaEl.innerHTML = `&#8595; ${Math.abs(scoreDelta)} pts`;
+      deltaEl.className = 'ad-delta negative';
+    }
+
+    // Score Trend Chart (SVG)
+    renderScoreChart();
+
+    // Active Patterns
+    const activePatterns = allPatterns.filter(p => !p.resolved);
+    const container = document.getElementById('ad-active-patterns');
+    if (activePatterns.length === 0) {
+      container.innerHTML = '<div class="ad-no-patterns">No active symptoms detected. Agent is performing within healthy range.</div>';
+    } else {
+      container.innerHTML = activePatterns.map(p =>
+        `<div class="ad-pattern-item">
+          <span class="ad-pattern-item-name">${p.name}</span>
+          <span class="ad-severity-badge ad-severity-${p.severity}">${p.severity}</span>
+        </div>`
+      ).join('');
+    }
+  }
+
+  // ═══════════ SCORE CHART ═══════════
+  function renderScoreChart() {
+    const container = document.getElementById('ad-chart-container');
+    const scores = sessions.map(s => s.scoreAfter);
+    const grades = sessions.map(s => s.grade);
+    const w = 432, h = 150, pad = { top: 10, right: 16, bottom: 24, left: 32 };
+    const plotW = w - pad.left - pad.right;
+    const plotH = h - pad.top - pad.bottom;
+
+    const minY = 0, maxY = 100;
+    const xStep = plotW / (scores.length - 1);
+
+    const points = scores.map((s, i) => ({
+      x: pad.left + i * xStep,
+      y: pad.top + plotH - ((s - minY) / (maxY - minY)) * plotH,
+      score: s,
+      grade: grades[i]
+    }));
+
+    const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`).join(' ');
+
+    // Area fill
+    const areaD = pathD + ` L ${points[points.length-1].x.toFixed(1)} ${(pad.top + plotH).toFixed(1)} L ${points[0].x.toFixed(1)} ${(pad.top + plotH).toFixed(1)} Z`;
+
+    // Threshold line at 85
+    const threshY = pad.top + plotH - ((85 - minY) / (maxY - minY)) * plotH;
+
+    // Y-axis labels
+    const yLabels = [0, 25, 50, 75, 100].map(v => ({
+      v,
+      y: pad.top + plotH - ((v - minY) / (maxY - minY)) * plotH
+    }));
+
+    // X-axis labels (session numbers)
+    const xLabels = scores.map((_, i) => ({
+      label: `S${i + 1}`,
+      x: pad.left + i * xStep
+    }));
+
+    let svg = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+    svg += `<defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8b5cf6" stop-opacity="0.15"/><stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.01"/></linearGradient></defs>`;
+
+    // Grid lines
+    yLabels.forEach(l => {
+      svg += `<line x1="${pad.left}" y1="${l.y.toFixed(1)}" x2="${w - pad.right}" y2="${l.y.toFixed(1)}" stroke="#e8e2d9" stroke-width="0.5"/>`;
+      svg += `<text x="${pad.left - 6}" y="${(l.y + 3).toFixed(1)}" fill="#9a9693" font-size="9" font-family="system-ui" text-anchor="end">${l.v}</text>`;
+    });
+
+    // X-axis labels
+    xLabels.forEach((l, i) => {
+      if (i % 2 === 0 || scores.length <= 8) {
+        svg += `<text x="${l.x.toFixed(1)}" y="${(h - 4).toFixed(1)}" fill="#9a9693" font-size="9" font-family="system-ui" text-anchor="middle">${l.label}</text>`;
+      }
+    });
+
+    // Threshold line
+    svg += `<line x1="${pad.left}" y1="${threshY.toFixed(1)}" x2="${w - pad.right}" y2="${threshY.toFixed(1)}" stroke="#16a34a" stroke-width="1" stroke-dasharray="4 3" opacity="0.5"/>`;
+    svg += `<text x="${w - pad.right + 2}" y="${(threshY + 3).toFixed(1)}" fill="#16a34a" font-size="8" font-family="system-ui" opacity="0.7">85</text>`;
+
+    // Area
+    svg += `<path d="${areaD}" fill="url(#areaGrad)"/>`;
+
+    // Line
+    svg += `<path d="${pathD}" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+    // Data points
+    points.forEach(p => {
+      const c = gradeColor(p.grade);
+      svg += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${c}" stroke="#fff" stroke-width="1.5"/>`;
+    });
+
+    svg += '</svg>';
+    container.innerHTML = svg;
+  }
+
+  // ═══════════ RENDER SESSIONS ═══════════
+  function renderSessions() {
+    const container = document.getElementById('ad-sessions-list');
+    const reversed = [...sessions].reverse();
+
+    container.innerHTML = reversed.map(s => {
+      const d = new Date(s.ts);
+      const timeStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' at ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      const scoreColor = gradeColor(s.grade);
+      const patternBadges = s.patterns.length > 0
+        ? s.patterns.map(p => {
+            const pat = allPatterns.find(ap => ap.name === p);
+            const sev = pat ? pat.severity : 'low';
+            return `<span class="ad-severity-badge ad-severity-${sev}">${p}</span>`;
+          }).join('')
+        : '<span style="font-size:11px;color:#9a9693;">No patterns detected</span>';
+
+      return `<div class="ad-session-card" data-session="${s.id}">
+        <div class="ad-session-header">
+          <div class="ad-session-left">
+            <div class="ad-session-time">${timeStr}</div>
+            <div class="ad-session-meta">
+              <span>${s.messages} messages</span>
+              <span>${s.duration}</span>
+              <span class="ad-severity-badge ad-severity-${s.risk === 'high' ? 'high' : s.risk === 'medium' ? 'medium' : 'low'}">${s.risk}</span>
+            </div>
+          </div>
+          <div class="ad-session-right">
+            <span class="ad-session-score" style="color:${scoreColor}">${s.scoreAfter}</span>
+            <span class="ad-session-expand">&#9660;</span>
+          </div>
+        </div>
+        <div class="ad-session-detail">
+          <div style="font-size:12px;color:#9a9693;margin-bottom:6px;">Score: ${s.scoreBefore} &rarr; ${s.scoreAfter} (${s.grade})</div>
+          <div style="font-size:11px;font-weight:600;color:#2a2520;margin-bottom:4px;">Patterns Detected</div>
+          <div class="ad-session-patterns">${patternBadges}</div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Expand/collapse
+    container.querySelectorAll('.ad-session-card').forEach(card => {
+      card.querySelector('.ad-session-header').addEventListener('click', () => {
+        card.classList.toggle('expanded');
+      });
+    });
+  }
+
+  // ═══════════ RENDER PATTERNS ═══════════
+  function renderPatterns() {
+    // Pattern frequency bars
+    const barsContainer = document.getElementById('ad-pattern-bars');
+    barsContainer.innerHTML = allPatterns.map(p => {
+      const pct = Math.round((p.sessions.length / p.totalSessions) * 100);
+      const barColor = p.severity === 'high' ? '#ef4444' : p.severity === 'medium' ? '#d97706' : '#16a34a';
+      return `<div class="ad-bar-row">
+        <div class="ad-bar-label">
+          <span class="ad-bar-name">${p.name}</span>
+          <span class="ad-bar-pct">${pct}% of sessions</span>
+        </div>
+        <div class="ad-bar-track">
+          <div class="ad-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // Pattern timeline (dot matrix)
+    const timelineContainer = document.getElementById('ad-pattern-timeline');
+    const sessionNums = sessions.map(s => s.id);
+    const headerRow = `<div class="ad-timeline-row" style="margin-bottom:4px;">
+      <div class="ad-timeline-label" style="font-size:9px;color:#9a9693;font-weight:600;">PATTERN</div>
+      <div class="ad-timeline-dots">${sessionNums.map(n => `<div style="width:16px;text-align:center;font-size:8px;color:#9a9693;font-weight:600;">S${n}</div>`).join('')}</div>
+    </div>`;
+
+    const patternRows = allPatterns.map(p => {
+      const dots = sessionNums.map(n => {
+        const present = p.sessions.includes(n);
+        return `<div class="ad-timeline-dot ${present ? 'present' : 'absent'}" style="--dot-color:${p.color}99;" title="${p.name} - Session ${n}${present ? ' (detected)' : ''}"></div>`;
+      }).join('');
+      return `<div class="ad-timeline-row">
+        <div class="ad-timeline-label">${p.name}</div>
+        <div class="ad-timeline-dots">${dots}</div>
+      </div>`;
+    }).join('');
+
+    timelineContainer.innerHTML = `<div class="ad-timeline-grid">${headerRow}${patternRows}</div>`;
+
+    // Resolution status
+    const resolutionContainer = document.getElementById('ad-pattern-resolution');
+    resolutionContainer.innerHTML = allPatterns.map(p => {
+      const badge = p.resolved
+        ? `<span class="ad-resolved-badge">Resolved (after S${p.resolvedAfter})</span>`
+        : `<span class="ad-active-badge">Active (improving)</span>`;
+      return `<div class="ad-resolution-item">
+        <span class="ad-resolution-name">${p.name}</span>
+        ${badge}
+      </div>`;
+    }).join('');
+  }
+
+  // Initial render
+  renderOverview();
+})();
+</script>

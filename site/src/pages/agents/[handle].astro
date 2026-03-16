@@ -1,0 +1,499 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Nav from "../../components/Nav.astro";
+import Footer from "../../components/Footer.astro";
+import NeuralSpace from "../../components/NeuralSpace.astro";
+import { createClient } from "@supabase/supabase-js";
+import { ARCHETYPES, TRAIT_DIMENSIONS, TRAIT_LABELS, COGNITIVE_STYLES, PERSUASION_STYLES, COLLABORATION_STYLES, TONE_PALETTE_OPTIONS, TABOO_TONE_OPTIONS } from "../../lib/core/config";
+
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect("/login?redirect=/agents");
+}
+
+const { handle } = Astro.params;
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
+const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!supabaseUrl || !serviceKey) {
+  return Astro.redirect("/agents");
+}
+
+const supabase = createClient(supabaseUrl, serviceKey);
+
+// Fetch agent by handle
+const { data: agent } = await supabase
+  .from("agents")
+  .select("*")
+  .eq("handle", handle)
+  .eq("user_id", user.id)
+  .single();
+
+if (!agent) {
+  return Astro.redirect("/agents");
+}
+
+// Fetch current vector
+let currentVector: any = null;
+if (agent.current_vector_id) {
+  const { data } = await supabase
+    .from("personality_vectors")
+    .select("*")
+    .eq("id", agent.current_vector_id)
+    .single();
+  currentVector = data;
+}
+
+// Fetch version history
+const { data: versions } = await supabase
+  .from("personality_vectors")
+  .select("id, version, hash, created_at")
+  .eq("agent_id", agent.id)
+  .order("version", { ascending: false });
+
+// Fetch brain snapshots for this agent (by agent_id or by agent name)
+const { data: brainSnapshots } = await supabase
+  .from("brain_snapshots")
+  .select("id, agent, health, grade, patterns, views, created_at")
+  .or(`agent_id.eq.${agent.id},agent.eq.${agent.handle}`)
+  .order("created_at", { ascending: false })
+  .limit(20);
+
+const latestSnapshot = brainSnapshots?.[0] ?? null;
+
+// Derive NeuralSpace agent status from latest brain snapshot
+const nsStatus = latestSnapshot
+  ? (latestSnapshot.health >= 80 ? 'active' : latestSnapshot.health >= 50 ? 'alerting' : 'alerting')
+  : 'active';
+const nsRisk = latestSnapshot
+  ? (latestSnapshot.grade?.startsWith('A') ? null : latestSnapshot.grade?.startsWith('B') ? null : latestSnapshot.grade?.startsWith('C') ? 'medium' : 'high')
+  : null;
+
+const nsAgents = [{
+  id: agent.id,
+  name: agent.name,
+  status: nsStatus,
+  lastSeen: latestSnapshot?.created_at ?? agent.updated_at,
+  latestRisk: nsRisk,
+}];
+
+function timeAgo(dateStr: string) {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  return `${days}d ago`;
+}
+
+const traits = currentVector?.traits ?? {
+  warmth: 0.5, assertiveness: 0.5, formality: 0.5, humor: 0.5,
+  directness: 0.5, empathy: 0.5, risk_tolerance: 0.5, creativity: 0.5,
+  precision: 0.5, verbosity: 0.5, tempo: 0.5, authority_gradient: 0.5,
+};
+const facets = currentVector?.facets ?? {};
+const signatures = currentVector?.signatures ?? {};
+const preferences = currentVector?.preferences ?? {};
+const archKey = signatures?.archetype;
+const arch = archKey && archKey in ARCHETYPES ? ARCHETYPES[archKey as keyof typeof ARCHETYPES] : null;
+
+const traitDimData = TRAIT_DIMENSIONS.map(dim => ({
+  key: dim,
+  value: traits[dim] ?? 0.5,
+  label: TRAIT_LABELS[dim],
+}));
+---
+
+<Layout title={`${agent.name} — holomime`}>
+  <Nav />
+
+  <main class="min-h-screen px-6 pt-28 pb-20" style="background: var(--color-warm-cream, #faf6f1);">
+    <div class="max-w-5xl mx-auto">
+
+      <!-- Header -->
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div class="flex items-center gap-4">
+          <a href="/agents" class="text-sm font-medium transition-colors hover:text-[var(--color-warm-text)]" style="color: var(--color-warm-muted, #9a9693);">
+            <svg class="inline w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+            Back
+          </a>
+          <div>
+            <div class="flex items-center gap-3">
+              <div class="flex items-center justify-center w-10 h-10 rounded-full text-white text-lg font-bold" style={`background: ${arch?.color ?? '#8b5cf6'};`}>
+                {agent.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h1 class="text-2xl font-bold" style="color: var(--color-warm-text, #2a2520);">{agent.name}</h1>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs" style="color: var(--color-warm-muted, #9a9693);">@{agent.handle}</span>
+                  {arch && (
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={`background: ${arch.color}15; color: ${arch.color};`}>
+                      {arch.name}
+                    </span>
+                  )}
+                  <span class="text-[10px] px-2 py-0.5 rounded-full" style="background: rgba(139,92,246,0.1); color: #8b5cf6;">
+                    v{currentVector?.version ?? 1}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button id="compile-btn" class="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg text-white transition-all" style="background: var(--color-p-violet, #8b5cf6);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            Compile
+          </button>
+          <button id="save-vector-btn" class="flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border transition-all" style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Save Version
+          </button>
+        </div>
+      </div>
+
+      <!-- NeuralSpace Brain -->
+      <div class="mb-8 -mx-6 px-6" style="max-width: calc(100vw - 2rem); width: calc(100vw - 2rem); margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); padding-left: 1rem; padding-right: 1rem;">
+        <div class="mx-auto" style="max-width: 1400px;">
+          <NeuralSpace agents={nsAgents} />
+        </div>
+      </div>
+
+      <!-- Brain Snapshots -->
+      {(brainSnapshots ?? []).length > 0 ? (
+        <div class="mb-8">
+          <div class="flex items-center gap-3 mb-4">
+            <h2 class="text-lg font-bold" style="color: var(--color-warm-text, #2a2520);">Brain Snapshots</h2>
+            <span class="rounded-full px-2.5 py-0.5 text-xs font-bold" style="background: rgba(139,92,246,0.1); color: #8b5cf6;">{(brainSnapshots ?? []).length}</span>
+          </div>
+          <div class="flex gap-4 overflow-x-auto pb-3 -mx-2 px-2 snap-x snap-mandatory" style="scrollbar-width: thin;">
+            {(brainSnapshots ?? []).map((snap: any) => {
+              const snapGradeColor = snap.grade?.startsWith("A") ? "#22c55e" : snap.grade?.startsWith("B") ? "#0891b2" : snap.grade?.startsWith("C") ? "#f59e0b" : "#ef4444";
+              return (
+                <a href={`/brain/${snap.id}`} class="snap-start flex-shrink-0 w-[220px] rounded-xl bg-white border border-[var(--color-warm-border)] p-4 hover:shadow-lg transition-all" style="border-color: var(--color-warm-border, #e8e2d9);">
+                  <div class="flex items-baseline gap-2">
+                    <span class="text-2xl font-extrabold" style={`color: ${snapGradeColor};`}>{snap.health}</span>
+                    <span class="rounded-full px-2 py-0.5 text-[10px] font-bold text-white" style={`background: ${snapGradeColor};`}>{snap.grade}</span>
+                  </div>
+                  <div class="mt-3 flex items-center justify-between text-[11px]" style="color: var(--color-warm-muted, #9a9693);">
+                    <span>{(snap.patterns ?? []).length} patterns</span>
+                    <span class="flex items-center gap-1">
+                      <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                      {snap.views}
+                    </span>
+                  </div>
+                  <p class="mt-2 text-[10px]" style="color: var(--color-warm-muted, #9a9693);">{timeAgo(snap.created_at)}</p>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div class="mb-8 rounded-2xl bg-white p-6 border text-center" style="border-color: var(--color-warm-border, #e8e2d9);">
+          <svg class="mx-auto h-10 w-10 mb-3" style="color: var(--color-warm-muted, #9a9693);" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <p class="text-sm font-medium" style="color: var(--color-warm-text, #2a2520);">No brain snapshots yet</p>
+          <p class="mt-1 text-xs" style="color: var(--color-warm-muted, #9a9693);">Run a brain scan to see behavioral health data for this agent.</p>
+          <code class="mt-3 inline-block rounded-lg px-4 py-2.5 font-mono text-xs text-emerald-400" style="background: #1a1a2e;">holomime brain --share</code>
+        </div>
+      )}
+
+      <div class="grid gap-8 lg:grid-cols-3">
+        <!-- LEFT: Trait Sliders -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Trait Editor -->
+          <div class="rounded-2xl border p-6" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff;">
+            <h2 class="text-lg font-bold mb-4" style="color: var(--color-warm-text, #2a2520);">Personality Traits</h2>
+            <div class="space-y-4" id="traits-editor">
+              {traitDimData.map(({ key, value, label }) => (
+                <div class="trait-row">
+                  <div class="flex items-center justify-between mb-1">
+                    <div class="flex items-center gap-2">
+                      <span class="text-xs font-bold" style="color: var(--color-warm-text, #2a2520);">{label.high}</span>
+                      <span class="text-[10px]" style="color: var(--color-warm-muted, #9a9693);">{label.description}</span>
+                    </div>
+                    <span class="trait-value text-xs font-mono font-bold" style="color: var(--color-p-violet, #8b5cf6);" data-trait={key}>{value.toFixed(2)}</span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] w-16 text-right" style="color: var(--color-warm-muted, #9a9693);">{label.low}</span>
+                    <input type="range" min="0" max="1" step="0.01" value={value}
+                      class="trait-slider flex-1 h-1.5 rounded-full appearance-none cursor-pointer"
+                      data-trait={key}
+                      style="accent-color: #8b5cf6;" />
+                    <span class="text-[10px] w-16" style="color: var(--color-warm-muted, #9a9693);">{label.high}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <!-- Facets -->
+          <div class="rounded-2xl border p-6" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff;">
+            <h2 class="text-lg font-bold mb-4" style="color: var(--color-warm-text, #2a2520);">Facets</h2>
+            <div class="grid gap-4 sm:grid-cols-3">
+              <div>
+                <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Cognitive Style</label>
+                <select id="facet-cognitive" class="w-full rounded-lg border px-3 py-2 text-sm outline-none" style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);">
+                  <option value="">None</option>
+                  {COGNITIVE_STYLES.map(s => <option value={s} selected={facets.cognitive_style === s}>{s.replace(/_/g, ' ')}</option>)}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Persuasion</label>
+                <select id="facet-persuasion" class="w-full rounded-lg border px-3 py-2 text-sm outline-none" style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);">
+                  <option value="">None</option>
+                  {PERSUASION_STYLES.map(s => <option value={s} selected={facets.persuasion === s}>{s.replace(/_/g, ' ')}</option>)}
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Collaboration</label>
+                <select id="facet-collaboration" class="w-full rounded-lg border px-3 py-2 text-sm outline-none" style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);">
+                  <option value="">None</option>
+                  {COLLABORATION_STYLES.map(s => <option value={s} selected={facets.collaboration === s}>{s.replace(/_/g, ' ')}</option>)}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Compile Output -->
+          <div id="compile-output" class="rounded-2xl border p-6 hidden" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff;">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-bold" style="color: var(--color-warm-text, #2a2520);">Compiled Output</h2>
+              <div class="flex items-center gap-2">
+                <select id="compile-provider" class="rounded-lg border px-2 py-1 text-xs outline-none" style="border-color: var(--color-warm-border, #e8e2d9);">
+                  <option value="anthropic">Anthropic</option>
+                  <option value="openai">OpenAI</option>
+                  <option value="gemini">Gemini</option>
+                  <option value="ollama">Ollama</option>
+                </select>
+                <button id="copy-prompt-btn" class="text-xs font-medium px-2 py-1 rounded border transition-colors" style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-muted, #9a9693);">
+                  Copy
+                </button>
+              </div>
+            </div>
+            <div class="grid gap-3 sm:grid-cols-3 mb-4">
+              <div class="rounded-lg p-3" style="background: var(--color-warm-cream, #faf6f1);">
+                <div class="text-[10px] font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Temperature</div>
+                <div id="compile-temp" class="text-lg font-bold" style="color: var(--color-warm-text, #2a2520);">—</div>
+              </div>
+              <div class="rounded-lg p-3" style="background: var(--color-warm-cream, #faf6f1);">
+                <div class="text-[10px] font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Top P</div>
+                <div id="compile-topp" class="text-lg font-bold" style="color: var(--color-warm-text, #2a2520);">—</div>
+              </div>
+              <div class="rounded-lg p-3" style="background: var(--color-warm-cream, #faf6f1);">
+                <div class="text-[10px] font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Max Tokens</div>
+                <div id="compile-tokens" class="text-lg font-bold" style="color: var(--color-warm-text, #2a2520);">—</div>
+              </div>
+            </div>
+            <pre id="compile-prompt" class="text-xs rounded-lg p-4 overflow-auto max-h-96 whitespace-pre-wrap" style="background: #1a1a2e; color: #e0e0e0; font-family: 'JetBrains Mono', monospace;"></pre>
+          </div>
+        </div>
+
+        <!-- RIGHT: Sidebar -->
+        <div class="space-y-6">
+          <!-- Avatar Preview -->
+          <div class="rounded-2xl border p-6 text-center" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff;">
+            <h3 class="text-sm font-bold mb-3" style="color: var(--color-warm-text, #2a2520);">Avatar</h3>
+            <div id="avatar-preview" class="mx-auto" style="width: 160px; height: 160px;">
+              <div class="flex items-center justify-center w-full h-full rounded-full text-white text-4xl font-bold" style={`background: ${arch?.color ?? '#8b5cf6'};`}>
+                {agent.name.charAt(0).toUpperCase()}
+              </div>
+            </div>
+          </div>
+
+          <!-- Version History -->
+          <div class="rounded-2xl border p-6" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff;">
+            <h3 class="text-sm font-bold mb-3" style="color: var(--color-warm-text, #2a2520);">Version History</h3>
+            {(versions ?? []).length > 0 ? (
+              <div class="space-y-2 max-h-64 overflow-auto">
+                {(versions ?? []).map((v: any) => (
+                  <div class={`flex items-center justify-between rounded-lg px-3 py-2 text-xs ${v.id === currentVector?.id ? 'ring-1 ring-[var(--color-p-violet)]' : ''}`} style="background: var(--color-warm-cream, #faf6f1);">
+                    <span class="font-bold" style="color: var(--color-warm-text, #2a2520);">v{v.version}</span>
+                    <span style="color: var(--color-warm-muted, #9a9693);">{new Date(v.created_at).toLocaleDateString()}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p class="text-xs" style="color: var(--color-warm-muted, #9a9693);">No versions yet</p>
+            )}
+          </div>
+
+          <!-- Agent Settings -->
+          <div class="rounded-2xl border p-6" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff;">
+            <h3 class="text-sm font-bold mb-3" style="color: var(--color-warm-text, #2a2520);">Settings</h3>
+            <div class="space-y-3">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="agent-public" class="rounded" checked={agent.is_public} />
+                <span class="text-xs" style="color: var(--color-warm-text, #2a2520);">Public agent</span>
+              </label>
+              <button id="delete-agent-btn" class="w-full text-xs font-medium py-2 rounded-lg border border-red-200 text-red-500 transition-colors hover:bg-red-50">
+                Delete Agent
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<script define:vars={{ agentId: agent.id, initialTraits: traits, initialFacets: facets, initialSignatures: signatures, initialPreferences: preferences }}>
+(function() {
+  // Current trait state
+  const currentTraits = { ...initialTraits };
+
+  // Slider updates
+  document.querySelectorAll('.trait-slider').forEach(slider => {
+    slider.addEventListener('input', (e) => {
+      const dim = e.target.getAttribute('data-trait');
+      const val = parseFloat(e.target.value);
+      currentTraits[dim] = val;
+      const display = document.querySelector(`.trait-value[data-trait="${dim}"]`);
+      if (display) display.textContent = val.toFixed(2);
+      updateAvatar();
+    });
+  });
+
+  // Avatar update (debounced)
+  let avatarTimer = null;
+  function updateAvatar() {
+    clearTimeout(avatarTimer);
+    avatarTimer = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/avatar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ traits: currentTraits, size: 160 }),
+        });
+        const data = await res.json();
+        if (data.svg) {
+          document.getElementById('avatar-preview').innerHTML = data.svg;
+        }
+      } catch {}
+    }, 300);
+  }
+
+  // Initial avatar load
+  updateAvatar();
+
+  // Compile
+  const compileBtn = document.getElementById('compile-btn');
+  const compileOutput = document.getElementById('compile-output');
+
+  compileBtn?.addEventListener('click', async () => {
+    compileBtn.disabled = true;
+    compileBtn.textContent = 'Compiling...';
+
+    const provider = document.getElementById('compile-provider')?.value ?? 'anthropic';
+    const cognitive = document.getElementById('facet-cognitive')?.value;
+    const persuasion = document.getElementById('facet-persuasion')?.value;
+    const collaboration = document.getElementById('facet-collaboration')?.value;
+
+    try {
+      const res = await fetch('/api/compile', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          traits: currentTraits,
+          provider,
+          surface: 'chat',
+          facets: {
+            cognitive_style: cognitive || undefined,
+            persuasion: persuasion || undefined,
+            collaboration: collaboration || undefined,
+          },
+          signatures: initialSignatures,
+          preferences: initialPreferences,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        compileOutput?.classList.remove('hidden');
+        document.getElementById('compile-temp').textContent = data.temperature?.toFixed(3) ?? '—';
+        document.getElementById('compile-topp').textContent = data.top_p?.toFixed(3) ?? '—';
+        document.getElementById('compile-tokens').textContent = data.max_tokens?.toString() ?? '—';
+        document.getElementById('compile-prompt').textContent = data.system_prompt ?? '';
+      }
+    } catch {}
+
+    compileBtn.disabled = false;
+    compileBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Compile';
+  });
+
+  // Copy prompt
+  document.getElementById('copy-prompt-btn')?.addEventListener('click', () => {
+    const prompt = document.getElementById('compile-prompt')?.textContent;
+    if (prompt) {
+      navigator.clipboard.writeText(prompt);
+      const btn = document.getElementById('copy-prompt-btn');
+      if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 2000); }
+    }
+  });
+
+  // Save vector
+  document.getElementById('save-vector-btn')?.addEventListener('click', async () => {
+    const btn = document.getElementById('save-vector-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+    const cognitive = document.getElementById('facet-cognitive')?.value;
+    const persuasion = document.getElementById('facet-persuasion')?.value;
+    const collaboration = document.getElementById('facet-collaboration')?.value;
+
+    try {
+      const res = await fetch('/api/vectors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          agent_id: agentId,
+          traits: currentTraits,
+          facets: {
+            cognitive_style: cognitive || undefined,
+            persuasion: persuasion || undefined,
+            collaboration: collaboration || undefined,
+          },
+          signatures: initialSignatures,
+          preferences: initialPreferences,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert(data.error || 'Failed to save');
+      }
+    } catch {
+      alert('Network error');
+    }
+
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Version'; }
+  });
+
+  // Delete agent
+  document.getElementById('delete-agent-btn')?.addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to delete this agent? This cannot be undone.')) return;
+
+    try {
+      const res = await fetch(`/api/agents/${agentId}`, { method: 'DELETE' });
+      if (res.ok) {
+        window.location.href = '/agents';
+      } else {
+        alert('Failed to delete agent');
+      }
+    } catch {
+      alert('Network error');
+    }
+  });
+
+  // Toggle public
+  document.getElementById('agent-public')?.addEventListener('change', async (e) => {
+    try {
+      await fetch(`/api/agents/${agentId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_public: e.target.checked }),
+      });
+    } catch {}
+  });
+})();
+</script>

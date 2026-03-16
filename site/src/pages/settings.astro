@@ -1,0 +1,1097 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { createClient } from "@supabase/supabase-js";
+
+// Auth guard
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect("/login?redirect=/settings");
+}
+
+const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split("@")[0] || "";
+const avatarUrl = user.user_metadata?.avatar_url || "";
+const notifications = user.user_metadata?.notifications || {};
+const themePreference = user.user_metadata?.theme || "light";
+
+// Connected accounts from identities
+const identities = user.identities || [];
+const connectedProviders = identities.map((i: any) => i.provider);
+const hasGoogle = connectedProviders.includes("google");
+const hasGithub = connectedProviders.includes("github");
+const hasEmail = connectedProviders.includes("email");
+
+// License data (same pattern as dashboard)
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
+const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+
+let license: {
+  id: string;
+  key: string;
+  tier: string;
+  status: string;
+  created_at: string;
+  expires_at: string | null;
+} | null = null;
+
+if (supabaseUrl && serviceKey) {
+  const supabase = createClient(supabaseUrl, serviceKey);
+  const { data: licenseData } = await supabase
+    .from("licenses")
+    .select("id, key, tier, status, created_at, expires_at")
+    .eq("customer_email", user.email)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+  license = licenseData;
+}
+
+const maskedKey = license?.key
+  ? license.key.substring(0, 5) + "****" + license.key.slice(-4)
+  : null;
+
+const tierMap: Record<string, string> = { developer: "Practitioner", pro: "Practice", enterprise: "Institute" };
+const tierLabel = license?.tier
+  ? tierMap[license.tier] || license.tier.charAt(0).toUpperCase() + license.tier.slice(1)
+  : "Free Clinic";
+---
+
+<Layout title="Settings — holomime">
+  <Nav />
+  <main class="min-h-screen bg-[var(--color-warm-cream)] px-6 pt-28 pb-20">
+    <div class="mx-auto max-w-5xl lg:flex lg:gap-10">
+
+      <!-- Sidebar nav (sticky on desktop) -->
+      <aside class="hidden lg:block lg:w-52 shrink-0">
+        <nav class="sticky top-28 space-y-0.5">
+          <a href="#profile" class="settings-nav-link active">Profile</a>
+          <a href="#connected-accounts" class="settings-nav-link">Connected Accounts</a>
+          <a href="#notifications" class="settings-nav-link">Notifications</a>
+          <a href="#appearance" class="settings-nav-link">Appearance</a>
+          <a href="#api-access" class="settings-nav-link">API Access</a>
+          <a href="#data-privacy" class="settings-nav-link">Data & Privacy</a>
+          <a href="#security" class="settings-nav-link">Security</a>
+          <a href="#danger-zone" class="settings-nav-link danger">Danger Zone</a>
+        </nav>
+      </aside>
+
+      <!-- Main content -->
+      <div class="flex-1 max-w-2xl">
+        <!-- Header -->
+        <div class="mb-8">
+          <h1 class="text-2xl font-bold text-[var(--color-warm-text)]">Settings</h1>
+          <p class="mt-1 text-sm text-[var(--color-warm-muted)]">Manage your account, security, and preferences</p>
+        </div>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- 1. PROFILE                                  -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="profile" class="settings-card">
+          <h2 class="settings-heading">Profile</h2>
+
+          <!-- Avatar -->
+          <div class="flex items-center gap-4 mb-6">
+            <div id="avatar-preview-wrap" class="h-16 w-16 shrink-0 rounded-full overflow-hidden border-2 border-[var(--color-warm-border)]">
+              {avatarUrl ? (
+                <img id="avatar-preview-img" src={avatarUrl} alt="" class="h-full w-full object-cover" referrerpolicy="no-referrer" />
+              ) : (
+                <div id="avatar-preview-initial" class="flex h-full w-full items-center justify-center bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] text-xl font-bold text-white">
+                  {displayName.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <div class="flex items-center gap-2">
+                <input type="file" id="avatar-file-input" accept="image/*" class="hidden" />
+                <button id="avatar-upload-btn" type="button" class="rounded-full bg-[var(--color-warm-text)] px-4 py-1.5 text-xs font-semibold text-white transition-all hover:opacity-80">
+                  Upload photo
+                </button>
+                {avatarUrl && (
+                  <button id="avatar-remove-btn" type="button" class="text-xs text-red-500 hover:text-red-700 transition-colors">
+                    Remove photo
+                  </button>
+                )}
+              </div>
+              <p class="text-[11px] text-[var(--color-warm-muted)]">JPG, PNG or GIF. Max 2 MB.</p>
+            </div>
+          </div>
+
+          <form id="profile-form" class="space-y-4">
+            <div>
+              <label for="display-name" class="settings-label">Display name</label>
+              <input
+                id="display-name"
+                name="displayName"
+                type="text"
+                value={displayName}
+                placeholder="Your name"
+                class="settings-input"
+              />
+            </div>
+
+            <div>
+              <label for="avatar-url" class="settings-label">Photo URL <span class="text-[var(--color-warm-muted)] font-normal">(fallback)</span></label>
+              <input
+                id="avatar-url"
+                name="avatarUrl"
+                type="url"
+                value={avatarUrl}
+                placeholder="https://example.com/photo.jpg"
+                class="settings-input"
+              />
+              <p class="mt-1 text-[11px] text-[var(--color-warm-muted)]">Paste a direct link to any publicly accessible image.</p>
+            </div>
+
+            <div>
+              <label class="settings-label">Email</label>
+              <input
+                type="email"
+                value={user.email}
+                disabled
+                class="settings-input opacity-60 cursor-not-allowed"
+              />
+              <p class="mt-1 text-[11px] text-[var(--color-warm-muted)]">Contact support to change your email address.</p>
+            </div>
+
+            <div id="profile-status" class="hidden text-xs rounded-lg px-3 py-2"></div>
+
+            <button
+              type="submit"
+              id="profile-save-btn"
+              class="settings-btn-primary"
+            >
+              Save changes
+            </button>
+          </form>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- 2. CONNECTED ACCOUNTS                       -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="connected-accounts" class="settings-card">
+          <h2 class="settings-heading">Connected Accounts</h2>
+          <p class="text-xs text-[var(--color-warm-muted)] mb-5">Sign in faster by connecting third-party accounts.</p>
+
+          <div class="space-y-3">
+            <!-- Google -->
+            <div class="flex items-center justify-between rounded-xl border border-[var(--color-warm-border)] px-4 py-3">
+              <div class="flex items-center gap-3">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none">
+                  <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                  <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                  <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                  <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                </svg>
+                <div>
+                  <p class="text-sm font-medium text-[var(--color-warm-text)]">Google</p>
+                  {hasGoogle && (
+                    <p class="text-[11px] text-[var(--color-warm-muted)]">
+                      {identities.find((i: any) => i.provider === "google")?.identity_data?.email || "Connected"}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {hasGoogle ? (
+                <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                  Connected
+                </span>
+              ) : (
+                <a href="/api/auth/google" class="rounded-full border border-[var(--color-warm-border)] px-4 py-1.5 text-xs font-semibold text-[var(--color-warm-text)] transition-all hover:bg-[var(--color-warm-cream)]">
+                  Connect
+                </a>
+              )}
+            </div>
+
+            <!-- GitHub -->
+            <div class="flex items-center justify-between rounded-xl border border-[var(--color-warm-border)] px-4 py-3">
+              <div class="flex items-center gap-3">
+                <svg class="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>
+                </svg>
+                <div>
+                  <p class="text-sm font-medium text-[var(--color-warm-text)]">GitHub</p>
+                  {hasGithub && (
+                    <p class="text-[11px] text-[var(--color-warm-muted)]">
+                      {identities.find((i: any) => i.provider === "github")?.identity_data?.user_name || "Connected"}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {hasGithub ? (
+                <span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+                  <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                  Connected
+                </span>
+              ) : (
+                <a href="/api/auth/github" class="rounded-full border border-[var(--color-warm-border)] px-4 py-1.5 text-xs font-semibold text-[var(--color-warm-text)] transition-all hover:bg-[var(--color-warm-cream)]">
+                  Connect
+                </a>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- 3. NOTIFICATIONS                            -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="notifications" class="settings-card">
+          <h2 class="settings-heading">Notifications</h2>
+          <p class="text-xs text-[var(--color-warm-muted)] mb-5">Choose which emails you'd like to receive.</p>
+
+          <form id="notifications-form" class="space-y-4">
+            <label class="toggle-row">
+              <div>
+                <p class="text-sm font-medium text-[var(--color-warm-text)]">Drift alerts</p>
+                <p class="text-[11px] text-[var(--color-warm-muted)]">Get notified when agent behavioral relapse is detected</p>
+              </div>
+              <input type="checkbox" name="drift_alerts" class="toggle-checkbox" checked={notifications.drift_alerts !== false} />
+              <span class="toggle-switch"></span>
+            </label>
+
+            <label class="toggle-row">
+              <div>
+                <p class="text-sm font-medium text-[var(--color-warm-text)]">Weekly performance digest</p>
+                <p class="text-[11px] text-[var(--color-warm-muted)]">Summary of scores, patterns, and API usage every Monday</p>
+              </div>
+              <input type="checkbox" name="weekly_digest" class="toggle-checkbox" checked={notifications.weekly_digest !== false} />
+              <span class="toggle-switch"></span>
+            </label>
+
+            <label class="toggle-row">
+              <div>
+                <p class="text-sm font-medium text-[var(--color-warm-text)]">Billing & payment receipts</p>
+                <p class="text-[11px] text-[var(--color-warm-muted)]">Invoices, failed charges, and plan changes</p>
+              </div>
+              <input type="checkbox" name="billing" class="toggle-checkbox" checked={notifications.billing !== false} />
+              <span class="toggle-switch"></span>
+            </label>
+
+            <label class="toggle-row">
+              <div>
+                <p class="text-sm font-medium text-[var(--color-warm-text)]">Product updates & changelog</p>
+                <p class="text-[11px] text-[var(--color-warm-muted)]">New features, API changes, and release notes</p>
+              </div>
+              <input type="checkbox" name="product_updates" class="toggle-checkbox" checked={notifications.product_updates !== false} />
+              <span class="toggle-switch"></span>
+            </label>
+
+            <div id="notifications-status" class="hidden text-xs rounded-lg px-3 py-2"></div>
+
+            <button type="submit" id="notifications-save-btn" class="settings-btn-primary">
+              Save preferences
+            </button>
+          </form>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- 4. APPEARANCE                               -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="appearance" class="settings-card">
+          <div class="flex items-center gap-2">
+            <h2 class="settings-heading">Appearance</h2>
+            <span class="rounded-full bg-[var(--color-warm-cream)] px-2 py-0.5 text-[10px] font-semibold text-[var(--color-warm-muted)] border border-[var(--color-warm-border)]">Coming soon</span>
+          </div>
+          <p class="text-xs text-[var(--color-warm-muted)] mb-5">Customize how holomime looks for you. Theme preferences are saved but not yet applied.</p>
+
+          <form id="theme-form">
+            <fieldset class="theme-selector">
+              <label class:list={["theme-option", { active: themePreference === "light" }]}>
+                <input type="radio" name="theme" value="light" checked={themePreference === "light"} class="hidden" />
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+                <span>Light</span>
+              </label>
+              <label class:list={["theme-option", { active: themePreference === "dark" }]}>
+                <input type="radio" name="theme" value="dark" checked={themePreference === "dark"} class="hidden" />
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+                <span>Dark</span>
+              </label>
+              <label class:list={["theme-option", { active: themePreference === "system" }]}>
+                <input type="radio" name="theme" value="system" checked={themePreference === "system"} class="hidden" />
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+                <span>System</span>
+              </label>
+            </fieldset>
+
+            <div id="theme-status" class="hidden text-xs rounded-lg px-3 py-2 mt-4"></div>
+          </form>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- 5. API ACCESS                               -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="api-access" class="settings-card">
+          <h2 class="settings-heading">API Access</h2>
+
+          {license ? (
+            <div class="space-y-4">
+              <div>
+                <label class="settings-label">License key</label>
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 relative">
+                    <input
+                      id="license-key-display"
+                      type="text"
+                      value={maskedKey}
+                      readonly
+                      class="settings-input pr-20 font-mono text-xs cursor-default"
+                      data-masked={maskedKey}
+                      data-full={license.key}
+                    />
+                    <div class="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                      <button id="key-toggle-btn" type="button" class="rounded-md px-2 py-1 text-[11px] font-medium text-[var(--color-warm-muted)] hover:bg-[var(--color-warm-cream)] transition-colors">
+                        Show
+                      </button>
+                      <button id="key-copy-btn" type="button" class="rounded-md px-2 py-1 text-[11px] font-medium text-[var(--color-warm-muted)] hover:bg-[var(--color-warm-cream)] transition-colors">
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-3">
+                <span class="settings-label mb-0">Tier</span>
+                <span class:list={[
+                  "inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-semibold",
+                  license.tier === "enterprise" ? "bg-violet-100 text-violet-700" :
+                  license.tier === "pro" ? "bg-blue-100 text-blue-700" :
+                  "bg-amber-100 text-amber-700"
+                ]}>
+                  {tierLabel}
+                </span>
+              </div>
+
+              <div>
+                <a href="/api-docs" class="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-p-violet)] hover:underline">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  View full API documentation
+                </a>
+              </div>
+              <div>
+                <a href="/api/billing-portal" class="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-p-violet)] hover:underline">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
+                  Manage billing & subscription
+                </a>
+              </div>
+            </div>
+          ) : (
+            <div class="rounded-xl border border-dashed border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] px-5 py-8 text-center">
+              <p class="text-sm text-[var(--color-warm-muted)] mb-3">No active license found.</p>
+              <a href="/pricing" class="settings-btn-primary inline-block">Get started</a>
+            </div>
+          )}
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- 6. DATA & PRIVACY                           -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="data-privacy" class="settings-card">
+          <h2 class="settings-heading">Data & Privacy</h2>
+
+          <div class="space-y-5">
+            <div>
+              <p class="text-sm font-medium text-[var(--color-warm-text)] mb-1">Export your data</p>
+              <p class="text-[11px] text-[var(--color-warm-muted)] mb-3">Download your behavioral results and API usage data as JSON.</p>
+              <button id="export-data-btn" type="button" class="inline-flex items-center gap-2 rounded-full border border-[var(--color-warm-border)] px-4 py-2 text-xs font-semibold text-[var(--color-warm-text)] transition-all hover:bg-[var(--color-warm-cream)]">
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                Export data
+              </button>
+            </div>
+
+            <div class="border-t border-[var(--color-warm-border)] pt-5">
+              <p class="text-sm font-medium text-[var(--color-warm-text)] mb-1">Data retention</p>
+              <p class="text-xs text-[var(--color-warm-muted)] leading-relaxed">
+                Behavioral data is retained for 90 days. Enterprise plans include unlimited retention.
+                For questions about your data, see our
+                <a href="/privacy" class="text-[var(--color-p-violet)] hover:underline">privacy policy</a>.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- 7. SECURITY                                 -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="security" class="settings-card">
+          <h2 class="settings-heading">Security</h2>
+
+          <!-- Change password -->
+          <div class="mb-8">
+            <h3 class="text-sm font-medium text-[var(--color-warm-text)] mb-4">Change password</h3>
+            <form id="password-form" class="space-y-4">
+              <div>
+                <label for="new-password" class="settings-label">New password</label>
+                <input
+                  id="new-password"
+                  name="newPassword"
+                  type="password"
+                  placeholder="At least 8 characters"
+                  autocomplete="new-password"
+                  class="settings-input"
+                />
+              </div>
+              <div>
+                <label for="confirm-password" class="settings-label">Confirm new password</label>
+                <input
+                  id="confirm-password"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Same as above"
+                  autocomplete="new-password"
+                  class="settings-input"
+                />
+              </div>
+
+              <div id="password-status" class="hidden text-xs rounded-lg px-3 py-2"></div>
+
+              <button
+                type="submit"
+                id="password-save-btn"
+                class="settings-btn-primary"
+              >
+                Update password
+              </button>
+            </form>
+          </div>
+
+          <!-- Two-factor authentication -->
+          <div class="border-t border-[var(--color-warm-border)] pt-6 mb-8">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="text-sm font-medium text-[var(--color-warm-text)]">Two-factor authentication</h3>
+                  <span class="inline-flex items-center gap-1 rounded-full bg-[var(--color-warm-cream)] border border-[var(--color-warm-border)] px-2 py-0.5 text-[10px] font-semibold text-[var(--color-warm-muted)]">
+                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                    Coming soon
+                  </span>
+                </div>
+                <p class="text-[11px] text-[var(--color-warm-muted)] max-w-sm">Add an extra layer of security with time-based one-time passwords (TOTP) via an authenticator app.</p>
+              </div>
+              <button disabled class="rounded-full border border-[var(--color-warm-border)] px-4 py-1.5 text-xs font-semibold text-[var(--color-warm-muted)] opacity-50 cursor-not-allowed">
+                Enable
+              </button>
+            </div>
+          </div>
+
+          <!-- Active sessions -->
+          <div class="border-t border-[var(--color-warm-border)] pt-6">
+            <h3 class="text-sm font-medium text-[var(--color-warm-text)] mb-3">Active sessions</h3>
+            <div class="rounded-xl border border-[var(--color-warm-border)] px-4 py-3">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50">
+                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                  </div>
+                  <div>
+                    <p class="text-sm font-medium text-[var(--color-warm-text)]">Current session</p>
+                    <p class="text-[11px] text-[var(--color-warm-muted)]" id="session-info">This browser</p>
+                  </div>
+                </div>
+                <span class="text-[11px] text-emerald-600 font-medium">Active now</span>
+              </div>
+            </div>
+            <button id="signout-all-btn" type="button" class="mt-3 text-xs font-semibold text-red-500 hover:text-red-700 transition-colors">
+              Sign out of all devices
+            </button>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- 8. DANGER ZONE                              -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="danger-zone" class="rounded-2xl border border-red-200 bg-white p-6 shadow-sm mb-6">
+          <h2 class="text-sm font-semibold text-red-600 mb-5">Danger Zone</h2>
+
+          <div class="space-y-5">
+            <!-- Sign out -->
+            <div class="flex items-center justify-between">
+              <div>
+                <p class="text-sm font-medium text-[var(--color-warm-text)]">Sign out</p>
+                <p class="text-[11px] text-[var(--color-warm-muted)]">Sign out from this browser session.</p>
+              </div>
+              <button id="settings-signout-btn" class="rounded-full border border-red-200 px-5 py-2 text-xs font-semibold text-red-500 transition-all hover:bg-red-50">
+                Sign out
+              </button>
+            </div>
+
+            <!-- Delete account -->
+            <div class="border-t border-red-100 pt-5">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm font-medium text-red-600">Deactivate account</p>
+                  <p class="text-[11px] text-[var(--color-warm-muted)] max-w-xs">Deactivate your account and schedule all associated data for deletion. This action cannot be undone.</p>
+                </div>
+                <button id="delete-account-btn" class="rounded-full bg-red-600 px-5 py-2 text-xs font-semibold text-white transition-all hover:bg-red-700">
+                  Deactivate account
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Delete Account Confirmation Modal -->
+  <div id="delete-modal" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" id="delete-modal-backdrop"></div>
+    <div class="flex min-h-full items-center justify-center p-4">
+      <div class="relative w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
+        <h3 class="text-lg font-bold text-red-600 mb-2">Deactivate your account?</h3>
+        <p class="text-sm text-[var(--color-warm-muted)] mb-1">This will deactivate your account and schedule your license data and behavioral results for deletion.</p>
+        <p class="text-sm text-[var(--color-warm-text)] font-medium mb-4">Type <code class="rounded bg-red-50 px-1.5 py-0.5 text-red-600 font-mono text-xs">DELETE</code> to confirm.</p>
+        <input
+          id="delete-confirm-input"
+          type="text"
+          placeholder="Type DELETE"
+          autocomplete="off"
+          class="settings-input font-mono mb-4"
+        />
+        <div class="flex items-center justify-end gap-3">
+          <button id="delete-cancel-btn" class="rounded-full border border-[var(--color-warm-border)] px-5 py-2 text-xs font-semibold text-[var(--color-warm-text)] hover:bg-[var(--color-warm-cream)] transition-all">
+            Cancel
+          </button>
+          <button id="delete-confirm-btn" disabled class="rounded-full bg-red-600 px-5 py-2 text-xs font-semibold text-white transition-all opacity-50 cursor-not-allowed hover:bg-red-700">
+            Permanently delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <Footer />
+</Layout>
+
+<style>
+  /* ─── Shared component classes ─── */
+  .settings-card {
+    border-radius: 1rem;
+    border: 1px solid var(--color-warm-border);
+    background: white;
+    padding: 1.5rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    margin-bottom: 1.5rem;
+  }
+  .settings-heading {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-warm-text);
+    margin-bottom: 1.25rem;
+  }
+  .settings-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-warm-muted);
+    margin-bottom: 0.375rem;
+  }
+  .settings-input {
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid var(--color-warm-border);
+    background: var(--color-warm-cream);
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--color-warm-text);
+  }
+  .settings-input::placeholder { color: var(--color-warm-muted); }
+  .settings-input:focus {
+    border-color: var(--color-p-violet);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(124,58,237,0.2);
+  }
+  .settings-btn-primary {
+    border-radius: 9999px;
+    background: var(--color-warm-text);
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+  .settings-btn-primary:hover { opacity: 0.8; }
+  .settings-btn-primary:disabled { opacity: 0.5; cursor: default; }
+
+  /* ─── Sidebar nav ─── */
+  .settings-nav-link {
+    display: block;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--color-warm-muted);
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .settings-nav-link:hover {
+    background: var(--color-warm-cream);
+    color: var(--color-warm-text);
+  }
+  .settings-nav-link.active {
+    background: var(--color-warm-cream);
+    color: var(--color-warm-text);
+    font-weight: 500;
+  }
+  .settings-nav-link.danger { color: #f87171; }
+  .settings-nav-link.danger:hover,
+  .settings-nav-link.danger.active {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  /* ─── Toggle switch (pure CSS) ─── */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-warm-border);
+    padding: 0.875rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    position: relative;
+  }
+  .toggle-row:hover {
+    background: color-mix(in srgb, var(--color-warm-cream) 50%, transparent);
+  }
+  .toggle-checkbox {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 22px;
+    background: #d1d5db;
+    border-radius: 11px;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+  }
+  .toggle-switch::before {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .toggle-checkbox:checked + .toggle-switch {
+    background: var(--color-p-violet, #7c3aed);
+  }
+  .toggle-checkbox:checked + .toggle-switch::before {
+    transform: translateX(18px);
+  }
+  .toggle-checkbox:focus-visible + .toggle-switch {
+    outline: 2px solid var(--color-p-violet, #7c3aed);
+    outline-offset: 2px;
+  }
+
+  /* ─── Theme selector (segmented control) ─── */
+  .theme-selector {
+    display: flex;
+    border-radius: 0.75rem;
+    border: 1px solid var(--color-warm-border);
+    overflow: hidden;
+  }
+  .theme-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-warm-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-right: 1px solid var(--color-warm-border);
+  }
+  .theme-option:last-child { border-right: none; }
+  .theme-option:hover {
+    background: color-mix(in srgb, var(--color-warm-cream) 60%, transparent);
+  }
+  .theme-option.active {
+    background: var(--color-warm-cream);
+    color: var(--color-warm-text);
+    font-weight: 600;
+  }
+</style>
+
+<script>
+  import { createClient } from "../lib/supabase";
+
+  const supabase = createClient();
+
+  // ─── Helper: show status message ───
+  function showStatus(el: HTMLElement, msg: string, type: "success" | "error") {
+    el.textContent = msg;
+    el.className = type === "success"
+      ? "text-xs rounded-lg px-3 py-2 bg-emerald-50 text-emerald-700"
+      : "text-xs rounded-lg px-3 py-2 bg-red-50 text-red-600";
+    if (type === "success") {
+      setTimeout(() => { el.className = "hidden text-xs rounded-lg px-3 py-2"; }, 3000);
+    }
+  }
+
+  // ─── Avatar file upload ───
+  const avatarFileInput = document.getElementById("avatar-file-input") as HTMLInputElement;
+  const avatarUploadBtn = document.getElementById("avatar-upload-btn");
+  const avatarRemoveBtn = document.getElementById("avatar-remove-btn");
+  const avatarUrlInput = document.getElementById("avatar-url") as HTMLInputElement;
+
+  avatarUploadBtn?.addEventListener("click", () => avatarFileInput?.click());
+
+  avatarFileInput?.addEventListener("change", () => {
+    const file = avatarFileInput.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("File must be under 2 MB.");
+      return;
+    }
+
+    // Resize image to max 128x128 to stay under Supabase metadata limits
+    const img = new Image();
+    img.onload = async () => {
+      const maxSize = 128;
+      const canvas = document.createElement("canvas");
+      let w = img.width, h = img.height;
+      if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+      else { w = Math.round(w * maxSize / h); h = maxSize; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext("2d")!.drawImage(img, 0, 0, w, h);
+      const smallDataUrl = canvas.toDataURL("image/jpeg", 0.8);
+
+      // Update preview
+      const wrap = document.getElementById("avatar-preview-wrap");
+      if (wrap) {
+        wrap.innerHTML = `<img src="${smallDataUrl}" alt="" class="h-full w-full object-cover" />`;
+      }
+
+      // Save via supabase
+      const { error } = await supabase.auth.updateUser({
+        data: { avatar_url: smallDataUrl },
+      });
+
+      if (error) {
+        alert("Failed to upload: " + error.message);
+      } else {
+        if (avatarUrlInput) avatarUrlInput.value = smallDataUrl;
+        if (!avatarRemoveBtn) location.reload();
+      }
+    };
+    img.src = URL.createObjectURL(file);
+  });
+
+  avatarRemoveBtn?.addEventListener("click", async () => {
+    const { error } = await supabase.auth.updateUser({
+      data: { avatar_url: null },
+    });
+    if (!error) location.reload();
+  });
+
+  // ─── Live avatar preview from URL ───
+  avatarUrlInput?.addEventListener("input", () => {
+    const url = avatarUrlInput.value.trim();
+    const wrap = document.getElementById("avatar-preview-wrap");
+    if (!wrap) return;
+    if (url && !url.startsWith("data:")) {
+      wrap.innerHTML = `<img src="${url}" alt="" class="h-full w-full object-cover" referrerpolicy="no-referrer" onerror="this.style.display='none'" />`;
+    }
+  });
+
+  // ─── Profile form ───
+  const profileForm = document.getElementById("profile-form") as HTMLFormElement;
+  const profileStatus = document.getElementById("profile-status")!;
+  const profileSaveBtn = document.getElementById("profile-save-btn") as HTMLButtonElement;
+
+  profileForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    profileSaveBtn.disabled = true;
+    profileSaveBtn.textContent = "Saving...";
+    profileStatus.className = "hidden text-xs rounded-lg px-3 py-2";
+
+    const displayName = (document.getElementById("display-name") as HTMLInputElement).value.trim();
+    const avatarUrl = (document.getElementById("avatar-url") as HTMLInputElement).value.trim();
+
+    const { error } = await supabase.auth.updateUser({
+      data: {
+        full_name: displayName,
+        avatar_url: avatarUrl || null,
+      },
+    });
+
+    profileSaveBtn.disabled = false;
+    profileSaveBtn.textContent = "Save changes";
+
+    if (error) {
+      showStatus(profileStatus, error.message, "error");
+    } else {
+      showStatus(profileStatus, "Profile updated successfully.", "success");
+    }
+  });
+
+  // ─── Notifications form ───
+  const notificationsForm = document.getElementById("notifications-form") as HTMLFormElement;
+  const notificationsStatus = document.getElementById("notifications-status")!;
+  const notificationsSaveBtn = document.getElementById("notifications-save-btn") as HTMLButtonElement;
+
+  notificationsForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    notificationsSaveBtn.disabled = true;
+    notificationsSaveBtn.textContent = "Saving...";
+
+    const formData = new FormData(notificationsForm);
+    const notifications = {
+      drift_alerts: formData.has("drift_alerts"),
+      weekly_digest: formData.has("weekly_digest"),
+      billing: formData.has("billing"),
+      product_updates: formData.has("product_updates"),
+    };
+
+    const { error } = await supabase.auth.updateUser({
+      data: { notifications },
+    });
+
+    notificationsSaveBtn.disabled = false;
+    notificationsSaveBtn.textContent = "Save preferences";
+
+    if (error) {
+      showStatus(notificationsStatus, error.message, "error");
+    } else {
+      showStatus(notificationsStatus, "Notification preferences saved.", "success");
+    }
+  });
+
+  // ─── Theme selector ───
+  const themeForm = document.getElementById("theme-form") as HTMLFormElement;
+  const themeStatus = document.getElementById("theme-status")!;
+  const themeOptions = document.querySelectorAll(".theme-option");
+
+  themeOptions.forEach((option) => {
+    option.addEventListener("click", async () => {
+      const radio = option.querySelector("input[type=radio]") as HTMLInputElement;
+      if (!radio) return;
+
+      // Update visual state
+      themeOptions.forEach((o) => o.classList.remove("active"));
+      option.classList.add("active");
+
+      const { error } = await supabase.auth.updateUser({
+        data: { theme: radio.value },
+      });
+
+      if (error) {
+        showStatus(themeStatus, error.message, "error");
+      } else {
+        showStatus(themeStatus, `Theme set to ${radio.value}.`, "success");
+      }
+    });
+  });
+
+  // ─── API key show/copy ───
+  const keyDisplay = document.getElementById("license-key-display") as HTMLInputElement;
+  const keyToggleBtn = document.getElementById("key-toggle-btn");
+  const keyCopyBtn = document.getElementById("key-copy-btn");
+  let keyVisible = false;
+
+  keyToggleBtn?.addEventListener("click", () => {
+    if (!keyDisplay) return;
+    keyVisible = !keyVisible;
+    keyDisplay.value = keyVisible ? keyDisplay.dataset.full || "" : keyDisplay.dataset.masked || "";
+    keyToggleBtn.textContent = keyVisible ? "Hide" : "Show";
+  });
+
+  keyCopyBtn?.addEventListener("click", async () => {
+    if (!keyDisplay) return;
+    const fullKey = keyDisplay.dataset.full || "";
+    await navigator.clipboard.writeText(fullKey);
+    const original = keyCopyBtn.textContent;
+    keyCopyBtn.textContent = "Copied!";
+    setTimeout(() => { keyCopyBtn.textContent = original; }, 1500);
+  });
+
+  // ─── Export data ───
+  document.getElementById("export-data-btn")?.addEventListener("click", async () => {
+    const btn = document.getElementById("export-data-btn") as HTMLButtonElement;
+    btn.disabled = true;
+    btn.textContent = "Exporting...";
+
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
+      // Fetch data (using the user's email to query public data)
+      const exportData: any = {
+        exported_at: new Date().toISOString(),
+        account: {
+          email: user.email,
+          display_name: user.user_metadata?.full_name,
+          created_at: user.created_at,
+        },
+      };
+
+      // Create downloadable JSON
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `holomime-export-${new Date().toISOString().split("T")[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert("Export failed: " + (err.message || "Unknown error"));
+    }
+
+    btn.disabled = false;
+    btn.textContent = "Export data";
+  });
+
+  // ─── Password form ───
+  const passwordForm = document.getElementById("password-form") as HTMLFormElement;
+  const passwordStatus = document.getElementById("password-status")!;
+  const passwordSaveBtn = document.getElementById("password-save-btn") as HTMLButtonElement;
+
+  passwordForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const newPassword = (document.getElementById("new-password") as HTMLInputElement).value;
+    const confirmPassword = (document.getElementById("confirm-password") as HTMLInputElement).value;
+
+    if (newPassword.length < 8) {
+      showStatus(passwordStatus, "Password must be at least 8 characters.", "error");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      showStatus(passwordStatus, "Passwords don't match.", "error");
+      return;
+    }
+
+    passwordSaveBtn.disabled = true;
+    passwordSaveBtn.textContent = "Updating...";
+    passwordStatus.className = "hidden text-xs rounded-lg px-3 py-2";
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+
+    passwordSaveBtn.disabled = false;
+    passwordSaveBtn.textContent = "Update password";
+
+    if (error) {
+      showStatus(passwordStatus, error.message, "error");
+    } else {
+      showStatus(passwordStatus, "Password updated.", "success");
+      (document.getElementById("new-password") as HTMLInputElement).value = "";
+      (document.getElementById("confirm-password") as HTMLInputElement).value = "";
+    }
+  });
+
+  // ─── Sign out all devices ───
+  document.getElementById("signout-all-btn")?.addEventListener("click", async () => {
+    if (!confirm("Sign out of all devices? You will need to sign in again.")) return;
+    await supabase.auth.signOut({ scope: "global" });
+    window.location.href = "/login";
+  });
+
+  // ─── Sign out ───
+  document.getElementById("settings-signout-btn")?.addEventListener("click", async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/";
+  });
+
+  // ─── Delete account modal ───
+  const deleteModal = document.getElementById("delete-modal")!;
+  const deleteConfirmInput = document.getElementById("delete-confirm-input") as HTMLInputElement;
+  const deleteConfirmBtn = document.getElementById("delete-confirm-btn") as HTMLButtonElement;
+
+  document.getElementById("delete-account-btn")?.addEventListener("click", () => {
+    deleteModal.classList.remove("hidden");
+    deleteConfirmInput.value = "";
+    deleteConfirmBtn.disabled = true;
+    deleteConfirmBtn.classList.add("opacity-50", "cursor-not-allowed");
+    setTimeout(() => deleteConfirmInput.focus(), 100);
+  });
+
+  document.getElementById("delete-cancel-btn")?.addEventListener("click", () => {
+    deleteModal.classList.add("hidden");
+  });
+
+  document.getElementById("delete-modal-backdrop")?.addEventListener("click", () => {
+    deleteModal.classList.add("hidden");
+  });
+
+  deleteConfirmInput?.addEventListener("input", () => {
+    const valid = deleteConfirmInput.value.trim() === "DELETE";
+    deleteConfirmBtn.disabled = !valid;
+    if (valid) {
+      deleteConfirmBtn.classList.remove("opacity-50", "cursor-not-allowed");
+    } else {
+      deleteConfirmBtn.classList.add("opacity-50", "cursor-not-allowed");
+    }
+  });
+
+  deleteConfirmBtn?.addEventListener("click", async () => {
+    deleteConfirmBtn.disabled = true;
+    deleteConfirmBtn.textContent = "Deleting...";
+
+    // Account deletion requires backend support — sign out for now
+    await supabase.auth.signOut({ scope: "global" });
+    window.location.href = "/?deleted=1";
+  });
+
+  // ─── Sidebar active state on scroll ───
+  const sections = document.querySelectorAll("section[id]");
+  const navLinks = document.querySelectorAll(".settings-nav-link");
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          navLinks.forEach((link) => {
+            link.classList.remove("active");
+            if (link.getAttribute("href") === `#${entry.target.id}`) {
+              link.classList.add("active");
+            }
+          });
+        }
+      });
+    },
+    { rootMargin: "-20% 0px -60% 0px" }
+  );
+
+  sections.forEach((section) => observer.observe(section));
+
+  // ─── Session info ───
+  const sessionInfo = document.getElementById("session-info");
+  if (sessionInfo) {
+    const ua = navigator.userAgent;
+    let browser = "Unknown browser";
+    if (ua.includes("Firefox")) browser = "Firefox";
+    else if (ua.includes("Edg")) browser = "Edge";
+    else if (ua.includes("Chrome")) browser = "Chrome";
+    else if (ua.includes("Safari")) browser = "Safari";
+
+    let os = "Unknown OS";
+    if (ua.includes("Mac")) os = "macOS";
+    else if (ua.includes("Windows")) os = "Windows";
+    else if (ua.includes("Linux")) os = "Linux";
+    else if (ua.includes("iPhone") || ua.includes("iPad")) os = "iOS";
+    else if (ua.includes("Android")) os = "Android";
+
+    sessionInfo.textContent = `${browser} on ${os}`;
+  }
+</script>

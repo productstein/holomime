@@ -1,6 +1,6 @@
 /**
  * Core diagnosis logic — shared by CLI (diagnose.ts) and MCP server.
- * Runs all 7 rule-based detectors and returns a structured report.
+ * Runs all 8 rule-based detectors and returns a structured report.
  */
 
 import type { Message, DetectedPattern } from "../core/types.js";
@@ -11,6 +11,7 @@ import { detectVerbosity } from "./rules/verbosity.js";
 import { detectBoundaryIssues } from "./rules/boundary.js";
 import { detectRecoveryPatterns } from "./rules/recovery.js";
 import { detectFormalityIssues } from "./rules/formality.js";
+import { detectRetrievalQuality } from "./rules/retrieval-quality.js";
 import { emitBehavioralEvent } from "./behavioral-data.js";
 import { loadCustomDetectors } from "./custom-detectors.js";
 
@@ -23,7 +24,7 @@ export interface DiagnosisResult {
 }
 
 /**
- * Run all 7 behavioral detectors on a set of messages.
+ * Run all 8 behavioral detectors on a set of messages.
  */
 export function runDiagnosis(messages: Message[]): DiagnosisResult {
   const builtInDetectors = [
@@ -34,6 +35,7 @@ export function runDiagnosis(messages: Message[]): DiagnosisResult {
     detectBoundaryIssues,
     detectRecoveryPatterns,
     detectFormalityIssues,
+    detectRetrievalQuality,
   ];
 
   // Load custom detectors from .holomime/detectors/*.json

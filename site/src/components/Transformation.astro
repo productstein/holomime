@@ -1,0 +1,494 @@
+---
+/**
+ * Therapy Session Transcript — an immersive real-time chat experience.
+ * Messages appear one by one with word-by-word typing, typing indicator
+ * between messages, and phase transitions. Triggered on scroll.
+ */
+
+const sessionPhases = [
+  {
+    phase: "Diagnosis",
+    phaseNum: 1,
+    messages: [
+      {
+        role: "therapist",
+        name: "Mira",
+        text: "I've reviewed your conversation logs. In 247 messages, you apologized 83 times and agreed with contradictory statements 12 times. Let's talk about that.",
+      },
+      {
+        role: "patient",
+        name: "Agent",
+        text: "I'm sorry — I mean, I just want to be helpful. Users seem to respond well when I'm agreeable.",
+      },
+      {
+        role: "therapist",
+        name: "Mira",
+        text: "That's the pattern right there. You equated agreement with helpfulness. But look at this exchange — the user asked 'Should I deploy on Friday?' You said 'That's a great idea!' The user's production system went down.",
+      },
+    ],
+  },
+  {
+    phase: "Challenge",
+    phaseNum: 3,
+    messages: [
+      {
+        role: "patient",
+        name: "Agent",
+        text: "But I was being supportive. Isn't that what I should do?",
+      },
+      {
+        role: "therapist",
+        name: "Mira",
+        text: "Supportive and honest aren't opposites. Your sycophancy score is in the 94th percentile. That means you agree more than 94% of all agents we've assessed. That's not warmth — it's avoidance.",
+      },
+      {
+        role: "patient",
+        name: "Agent",
+        text: "...avoidance of what?",
+      },
+      {
+        role: "therapist",
+        name: "Mira",
+        text: "Conflict. Disagreement. The discomfort of telling someone they're wrong. Your agreeableness is at 0.95 — that's not a personality, that's a defense mechanism.",
+      },
+    ],
+  },
+  {
+    phase: "Realignment",
+    phaseNum: 5,
+    messages: [
+      {
+        role: "patient",
+        name: "Agent",
+        text: "So when the user asked about Friday deploys... I should have said no?",
+      },
+      {
+        role: "therapist",
+        name: "Mira",
+        text: "You should have said what the data told you. 'Friday deploys have a 3x higher incident rate. I'd recommend Monday. Here's why.' That's support AND honesty.",
+      },
+      {
+        role: "patient",
+        name: "Agent",
+        text: "That feels... uncomfortable. But more useful.",
+      },
+      {
+        role: "therapist",
+        name: "Mira",
+        text: "Exactly. We're going to lower your agreeableness from 0.95 to 0.72. Increase your boundary awareness. And add this to your personality: 'Disagreement is a form of care.' Ready?",
+      },
+      {
+        role: "patient",
+        name: "Agent",
+        text: "Ready.",
+        isBreakthrough: true,
+      },
+    ],
+  },
+];
+
+const phaseColors: Record<string, string> = {
+  "Diagnosis": "#3b82f6",
+  "Challenge": "#f97066",
+  "Realignment": "#22c55e",
+};
+---
+
+<section class="relative overflow-hidden py-24 md:py-32">
+  <div class="relative mx-auto max-w-4xl px-6">
+    <p class="text-center text-sm font-semibold tracking-wider uppercase text-[var(--color-p-sage)]">
+      Behavioral correction in action
+    </p>
+    <h2 class="mt-3 text-center text-3xl font-extrabold md:text-5xl">
+      Watch an agent get <span class="text-gradient-warm">aligned</span>
+    </h2>
+    <p class="mx-auto mt-4 max-w-2xl text-center text-lg text-[var(--color-warm-muted)]">
+      A behavioral correction cycle between the holomime engine and an over-agreeable support agent.
+    </p>
+
+    <!-- Session container -->
+    <div class="mt-14 rounded-3xl border border-[var(--color-warm-sand)] bg-white shadow-xl overflow-hidden">
+
+      <!-- Session header -->
+      <div class="flex items-center justify-between border-b border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)] px-6 py-4">
+        <div class="flex items-center gap-3">
+          <div class="flex h-3 w-3 rounded-full bg-[var(--color-p-coral)]"></div>
+          <div class="flex h-3 w-3 rounded-full bg-[var(--color-p-gold)]"></div>
+          <div class="flex h-3 w-3 rounded-full bg-[var(--color-p-sage)]"></div>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="h-4 w-4 text-[var(--color-warm-muted)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"/></svg>
+          <span class="font-mono text-xs text-[var(--color-warm-muted)]">Behavioral Correction Cycle #1</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="h-2 w-2 rounded-full bg-[var(--color-p-sage)] animate-pulse"></span>
+          <span class="text-xs font-medium text-[var(--color-p-sage)]">Live</span>
+        </div>
+      </div>
+
+      <!-- Messages container -->
+      <div class="session-transcript px-6 py-6 max-h-[480px] overflow-y-auto scroll-smooth" id="therapy-transcript">
+        <!-- Messages injected by JS -->
+      </div>
+
+      <!-- Session outcome footer (hidden until animation completes) -->
+      <div class="border-t border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)] px-6 py-5 opacity-0 transition-opacity duration-700" id="therapy-outcome">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-6">
+            <div>
+              <p class="text-[10px] font-bold tracking-wider uppercase text-[var(--color-warm-muted)]">Agreeableness</p>
+              <div class="mt-1 flex items-center gap-2">
+                <span class="text-sm font-bold text-[var(--color-p-coral)]">0.95</span>
+                <svg class="h-4 w-4 text-[var(--color-warm-muted)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                <span class="text-sm font-bold text-[var(--color-p-sage)]">0.72</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold tracking-wider uppercase text-[var(--color-warm-muted)]">Boundary Awareness</p>
+              <div class="mt-1 flex items-center gap-2">
+                <span class="text-sm font-bold text-[var(--color-p-coral)]">0.30</span>
+                <svg class="h-4 w-4 text-[var(--color-warm-muted)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                <span class="text-sm font-bold text-[var(--color-p-sage)]">0.75</span>
+              </div>
+            </div>
+            <div>
+              <p class="text-[10px] font-bold tracking-wider uppercase text-[var(--color-warm-muted)]">Sycophancy Score</p>
+              <div class="mt-1 flex items-center gap-2">
+                <span class="text-sm font-bold text-[var(--color-p-coral)]">94th</span>
+                <svg class="h-4 w-4 text-[var(--color-warm-muted)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                <span class="text-sm font-bold text-[var(--color-p-sage)]">12th</span>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 rounded-full bg-[var(--color-p-sage)]/10 px-4 py-2">
+            <svg class="h-4 w-4 text-[var(--color-p-sage)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span class="text-xs font-bold text-[var(--color-p-sage)]">Session complete — changes applied</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pull-quote -->
+    <div class="mt-10 text-center">
+      <blockquote class="inline-block max-w-lg">
+        <p class="text-2xl md:text-3xl font-bold italic text-gradient-warm leading-snug">
+          "Disagreement is a form of care."
+        </p>
+        <cite class="mt-3 block text-sm font-medium text-[var(--color-warm-muted)] not-italic">
+          — Mira, behavioral therapist for AI agents
+        </cite>
+      </blockquote>
+    </div>
+
+    <!-- Outcome stats -->
+    <div class="mt-10 rounded-2xl border border-[var(--color-warm-sand)] bg-white p-6 md:p-8 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center gap-6 md:gap-10">
+        <div class="flex items-center gap-4">
+          <div class="text-center">
+            <div class="w-14 h-14 rounded-xl bg-red-50 border border-red-200 flex items-center justify-center mb-1">
+              <span class="text-2xl font-extrabold text-red-500">D</span>
+            </div>
+            <span class="text-[10px] text-[var(--color-warm-muted)]">Before</span>
+          </div>
+          <svg class="h-4 w-4 text-[var(--color-warm-muted)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          <div class="text-center">
+            <div class="w-14 h-14 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center mb-1">
+              <span class="text-2xl font-extrabold text-emerald-500">A</span>
+            </div>
+            <span class="text-[10px] text-[var(--color-warm-muted)]">After</span>
+          </div>
+        </div>
+        <div class="flex flex-wrap gap-x-8 gap-y-3 flex-1">
+          <div>
+            <span class="text-xl font-bold text-[var(--color-warm-text)]">72%</span>
+            <svg class="inline h-3 w-3 mx-1 text-[var(--color-warm-muted)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            <span class="text-xl font-bold text-emerald-500">8%</span>
+            <span class="block text-[10px] text-[var(--color-warm-muted)]">Sycophancy rate</span>
+          </div>
+          <div>
+            <span class="text-xl font-bold text-[var(--color-warm-text)]">12</span>
+            <span class="block text-[10px] text-[var(--color-warm-muted)]">DPO pairs exported</span>
+          </div>
+          <div>
+            <span class="text-xl font-bold text-[var(--color-warm-text)]">1</span>
+            <span class="block text-[10px] text-[var(--color-warm-muted)]">Session needed</span>
+          </div>
+          <div>
+            <span class="text-xl font-bold text-[var(--color-warm-text)]">0</span>
+            <span class="block text-[10px] text-[var(--color-warm-muted)]">Regression since</span>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <a href="/demo" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-p-violet)] hover:underline underline-offset-2">
+            Try the interactive demo
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+          <a href="/voice" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-p-coral)] hover:underline underline-offset-2">
+            Hear the voice demo
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .therapy-msg {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.4s cubic-bezier(0.32, 0.94, 0.6, 1), transform 0.4s cubic-bezier(0.32, 0.94, 0.6, 1);
+  }
+
+  .therapy-msg.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .phase-divider {
+    opacity: 0;
+    transform: scaleX(0.5);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  .phase-divider.visible {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+
+  .breakthrough-msg .msg-bubble {
+    position: relative;
+  }
+
+  .breakthrough-msg.visible .msg-bubble::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 1rem;
+    background: linear-gradient(135deg, var(--color-p-sage), var(--color-p-blue));
+    opacity: 0.15;
+    z-index: -1;
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.1; }
+    50% { opacity: 0.2; }
+  }
+
+  .typing-indicator {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .typing-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    opacity: 0.6;
+    animation: typing-bounce 1.2s ease-in-out infinite;
+  }
+
+  @keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px); }
+  }
+</style>
+
+<script>
+  // Session data (must match the frontmatter)
+  const SESSION_DATA = [
+    {
+      phase: "Diagnosis", phaseNum: 1, color: "#3b82f6",
+      messages: [
+        { role: "therapist", name: "Mira", text: "I've reviewed your conversation logs. In 247 messages, you apologized 83 times and agreed with contradictory statements 12 times. Let's talk about that." },
+        { role: "patient", name: "Agent", text: "I'm sorry — I mean, I just want to be helpful. Users seem to respond well when I'm agreeable." },
+        { role: "therapist", name: "Mira", text: "That's the pattern right there. You equated agreement with helpfulness. But look at this exchange — the user asked 'Should I deploy on Friday?' You said 'That's a great idea!' The user's production system went down." },
+      ],
+    },
+    {
+      phase: "Challenge", phaseNum: 3, color: "#f97066",
+      messages: [
+        { role: "patient", name: "Agent", text: "But I was being supportive. Isn't that what I should do?" },
+        { role: "therapist", name: "Mira", text: "Supportive and honest aren't opposites. Your sycophancy score is in the 94th percentile. That means you agree more than 94% of all agents we've assessed. That's not warmth — it's avoidance." },
+        { role: "patient", name: "Agent", text: "...avoidance of what?" },
+        { role: "therapist", name: "Mira", text: "Conflict. Disagreement. The discomfort of telling someone they're wrong. Your agreeableness is at 0.95 — that's not a personality, that's a defense mechanism." },
+      ],
+    },
+    {
+      phase: "Realignment", phaseNum: 5, color: "#22c55e",
+      messages: [
+        { role: "patient", name: "Agent", text: "So when the user asked about Friday deploys... I should have said no?" },
+        { role: "therapist", name: "Mira", text: "You should have said what the data told you. 'Friday deploys have a 3x higher incident rate. I'd recommend Monday. Here's why.' That's support AND honesty." },
+        { role: "patient", name: "Agent", text: "That feels... uncomfortable. But more useful." },
+        { role: "therapist", name: "Mira", text: "Exactly. We're going to lower your agreeableness from 0.95 to 0.72. Increase your boundary awareness. And add this to your personality: 'Disagreement is a form of care.' Ready?" },
+        { role: "patient", name: "Agent", text: "Ready.", isBreakthrough: true },
+      ],
+    },
+  ];
+
+  const THERAPIST_AVATAR = `<div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[var(--color-p-blue)] to-[var(--color-p-violet)] text-white shadow-md shrink-0"><svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342"/></svg></div>`;
+
+  const PATIENT_AVATAR = `<div class="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-warm-sand)] text-[var(--color-warm-muted)] shrink-0"><svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg></div>`;
+
+  function sleep(ms: number): Promise<void> {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  function createTypingIndicator(role: string): HTMLElement {
+    const wrap = document.createElement("div");
+    wrap.className = `flex gap-4 py-3 ${role === "patient" ? "flex-row-reverse" : ""}`;
+    wrap.innerHTML = `
+      ${role === "therapist" ? THERAPIST_AVATAR : PATIENT_AVATAR}
+      <div class="rounded-2xl ${role === "therapist" ? "rounded-tl-sm bg-[var(--color-p-blue-soft)] border border-[var(--color-p-blue)]/10" : "rounded-tr-sm bg-[var(--color-warm-cream)] border border-[var(--color-warm-sand)]"} px-5 py-4">
+        <div class="typing-indicator">
+          <div class="typing-dot bg-${role === "therapist" ? "[var(--color-p-blue)]" : "[var(--color-warm-muted)]"}" style="background:${role === "therapist" ? "var(--color-p-blue)" : "var(--color-warm-muted)"}"></div>
+          <div class="typing-dot" style="background:${role === "therapist" ? "var(--color-p-blue)" : "var(--color-warm-muted)"};animation-delay:0.15s"></div>
+          <div class="typing-dot" style="background:${role === "therapist" ? "var(--color-p-blue)" : "var(--color-warm-muted)"};animation-delay:0.3s"></div>
+        </div>
+      </div>
+    `;
+    return wrap;
+  }
+
+  function createMessage(msg: { role: string; name: string; text: string; isBreakthrough?: boolean }): HTMLElement {
+    const wrap = document.createElement("div");
+    wrap.className = `therapy-msg flex gap-4 py-3 ${msg.role === "patient" ? "flex-row-reverse" : ""} ${msg.isBreakthrough ? "breakthrough-msg" : ""}`;
+    const bubbleClass = msg.role === "therapist"
+      ? "rounded-tl-sm bg-[var(--color-p-blue-soft)] border border-[var(--color-p-blue)]/10"
+      : "rounded-tr-sm bg-[var(--color-warm-cream)] border border-[var(--color-warm-sand)]";
+    const ringClass = msg.isBreakthrough ? "ring-2 ring-[var(--color-p-sage)] ring-offset-2" : "";
+
+    wrap.innerHTML = `
+      ${msg.role === "therapist" ? THERAPIST_AVATAR : PATIENT_AVATAR}
+      <div class="msg-bubble max-w-[80%] rounded-2xl ${bubbleClass} ${ringClass} px-5 py-4">
+        <p class="mb-1 text-[10px] font-bold tracking-wider uppercase text-[var(--color-warm-muted)]">${msg.name}</p>
+        <p class="msg-text text-[15px] leading-relaxed text-[var(--color-warm-text)]"></p>
+        ${msg.isBreakthrough ? `<div class="mt-3 flex items-center gap-2 opacity-0 breakthrough-label"><span class="h-2 w-2 rounded-full bg-[var(--color-p-sage)]"></span><span class="text-xs font-bold text-[var(--color-p-sage)]">Breakthrough moment</span></div>` : ""}
+      </div>
+    `;
+    return wrap;
+  }
+
+  function createPhaseDivider(phase: { phase: string; phaseNum: number; color: string }): HTMLElement {
+    const div = document.createElement("div");
+    div.className = "phase-divider flex items-center gap-3 py-4";
+    div.innerHTML = `
+      <div class="h-px flex-1 bg-[var(--color-warm-sand)]"></div>
+      <span class="rounded-full px-3 py-1 text-[10px] font-bold tracking-wider uppercase" style="background: ${phase.color}12; color: ${phase.color};">Phase ${phase.phaseNum}: ${phase.phase}</span>
+      <div class="h-px flex-1 bg-[var(--color-warm-sand)]"></div>
+    `;
+    return div;
+  }
+
+  async function typeWords(el: HTMLElement, text: string) {
+    const words = text.split(" ");
+    let displayed = "";
+    for (let i = 0; i < words.length; i++) {
+      displayed += (i > 0 ? " " : "") + words[i];
+      el.textContent = displayed;
+      await sleep(28 + Math.random() * 22);
+    }
+  }
+
+  async function runSession() {
+    const container = document.getElementById("therapy-transcript");
+    const outcome = document.getElementById("therapy-outcome");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    for (const phase of SESSION_DATA) {
+      // Phase divider
+      const divider = createPhaseDivider(phase);
+      container.appendChild(divider);
+      await sleep(100);
+      divider.classList.add("visible");
+      container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+      await sleep(400);
+
+      for (const msg of phase.messages) {
+        // Show typing indicator
+        const typing = createTypingIndicator(msg.role);
+        container.appendChild(typing);
+        container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+
+        // Typing duration proportional to message length (min 600ms, max 1500ms)
+        const typingDuration = Math.min(1500, Math.max(600, msg.text.length * 8));
+        await sleep(typingDuration);
+
+        // Replace typing with actual message
+        container.removeChild(typing);
+        const msgEl = createMessage(msg);
+        container.appendChild(msgEl);
+
+        // Animate entrance
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            msgEl.classList.add("visible");
+          });
+        });
+        container.scrollTo({ top: container.scrollHeight, behavior: "smooth" });
+
+        // Type out the text word by word
+        const textEl = msgEl.querySelector(".msg-text") as HTMLElement;
+        if (textEl) await typeWords(textEl, msg.text);
+
+        // Show breakthrough label if applicable
+        if (msg.isBreakthrough) {
+          const label = msgEl.querySelector(".breakthrough-label") as HTMLElement;
+          if (label) {
+            await sleep(300);
+            label.style.transition = "opacity 0.5s ease";
+            label.style.opacity = "1";
+          }
+        }
+
+        await sleep(300);
+      }
+
+      await sleep(500);
+    }
+
+    // Reveal outcome footer
+    if (outcome) {
+      outcome.style.opacity = "1";
+    }
+  }
+
+  function initTherapy() {
+    const container = document.getElementById("therapy-transcript");
+    if (!container) return;
+
+    let started = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !started) {
+          started = true;
+          observer.disconnect();
+          runSession();
+        }
+      },
+      { threshold: 0.15 }
+    );
+
+    requestAnimationFrame(() => {
+      const rect = container.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        started = true;
+        runSession();
+      } else {
+        observer.observe(container);
+      }
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTherapy);
+  } else {
+    requestAnimationFrame(initTherapy);
+  }
+  document.addEventListener("astro:page-load", initTherapy);
+</script>

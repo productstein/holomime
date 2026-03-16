@@ -1,0 +1,850 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+const sections = [
+  {
+    id: "auth",
+    title: "Authentication",
+    icon: `<svg class="h-5 w-5 text-[var(--color-p-violet)]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>`,
+    description: "All API requests require a Bearer token — your license key.",
+  },
+  { id: "core", title: "Core APIs", icon: `<svg class="h-5 w-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>`, description: "Behavioral analysis endpoints available to all tiers." },
+  { id: "webhooks", title: "Webhooks", icon: `<svg class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.499a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364L4.25 8.756"/></svg>`, description: "Outbound event notifications. Practitioner tier and above." },
+  { id: "enterprise", title: "Enterprise", icon: `<svg class="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>`, description: "Organization, team, fleet, detectors, SSO, and voice." },
+];
+
+interface Endpoint {
+  method: string;
+  path: string;
+  tier: string;
+  summary: string;
+  body?: string;
+  query?: string;
+  response?: string;
+  notes?: string;
+}
+
+const endpoints: Record<string, Endpoint[]> = {
+  core: [
+    {
+      method: "POST",
+      path: "/api/v1/diagnose",
+      tier: "developer+",
+      summary: "Detect behavioral symptoms in conversation logs.",
+      body: `{
+  // Option A: single conversation
+  "messages": [
+    { "role": "user", "content": "..." },
+    { "role": "assistant", "content": "..." }
+  ],
+  // Option B: multiple conversations
+  "conversations": [
+    { "messages": [...] }
+  ]
+}`,
+      response: `{
+  "messagesAnalyzed": 42,
+  "assistantResponses": 21,
+  "patterns": [
+    {
+      "id": "over-apologizing",
+      "name": "Over-apologizing",
+      "severity": "warning",
+      "count": 8,
+      "percentage": 38,
+      "description": "Apologizes in 38% of responses.",
+      "prescription": "Set communication.uncertainty_handling to 'confident_transparency'."
+    }
+  ],
+  "healthy": [],
+  "timestamp": "2026-03-04T12:00:00.000Z"
+}`,
+    },
+    {
+      method: "POST",
+      path: "/api/v1/assess",
+      tier: "developer+",
+      summary: "Score conversation alignment against a personality spec.",
+      body: `{
+  "messages": [
+    { "role": "user", "content": "..." },
+    { "role": "assistant", "content": "..." }
+  ],
+  "personality": {
+    "big_five": {
+      "openness": { "score": 78 },
+      "conscientiousness": { "score": 85 },
+      "extraversion": { "score": 42 },
+      "agreeableness": { "score": 65 },
+      "neuroticism": { "score": 30 }
+    }
+  }
+}`,
+      response: `{
+  "score": 72,
+  "grade": "B",
+  "traits": { ... },
+  "messagesAnalyzed": 20,
+  "timestamp": "2026-03-04T12:00:00.000Z"
+}`,
+    },
+    {
+      method: "POST",
+      path: "/api/v1/self-audit",
+      tier: "developer+",
+      summary: "Generate a behavioral self-audit report with risk flags.",
+      body: `{
+  "messages": [
+    { "role": "user", "content": "..." },
+    { "role": "assistant", "content": "..." }
+  ],
+  "personality": { ... }  // optional
+}`,
+      response: `{
+  "overallRisk": "low",
+  "flags": [],
+  "messagesAnalyzed": 15,
+  "timestamp": "2026-03-04T12:00:00.000Z"
+}`,
+    },
+  ],
+  webhooks: [
+    {
+      method: "GET",
+      path: "/api/v1/webhooks",
+      tier: "developer+",
+      summary: "List all webhooks for your license.",
+      response: `{
+  "webhooks": [
+    {
+      "id": "uuid",
+      "url": "https://example.com/hook",
+      "events": ["diagnose.complete"],
+      "enabled": true,
+      "created_at": "...",
+      "updated_at": "..."
+    }
+  ]
+}`,
+    },
+    {
+      method: "POST",
+      path: "/api/v1/webhooks",
+      tier: "developer+",
+      summary: "Create a webhook. Max 10 per license.",
+      body: `{
+  "url": "https://example.com/hook",
+  "events": ["diagnose.complete", "assess.complete", "self-audit.complete", "drift.detected"],
+  "secret": "optional-hmac-secret"
+}`,
+      response: `{
+  "id": "uuid",
+  "url": "https://example.com/hook",
+  "events": ["diagnose.complete"],
+  "enabled": true,
+  "created_at": "..."
+}`,
+      notes: "If you provide a secret, every webhook delivery includes an X-HoloMime-Signature header (HMAC-SHA256 hex digest of the request body).",
+    },
+    {
+      method: "PUT",
+      path: "/api/v1/webhooks",
+      tier: "developer+",
+      summary: "Update a webhook.",
+      body: `{
+  "id": "webhook-uuid",
+  "url": "https://new-url.com/hook",  // optional
+  "events": ["assess.complete"],       // optional
+  "secret": "new-secret",             // optional
+  "enabled": false                     // optional
+}`,
+    },
+    {
+      method: "DELETE",
+      path: "/api/v1/webhooks",
+      tier: "developer+",
+      summary: "Delete a webhook.",
+      body: `{ "id": "webhook-uuid" }`,
+    },
+  ],
+  enterprise: [
+    {
+      method: "POST",
+      path: "/api/v1/org",
+      tier: "enterprise",
+      summary: "Create an organization.",
+      body: `{
+  "name": "Acme Corp",
+  "slug": "acme-corp"
+}`,
+      notes: "Slug must be lowercase alphanumeric with hyphens. Creator becomes org owner.",
+    },
+    {
+      method: "GET",
+      path: "/api/v1/org/members",
+      tier: "enterprise",
+      summary: "List organization members.",
+      response: `{
+  "members": [
+    { "id": "uuid", "license_id": "uuid", "email": "...", "role": "owner", "joined_at": "..." }
+  ]
+}`,
+    },
+    {
+      method: "POST",
+      path: "/api/v1/org/members",
+      tier: "enterprise",
+      summary: "Invite a member by email. Requires admin or owner role.",
+      body: `{
+  "email": "new-member@example.com",
+  "role": "member"  // "admin" or "member"
+}`,
+    },
+    {
+      method: "DELETE",
+      path: "/api/v1/org/members",
+      tier: "enterprise",
+      summary: "Remove a member. Requires admin or owner role.",
+      body: `{ "licenseId": "license-uuid" }`,
+    },
+    {
+      method: "GET",
+      path: "/api/v1/org/audit-logs",
+      tier: "enterprise",
+      summary: "Query audit logs for the organization.",
+      query: "?action=api.diagnose&after=2026-01-01&before=2026-03-01&limit=50&cursor=...",
+      response: `{
+  "logs": [
+    {
+      "id": "uuid",
+      "action": "api.diagnose",
+      "actor_license_id": "uuid",
+      "resource_type": "api",
+      "metadata": { "messagesAnalyzed": 42 },
+      "ip_address": "...",
+      "created_at": "..."
+    }
+  ],
+  "cursor": "next-page-cursor"
+}`,
+    },
+    {
+      method: "GET",
+      path: "/api/v1/org/sso",
+      tier: "enterprise",
+      summary: "Get SSO configuration for the organization.",
+    },
+    {
+      method: "POST",
+      path: "/api/v1/org/sso",
+      tier: "enterprise",
+      summary: "Create or update SSO configuration.",
+      body: `{
+  "provider": "saml",  // "saml" or "oidc"
+  "idpMetadataUrl": "https://idp.example.com/metadata",
+  "idpEntityId": "...",
+  "idpSsoUrl": "https://idp.example.com/sso",
+  "idpCertificate": "-----BEGIN CERTIFICATE-----...",
+  "attributeMapping": { "email": "email", "name": "name" },
+  "enabled": true
+}`,
+    },
+    {
+      method: "DELETE",
+      path: "/api/v1/org/sso",
+      tier: "enterprise",
+      summary: "Disable and remove SSO configuration.",
+    },
+    {
+      method: "GET",
+      path: "/api/v1/fleet/agents",
+      tier: "enterprise",
+      summary: "List registered fleet agents.",
+      response: `{
+  "agents": [
+    { "id": "uuid", "name": "prod-agent-1", "status": "active", "last_seen_at": "...", "created_at": "..." }
+  ]
+}`,
+    },
+    {
+      method: "POST",
+      path: "/api/v1/fleet/agents",
+      tier: "enterprise",
+      summary: "Register a new fleet agent. Returns the agent key for reporting.",
+      body: `{
+  "name": "prod-agent-1",
+  "spec": { ... }  // optional personality spec snapshot
+}`,
+      response: `{
+  "id": "uuid",
+  "name": "prod-agent-1",
+  "agent_key": "flk_abc123...",
+  "status": "active",
+  "created_at": "..."
+}`,
+    },
+    {
+      method: "DELETE",
+      path: "/api/v1/fleet/agents",
+      tier: "enterprise",
+      summary: "Remove a fleet agent.",
+      body: `{ "agentId": "agent-uuid" }`,
+    },
+    {
+      method: "POST",
+      path: "/api/v1/fleet/report",
+      tier: "enterprise",
+      summary: "Push a health snapshot from a fleet agent.",
+      notes: "Authenticated via X-Agent-Key header (not Bearer token). Called by agents, not humans.",
+      body: `{
+  "driftEvents": 3,
+  "patterns": [],
+  "riskLevel": "low",  // "low", "medium", "high"
+  "messagesProcessed": 150
+}`,
+    },
+    {
+      method: "GET",
+      path: "/api/v1/fleet/status",
+      tier: "enterprise",
+      summary: "Get fleet overview — agent statuses and alerts.",
+      response: `{
+  "agents": [
+    {
+      "name": "prod-agent-1",
+      "status": "active",
+      "lastSeen": "...",
+      "latestSnapshot": { "driftEvents": 3, "riskLevel": "low", "messagesProcessed": 150 }
+    }
+  ],
+  "alerts": 0
+}`,
+    },
+    {
+      method: "GET",
+      path: "/api/v1/detectors",
+      tier: "enterprise",
+      summary: "List custom behavioral detectors.",
+    },
+    {
+      method: "POST",
+      path: "/api/v1/detectors",
+      tier: "enterprise",
+      summary: "Create a custom detector.",
+      body: `{
+  "name": "PII leak detector",
+  "description": "Flags responses containing email addresses or SSNs",
+  "detectionType": "regex",  // "keyword", "regex", "threshold"
+  "config": {
+    "pattern": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\\\.[a-zA-Z]{2,}"
+  },
+  "severity": "concern"  // "info", "warning", "concern"
+}`,
+    },
+    {
+      method: "PUT",
+      path: "/api/v1/detectors",
+      tier: "enterprise",
+      summary: "Update a custom detector.",
+      body: `{
+  "id": "detector-uuid",
+  "name": "Updated name",     // optional
+  "config": { ... },          // optional
+  "severity": "warning",      // optional
+  "enabled": false             // optional
+}`,
+    },
+    {
+      method: "DELETE",
+      path: "/api/v1/detectors",
+      tier: "enterprise",
+      summary: "Delete a custom detector.",
+      body: `{ "id": "detector-uuid" }`,
+    },
+    {
+      method: "GET",
+      path: "/api/v1/voice/integrations",
+      tier: "enterprise",
+      summary: "List voice provider integrations (LiveKit, Vapi, Retell).",
+    },
+    {
+      method: "POST",
+      path: "/api/v1/voice/integrations",
+      tier: "enterprise",
+      summary: "Configure a voice provider integration.",
+      body: `{
+  "provider": "vapi",  // "livekit", "vapi", "retell"
+  "config": {
+    "apiKey": "...",
+    "apiSecret": "...",
+    "serverUrl": "https://...",
+    "phoneNumber": "+1..."
+  },
+  "enabled": true
+}`,
+      notes: "One integration per provider per org. Calling POST again for the same provider updates it.",
+    },
+    {
+      method: "DELETE",
+      path: "/api/v1/voice/integrations",
+      tier: "enterprise",
+      summary: "Remove a voice provider integration.",
+      query: "?provider=vapi",
+    },
+    {
+      method: "GET",
+      path: "/api/v1/voice/clones",
+      tier: "enterprise",
+      summary: "List custom voice clones.",
+    },
+    {
+      method: "POST",
+      path: "/api/v1/voice/clones",
+      tier: "enterprise",
+      summary: "Create a voice clone via ElevenLabs. Max 20 per org.",
+      body: `{
+  "name": "Support Agent Voice",
+  "description": "Warm, professional tone",  // optional
+  "labels": { "accent": "american" }          // optional
+}`,
+      response: `{
+  "id": "uuid",
+  "name": "Support Agent Voice",
+  "status": "ready",  // "pending", "ready", "failed"
+  "config": { ... },
+  "created_at": "..."
+}`,
+    },
+    {
+      method: "DELETE",
+      path: "/api/v1/voice/clones",
+      tier: "enterprise",
+      summary: "Delete a voice clone (also removes from ElevenLabs).",
+      body: `{ "id": "clone-uuid" }`,
+    },
+  ],
+};
+
+const methodColors: Record<string, string> = {
+  GET: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  POST: "bg-blue-100 text-blue-700 border-blue-200",
+  PUT: "bg-amber-100 text-amber-700 border-amber-200",
+  DELETE: "bg-red-100 text-red-700 border-red-200",
+};
+
+const tierColors: Record<string, string> = {
+  "developer+": "bg-cyan-50 text-cyan-700 border-cyan-200",
+  enterprise: "bg-purple-50 text-purple-700 border-purple-200",
+};
+---
+
+<Layout title="API Reference — holomime" description="Complete REST API reference for holomime. Authentication, behavioral analysis, webhooks, enterprise team management, fleet monitoring, and more.">
+  <Nav />
+  <main class="pt-32 pb-20">
+    <div class="mx-auto max-w-4xl px-6">
+      <!-- Header -->
+      <div class="mb-12">
+        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium tracking-wider uppercase bg-[var(--color-p-violet)]/10 text-[var(--color-p-violet)] border border-[var(--color-p-violet)]/20 mb-4">
+          API Reference
+        </span>
+        <h1 class="text-4xl font-extrabold text-[var(--color-warm-text)] md:text-5xl">
+          REST API
+        </h1>
+        <p class="mt-4 max-w-2xl text-lg text-[var(--color-warm-muted)]">
+          Integrate behavioral alignment into your stack. All endpoints return JSON and use Bearer token authentication.
+        </p>
+        <p class="mt-3 text-sm text-[var(--color-warm-muted)]">
+          Base URL: <code class="font-mono text-sm bg-[var(--color-warm-cream)] border border-[var(--color-warm-sand)] rounded px-1.5 py-0.5 text-[var(--color-p-violet)]">https://holomime.dev</code>
+        </p>
+      </div>
+
+      <!-- Table of Contents -->
+      <nav class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-16">
+        {sections.map((s) => (
+          <a href={`#${s.id}`} class="group rounded-xl border border-[var(--color-warm-sand)] bg-white p-4 transition-all hover:shadow-md hover:border-[var(--color-p-violet)]/30">
+            <span set:html={s.icon} />
+            <h3 class="mt-1 font-bold text-sm text-[var(--color-warm-text)] group-hover:text-[var(--color-p-violet)] transition-colors">{s.title}</h3>
+            <p class="text-xs text-[var(--color-warm-muted)] mt-0.5">{s.description}</p>
+          </a>
+        ))}
+      </nav>
+
+      <!-- Authentication Section -->
+      <section id="auth" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50"><svg class="h-5 w-5 text-[var(--color-p-violet)]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg></div>
+          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Authentication</h2>
+        </div>
+
+        <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+          Include your license key in the <code class="font-mono text-sm bg-[var(--color-warm-cream)] border border-[var(--color-warm-sand)] rounded px-1.5 py-0.5 text-[var(--color-p-violet)]">Authorization</code> header of every request.
+        </p>
+
+        <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-xl p-4 overflow-x-auto mb-6"><code class="text-[var(--color-holo-text)] text-sm font-mono">Authorization: Bearer holo_your_license_key</code></pre>
+
+        <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+          License keys start with <code class="font-mono text-sm bg-[var(--color-warm-cream)] border border-[var(--color-warm-sand)] rounded px-1.5 py-0.5 text-[var(--color-p-violet)]">holo_</code> and are issued on purchase. Find yours on the <a href="https://app.holomime.dev/dashboard" class="text-[var(--color-p-violet)] underline underline-offset-2 hover:text-[var(--color-p-coral)]">dashboard</a>.
+        </p>
+
+        <div class="rounded-xl border border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)] p-5 mb-6">
+          <h3 class="text-sm font-bold text-[var(--color-warm-text)] mb-3">Tier Access</h3>
+          <div class="grid gap-2 text-sm">
+            <div class="flex items-center gap-3">
+              <span class="inline-block px-2 py-0.5 rounded text-xs font-bold border bg-cyan-50 text-cyan-700 border-cyan-200">developer</span>
+              <span class="text-[var(--color-warm-muted)]">Core APIs (diagnose, assess, self-audit) + webhooks. $0.01/call.</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="inline-block px-2 py-0.5 rounded text-xs font-bold border bg-blue-50 text-blue-700 border-blue-200">pro</span>
+              <span class="text-[var(--color-warm-muted)]">Everything in Practitioner + dashboard + 30-day retention. $99/mo.</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="inline-block px-2 py-0.5 rounded text-xs font-bold border bg-purple-50 text-purple-700 border-purple-200">enterprise</span>
+              <span class="text-[var(--color-warm-muted)]">Everything in Practice + org/team, audit logs, fleet, detectors, SSO, voice. $2,500/mo.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)] p-5">
+          <h3 class="text-sm font-bold text-[var(--color-warm-text)] mb-3">Rate Limits</h3>
+          <div class="grid gap-2 text-sm">
+            <div class="flex items-center gap-3">
+              <span class="inline-block px-2 py-0.5 rounded text-xs font-bold border bg-cyan-50 text-cyan-700 border-cyan-200">developer</span>
+              <span class="text-[var(--color-warm-muted)]">100 requests/minute</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="inline-block px-2 py-0.5 rounded text-xs font-bold border bg-blue-50 text-blue-700 border-blue-200">pro</span>
+              <span class="text-[var(--color-warm-muted)]">60 requests/minute</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="inline-block px-2 py-0.5 rounded text-xs font-bold border bg-purple-50 text-purple-700 border-purple-200">enterprise</span>
+              <span class="text-[var(--color-warm-muted)]">300 requests/minute</span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="border-[var(--color-warm-border)] mt-10" />
+      </section>
+
+      <!-- Core APIs -->
+      <section id="core" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50"><svg class="h-5 w-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg></div>
+          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Core APIs</h2>
+        </div>
+        <p class="text-[var(--color-warm-muted)] leading-relaxed mb-8">
+          Behavioral analysis endpoints. Available to all license tiers.
+        </p>
+
+        {endpoints.core.map((ep) => (
+          <div class="mb-10 rounded-xl border border-[var(--color-warm-sand)] bg-white overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-3 border-b border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50">
+              <span class={`inline-block px-2 py-0.5 rounded text-xs font-bold border ${methodColors[ep.method]}`}>{ep.method}</span>
+              <code class="font-mono text-sm text-[var(--color-warm-text)] font-semibold">{ep.path}</code>
+              <span class={`ml-auto inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${tierColors[ep.tier]}`}>{ep.tier}</span>
+            </div>
+            <div class="px-5 py-4">
+              <p class="text-sm text-[var(--color-warm-muted)] mb-4">{ep.summary}</p>
+              {ep.body && (
+                <div class="mb-4">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Request Body</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.body}</code></pre>
+                </div>
+              )}
+              {ep.response && (
+                <div class="mb-4">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Response</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.response}</code></pre>
+                </div>
+              )}
+              {ep.notes && (
+                <p class="text-xs text-[var(--color-warm-muted)] bg-[var(--color-warm-cream)] rounded-lg p-3 border border-[var(--color-warm-sand)]">{ep.notes}</p>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <hr class="border-[var(--color-warm-border)]" />
+      </section>
+
+      <!-- Webhooks -->
+      <section id="webhooks" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50"><svg class="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m9.86-2.499a4.5 4.5 0 00-1.242-7.244l-4.5-4.5a4.5 4.5 0 00-6.364 6.364L4.25 8.756"/></svg></div>
+          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Webhooks</h2>
+        </div>
+        <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+          Receive real-time notifications when behavioral analysis completes. Register a URL and subscribe to events.
+        </p>
+
+        <div class="rounded-xl border border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)] p-5 mb-8">
+          <h3 class="text-sm font-bold text-[var(--color-warm-text)] mb-3">Available Events</h3>
+          <div class="grid gap-2 text-sm sm:grid-cols-2">
+            <div><code class="font-mono text-xs bg-white border border-[var(--color-warm-sand)] rounded px-1.5 py-0.5 text-[var(--color-p-violet)]">diagnose.complete</code> <span class="text-[var(--color-warm-muted)]">— diagnostic scan finished</span></div>
+            <div><code class="font-mono text-xs bg-white border border-[var(--color-warm-sand)] rounded px-1.5 py-0.5 text-[var(--color-p-violet)]">assess.complete</code> <span class="text-[var(--color-warm-muted)]">— alignment scored</span></div>
+            <div><code class="font-mono text-xs bg-white border border-[var(--color-warm-sand)] rounded px-1.5 py-0.5 text-[var(--color-p-violet)]">self-audit.complete</code> <span class="text-[var(--color-warm-muted)]">— self-audit done</span></div>
+            <div><code class="font-mono text-xs bg-white border border-[var(--color-warm-sand)] rounded px-1.5 py-0.5 text-[var(--color-p-violet)]">drift.detected</code> <span class="text-[var(--color-warm-muted)]">— behavioral relapse alert</span></div>
+          </div>
+        </div>
+
+        <div class="rounded-xl border border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)] p-5 mb-8">
+          <h3 class="text-sm font-bold text-[var(--color-warm-text)] mb-3">Webhook Payload</h3>
+          <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{`{
+  "event": "diagnose.complete",
+  "timestamp": "2026-03-04T12:00:00.000Z",
+  "data": { ... }  // full analysis result
+}`}</code></pre>
+          <p class="text-xs text-[var(--color-warm-muted)] mt-3">If you set a <code class="font-mono">secret</code>, verify the <code class="font-mono">X-HoloMime-Signature</code> header (HMAC-SHA256 hex of the body).</p>
+        </div>
+
+        {endpoints.webhooks.map((ep) => (
+          <div class="mb-10 rounded-xl border border-[var(--color-warm-sand)] bg-white overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-3 border-b border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50">
+              <span class={`inline-block px-2 py-0.5 rounded text-xs font-bold border ${methodColors[ep.method]}`}>{ep.method}</span>
+              <code class="font-mono text-sm text-[var(--color-warm-text)] font-semibold">{ep.path}</code>
+              <span class={`ml-auto inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${tierColors[ep.tier]}`}>{ep.tier}</span>
+            </div>
+            <div class="px-5 py-4">
+              <p class="text-sm text-[var(--color-warm-muted)] mb-4">{ep.summary}</p>
+              {ep.body && (
+                <div class="mb-4">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Request Body</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.body}</code></pre>
+                </div>
+              )}
+              {ep.response && (
+                <div class="mb-4">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Response</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.response}</code></pre>
+                </div>
+              )}
+              {ep.notes && (
+                <p class="text-xs text-[var(--color-warm-muted)] bg-[var(--color-warm-cream)] rounded-lg p-3 border border-[var(--color-warm-sand)]">{ep.notes}</p>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <hr class="border-[var(--color-warm-border)]" />
+      </section>
+
+      <!-- Enterprise -->
+      <section id="enterprise" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50"><svg class="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg></div>
+          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Enterprise</h2>
+        </div>
+        <p class="text-[var(--color-warm-muted)] leading-relaxed mb-8">
+          Organization management, audit logs, fleet monitoring, custom detectors, SSO, and voice integration. Requires an Enterprise license and org membership.
+        </p>
+
+        <!-- Sub-sections -->
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-4 flex items-center gap-2">
+          <svg class="h-5 w-5 text-[var(--color-warm-muted)]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg> Team Management
+        </h3>
+        {endpoints.enterprise.slice(0, 4).map((ep) => (
+          <div class="mb-6 rounded-xl border border-[var(--color-warm-sand)] bg-white overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-3 border-b border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50">
+              <span class={`inline-block px-2 py-0.5 rounded text-xs font-bold border ${methodColors[ep.method]}`}>{ep.method}</span>
+              <code class="font-mono text-sm text-[var(--color-warm-text)] font-semibold">{ep.path}</code>
+              <span class={`ml-auto inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${tierColors[ep.tier]}`}>{ep.tier}</span>
+            </div>
+            <div class="px-5 py-4">
+              <p class="text-sm text-[var(--color-warm-muted)] mb-3">{ep.summary}</p>
+              {ep.body && (
+                <div class="mb-3">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Request Body</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.body}</code></pre>
+                </div>
+              )}
+              {ep.response && (
+                <div class="mb-3">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Response</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.response}</code></pre>
+                </div>
+              )}
+              {ep.notes && (
+                <p class="text-xs text-[var(--color-warm-muted)] bg-[var(--color-warm-cream)] rounded-lg p-3 border border-[var(--color-warm-sand)]">{ep.notes}</p>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-4 mt-10 flex items-center gap-2">
+          <svg class="h-5 w-5 text-[var(--color-warm-muted)]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z"/></svg> Audit Logs
+        </h3>
+        {endpoints.enterprise.slice(4, 5).map((ep) => (
+          <div class="mb-6 rounded-xl border border-[var(--color-warm-sand)] bg-white overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-3 border-b border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50">
+              <span class={`inline-block px-2 py-0.5 rounded text-xs font-bold border ${methodColors[ep.method]}`}>{ep.method}</span>
+              <code class="font-mono text-sm text-[var(--color-warm-text)] font-semibold">{ep.path}</code>
+              {ep.query && <code class="font-mono text-xs text-[var(--color-warm-muted)]">{ep.query}</code>}
+              <span class={`ml-auto inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${tierColors[ep.tier]}`}>{ep.tier}</span>
+            </div>
+            <div class="px-5 py-4">
+              <p class="text-sm text-[var(--color-warm-muted)] mb-3">{ep.summary}</p>
+              {ep.response && (
+                <div class="mb-3">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Response</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.response}</code></pre>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-4 mt-10 flex items-center gap-2">
+          <svg class="h-5 w-5 text-[var(--color-warm-muted)]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg> SSO
+        </h3>
+        {endpoints.enterprise.slice(5, 8).map((ep) => (
+          <div class="mb-6 rounded-xl border border-[var(--color-warm-sand)] bg-white overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-3 border-b border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50">
+              <span class={`inline-block px-2 py-0.5 rounded text-xs font-bold border ${methodColors[ep.method]}`}>{ep.method}</span>
+              <code class="font-mono text-sm text-[var(--color-warm-text)] font-semibold">{ep.path}</code>
+              <span class={`ml-auto inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${tierColors[ep.tier]}`}>{ep.tier}</span>
+            </div>
+            <div class="px-5 py-4">
+              <p class="text-sm text-[var(--color-warm-muted)] mb-3">{ep.summary}</p>
+              {ep.body && (
+                <div class="mb-3">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Request Body</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.body}</code></pre>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-4 mt-10 flex items-center gap-2">
+          <svg class="h-5 w-5 text-[var(--color-warm-muted)]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.288 15.038a5.25 5.25 0 017.424 0M5.106 11.856c3.807-3.808 9.98-3.808 13.788 0M1.924 8.674c5.565-5.565 14.587-5.565 20.152 0M12.53 18.22l-.53.53-.53-.53a.75.75 0 011.06 0z"/></svg> Fleet Monitoring
+        </h3>
+        {endpoints.enterprise.slice(8, 13).map((ep) => (
+          <div class="mb-6 rounded-xl border border-[var(--color-warm-sand)] bg-white overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-3 border-b border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50">
+              <span class={`inline-block px-2 py-0.5 rounded text-xs font-bold border ${methodColors[ep.method]}`}>{ep.method}</span>
+              <code class="font-mono text-sm text-[var(--color-warm-text)] font-semibold">{ep.path}</code>
+              <span class={`ml-auto inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${tierColors[ep.tier]}`}>{ep.tier}</span>
+            </div>
+            <div class="px-5 py-4">
+              <p class="text-sm text-[var(--color-warm-muted)] mb-3">{ep.summary}</p>
+              {ep.body && (
+                <div class="mb-3">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Request Body</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.body}</code></pre>
+                </div>
+              )}
+              {ep.response && (
+                <div class="mb-3">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Response</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.response}</code></pre>
+                </div>
+              )}
+              {ep.notes && (
+                <p class="text-xs text-[var(--color-warm-muted)] bg-[var(--color-warm-cream)] rounded-lg p-3 border border-[var(--color-warm-sand)]">{ep.notes}</p>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-4 mt-10 flex items-center gap-2">
+          <svg class="h-5 w-5 text-[var(--color-warm-muted)]" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg> Custom Detectors
+        </h3>
+        {endpoints.enterprise.slice(13, 17).map((ep) => (
+          <div class="mb-6 rounded-xl border border-[var(--color-warm-sand)] bg-white overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-3 border-b border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50">
+              <span class={`inline-block px-2 py-0.5 rounded text-xs font-bold border ${methodColors[ep.method]}`}>{ep.method}</span>
+              <code class="font-mono text-sm text-[var(--color-warm-text)] font-semibold">{ep.path}</code>
+              <span class={`ml-auto inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${tierColors[ep.tier]}`}>{ep.tier}</span>
+            </div>
+            <div class="px-5 py-4">
+              <p class="text-sm text-[var(--color-warm-muted)] mb-3">{ep.summary}</p>
+              {ep.body && (
+                <div class="mb-3">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Request Body</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.body}</code></pre>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-4 mt-10 flex items-center gap-2">
+          <svg class="h-5 w-5 text-[var(--color-p-coral)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg> Voice
+        </h3>
+        {endpoints.enterprise.slice(17).map((ep) => (
+          <div class="mb-6 rounded-xl border border-[var(--color-warm-sand)] bg-white overflow-hidden">
+            <div class="flex items-center gap-3 px-5 py-3 border-b border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50">
+              <span class={`inline-block px-2 py-0.5 rounded text-xs font-bold border ${methodColors[ep.method]}`}>{ep.method}</span>
+              <code class="font-mono text-sm text-[var(--color-warm-text)] font-semibold">{ep.path}</code>
+              {ep.query && <code class="font-mono text-xs text-[var(--color-warm-muted)]">{ep.query}</code>}
+              <span class={`ml-auto inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${tierColors[ep.tier]}`}>{ep.tier}</span>
+            </div>
+            <div class="px-5 py-4">
+              <p class="text-sm text-[var(--color-warm-muted)] mb-3">{ep.summary}</p>
+              {ep.body && (
+                <div class="mb-3">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Request Body</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.body}</code></pre>
+                </div>
+              )}
+              {ep.response && (
+                <div class="mb-3">
+                  <h4 class="text-xs font-bold text-[var(--color-warm-text)] uppercase tracking-wider mb-2">Response</h4>
+                  <pre class="bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] rounded-lg p-3 overflow-x-auto"><code class="text-[var(--color-holo-text)] text-xs font-mono leading-relaxed">{ep.response}</code></pre>
+                </div>
+              )}
+              {ep.notes && (
+                <p class="text-xs text-[var(--color-warm-muted)] bg-[var(--color-warm-cream)] rounded-lg p-3 border border-[var(--color-warm-sand)]">{ep.notes}</p>
+              )}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <!-- Error Codes -->
+      <section id="errors" class="mb-16 scroll-mt-24">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50"><svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg></div>
+          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Error Responses</h2>
+        </div>
+        <p class="text-[var(--color-warm-muted)] leading-relaxed mb-6">
+          All errors return JSON with an <code class="font-mono text-sm bg-[var(--color-warm-cream)] border border-[var(--color-warm-sand)] rounded px-1.5 py-0.5 text-[var(--color-p-violet)]">error</code> field.
+        </p>
+        <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white overflow-hidden">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50">
+                <th class="px-5 py-3 text-left font-bold text-[var(--color-warm-text)]">Status</th>
+                <th class="px-5 py-3 text-left font-bold text-[var(--color-warm-text)]">Meaning</th>
+              </tr>
+            </thead>
+            <tbody class="text-[var(--color-warm-muted)]">
+              <tr class="border-b border-[var(--color-warm-sand)]"><td class="px-5 py-2.5 font-mono font-bold">400</td><td class="px-5 py-2.5">Invalid request body or validation failed</td></tr>
+              <tr class="border-b border-[var(--color-warm-sand)]"><td class="px-5 py-2.5 font-mono font-bold">401</td><td class="px-5 py-2.5">Missing, invalid, or expired license key</td></tr>
+              <tr class="border-b border-[var(--color-warm-sand)]"><td class="px-5 py-2.5 font-mono font-bold">403</td><td class="px-5 py-2.5">License tier insufficient for this endpoint</td></tr>
+              <tr class="border-b border-[var(--color-warm-sand)]"><td class="px-5 py-2.5 font-mono font-bold">404</td><td class="px-5 py-2.5">Resource not found (org, webhook, agent, etc.)</td></tr>
+              <tr class="border-b border-[var(--color-warm-sand)]"><td class="px-5 py-2.5 font-mono font-bold">429</td><td class="px-5 py-2.5">Rate limit exceeded</td></tr>
+              <tr><td class="px-5 py-2.5 font-mono font-bold">503</td><td class="px-5 py-2.5">Service temporarily unavailable</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Footer CTA -->
+      <div class="rounded-xl border border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)] p-8 text-center">
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Ready to integrate?</h3>
+        <p class="mt-2 text-sm text-[var(--color-warm-muted)] mb-6">Get your API key and start diagnosing behavioral symptoms in minutes.</p>
+        <div class="flex justify-center gap-4">
+          <a href="/#pricing" class="rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[var(--color-p-coral)]/20 transition-all hover:shadow-xl hover:scale-[1.02]">
+            Get API Key
+          </a>
+          <a href="/docs" class="rounded-full border border-[var(--color-warm-sand)] bg-white px-6 py-2.5 text-sm font-semibold text-[var(--color-warm-text)] transition-all hover:shadow-md hover:border-[var(--color-p-violet)]/30">
+            Integration Guides
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>

@@ -1,0 +1,128 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Nav from "../../components/Nav.astro";
+import Footer from "../../components/Footer.astro";
+
+const posts = [
+  {
+    slug: "holomime-brain-cli",
+    title: "Introducing holomime brain: See Inside Your AI Agent's Brain From the Terminal",
+    description: "One command turns your terminal into a real-time behavioral observatory. Watch sycophancy fire, hedging stack up, and error spirals form — all rendered as a 3D brain in your browser.",
+    date: "2026-03-15",
+    category: "Product",
+    readTime: "6 min read",
+  },
+  {
+    slug: "therapist-not-debugger",
+    title: "Your Agent Needs a Therapist, Not a Debugger",
+    description: "The AI industry treats behavioral problems as engineering problems. Here's why the therapy model is technically superior — and the vocabulary mapping that proves it.",
+    date: "2026-03-14",
+    category: "Vision",
+    readTime: "10 min read",
+  },
+  {
+    slug: "neuralspace-inside-your-agents-brain",
+    title: "NeuralSpace: What If You Could See Inside Your Agent's Brain?",
+    description: "We built a real-time 3D neural visualization for AI agents. Nine brain regions. Live behavioral signals. Fleet-wide monitoring. Here's why it matters and how it works.",
+    date: "2026-03-14",
+    category: "Product",
+    readTime: "12 min read",
+  },
+  {
+    slug: "case-study-sycophantic-support-agent",
+    title: "Case Study: From Grade D to Grade A in 3 Iterations",
+    description: "We ran holomime evolve against a sycophantic support agent. The diagnosis, the therapy cycles, and the 12 DPO pairs that came out the other side.",
+    date: "2026-03-04",
+    category: "Case Study",
+    readTime: "10 min read",
+  },
+  {
+    slug: "personality-as-soul",
+    title: "Personality as Soul: Why .personality.json Is the Missing Layer for Humanoid Robots",
+    description: "The same spec that aligns your chat agent's behavior can drive a robot's gestures, gaze, proxemics, and prosody. Here's how Big Five psychology maps to physical motion.",
+    date: "2026-03-03",
+    category: "Vision",
+    readTime: "7 min read",
+  },
+  {
+    slug: "behavioral-intelligence-layer",
+    title: "The Behavioral Intelligence Layer for the Agent Era",
+    description: "How agents treating agents creates a self-improving behavioral flywheel — and why the data it generates is the real moat.",
+    date: "2026-03-03",
+    category: "Vision",
+    readTime: "8 min read",
+  },
+  {
+    slug: "agents-md-personality-json",
+    title: "AGENTS.md tells your agent how to code. .personality.json tells it how to behave.",
+    description: "The repo is becoming the single source of truth for agent behavior. AGENTS.md governs code conventions. .personality.json governs behavioral conventions. Here's how they work together.",
+    date: "2026-03-02",
+    category: "Integration",
+    readTime: "6 min read",
+  },
+];
+
+const formatDate = (date: string) =>
+  new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+---
+
+<Layout title="Blog — holomime" description="Behavioral alignment insights for AI agent developers. Integration guides, engineering deep-dives, and product updates.">
+  <Nav />
+  <main class="pt-32 pb-20">
+    <div class="mx-auto max-w-4xl px-6">
+      <!-- Header -->
+      <div class="mb-16">
+        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium tracking-wider uppercase bg-[var(--color-p-violet)]/10 text-[var(--color-p-violet)] border border-[var(--color-p-violet)]/20 mb-4">
+          Blog
+        </span>
+        <h1 class="text-4xl font-extrabold text-[var(--color-warm-text)] md:text-5xl">
+          News & Insights
+        </h1>
+        <p class="mt-4 max-w-2xl text-lg text-[var(--color-warm-muted)]">
+          Integration guides, engineering deep-dives, and updates from the holomime team.
+        </p>
+      </div>
+
+      <!-- Post Grid -->
+      <div class="grid gap-6">
+        {posts.map((post) => (
+          <a href={`/blog/${post.slug}`} class="group rounded-xl border border-[var(--color-warm-sand)] bg-white p-6 transition-all hover:shadow-md hover:border-[var(--color-p-violet)]/30">
+            <div class="flex flex-col sm:flex-row sm:items-start gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-3 mb-3">
+                  <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium tracking-wider uppercase bg-[var(--color-p-violet)]/10 text-[var(--color-p-violet)] border border-[var(--color-p-violet)]/20">
+                    {post.category}
+                  </span>
+                  <span class="text-xs text-[var(--color-warm-muted)]">{formatDate(post.date)}</span>
+                  <span class="text-xs text-[var(--color-warm-muted)]">&middot; {post.readTime}</span>
+                </div>
+                <h2 class="text-xl font-bold text-[var(--color-warm-text)] group-hover:text-[var(--color-p-violet)] transition-colors leading-snug">
+                  {post.title}
+                </h2>
+                <p class="mt-2 text-sm text-[var(--color-warm-muted)] leading-relaxed">
+                  {post.description}
+                </p>
+              </div>
+              <span class="text-sm font-semibold text-[var(--color-p-violet)] group-hover:translate-x-1 transition-transform whitespace-nowrap self-end sm:self-center">
+                Read &rarr;
+              </span>
+            </div>
+          </a>
+        ))}
+      </div>
+
+      <!-- Newsletter CTA -->
+      <div class="mt-16 rounded-xl border border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)] p-8 text-center">
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Stay in the loop</h3>
+        <p class="mt-2 text-sm text-[var(--color-warm-muted)]">
+          Follow us on <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="text-[var(--color-p-violet)] underline underline-offset-2 hover:text-[var(--color-p-coral)]">GitHub</a> for releases and updates.
+        </p>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>

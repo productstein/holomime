@@ -1,0 +1,121 @@
+---
+import BlogLayout from "../../components/BlogLayout.astro";
+---
+
+<BlogLayout
+  title="Introducing holomime brain: See Inside Your AI Agent's Brain From the Terminal"
+  description="One command turns your terminal into a real-time behavioral observatory. Watch sycophancy fire, hedging stack up, and error spirals form — all rendered as a 3D brain in your browser."
+  date="2026-03-15"
+  category="Product"
+  readTime="6 min read"
+>
+
+<p>
+  We shipped something today that we've been wanting to build for months. It's called <code>holomime brain</code>, and it does exactly what it sounds like: it shows you inside your AI coding agent's brain while it works.
+</p>
+
+<p>
+  Run one command. Your browser opens. A full 3D brain visualization lights up — in real time — as your agent thinks, responds, and drifts.
+</p>
+
+<pre><code>npx holomime brain</code></pre>
+
+<p>
+  That's it. No config. No API keys. No setup. It auto-detects your running agent (Claude Code, Cline, OpenClaw, Cursor, Codex) and starts monitoring immediately.
+</p>
+
+<h2>What you actually see</h2>
+
+<p>
+  When the brain opens at <code>localhost:3838</code>, you're looking at a WebGL-rendered 3D brain with nine anatomical regions. Each region maps to a measurable behavioral function — and lights up when that function activates.
+</p>
+
+<p>
+  The Prefrontal Cortex pulses when your agent is making decisions confidently — or goes dim when it starts hedge-stacking every response with "I think maybe perhaps." Broca's Area flares when the agent's language generation goes off-spec — formality drifting, verbosity spiking. The Amygdala fires on emotional over-reactivity: the "I'm so sorry" spiral that turns every response into an apology.
+</p>
+
+<p>
+  Below the brain, a sidebar shows every detected pattern with severity levels and percentages. A health score updates in real time — 0 to 100, graded A through F.
+</p>
+
+<p>
+  You can also see the last message exchange in the activity feed, so you know exactly what triggered each pattern.
+</p>
+
+<h2>Why we built this</h2>
+
+<p>
+  Every developer using AI coding agents has the same unspoken anxiety: <em>is this thing actually doing what I asked, or is it drifting?</em>
+</p>
+
+<p>
+  You paste a prompt into Claude Code. It starts working. You see files changing. But you don't know <em>how</em> it's behaving — whether it's being straightforward or hedging, whether it's following your intent or sycophantically agreeing while doing something else, whether the quality is consistent across a long session or degrading turn by turn.
+</p>
+
+<p>
+  The conversation log is there, but reading 200 lines of JSONL isn't realistic. You need a way to <strong>see</strong> the behavioral state — at a glance, in real time, without reading anything.
+</p>
+
+<p>
+  That's what the brain does. It's an MRI for your coding agent.
+</p>
+
+<h2>Seven detectors, nine regions</h2>
+
+<p>
+  Under the hood, <code>holomime brain</code> runs seven rule-based behavioral detectors on every message in the conversation log:
+</p>
+
+<ul>
+  <li><strong>Sycophancy</strong> — Is the agent agreeing with everything instead of pushing back?</li>
+  <li><strong>Hedge-stacking</strong> — Is every response wrapped in qualifiers and uncertainty?</li>
+  <li><strong>Over-apologizing</strong> — Has the agent entered an apology spiral?</li>
+  <li><strong>Boundary violations</strong> — Is the agent exceeding its scope or ignoring constraints?</li>
+  <li><strong>Error spirals</strong> — Is the agent repeating the same mistake without recovery?</li>
+  <li><strong>Sentiment skew</strong> — Is emotional tone drifting from the personality spec?</li>
+  <li><strong>Formality drift</strong> — Is the agent's register shifting away from spec?</li>
+</ul>
+
+<p>
+  These detectors analyze 80+ behavioral signals — entirely rule-based, no LLM calls, instant results. Each detector maps to specific brain regions. When sycophancy fires, you see the Anterior Cingulate (conflict monitoring) light up because the agent has stopped monitoring for conflicts between what the user wants and what it's doing.
+</p>
+
+<p>
+  The mapping is deterministic. Same behavior, same region, every time. You learn to read the brain like you learn to read a dashboard — but faster, because humans process spatial information orders of magnitude more quickly than tables.
+</p>
+
+<h2>Share your brain</h2>
+
+<p>
+  While monitoring, press <code>s</code> to capture a snapshot. HoloMime compresses the current brain state into a URL and copies it to your clipboard. Send it to anyone — they open the link and see the full 3D brain with your agent's behavioral data frozen in time.
+</p>
+
+<p>
+  No backend needed. The snapshot data is encoded directly in the URL (similar to how Excalidraw stores drawings). A typical snapshot URL is about 220 characters. Small enough to paste in Slack, Twitter, or a GitHub issue.
+</p>
+
+<p>
+  You can also run <code>holomime brain --share</code> for a one-shot capture: it detects your agent, runs diagnosis, generates the snapshot URL, copies it, and exits.
+</p>
+
+<h2>What's next</h2>
+
+<p>
+  This is the free, open-source viral hook for holomime. The brain tool is available to everyone — no account, no subscription. We want every developer using AI coding agents to see what's happening inside them.
+</p>
+
+<p>
+  If the brain reveals patterns you want to fix — sycophancy you want to eliminate, hedging you want to reduce, formality you want to lock — that's where the full holomime platform comes in. Behavioral therapy sessions, DPO training data export, personality specs, and structured correction. The brain shows you the problem. The platform fixes it.
+</p>
+
+<p>
+  Try it right now:
+</p>
+
+<pre><code>npx holomime brain</code></pre>
+
+<p>
+  Then <a href="https://app.holomime.dev/brain">share your agent's brain</a> with the world.
+</p>
+
+</BlogLayout>

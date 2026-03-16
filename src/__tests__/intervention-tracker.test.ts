@@ -17,7 +17,7 @@ describe("intervention-tracker", () => {
       expect(repertoire.lastUpdated).toMatch(/^\d{4}-\d{2}-\d{2}T/);
     });
 
-    it("includes interventions for all 7 detector patterns", () => {
+    it("includes interventions for all 8 detector patterns", () => {
       const repertoire = createRepertoire();
       const allPatterns = new Set(
         repertoire.interventions.flatMap((i) => i.targetPatterns),

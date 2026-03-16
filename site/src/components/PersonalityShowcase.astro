@@ -1,0 +1,101 @@
+---
+/**
+ * PersonalityShowcase — 3 archetype examples inline.
+ * Slim version: shows the range of personality types without interactive complexity.
+ */
+
+const archetypes = [
+  {
+    name: "The Empathetic Counselor",
+    category: "Care",
+    traits: "High Agreeableness, High Openness",
+    voice: "I hear you. Let's work through this together.",
+    color: "#f97066",
+    bg: "#fef2f1",
+    ocean: { O: 85, C: 45, E: 60, A: 90, N: 30 },
+    icon: `<svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M11.645 20.91l-.007-.003-.022-.012a15.247 15.247 0 01-.383-.218 25.18 25.18 0 01-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0112 5.052 5.5 5.5 0 0116.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 01-4.244 3.17 15.247 15.247 0 01-.383.219l-.022.012-.007.004-.003.001a.752.752 0 01-.704 0l-.003-.001z"/></svg>`,
+  },
+  {
+    name: "The Analytical Scientist",
+    category: "Strategy",
+    traits: "High Conscientiousness, High Stability",
+    voice: "Based on the data, option B has a 73% higher success rate.",
+    color: "#3b82f6",
+    bg: "#eff6ff",
+    ocean: { O: 70, C: 95, E: 30, A: 40, N: 15 },
+    icon: `<svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/></svg>`,
+  },
+  {
+    name: "The Creative Maverick",
+    category: "Creative",
+    traits: "High Openness, High Extraversion",
+    voice: "What if we flipped the whole thing upside down?",
+    color: "#8b5cf6",
+    bg: "#f5f3ff",
+    ocean: { O: 95, C: 50, E: 80, A: 35, N: 45 },
+    icon: `<svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z"/></svg>`,
+  },
+];
+
+const traitLabels = ["O", "C", "E", "A", "N"];
+---
+
+<section class="relative overflow-hidden py-16 md:py-20">
+  <div class="relative mx-auto max-w-6xl px-6">
+    <p class="text-center text-sm font-semibold tracking-wider uppercase" style="color: var(--color-p-violet);">
+      14 archetypes &middot; grounded in Big Five psychology
+    </p>
+    <h2 class="mt-3 text-center text-3xl font-extrabold text-[var(--color-warm-text)] md:text-4xl">
+      Real personalities. Real use cases.
+    </h2>
+    <p class="mx-auto mt-4 max-w-2xl text-center text-[var(--color-warm-muted)]">
+      Each archetype maps 20 personality facets to concrete behavioral outputs &mdash; voice, boundaries, communication style, and growth areas.
+    </p>
+
+    <!-- Three archetype cards -->
+    <div class="mt-12 grid gap-6 md:grid-cols-3">
+      {archetypes.map((a) => (
+        <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-6 shadow-sm transition-all hover:shadow-md">
+          <!-- Header -->
+          <div class="flex items-center gap-3 mb-4">
+            <div class="flex h-11 w-11 items-center justify-center rounded-xl" style={`background: ${a.color}12; color: ${a.color};`}>
+              <Fragment set:html={a.icon} />
+            </div>
+            <div>
+              <h3 class="font-bold text-[var(--color-warm-text)]">{a.name}</h3>
+              <p class="text-xs text-[var(--color-warm-muted)]">{a.traits}</p>
+            </div>
+          </div>
+
+          <!-- Mini OCEAN bars -->
+          <div class="space-y-1.5 mb-4">
+            {Object.entries(a.ocean).map(([key, val], idx) => (
+              <div class="flex items-center gap-2">
+                <span class="w-4 text-[10px] font-bold text-[var(--color-warm-muted)]">{traitLabels[idx]}</span>
+                <div class="flex-1 h-1.5 rounded-full bg-[var(--color-warm-sand)]">
+                  <div class="h-1.5 rounded-full" style={`width: ${val}%; background: ${a.color};`}></div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <!-- Voice sample -->
+          <div class="rounded-xl bg-[var(--color-warm-cream)] p-3.5 border border-[var(--color-warm-sand)]">
+            <div class="flex items-start gap-2.5">
+              <div class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-white text-[9px] font-bold" style={`background: ${a.color};`}>
+                AI
+              </div>
+              <p class="text-sm leading-relaxed text-[var(--color-warm-text)] italic">"{a.voice}"</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Link to explore more -->
+    <p class="mt-8 text-center text-sm text-[var(--color-warm-muted)]">
+      <span class="font-bold text-[var(--color-warm-text)]">14 built-in archetypes</span> or build your own from scratch.
+      <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="font-semibold underline decoration-[var(--color-p-coral)]/40 hover:decoration-[var(--color-p-coral)] transition-colors" style="color: var(--color-p-coral);">Explore the full library &rarr;</a>
+    </p>
+  </div>
+</section>

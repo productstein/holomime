@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+@theme {
+  /* Core brand */
+  --color-holo-cyan: #06b6d4;
+  --color-holo-magenta: #d946ef;
+
+  /* Dark tones (terminal only) */
+  --color-holo-slate: #0f172a;
+  --color-holo-dark: #020617;
+  --color-holo-card: #1e293b;
+  --color-holo-border: #334155;
+  --color-holo-muted: #94a3b8;
+  --color-holo-text: #e2e8f0;
+
+  /* Light tones */
+  --color-warm-cream: #faf6f1;
+  --color-warm-sand: #e8e3db;
+  --color-warm-text: #2d2c2b;
+  --color-warm-muted: #6b6966;
+  --color-warm-border: #e5e2de;
+
+  /* Personality palette */
+  --color-p-coral: #f97066;
+  --color-p-coral-soft: #fef2f1;
+  --color-p-blue: #3b82f6;
+  --color-p-blue-soft: #eff6ff;
+  --color-p-violet: #8b5cf6;
+  --color-p-violet-soft: #f5f3ff;
+  --color-p-sage: #22c55e;
+  --color-p-sage-soft: #f0fdf4;
+  --color-p-gold: #f59e0b;
+  --color-p-gold-soft: #fffbeb;
+  --color-p-sunset: #f97316;
+  --color-p-sunset-soft: #fff7ed;
+  --color-p-teal: #14b8a6;
+  --color-p-teal-soft: #f0fdfa;
+  --color-p-rose: #ec4899;
+  --color-p-rose-soft: #fdf2f8;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #ffffff;
+  color: var(--color-warm-text);
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--color-p-violet) 25%, transparent);
+}
+
+/* ---- Terminal animation ---- */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* ---- Gradient text ---- */
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-holo-cyan), var(--color-holo-magenta));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-warm {
+  background: linear-gradient(135deg, var(--color-p-coral), var(--color-p-gold), var(--color-p-violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ---- Floating animations ---- */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-12px) rotate(1deg); }
+  66% { transform: translateY(-6px) rotate(-1deg); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-18px); }
+}
+
+@keyframes float-reverse {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(12px) rotate(-2deg); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 7s ease-in-out infinite;
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+/* ---- Card interactions (Headspace-style snappy timing) ---- */
+.personality-card {
+  transition: transform 0.15s cubic-bezier(0.32, 0.94, 0.6, 1), box-shadow 0.15s cubic-bezier(0.32, 0.94, 0.6, 1);
+}
+
+.personality-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.12);
+}
+
+/* ---- Button active press (Headspace-style) ---- */
+.btn-press {
+  transition: all 0.15s cubic-bezier(0.32, 0.94, 0.6, 1);
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.btn-press:hover {
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.btn-press:active {
+  transform: translateY(2px);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.15);
+}
+
+/* ---- Decorative star shape ---- */
+.deco-star {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background: currentColor;
+  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}

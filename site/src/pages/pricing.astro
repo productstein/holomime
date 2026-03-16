@@ -1,0 +1,281 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Pricing from "../components/Pricing.astro";
+import Footer from "../components/Footer.astro";
+
+const faqs = [
+  {
+    q: "Can I switch plans anytime?",
+    a: "Yes, upgrades are instant. Downgrades take effect at the next billing cycle.",
+  },
+  {
+    q: "What happens when I hit my API limit?",
+    a: "Practitioner tier: you're billed per call, no limits. Practice: truly unlimited.",
+  },
+  {
+    q: "Do you offer annual discounts?",
+    a: "Yes, 20% off with annual billing.",
+  },
+  {
+    q: "Is my agent data private?",
+    a: "We never use your agent data to train our models. See our privacy policy.",
+  },
+  {
+    q: "What's NeuralSpace?",
+    a: "Real-time 3D brain visualization for your agents. Watch behavioral patterns fire across 8 neural regions.",
+  },
+  {
+    q: "Do you offer startup discounts?",
+    a: "Yes, contact us for startup and academic pricing.",
+  },
+];
+
+const comparisonRows = [
+  {
+    feature: "Behavioral Detectors",
+    clinic: "8 rule-based",
+    practitioner: "8 rule-based",
+    practice: "8 + LLM-powered",
+    institute: "Custom + LLM",
+  },
+  {
+    feature: "API Calls",
+    clinic: "Local only",
+    practitioner: "Pay per call ($0.01/diagnose)",
+    practice: "Unlimited",
+    institute: "Unlimited",
+  },
+  {
+    feature: "Agents",
+    clinic: "Unlimited local",
+    practitioner: "10",
+    practice: "50",
+    institute: "Unlimited",
+  },
+  {
+    feature: "NeuralSpace",
+    clinic: null,
+    practitioner: null,
+    practice: true,
+    institute: "Fleet view",
+  },
+  {
+    feature: "Voice Monitoring",
+    clinic: null,
+    practitioner: null,
+    practice: null,
+    institute: true,
+  },
+  {
+    feature: "Training Data Export",
+    clinic: "DPO",
+    practitioner: "DPO, RLHF",
+    practice: "All formats",
+    institute: "All + custom",
+  },
+  {
+    feature: "Webhooks",
+    clinic: null,
+    practitioner: "3",
+    practice: "10",
+    institute: "Unlimited",
+  },
+  {
+    feature: "Custom Detectors",
+    clinic: "JSON config",
+    practitioner: "JSON config",
+    practice: "JSON + LLM",
+    institute: "Custom + LLM",
+  },
+  {
+    feature: "Therapy Memory",
+    clinic: null,
+    practitioner: null,
+    practice: true,
+    institute: true,
+  },
+  {
+    feature: "Knowledge Graph",
+    clinic: null,
+    practitioner: null,
+    practice: true,
+    institute: "Fleet-wide",
+  },
+  {
+    feature: "Self-Awareness Interviews",
+    clinic: true,
+    practitioner: true,
+    practice: true,
+    institute: true,
+  },
+  {
+    feature: "Personality Library",
+    clinic: "20 specs",
+    practitioner: "20 specs",
+    practice: "20 + custom",
+    institute: "Unlimited",
+  },
+  {
+    feature: "SSO (SAML/OIDC)",
+    clinic: null,
+    practitioner: null,
+    practice: null,
+    institute: true,
+  },
+  {
+    feature: "Audit Logs",
+    clinic: null,
+    practitioner: null,
+    practice: null,
+    institute: true,
+  },
+  {
+    feature: "SLA",
+    clinic: null,
+    practitioner: null,
+    practice: "99.5%",
+    institute: "99.9%",
+  },
+  {
+    feature: "Support",
+    clinic: "Community",
+    practitioner: "Email",
+    practice: "Priority",
+    institute: "Dedicated",
+  },
+];
+
+const tierColors = {
+  clinic: "#22c55e",
+  practitioner: "#06b6d4",
+  practice: "#8b5cf6",
+  institute: "#f59e0b",
+};
+---
+
+<Layout>
+  <Nav />
+  <main class="min-h-screen bg-[var(--color-warm-cream)]">
+    <!-- Page header -->
+    <section class="pt-28 pb-4 px-6">
+      <div class="mx-auto max-w-4xl text-center">
+        <p class="text-sm font-semibold tracking-wider uppercase" style="color: var(--color-p-violet);">
+          Pricing
+        </p>
+        <h1 class="mt-3 text-4xl font-extrabold text-[var(--color-warm-text)] md:text-5xl lg:text-6xl tracking-tight">
+          Simple, transparent pricing
+        </h1>
+        <p class="mt-5 text-lg text-[var(--color-warm-muted)] md:text-xl max-w-2xl mx-auto">
+          Start free. Scale as your agents grow.
+        </p>
+      </div>
+    </section>
+
+    <!-- Existing Pricing component -->
+    <Pricing />
+
+    <!-- Feature comparison table -->
+    <section class="py-20 md:py-28 px-6">
+      <div class="mx-auto max-w-6xl">
+        <h2 class="text-2xl font-extrabold text-[var(--color-warm-text)] md:text-3xl text-center mb-4">
+          Compare plans in detail
+        </h2>
+        <p class="text-center text-[var(--color-warm-muted)] mb-12 max-w-xl mx-auto">
+          Every feature across every tier, so you can pick the right plan with confidence.
+        </p>
+
+        <div class="rounded-2xl border border-[var(--color-warm-border)] bg-white overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full min-w-[640px] text-sm">
+              <thead>
+                <tr class="sticky top-0 z-10 bg-[#faf8f5] border-b border-[var(--color-warm-border)]">
+                  <th class="text-left py-4 px-6 font-semibold text-[var(--color-warm-text)] w-[200px]">Feature</th>
+                  <th class="text-center py-4 px-4 font-semibold" style={`color: ${tierColors.clinic};`}>Free Clinic</th>
+                  <th class="text-center py-4 px-4 font-semibold" style={`color: ${tierColors.practitioner};`}>Practitioner</th>
+                  <th class="text-center py-4 px-4 font-semibold" style={`color: ${tierColors.practice};`}>Practice</th>
+                  <th class="text-center py-4 px-4 font-semibold" style={`color: ${tierColors.institute};`}>Institute</th>
+                </tr>
+              </thead>
+              <tbody>
+                {comparisonRows.map((row, i) => (
+                  <tr class={i % 2 === 0 ? "bg-white" : "bg-[#fdfcfa]"}>
+                    <td class="py-3.5 px-6 font-medium text-[var(--color-warm-text)] border-t border-[var(--color-warm-border)]/50">
+                      {row.feature}
+                    </td>
+                    {[row.clinic, row.practitioner, row.practice, row.institute].map((val) => (
+                      <td class="py-3.5 px-4 text-center border-t border-[var(--color-warm-border)]/50 text-[var(--color-warm-muted)]">
+                        {val === null ? (
+                          <span class="text-[var(--color-warm-border)]">&mdash;</span>
+                        ) : val === true ? (
+                          <svg class="inline-block h-5 w-5 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                          </svg>
+                        ) : (
+                          <span>{val}</span>
+                        )}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="pb-20 md:pb-28 px-6">
+      <div class="mx-auto max-w-3xl">
+        <h2 class="text-2xl font-extrabold text-[var(--color-warm-text)] md:text-3xl text-center mb-4">
+          Frequently asked questions
+        </h2>
+        <p class="text-center text-[var(--color-warm-muted)] mb-12">
+          Everything you need to know about our plans.
+        </p>
+
+        <div class="space-y-3">
+          {faqs.map((faq, i) => (
+            <details class="group rounded-2xl border border-[var(--color-warm-border)] bg-white overflow-hidden">
+              <summary class="flex items-center justify-between cursor-pointer py-5 px-6 text-[var(--color-warm-text)] font-semibold select-none list-none [&::-webkit-details-marker]:hidden">
+                <span>{faq.q}</span>
+                <svg class="h-5 w-5 shrink-0 text-[var(--color-warm-muted)] transition-transform duration-200 group-open:rotate-45" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+              </summary>
+              <div class="px-6 pb-5 text-[var(--color-warm-muted)] leading-relaxed">
+                {faq.a}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom CTA -->
+    <section class="pb-20 px-6">
+      <div class="mx-auto max-w-2xl text-center">
+        <div class="rounded-2xl border border-[var(--color-warm-border)] bg-white py-12 px-8">
+          <h3 class="text-xl font-extrabold text-[var(--color-warm-text)] md:text-2xl">
+            Still have questions?
+          </h3>
+          <p class="mt-3 text-[var(--color-warm-muted)]">
+            Our team is happy to help you find the right plan.
+          </p>
+          <a
+            href="/contact"
+            class="btn-press mt-6 inline-flex items-center gap-2 rounded-xl px-8 py-3.5 text-sm font-semibold text-white transition-colors"
+            style="background: linear-gradient(135deg, var(--color-p-coral), var(--color-p-violet));"
+          >
+            Talk to our team
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
