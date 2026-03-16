@@ -17,6 +17,8 @@ import { withSpinner } from "../ui/spinner.js";
 import { printBox } from "../ui/boxes.js";
 import { printPatternIndicator, printHealthyIndicator } from "../ui/progress.js";
 import { parseConversationLogFromString, type LogFormat } from "../adapters/log-adapter.js";
+import { runDiagnosis as runDiagnosisCore } from "../analysis/diagnose-core.js";
+import { shareFromDiagnosis } from "../live/snapshot.js";
 
 interface DiagnoseOptions {
   log: string;
@@ -124,6 +126,10 @@ export async function diagnoseCommand(options: DiagnoseOptions): Promise<void> {
   if (warnings.length > 0) {
     showSoftUpsell("diagnose");
   }
+
+  // Generate shareable brain snapshot
+  const diagnosisResult = runDiagnosisCore(allMessages);
+  shareFromDiagnosis(diagnosisResult);
 
   console.log();
 }

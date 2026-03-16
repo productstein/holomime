@@ -396,6 +396,15 @@ export {
 
 export { startMCPServer } from "./mcp/server.js";
 
+// ─── Brain Snapshot & Share ────────────────────────────────
+
+export {
+  encodeSnapshot,
+  generateShareUrl,
+  copyToClipboard,
+  shareFromDiagnosis,
+} from "./live/snapshot.js";
+
 // ─── Oversight ─────────────────────────────────────────────
 
 export {

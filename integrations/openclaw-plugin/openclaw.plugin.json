@@ -1,0 +1,26 @@
+{
+  "name": "holomime",
+  "description": "Behavioral alignment monitoring for AI agents — detect sycophancy, hedging, over-apologizing, boundary violations, and 4 more patterns in real-time. Powered by HoloMime's 8 rule-based detectors.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "personalityPath": {
+        "type": "string",
+        "default": ".personality.json",
+        "description": "Path to the .personality.json spec file"
+      },
+      "autoInject": {
+        "type": "boolean",
+        "default": true,
+        "description": "Automatically inject personality context into prompts"
+      },
+      "diagnosisDetail": {
+        "type": "string",
+        "enum": ["summary", "standard", "full"],
+        "default": "standard",
+        "description": "Detail level for diagnosis results"
+      }
+    }
+  }
+}

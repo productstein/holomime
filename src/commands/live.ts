@@ -4,70 +4,12 @@
  * brain region activations to a 3D visualization in the browser.
  */
 
-import { deflateSync } from "node:zlib";
-import { execSync } from "node:child_process";
 import chalk from "chalk";
 import { detectAgent, manualAgent } from "../live/agent-detector.js";
 import { startWatcher } from "../live/watcher.js";
 import { startServer } from "../live/server.js";
+import { encodeSnapshot, copyToClipboard, printShareLink } from "../live/snapshot.js";
 import type { LiveConfig, BrainEvent } from "../live/types.js";
-
-/**
- * Compress a BrainEvent into a compact base64url-encoded string for sharing.
- */
-function encodeSnapshot(event: BrainEvent, agentName: string): string {
-  const compact = {
-    h: event.health,
-    g: event.grade,
-    m: event.messageCount,
-    a: agentName,
-    r: event.regions
-      .filter((r) => r.intensity > 0)
-      .map((r) => ({ i: r.id, n: Math.round(r.intensity * 100) / 100 })),
-    p: event.patterns.map((p) => ({
-      i: p.id,
-      s: p.severity,
-      c: Math.round(p.percentage * 10) / 10,
-    })),
-  };
-  const json = JSON.stringify(compact);
-  const compressed = deflateSync(Buffer.from(json));
-  return compressed.toString("base64url");
-}
-
-/**
- * Copy text to system clipboard. Silent fail on unsupported platforms.
- */
-function copyToClipboard(text: string): boolean {
-  try {
-    if (process.platform === "darwin") {
-      execSync("pbcopy", { input: text });
-      return true;
-    } else if (process.platform === "linux") {
-      execSync("xclip -selection clipboard", { input: text });
-      return true;
-    } else if (process.platform === "win32") {
-      execSync("clip", { input: text });
-      return true;
-    }
-  } catch {
-    // clipboard not available
-  }
-  return false;
-}
-
-function printShareLink(url: string, copied: boolean) {
-  console.log("");
-  console.log(
-    chalk.green("  ✓ ") + chalk.bold("Brain snapshot captured!"),
-  );
-  console.log("");
-  console.log("  " + chalk.cyan(url));
-  console.log("");
-  if (copied) {
-    console.log(chalk.dim("  Link copied to clipboard."));
-  }
-}
 
 export async function liveCommand(options: LiveConfig) {
   const port = options.port || 3838;
