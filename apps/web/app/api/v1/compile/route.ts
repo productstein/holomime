@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateApiKey } from "@/lib/api-auth";
+import { authenticateAndRateLimit } from "@/lib/api-auth";
 import { db, agents, personalityVectors } from "@holomime/db";
 import { eq, and } from "drizzle-orm";
 import { compile, getCurrentVector } from "@holomime/core";
@@ -7,8 +7,8 @@ import { compileInputSchema } from "@holomime/types";
 import type { PersonalityTraits, Facets, Signatures, Preferences } from "@holomime/types";
 
 export async function POST(req: NextRequest) {
-  const auth = await authenticateApiKey(req);
-  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { auth, response } = await authenticateAndRateLimit(req);
+  if (response) return response;
 
   const body = await req.json();
   const parsed = compileInputSchema.safeParse(body);

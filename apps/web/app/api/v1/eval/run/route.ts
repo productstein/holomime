@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateApiKey } from "@/lib/api-auth";
+import { authenticateAndRateLimit } from "@/lib/api-auth";
 import { db, agents, personalityVectors, evalSuites } from "@holomime/db";
 import { eq, and } from "drizzle-orm";
 import { createEvalRun, getEvalRun } from "@holomime/core";
 
 export async function POST(req: NextRequest) {
-  const auth = await authenticateApiKey(req);
-  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { auth, response } = await authenticateAndRateLimit(req);
+  if (response) return response;
 
   const body = await req.json();
   const { suite_id, vector_id } = body;
@@ -35,8 +35,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const auth = await authenticateApiKey(req);
-  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { auth, response } = await authenticateAndRateLimit(req);
+  if (response) return response;
 
   const runId = req.nextUrl.searchParams.get("run_id");
   if (!runId) {

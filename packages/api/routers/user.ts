@@ -1,8 +1,9 @@
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { createHash, randomBytes } from "crypto";
 import { router, protectedProcedure } from "../trpc";
 import { users, apiKeys } from "@holomime/db";
+import { getUsageStats } from "../lib/plan-checks";
 
 export const userRouter = router({
   getMe: protectedProcedure
@@ -79,8 +80,13 @@ export const userRouter = router({
     .mutation(async ({ ctx, input }) => {
       await ctx.db
         .delete(apiKeys)
-        .where(eq(apiKeys.id, input.id));
+        .where(and(eq(apiKeys.id, input.id), eq(apiKeys.userId, ctx.userDbId)));
 
       return { success: true };
+    }),
+
+  getUsage: protectedProcedure
+    .query(async ({ ctx }) => {
+      return getUsageStats(ctx.db, ctx.userDbId, ctx.plan);
     }),
 });
