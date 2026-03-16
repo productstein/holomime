@@ -1,6 +1,7 @@
 import { createHash } from "crypto";
 import { db, apiKeys, users } from "@holomime/db";
 import { eq } from "drizzle-orm";
+import { apiRateLimit, checkRateLimit } from "./ratelimit";
 
 /**
  * Authenticate an API request using a Bearer token (API key).
@@ -30,4 +31,24 @@ export async function authenticateApiKey(request: Request): Promise<{ userId: st
     .catch(() => {});
 
   return { userId: key.userId };
+}
+
+/**
+ * Authenticate + rate limit an API request.
+ * Returns { auth } if OK, or { response } with a 401/429 to return immediately.
+ */
+export async function authenticateAndRateLimit(
+  request: Request,
+): Promise<{ auth: { userId: string }; response?: never } | { auth?: never; response: Response }> {
+  const auth = await authenticateApiKey(request);
+  if (!auth) {
+    return { response: new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { "Content-Type": "application/json" } }) };
+  }
+
+  const rateLimited = await checkRateLimit(apiRateLimit, `api:${auth.userId}`);
+  if (rateLimited) {
+    return { response: rateLimited };
+  }
+
+  return { auth };
 }

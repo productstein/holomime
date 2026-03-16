@@ -1,19 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateApiKey } from "@/lib/api-auth";
+import { authenticateAndRateLimit } from "@/lib/api-auth";
 import { db } from "@holomime/db";
 import { listSuites, createSuite } from "@holomime/core";
 
 export async function GET(req: NextRequest) {
-  const auth = await authenticateApiKey(req);
-  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { auth, response } = await authenticateAndRateLimit(req);
+  if (response) return response;
 
   const suites = await listSuites(db, auth.userId);
   return NextResponse.json(suites);
 }
 
 export async function POST(req: NextRequest) {
-  const auth = await authenticateApiKey(req);
-  if (!auth) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const { auth, response } = await authenticateAndRateLimit(req);
+  if (response) return response;
 
   const body = await req.json();
   const { name, scenarios } = body;
