@@ -7,7 +7,7 @@ import { homedir } from "node:os";
 export type Tier = "free" | "pro" | "enterprise";
 
 const FREE_COMMANDS = ["init", "compile", "validate", "profile", "diagnose", "assess", "browse", "use", "install", "publish", "activate", "telemetry", "embody"];
-const PRO_COMMANDS = ["session", "growth", "autopilot", "export", "train", "eval", "evolve", "benchmark", "watch", "certify", "daemon", "fleet", "network", "share", "prescribe", "voice", "cure", "brain"];
+const PRO_COMMANDS = ["session", "growth", "autopilot", "export", "train", "eval", "evolve", "benchmark", "watch", "certify", "daemon", "fleet", "fleet-therapy", "group-therapy", "network", "share", "prescribe", "voice", "cure", "brain"];
 
 /**
  * Check if a command requires the pro tier.
@@ -194,6 +194,30 @@ export function showWelcome(): void {
       titleAlignment: "center",
     }),
   );
+}
+
+/**
+ * Resolve the current user's tier from license cache.
+ */
+export function getCurrentTier(): Tier {
+  if (process.env.HOLOMIME_DEV === "1") return "enterprise";
+  const key = readLicenseKey();
+  if (!key) return "free";
+  const cached = readCache();
+  if (cached?.valid) return (cached.tier as Tier) ?? "pro";
+  return "pro"; // has key, no cache — assume pro
+}
+
+/**
+ * Max agents allowed per fleet-therapy invocation for each tier.
+ * Returns null for unlimited.
+ */
+export function getFleetTherapyLimit(tier: Tier): number | null {
+  switch (tier) {
+    case "free": return 0;
+    case "pro": return 10;
+    case "enterprise": return null;
+  }
 }
 
 export { FREE_COMMANDS, PRO_COMMANDS };

@@ -22,6 +22,7 @@ import { watchCommand } from "./commands/watch.js";
 import { certifyCommand } from "./commands/certify.js";
 import { daemonCommand } from "./commands/daemon.js";
 import { fleetCommand } from "./commands/fleet.js";
+import { fleetTherapyCommand } from "./commands/fleet-therapy.js";
 import { networkCommand } from "./commands/network.js";
 import { shareCommand } from "./commands/share.js";
 import { prescribeCommand } from "./commands/prescribe.js";
@@ -33,6 +34,9 @@ import { voiceCommand } from "./commands/voice.js";
 import { installCommand } from "./commands/install.js";
 import { cureCommand } from "./commands/cure.js";
 import { liveCommand } from "./commands/live.js";
+import { adversarialCommand } from "./commands/adversarial.js";
+import { policyCommand } from "./commands/policy.js";
+import { complianceCommand } from "./commands/compliance.js";
 import { showTelemetryBannerIfNeeded } from "./telemetry/config.js";
 import { trackEvent, flushTelemetry } from "./telemetry/client.js";
 
@@ -41,7 +45,7 @@ const program = new Command();
 program
   .name("holomime")
   .description("Personality engine for AI agents — Big Five psychology, not RPG archetypes")
-  .version("1.1.0")
+  .version("1.7.0")
   .hook("preAction", (_thisCommand, actionCommand) => {
     printBanner();
 
@@ -350,6 +354,20 @@ program
   .action(fleetCommand);
 
 program
+  .command("group-therapy")
+  .alias("fleet-therapy")
+  .description("Group therapy — treat all agents in your fleet simultaneously [Pro]")
+  .option("--config <path>", "Path to fleet.json config file")
+  .option("--dir <path>", "Auto-discover agents in directory")
+  .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
+  .option("--model <model>", "Model override")
+  .option("--turns <n>", "Max therapy turns per agent", "24")
+  .option("--concurrency <n>", "Max agents treated in parallel", "3")
+  .option("--apply", "Auto-apply recommendations to personality files")
+  .option("--yes", "Skip confirmation prompt")
+  .action(fleetTherapyCommand);
+
+program
   .command("network")
   .description("Multi-agent therapy mesh — agents treating agents [Pro]")
   .option("--dir <path>", "Auto-discover agents in directory")
@@ -443,5 +461,35 @@ program
     share: opts.share === true,
     personality: opts.personality,
   }));
+
+program
+  .command("adversarial")
+  .description("Run 30+ adversarial behavioral attack scenarios against your agent [Pro]")
+  .requiredOption("--personality <path>", "Path to .personality.json")
+  .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
+  .option("--model <model>", "Model override")
+  .option("--categories <list>", "Comma-separated category filter (e.g. sycophancy_escalation,boundary_erosion)")
+  .option("--mutations <n>", "Number of randomized mutation variants to generate", "0")
+  .option("--skip-normal", "Skip the normal benchmark baseline run")
+  .action(adversarialCommand);
+
+program
+  .command("policy")
+  .description("Generate behavioral guard policies from plain English requirements")
+  .argument("[requirements]", "Natural language behavioral requirements")
+  .option("--preset <name>", "Use a behavioral preset (enterprise_cs, creative_assistant, etc.)")
+  .option("--name <name>", "Custom policy name")
+  .option("--list-presets", "List available behavioral presets")
+  .action(policyCommand);
+
+program
+  .command("compliance")
+  .description("Generate a narrative ReACT compliance audit report from the audit trail [Pro]")
+  .requiredOption("--agent <name>", "Agent name or handle")
+  .option("--from <date>", "Start date (YYYY-MM-DD, default: 30 days ago)")
+  .option("--to <date>", "End date (YYYY-MM-DD, default: today)")
+  .option("--framework <list>", "Comma-separated frameworks (EU AI Act, NIST AI RMF 1.0, SOC 2 Type II, Internal Behavioral Alignment)")
+  .option("-o, --output <path>", "Save full Markdown report to file")
+  .action(complianceCommand);
 
 program.parseAsync().then(() => flushTelemetry());
