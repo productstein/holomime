@@ -1,0 +1,85 @@
+# HoloMime Behavioral Governance Policy for NemoClaw
+# Enforces behavioral alignment alongside NemoClaw's infrastructure security.
+#
+# Install:
+#   nemoclaw policy add holomime-nemoclaw
+#
+# Or add to your nemoclaw.yaml:
+#   plugins:
+#     - name: holomime-behavioral-governance
+#       package: holomime-nemoclaw
+
+apiVersion: nemoclaw/v1
+kind: PolicyPlugin
+metadata:
+  name: holomime-behavioral-governance
+  version: "1.0"
+  description: >
+    Behavioral alignment monitoring for AI agents.
+    Detects sycophancy, hedging, over-apologizing, boundary violations,
+    and personality drift in real-time.
+  labels:
+    category: behavioral-governance
+    compliance: eu-ai-act,nist-ai-rmf,soc2
+    tier: enterprise
+
+spec:
+  # Hook into NemoClaw's action lifecycle
+  hooks:
+    pre-action:
+      - name: behavioral-guard
+        description: Run behavioral analysis before agent actions execute
+        config:
+          mode: enforce           # monitor | enforce | strict
+          minSeverity: warning    # warning | concern
+          blockOnConcern: true    # Block actions when concern-level drift detected
+
+    post-action:
+      - name: behavioral-audit
+        description: Log behavioral metrics to audit trail after each action
+        config:
+          auditLevel: full        # summary | standard | full
+          emitCredential: false   # Generate behavioral credential per action
+
+  # Health reporting — surfaces in NemoClaw dashboard
+  healthReporter:
+    interval: 60                  # Report health every 60 seconds
+    metrics:
+      - behavioral_health_score   # 0-100
+      - behavioral_grade          # A/B/C/D/F
+      - drift_events_total        # Counter
+      - patterns_detected         # Gauge (current active patterns)
+      - guard_violations_total    # Counter
+      - compliance_score          # 0-100
+
+  # Configuration schema for NemoClaw UI
+  configSchema:
+    type: object
+    properties:
+      personalityPath:
+        type: string
+        default: ".personality.json"
+        description: Path to personality spec file
+      mode:
+        type: string
+        enum: [monitor, enforce, strict]
+        default: enforce
+        description: >
+          monitor: log only, never block.
+          enforce: correct responses that violate behavioral policy.
+          strict: block actions on concern-level violations.
+      complianceFrameworks:
+        type: array
+        items:
+          type: string
+          enum: [eu-ai-act, nist-ai-rmf, soc2]
+        default: [eu-ai-act]
+        description: Compliance frameworks to include in audit reports
+      fleetMode:
+        type: boolean
+        default: false
+        description: Enable multi-agent fleet monitoring
+      auditRetentionDays:
+        type: integer
+        default: 90
+        description: Days to retain audit trail entries

@@ -158,7 +158,7 @@ export const PLAN_META: Record<Plan, {
 }> = {
   free: { name: "Free", price: "$0", period: "", tagline: "For experimenting", color: "#71717a", badge: "bg-zinc-700 text-zinc-300" },
   pro: { name: "Pro", price: "$29", period: "/mo", tagline: "For builders", color: "#8b5cf6", badge: "bg-violet-500/20 text-violet-300" },
-  team: { name: "Team", price: "$99", period: "/mo", tagline: "For organizations", color: "#06b6d4", badge: "bg-cyan-500/20 text-cyan-300" },
+  team: { name: "Team", price: "$149", period: "/mo", tagline: "For organizations", color: "#06b6d4", badge: "bg-cyan-500/20 text-cyan-300" },
   enterprise: { name: "Enterprise", price: "Custom", period: "", tagline: "For scale", color: "#f59e0b", badge: "bg-amber-500/20 text-amber-300" },
 };
 

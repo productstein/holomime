@@ -73,8 +73,21 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers: JSON_HEADERS });
   }
 
-  if (!body.agent_id) {
+  if (!body.agent_id || typeof body.agent_id !== "string") {
     return new Response(JSON.stringify({ error: "agent_id is required" }), { status: 400, headers: JSON_HEADERS });
+  }
+
+  // Validate agent_id format (UUID)
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!UUID_RE.test(body.agent_id)) {
+    return new Response(JSON.stringify({ error: "agent_id must be a valid UUID" }), { status: 400, headers: JSON_HEADERS });
+  }
+
+  // Validate role if provided
+  const validRoles = ["member", "lead"];
+  const role = body.role ?? "member";
+  if (!validRoles.includes(role)) {
+    return new Response(JSON.stringify({ error: "role must be 'member' or 'lead'" }), { status: 400, headers: JSON_HEADERS });
   }
 
   const supabase = getSupabase();
@@ -99,7 +112,7 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
     .insert({
       team_id: params.id,
       agent_id: body.agent_id,
-      role: body.role ?? "member",
+      role,
     });
 
   if (error) {
@@ -123,8 +136,13 @@ export const DELETE: APIRoute = async ({ params, request, locals }) => {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), { status: 400, headers: JSON_HEADERS });
   }
 
-  if (!body.agent_id) {
+  if (!body.agent_id || typeof body.agent_id !== "string") {
     return new Response(JSON.stringify({ error: "agent_id is required" }), { status: 400, headers: JSON_HEADERS });
+  }
+
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!UUID_RE.test(body.agent_id)) {
+    return new Response(JSON.stringify({ error: "agent_id must be a valid UUID" }), { status: 400, headers: JSON_HEADERS });
   }
 
   const supabase = getSupabase();

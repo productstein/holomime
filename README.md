@@ -141,7 +141,65 @@ Each cycle through the loop:
 
 Run it manually with `holomime session`, automatically with `holomime autopilot`, or recursively with `holomime evolve` (loops until behavior converges). Agents can even self-diagnose mid-conversation via the MCP server.
 
-## Framework Integrations
+## Integrations
+
+### VS Code Extension
+
+3D brain visualization inside your editor. Watch behavioral patterns fire in real time as your agent works.
+
+```bash
+# Install from VS Code Marketplace
+ext install productstein.holomime
+```
+
+Commands: `HoloMime: Show Brain`, `HoloMime: Diagnose Current File`, `HoloMime: Share Brain Snapshot`. See [integrations/vscode-extension/](integrations/vscode-extension/) for details.
+
+### LangChain / CrewAI Callback Handler
+
+Drop-in behavioral monitoring for any LangChain or CrewAI pipeline. Zero config — just add the callback.
+
+```typescript
+import { HolomimeCallbackHandler } from "holomime/integrations/langchain";
+
+const handler = new HolomimeCallbackHandler({
+  personality: require("./.personality.json"),
+  mode: "enforce",         // monitor | enforce | strict
+  onViolation: (v) => console.warn("Behavioral drift:", v.pattern),
+});
+
+// Add to any LangChain chain or agent
+const chain = new LLMChain({ llm, prompt, callbacks: [handler] });
+```
+
+Three modes: `monitor` (log only), `enforce` (auto-correct sycophancy, hedging, over-apologizing), `strict` (throw on concern-level violations). See [LangChain integration docs](https://holomime.dev/docs#langchain).
+
+### NemoClaw Plugin (Enterprise)
+
+Behavioral governance for [NemoClaw](https://github.com/nvidia/nemoclaw) — NVIDIA's enterprise agent security framework. Pre-action guards, post-action audit, compliance reports (EU AI Act, NIST AI RMF), fleet monitoring.
+
+```yaml
+# nemoclaw.yaml
+plugins:
+  - name: holomime-behavioral-governance
+    package: holomime-nemoclaw
+    config:
+      personalityPath: .personality.json
+      mode: enforce
+```
+
+See [integrations/nemoclaw-plugin/](integrations/nemoclaw-plugin/) for full documentation.
+
+### OpenClaw Plugin
+
+Behavioral monitoring for [OpenClaw](https://github.com/openclaw/openclaw) agents. Auto-detects `.personality.json` in your workspace.
+
+```bash
+openclaw plugin add holomime
+```
+
+See [integrations/openclaw-plugin/](integrations/openclaw-plugin/) for details.
+
+### Log Format Adapters
 
 Holomime analyzes conversations from any LLM framework. Auto-detection works out of the box, or specify a format explicitly.
 

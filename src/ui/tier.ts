@@ -126,7 +126,7 @@ export function showUpgradePrompt(command: string): void {
   const content = [
     `${chalk.bold("This is a HoloMime Pro feature.")}`,
     "",
-    `The ${chalk.cyan(command)} command requires a Pro license ($99/mo).`,
+    `The ${chalk.cyan(command)} command requires a Pro license ($149/mo).`,
     "",
     `${chalk.dim("Pro features include:")}`,
     `  ${chalk.cyan("\u2022")} Live alignment sessions with supervisor mode`,
