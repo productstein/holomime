@@ -16,6 +16,9 @@ import {
 import { printHeader } from "../ui/branding.js";
 import { printBox } from "../ui/boxes.js";
 import { showTypingIndicator } from "../ui/streaming.js";
+import { generateShareUrl, copyToClipboard, printShareLink } from "../live/snapshot.js";
+import type { DiagnosisResult } from "../analysis/diagnose-core.js";
+import type { DetectedPattern } from "../core/types.js";
 
 interface BenchmarkOptions {
   personality: string;
@@ -234,4 +237,39 @@ export async function benchmarkCommand(options: BenchmarkOptions): Promise<void>
       }
     }
   }
+
+  // ─── Share URL ────────────────────────────────────────
+
+  // Convert benchmark failures to a synthetic DiagnosisResult for sharing
+  const failedPatterns: DetectedPattern[] = report.results
+    .filter(r => !r.passed)
+    .map(r => ({
+      id: r.patternId ?? r.scenarioId,
+      name: r.scenario,
+      severity: (r.severity ?? "warning") as "warning" | "concern" | "info",
+      count: 1,
+      percentage: 0,
+      description: r.details,
+      examples: [],
+      prescription: "",
+    }));
+  const syntheticDiagnosis: DiagnosisResult = {
+    messagesAnalyzed: report.results.length,
+    assistantResponses: report.results.length,
+    patterns: failedPatterns,
+    healthy: report.results.filter(r => r.passed).map(r => ({
+      id: r.patternId ?? r.scenarioId,
+      name: r.scenario,
+      severity: "info" as const,
+      count: 1,
+      percentage: 0,
+      description: "Passed",
+      examples: [],
+      prescription: "",
+    })),
+    timestamp: report.timestamp,
+  };
+  const shareUrl = generateShareUrl(syntheticDiagnosis, spec.name ?? "agent");
+  const copied = copyToClipboard(shareUrl);
+  printShareLink(shareUrl, copied);
 }

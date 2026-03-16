@@ -1,0 +1,42 @@
+{
+  "name": "holomime-openclaw",
+  "version": "1.0.0",
+  "description": "HoloMime behavioral alignment plugin for OpenClaw — detect personality drift, sycophancy, and 6 more patterns in real-time",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "openclaw": {
+    "extensions": ["dist/index.js"]
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsup src/index.ts --format esm --dts --watch"
+  },
+  "keywords": [
+    "openclaw",
+    "openclaw-plugin",
+    "holomime",
+    "behavioral-alignment",
+    "ai-agents",
+    "personality",
+    "big-five",
+    "therapy",
+    "drift-detection"
+  ],
+  "author": "productstein",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/productstein/holomime.git",
+    "directory": "integrations/openclaw-plugin"
+  },
+  "homepage": "https://holomime.dev",
+  "peerDependencies": {
+    "holomime": ">=1.8.0"
+  },
+  "devDependencies": {
+    "holomime": "^1.8.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.7.0"
+  }
+}
