@@ -192,7 +192,7 @@ const tiers = [
               data-tier={tier.name}
               data-expanded="false"
             >
-              <span class="toggle-text">See all {tier.features.length} features</span>
+              <span class="toggle-text">View full treatment plan</span>
               <svg class="toggle-chevron h-3.5 w-3.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
             </button>
           )}
@@ -339,12 +339,12 @@ const tiers = [
 
       if (expanded) {
         items.forEach((el) => el.classList.add("hidden"));
-        if (text) text.textContent = `See all ${items.length + document.querySelectorAll(`li[data-tier="${tierName}"]:not(.feature-hidden)`).length} features`;
+        if (text) text.textContent = "View full treatment plan";
         if (chevron) chevron.style.transform = "";
         (btn as HTMLElement).dataset.expanded = "false";
       } else {
         items.forEach((el) => el.classList.remove("hidden"));
-        if (text) text.textContent = "Show less";
+        if (text) text.textContent = "Summary";
         if (chevron) chevron.style.transform = "rotate(180deg)";
         (btn as HTMLElement).dataset.expanded = "true";
       }
