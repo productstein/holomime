@@ -34,10 +34,10 @@ Auto-detects Claude Code, Cline, OpenClaw, Cursor, and Codex. Opens a 3D NeuralS
 ```bash
 # Share a snapshot — generates a short URL and copies to clipboard
 holomime brain --share
-# → https://holomime.dev/brain/uniqueid
+# → https://app.holomime.dev/brain/uniqueid
 ```
 
-[Learn more at holomime.dev/brain](https://holomime.dev/brain)
+[Learn more at app.holomime.dev/brain](https://app.holomime.dev/brain)
 
 ---
 

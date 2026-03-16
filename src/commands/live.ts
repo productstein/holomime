@@ -123,7 +123,7 @@ export async function liveCommand(options: LiveConfig) {
           watcher.stop();
 
           const encoded = encodeSnapshot(event, agent!.agent);
-          const url = `https://holomime.dev/brain?d=${encoded}`;
+          const url = `https://app.holomime.dev/brain?d=${encoded}`;
           const copied = copyToClipboard(url);
           printShareLink(url, copied);
           resolve();
@@ -255,7 +255,7 @@ export async function liveCommand(options: LiveConfig) {
       // 's' or 'S' to share snapshot
       if ((key === "s" || key === "S") && lastEvent) {
         const encoded = encodeSnapshot(lastEvent, agent!.agent);
-        const url = `https://holomime.dev/brain?d=${encoded}`;
+        const url = `https://app.holomime.dev/brain?d=${encoded}`;
         const copied = copyToClipboard(url);
         printShareLink(url, copied);
       }
