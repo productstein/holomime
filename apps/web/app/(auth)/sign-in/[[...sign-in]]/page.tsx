@@ -1,11 +1,10 @@
 "use client";
 
 import { useSignIn } from "@clerk/nextjs";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { AuthenticateWithRedirectCallback } from "@clerk/nextjs";
 import Link from "next/link";
-import Script from "next/script";
 
 function SSOCallback() {
   return <AuthenticateWithRedirectCallback />;
@@ -37,14 +36,6 @@ function SignInForm() {
     e.preventDefault();
     if (!isLoaded || !signIn) return;
 
-    // Check Turnstile
-    const form = e.target as HTMLFormElement;
-    const turnstileInput = form.querySelector<HTMLInputElement>("[name='cf-turnstile-response']");
-    if (turnstileInput && !turnstileInput.value) {
-      setError("Please complete the verification.");
-      return;
-    }
-
     setLoading(true);
     setError("");
     setSuccess("");
@@ -61,8 +52,6 @@ function SignInForm() {
       }
     } catch (err: any) {
       setError(err.errors?.[0]?.longMessage || "Invalid email or password");
-      // Reset Turnstile
-      (window as any).turnstile?.reset();
     } finally {
       setLoading(false);
     }
@@ -87,8 +76,6 @@ function SignInForm() {
   };
 
   return (
-    <>
-      <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async />
       <main className="flex min-h-screen items-center justify-center bg-[#faf6f1] px-6 pt-20 pb-20">
         <div className="w-full max-w-md">
           {/* Card */}
@@ -163,9 +150,6 @@ function SignInForm() {
                   className="w-full rounded-lg border border-[#e5e2de] bg-white px-3 py-2.5 text-sm text-[#2d2c2b] placeholder:text-[#6b6966]/50 outline-none transition-colors focus:border-[#8b5cf6] focus:ring-2 focus:ring-[#8b5cf6]/20"
                 />
               </div>
-
-              {/* Turnstile CAPTCHA */}
-              <div className="cf-turnstile" data-sitekey="0x4AAAAAAClWWZ1C4Exodz9p" data-theme="light" data-size="flexible" />
 
               {/* Error/success message */}
               {error && (
@@ -242,7 +226,6 @@ function SignInForm() {
           </div>
         </div>
       </main>
-    </>
   );
 }
 
