@@ -41,4 +41,10 @@ export default defineConfig([
     dts: true,
     splitting: false,
   },
+  {
+    entry: { "integrations/openclaw": "src/integrations/openclaw.ts" },
+    format: ["esm"],
+    dts: true,
+    splitting: false,
+  },
 ]);
