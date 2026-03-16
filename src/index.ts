@@ -727,3 +727,11 @@ export {
   type CallbackViolation,
   type CallbackStats,
 } from "./integrations/langchain.js";
+
+// ─── OpenClaw Integration ──────────────────────────────────
+
+export {
+  default as registerOpenClawPlugin,
+  type OpenClawPluginApi,
+  type OpenClawPluginConfig,
+} from "./integrations/openclaw.js";
