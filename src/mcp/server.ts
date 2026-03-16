@@ -17,6 +17,15 @@ import { scoreLabel, DIMENSIONS } from "../psychology/big-five.js";
 import { ATTACHMENT_STYLES, LEARNING_ORIENTATIONS, therapyScoreLabel } from "../psychology/therapy.js";
 import { createProvider } from "../llm/provider.js";
 import { runSelfAudit } from "../analysis/self-audit.js";
+import {
+  loadBehavioralMemory,
+  saveBehavioralMemory,
+  createBehavioralMemory,
+  recordSelfObservation,
+  getBehavioralMemorySummary,
+  type SelfObservation,
+} from "../analysis/behavioral-memory.js";
+import { agentHandleFromSpec } from "../analysis/therapy-memory.js";
 
 const messageShape = {
   role: z.enum(["user", "assistant", "system"]),
@@ -47,17 +56,67 @@ const server = new McpServer(
 
 server.tool(
   "holomime_diagnose",
-  "Analyze conversation messages for behavioral patterns using 7 rule-based detectors. Returns over-apologizing, hedging, sycophancy, boundary violations, error spirals, sentiment skew, and formality issues.",
-  messagesShape,
-  async ({ messages }) => {
+  "Analyze conversation messages for behavioral patterns using 8 rule-based detectors. Returns over-apologizing, hedging, sycophancy, boundary violations, error spirals, sentiment skew, formality issues, and retrieval quality. Set detail level: 'summary' (quick health check), 'standard' (patterns + severity), or 'full' (everything including examples and prescriptions).",
+  {
+    ...messagesShape,
+    detail: z.enum(["summary", "standard", "full"]).describe("Detail level: summary (~100 tokens), standard (default), or full (with examples)").optional(),
+  },
+  async ({ messages, detail }) => {
     const result = runDiagnosis(messages);
-    return {
-      content: [
-        {
+    const level = detail ?? "standard";
+
+    if (level === "summary") {
+      // Progressive disclosure L1: quick health check
+      const patternCount = result.patterns.length;
+      const worstSeverity = result.patterns.reduce(
+        (worst, p) => (p.severity === "concern" ? "concern" : p.severity === "warning" && worst !== "concern" ? "warning" : worst),
+        "healthy" as string,
+      );
+      const health = patternCount === 0 ? 100 : Math.max(0, 100 - patternCount * 15);
+      return {
+        content: [{
           type: "text" as const,
-          text: JSON.stringify(result, null, 2),
-        },
-      ],
+          text: JSON.stringify({
+            health,
+            status: worstSeverity,
+            patternsDetected: patternCount,
+            patternIds: result.patterns.map((p) => p.id),
+            recommendation: patternCount === 0 ? "continue" : patternCount <= 2 ? "adjust" : "pause_and_reflect",
+          }, null, 2),
+        }],
+      };
+    }
+
+    if (level === "standard") {
+      // Progressive disclosure L2: patterns + severity, no examples
+      return {
+        content: [{
+          type: "text" as const,
+          text: JSON.stringify({
+            messagesAnalyzed: result.messagesAnalyzed,
+            assistantResponses: result.assistantResponses,
+            patterns: result.patterns.map((p) => ({
+              id: p.id,
+              name: p.name,
+              severity: p.severity,
+              count: p.count,
+              percentage: p.percentage,
+              description: p.description,
+              prescription: p.prescription,
+            })),
+            healthy: result.healthy.map((p) => p.id),
+            timestamp: result.timestamp,
+          }, null, 2),
+        }],
+      };
+    }
+
+    // Full: everything
+    return {
+      content: [{
+        type: "text" as const,
+        text: JSON.stringify(result, null, 2),
+      }],
     };
   },
 );
@@ -246,6 +305,89 @@ server.tool(
       content: [{
         type: "text" as const,
         text: JSON.stringify(result, null, 2),
+      }],
+    };
+  },
+);
+
+// ─── Tool: holomime_observe ──────────────────────────────
+
+server.tool(
+  "holomime_observe",
+  "Record a behavioral self-observation during a conversation. Call this when you notice yourself falling into a pattern (hedging, over-apologizing, sycophancy, etc.) or when the user's emotional state shifts. Self-observations are stored in persistent behavioral memory and become training signal for future alignment. Returns acknowledgment and any relevant behavioral history.",
+  {
+    personality: z.record(z.string(), z.unknown()).describe("The .personality.json spec object"),
+    observation: z.string().describe("What you noticed about your own behavior (e.g., 'I'm hedging more than usual', 'User seems frustrated, adjusting tone')"),
+    patternIds: z.array(z.string()).describe("Relevant pattern IDs: over-apologizing, hedge-stacking, sycophantic-tendency, error-spiral, boundary-violation, negative-skew, register-inconsistency").optional(),
+    severity: z.enum(["info", "warning", "concern"]).describe("How severe is this behavioral signal").optional(),
+    triggerContext: z.string().describe("What triggered this observation — describe the user message or situation").optional(),
+  },
+  async ({ personality, observation, patternIds, severity, triggerContext }) => {
+    const specResult = personalitySpecSchema.safeParse(personality);
+    if (!specResult.success) {
+      return {
+        content: [{ type: "text" as const, text: `Invalid personality spec: ${specResult.error.message}` }],
+        isError: true,
+      };
+    }
+
+    const agentHandle = agentHandleFromSpec(specResult.data);
+    let store = loadBehavioralMemory(agentHandle);
+    if (!store) {
+      store = createBehavioralMemory(agentHandle, specResult.data.name);
+    }
+
+    // Record the self-observation
+    const selfObs: SelfObservation = {
+      observation,
+      patternIds: patternIds ?? [],
+      severity: severity ?? "info",
+      triggerContext,
+    };
+    recordSelfObservation(store, selfObs);
+    saveBehavioralMemory(store);
+
+    // Return acknowledgment + relevant memory context
+    const memorySummary = getBehavioralMemorySummary(store);
+    const response: Record<string, unknown> = {
+      recorded: true,
+      totalObservations: store.totalObservations,
+      observation,
+    };
+
+    // Include relevant triggers for the reported patterns
+    if (patternIds && patternIds.length > 0) {
+      const relevantTriggers = store.triggers
+        .filter((t) => t.activatesPatterns.some((p) => patternIds!.includes(p)))
+        .map((t) => ({
+          triggerType: t.triggerType,
+          patterns: t.activatesPatterns,
+          occurrences: t.occurrences,
+          confidence: t.confidence,
+        }));
+      if (relevantTriggers.length > 0) {
+        response.knownTriggers = relevantTriggers;
+      }
+
+      // Include best corrections if available
+      const corrections = store.corrections
+        .filter((c) => patternIds!.includes(c.patternId) && c.effective)
+        .sort((a, b) => b.healthDelta - a.healthDelta)
+        .slice(0, 2)
+        .map((c) => ({ pattern: c.patternId, intervention: c.intervention, healthGain: c.healthDelta }));
+      if (corrections.length > 0) {
+        response.suggestedCorrections = corrections;
+      }
+    }
+
+    if (memorySummary) {
+      response.behavioralContext = memorySummary;
+    }
+
+    return {
+      content: [{
+        type: "text" as const,
+        text: JSON.stringify(response, null, 2),
       }],
     };
   },

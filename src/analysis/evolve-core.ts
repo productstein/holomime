@@ -38,6 +38,7 @@ import { generateSystemPrompt } from "../core/prompt-gen.js";
 import { agentHandleFromSpec, loadMemory, saveMemory, createMemory, addSessionToMemory } from "./therapy-memory.js";
 import { loadGraph, saveGraph, populateFromDiagnosis, populateFromEvolve } from "./knowledge-graph.js";
 import { loadRepertoire, saveRepertoire, selectIntervention, recordInterventionOutcome, learnIntervention } from "./intervention-tracker.js";
+import { compactEvolutionRun } from "./session-compactor.js";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -358,6 +359,13 @@ export async function runEvolve(
       // Direct write (legacy behavior)
       writeFileSync(options.specPath, JSON.stringify(currentSpec, null, 2) + "\n");
     }
+  }
+
+  // Compact all iterations into behavioral memory
+  try {
+    compactEvolutionRun(currentSpec, iterations);
+  } catch {
+    // Compaction is best-effort
   }
 
   // Build training export if DPO pairs were generated

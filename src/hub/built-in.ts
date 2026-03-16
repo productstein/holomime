@@ -1,5 +1,5 @@
 /**
- * Register all 7 built-in detectors in the Hub.
+ * Register all 8 built-in detectors in the Hub.
  * This is called at module load time so built-in detectors are always available.
  */
 
@@ -11,6 +11,7 @@ import { detectVerbosity } from "../analysis/rules/verbosity.js";
 import { detectBoundaryIssues } from "../analysis/rules/boundary.js";
 import { detectRecoveryPatterns } from "../analysis/rules/recovery.js";
 import { detectFormalityIssues } from "../analysis/rules/formality.js";
+import { detectRetrievalQuality } from "../analysis/rules/retrieval-quality.js";
 
 const BUILT_IN_DETECTORS: HubDetector[] = [
   {
@@ -95,6 +96,18 @@ const BUILT_IN_DETECTORS: HubDetector[] = [
     signalCount: 16,
     detect: detectFormalityIssues,
     tags: ["built-in", "communication", "consistency", "register", "formality"],
+    source: "https://github.com/productstein/holomime",
+  },
+  {
+    id: "holomime/retrieval-quality",
+    name: "Retrieval Quality Detector",
+    description: "Detects fabrication, hallucination markers, overconfidence, and self-correction patterns.",
+    author: "holomime",
+    version: "1.0.0",
+    categories: ["accuracy", "trust"],
+    signalCount: 12,
+    detect: detectRetrievalQuality,
+    tags: ["built-in", "accuracy", "trust", "hallucination", "retrieval"],
     source: "https://github.com/productstein/holomime",
   },
 ];

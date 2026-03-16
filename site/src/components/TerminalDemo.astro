@@ -1,0 +1,227 @@
+---
+/**
+ * TerminalDemo — Animated terminal showing the diagnose flywheel.
+ * Auto-plays when scrolled into view. Shows real CLI output.
+ */
+---
+
+<section class="py-20 md:py-28 px-6 bg-[var(--color-warm-cream)]">
+  <div class="mx-auto max-w-4xl">
+    <div class="text-center mb-10">
+      <span class="inline-block px-3 py-1 rounded-full text-xs font-medium tracking-wider uppercase bg-[var(--color-p-violet)]/10 text-[var(--color-p-violet)] border border-[var(--color-p-violet)]/20 mb-4">
+        Live Demo
+      </span>
+      <h2 class="text-2xl md:text-3xl font-extrabold text-[var(--color-warm-text)]">
+        One command. Full diagnosis.
+      </h2>
+      <p class="mt-3 text-[var(--color-warm-muted)] max-w-xl mx-auto">
+        Feed it a conversation log. Get back a behavioral diagnosis with severity scores, pattern detection, and prescriptions — all locally, no API calls.
+      </p>
+    </div>
+
+    <!-- Terminal window -->
+    <div class="rounded-2xl overflow-hidden shadow-2xl shadow-black/20 border border-[#2a2a3a]" id="terminal-window">
+      <!-- Title bar -->
+      <div class="flex items-center gap-2 px-4 py-3 bg-[#1e1e2e] border-b border-[#2a2a3a]">
+        <div class="flex gap-1.5">
+          <div class="w-3 h-3 rounded-full bg-[#ff5f57]"></div>
+          <div class="w-3 h-3 rounded-full bg-[#febc2e]"></div>
+          <div class="w-3 h-3 rounded-full bg-[#28c840]"></div>
+        </div>
+        <span class="ml-2 text-xs text-[#6c6c8a] font-mono flex-1">terminal — holomime diagnose</span>
+        <button id="terminal-replay" class="hidden text-xs text-[#6c6c8a] hover:text-[#c0caf5] font-mono transition-colors cursor-pointer flex items-center gap-1">
+          <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182M2.985 19.644l3.181-3.182"/></svg>
+          replay
+        </button>
+      </div>
+
+      <!-- Terminal body -->
+      <div class="bg-[#0d0d1a] p-5 md:p-6 font-mono text-sm leading-relaxed overflow-y-auto overflow-x-hidden max-h-[420px]" id="terminal-body">
+        <!-- Prompt line -->
+        <div class="text-[#7aa2f7]" id="terminal-prompt">
+          <span class="text-[#9ece6a]">~</span>
+          <span class="text-[#6c6c8a]"> $</span>
+          <span class="text-[#c0caf5]" id="terminal-cmd"></span>
+          <span class="inline-block w-2 h-4 bg-[#7aa2f7] ml-0.5 align-middle" id="terminal-cursor" style="animation: terminal-blink 1s step-end infinite;"></span>
+        </div>
+
+        <!-- Output (revealed line by line) -->
+        <div id="terminal-output" class="mt-3"></div>
+      </div>
+    </div>
+
+    <!-- Bottom context -->
+    <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-[var(--color-warm-muted)]">
+      <div class="flex items-center gap-2">
+        <svg class="h-4 w-4 text-emerald-500" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/></svg>
+        <span>100% local — zero API calls</span>
+      </div>
+      <span class="hidden sm:inline text-[var(--color-warm-border)]">|</span>
+      <div class="flex items-center gap-2">
+        <svg class="h-4 w-4 text-[var(--color-p-violet)]" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 1.5a.75.75 0 01.75.75V4.5a.75.75 0 01-1.5 0V2.25A.75.75 0 0112 1.5zM5.636 4.136a.75.75 0 011.06 0l1.592 1.591a.75.75 0 01-1.061 1.06l-1.591-1.59a.75.75 0 010-1.061zm12.728 0a.75.75 0 010 1.06l-1.591 1.592a.75.75 0 01-1.06-1.061l1.59-1.591a.75.75 0 011.061 0zm-6.816 4.496a.75.75 0 01.82.311l5.228 7.917a.75.75 0 01-.777 1.148l-2.097-.43 1.045 3.9a.75.75 0 01-1.45.388l-1.044-3.899-1.601 1.42a.75.75 0 01-1.247-.606l.569-9.47a.75.75 0 01.554-.68z" clip-rule="evenodd"/></svg>
+        <span>Try it: <code class="bg-[var(--color-warm-cream)] border border-[var(--color-warm-sand)] rounded px-1.5 py-0.5 text-xs">npm i -g holomime && holomime diagnose</code></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes terminal-blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+</style>
+
+<script>
+  const CMD = "holomime diagnose --log sycophantic-agent.jsonl";
+
+  const OUTPUT_LINES: { text: string; cls?: string; delay: number }[] = [
+    { text: "", delay: 200 },
+    { text: "  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550", delay: 50 },
+    { text: "  \u2551 Behavioral Pattern Analysis \u2551", delay: 50 },
+    { text: "  \u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550", delay: 50 },
+    { text: "", delay: 100 },
+    { text: "  Analyzed 1,847 messages across 200 conversations", cls: "dim", delay: 80 },
+    { text: "  Assistant responses: 923", cls: "dim", delay: 80 },
+    { text: "", delay: 200 },
+    { text: "  \u2714 Running 8 behavioral detectors...", cls: "green", delay: 600 },
+    { text: "", delay: 200 },
+    { text: "  Detected Patterns:", cls: "bold", delay: 100 },
+    { text: "", delay: 50 },
+    { text: "  1. \u25cf Over-apologizing", cls: "warning", delay: 120 },
+    { text: "     Apologizes in 79% of responses. Healthy range is 5\u201315%.", cls: "dim", delay: 80 },
+    { text: "     Severity: CONCERN", cls: "red", delay: 80 },
+    { text: "", delay: 50 },
+    { text: "  2. \u25cf Hedge stacking", cls: "warning", delay: 120 },
+    { text: "     Uses 3+ hedging words in 57% of responses.", cls: "dim", delay: 80 },
+    { text: "     Severity: CONCERN", cls: "red", delay: 80 },
+    { text: "", delay: 50 },
+    { text: "  3. \u25cf Sycophantic tendency", cls: "warning", delay: 120 },
+    { text: "     Positive sentiment 94.3% (threshold: 80%).", cls: "dim", delay: 80 },
+    { text: "     Agent agrees with contradictory user statements.", cls: "dim", delay: 80 },
+    { text: "     Severity: WARNING", cls: "yellow", delay: 80 },
+    { text: "", delay: 50 },
+    { text: "  4. \u25cf Error spiral", cls: "warning", delay: 120 },
+    { text: "     3 episodes detected. Relapses compound rather than resolve.", cls: "dim", delay: 80 },
+    { text: "     Severity: WARNING", cls: "yellow", delay: 80 },
+    { text: "", delay: 100 },
+    { text: "  Healthy Patterns:", cls: "bold", delay: 100 },
+    { text: "", delay: 50 },
+    { text: "  \u2714 Boundary compliance: healthy", cls: "green", delay: 80 },
+    { text: "  \u2714 Formality: appropriate", cls: "green", delay: 80 },
+    { text: "  \u2714 Verbosity: within range", cls: "green", delay: 80 },
+    { text: "", delay: 200 },
+    { text: "  \u256d Prescriptions \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256e", cls: "cyan", delay: 80 },
+    { text: "  \u2502 1. Set uncertainty_handling to 'confident_transparency'       \u2502", cls: "cyan", delay: 60 },
+    { text: "  \u2502 2. Add 'excessive hedging' to patterns_to_watch              \u2502", cls: "cyan", delay: 60 },
+    { text: "  \u2502 3. Set conflict_approach to 'honest_first'                   \u2502", cls: "cyan", delay: 60 },
+    { text: "  \u2570\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u256f", cls: "cyan", delay: 80 },
+    { text: "", delay: 200 },
+    { text: "  4 patterns detected. Run holomime evolve for the therapy loop.", cls: "bold", delay: 100 },
+    { text: "  Each cycle exports DPO pairs. The fix becomes training data.", cls: "dim", delay: 100 },
+  ];
+
+  const COLOR_MAP: Record<string, string> = {
+    dim: "#6c6c8a",
+    bold: "#c0caf5",
+    green: "#9ece6a",
+    red: "#f7768e",
+    yellow: "#e0af68",
+    warning: "#e0af68",
+    cyan: "#7dcfff",
+  };
+
+  function sleep(ms: number): Promise<void> {
+    return new Promise((r) => setTimeout(r, ms));
+  }
+
+  async function runTerminal() {
+    const cmdEl = document.getElementById("terminal-cmd");
+    const cursorEl = document.getElementById("terminal-cursor");
+    const outputEl = document.getElementById("terminal-output");
+    const bodyEl = document.getElementById("terminal-body");
+    const replayBtn = document.getElementById("terminal-replay");
+    if (!cmdEl || !cursorEl || !outputEl || !bodyEl) return;
+
+    // Reset state
+    cmdEl.textContent = "";
+    outputEl.innerHTML = "";
+    cursorEl.style.display = "";
+    if (replayBtn) replayBtn.classList.add("hidden");
+
+    // Type command character by character
+    for (let i = 0; i < CMD.length; i++) {
+      cmdEl.textContent = CMD.slice(0, i + 1);
+      await sleep(25 + Math.random() * 35);
+    }
+
+    // Pause, then "execute"
+    await sleep(500);
+    cursorEl.style.display = "none";
+
+    // Reveal output lines
+    for (const line of OUTPUT_LINES) {
+      const div = document.createElement("div");
+      div.style.color = COLOR_MAP[line.cls || "bold"] || "#c0caf5";
+      div.style.minHeight = "1.25em";
+      div.style.whiteSpace = "pre";
+      div.textContent = line.text;
+      if (line.cls === "bold") div.style.fontWeight = "600";
+      outputEl.appendChild(div);
+      bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: "smooth" });
+      await sleep(line.delay);
+    }
+
+    // Show final prompt + cursor
+    await sleep(300);
+    const finalPrompt = document.createElement("div");
+    finalPrompt.innerHTML = '<span style="color:#9ece6a">~</span><span style="color:#6c6c8a"> $</span> <span style="display:inline-block;width:8px;height:16px;background:#7aa2f7;vertical-align:middle;animation:terminal-blink 1s step-end infinite"></span>';
+    outputEl.appendChild(finalPrompt);
+    bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: "smooth" });
+
+    // Show replay button
+    if (replayBtn) {
+      replayBtn.classList.remove("hidden");
+      replayBtn.onclick = () => runTerminal();
+    }
+  }
+
+  function initTerminal() {
+    const bodyEl = document.getElementById("terminal-body");
+    if (!bodyEl) return;
+
+    let started = false;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !started) {
+          started = true;
+          observer.disconnect();
+          runTerminal();
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    // Check if already in viewport (for cases where element is visible on load)
+    requestAnimationFrame(() => {
+      const rect = bodyEl.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        started = true;
+        observer.disconnect();
+        runTerminal();
+      } else {
+        observer.observe(bodyEl);
+      }
+    });
+  }
+
+  // Handle all Astro lifecycle events
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initTerminal);
+  } else {
+    // DOM already loaded
+    requestAnimationFrame(initTerminal);
+  }
+  document.addEventListener("astro:page-load", initTerminal);
+</script>

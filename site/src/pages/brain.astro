@@ -1,0 +1,983 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { createClient } from "@supabase/supabase-js";
+
+// Server-side: check for ?d= param to set dynamic OG tags
+const d = Astro.url.searchParams.get("d");
+let isSnapshot = !!d;
+let ogTitle = "HoloMime Brain — See inside your AI agent's brain";
+let ogDescription = "Real-time 3D brain visualization for AI coding agents. One command: npx holomime brain.";
+let ogImage = "https://holomime.dev/og-image.png";
+let shortUrl = "";
+
+const PATTERN_NAMES: Record<string, string> = {
+  sycophancy: "Sycophancy",
+  "hedge-stacking": "Hedge Stacking",
+  "over-apologizing": "Over-Apologizing",
+  "boundary-violation": "Boundary Violation",
+  "error-spiral": "Error Spiral",
+  "sentiment-skew": "Sentiment Skew",
+  "formality-drift": "Formality Drift",
+};
+const AGENT_NAMES: Record<string, string> = {
+  "claude-code": "Claude Code",
+  cline: "Cline",
+  openclaw: "OpenClaw",
+  cursor: "Cursor",
+  codex: "Codex CLI",
+  manual: "Custom Agent",
+};
+
+if (d) {
+  try {
+    // Decode base64url → binary → inflate → JSON (server-side, using DecompressionStream)
+    const binary = atob(d.replace(/-/g, "+").replace(/_/g, "/"));
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+    const ds = new DecompressionStream("deflate");
+    const writer = ds.writable.getWriter();
+    const reader = ds.readable.getReader();
+    writer.write(bytes);
+    writer.close();
+
+    const chunks: Uint8Array[] = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+    const totalLength = chunks.reduce((a, c) => a + c.length, 0);
+    const result = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const chunk of chunks) {
+      result.set(chunk, offset);
+      offset += chunk.length;
+    }
+    const parsed = JSON.parse(new TextDecoder().decode(result));
+
+    const agentName = AGENT_NAMES[parsed.a] || parsed.a || "Agent";
+    const health = parsed.h || 0;
+    const grade = parsed.g || "?";
+    const patterns = (parsed.p || []).map((p: { i: string }) => PATTERN_NAMES[p.i] || p.i);
+    const patternStr = patterns.length > 0 ? patterns.join(", ") : "No patterns detected";
+
+    ogTitle = `${agentName}'s Brain — Health ${health}/100 (Grade ${grade})`;
+    ogDescription = patterns.length > 0
+      ? `Behavioral patterns: ${patternStr}. See the full 3D brain visualization.`
+      : `Healthy brain — no patterns detected. See the full 3D visualization.`;
+    ogImage = `https://holomime.dev/api/og/brain?h=${health}&g=${encodeURIComponent(grade)}&a=${encodeURIComponent(parsed.a || "unknown")}&p=${encodeURIComponent(patterns.join(","))}`;
+
+    // Auto-save to get short URL (fire-and-forget, non-blocking for page render)
+    const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
+    const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (supabaseUrl && serviceKey) {
+      const supabase = createClient(supabaseUrl, serviceKey);
+      // Check if this exact data already exists
+      const { data: existing } = await supabase
+        .from("brain_snapshots")
+        .select("id")
+        .eq("data", d)
+        .limit(1)
+        .single();
+
+      if (existing) {
+        shortUrl = `https://holomime.dev/brain/${existing.id}`;
+      } else {
+        // Save new snapshot
+        const chars = "0123456789abcdefghijklmnopqrstuvwxyz";
+        let id = "";
+        for (let i = 0; i < 5; i++) id += chars[Math.floor(Math.random() * chars.length)];
+
+        await supabase.from("brain_snapshots").insert({
+          id,
+          data: d,
+          agent: parsed.a || "unknown",
+          health,
+          grade,
+          patterns: parsed.p || [],
+          views: 0,
+        });
+        shortUrl = `https://holomime.dev/brain/${id}`;
+      }
+    }
+  } catch {
+    // Decode failed — keep default OG tags
+  }
+}
+---
+
+<Layout title={ogTitle} description={ogDescription} ogImage={ogImage}>
+  <Nav />
+
+  <!-- Snapshot view: full-screen 3D brain (hidden by default, shown when ?d= param exists) -->
+  <div id="snapshot-view" style="display:none;" data-short-url={shortUrl}>
+    <iframe id="snapshot-iframe" style="width:100%;height:100vh;border:none;display:block;"></iframe>
+    <!-- Snapshot info overlay (top-left) -->
+    <div id="snapshot-info"></div>
+    <!-- Bottom bar with fork CTA -->
+    <div id="snapshot-bar">
+      <div class="snapshot-bar-left">
+        <span id="snapshot-agent-name"></span>
+        <span id="snapshot-health"></span>
+        <span id="snapshot-patterns"></span>
+      </div>
+      <div class="snapshot-bar-right">
+        <span id="short-url-display" class="hidden"></span>
+        <code>npx holomime brain</code>
+        <a id="fork-btn" href="/signup">Fork this personality</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acquisition page: shown when no ?d= param -->
+  <main id="acquisition-page">
+
+    <!-- ═══ Hero — White/cream with brain visual ═══ -->
+    <section class="relative overflow-x-clip overflow-y-visible pt-32 pb-20 md:pt-40 md:pb-28">
+      <!-- Soft color glows on white (like homepage) -->
+      <div class="pointer-events-none absolute inset-0 overflow-hidden">
+        <div class="absolute top-0 left-1/2 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/4 rounded-full opacity-[0.10] blur-[140px]"
+          style="background: radial-gradient(circle, #06b6d4, #8b5cf6, #f97066)"></div>
+        <div class="absolute bottom-0 left-1/4 h-80 w-80 rounded-full bg-[var(--color-p-gold)] opacity-[0.06] blur-[100px]"></div>
+        <div class="absolute bottom-1/4 right-1/6 h-64 w-64 rounded-full bg-[var(--color-p-sage)] opacity-[0.06] blur-[100px]"></div>
+      </div>
+
+      <div class="max-w-6xl mx-auto px-6 relative z-10">
+        <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+
+          <!-- Left: Copy -->
+          <div class="flex-1 text-center lg:text-left">
+            <div class="inline-flex items-center gap-2 rounded-full border border-[var(--color-p-violet)]/20 bg-[var(--color-p-violet-soft)] px-4 py-1.5 text-sm mb-6">
+              <span class="h-2 w-2 rounded-full bg-[var(--color-p-violet)] animate-pulse"></span>
+              <span class="text-[var(--color-p-violet)] font-medium">Open Source &middot; Zero Config</span>
+            </div>
+
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[var(--color-warm-text)] leading-[1.1] mb-6">
+              Have you seen your<br class="hidden sm:inline" /> agent's <span class="text-gradient-warm">brain</span>?
+            </h1>
+
+            <p class="text-lg text-[var(--color-warm-muted)] leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8">
+              One command. Your browser opens. A 3D brain lights up in real time as your AI coding agent thinks, responds, and drifts. Watch sycophancy fire. See hedging stack up. Catch the moment your agent starts people-pleasing instead of telling the truth.
+            </p>
+
+            <!-- Install CTA -->
+            <div class="max-w-md mx-auto lg:mx-0 mb-8">
+              <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-lg shadow-black/[0.03] px-6 py-4">
+                <div class="flex items-center gap-2 mb-2">
+                  <div class="w-2 h-2 rounded-full bg-[var(--color-p-sage)] shadow-[0_0_6px_2px_rgba(34,197,94,0.3)]"></div>
+                  <span class="text-[11px] font-semibold text-[var(--color-warm-muted)] uppercase tracking-wider">One command. Zero config.</span>
+                </div>
+                <code class="text-lg font-mono text-[var(--color-p-violet)]">npx holomime brain</code>
+                <p class="text-xs text-[var(--color-warm-muted)] mt-2">Auto-detects Claude Code, Cline, OpenClaw, Cursor, and Codex.</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-6 lg:justify-start justify-center">
+              <a href="#how-it-works" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-p-violet)] hover:underline underline-offset-2">
+                How it works
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"/></svg>
+              </a>
+              <span class="h-3.5 w-px bg-[var(--color-warm-sand)]"></span>
+              <a href="/demo" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors">
+                Try the platform demo
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+              </a>
+            </div>
+          </div>
+
+          <!-- Right: Brain with neuron fire orbs, lobe glows, signal popups -->
+          <div class="flex-1 flex justify-center lg:justify-start">
+            <div class="relative">
+              <a href="/demo" class="relative group block">
+                <div class="ns-brain-wrap relative w-[300px] h-[300px] sm:w-[340px] sm:h-[340px] md:w-[380px] md:h-[380px]">
+
+                  <!-- Brain image -->
+                  <img
+                    src="/neuralspace-preview.png?v=12"
+                    alt="NeuralSpace — real-time 3D brain visualization for AI agents"
+                    class="absolute inset-0 w-full h-full object-contain z-10"
+                    loading="eager"
+                    width="762"
+                    height="460"
+                  />
+
+                  <!-- Neuron fire orbs -->
+                  <div class="absolute inset-0 pointer-events-none z-20">
+                    <div class="ns-neuron ns-n1"></div>
+                    <div class="ns-neuron ns-n2"></div>
+                    <div class="ns-neuron ns-n3"></div>
+                    <div class="ns-neuron ns-n4"></div>
+                    <div class="ns-neuron ns-n5"></div>
+                    <div class="ns-neuron ns-n6"></div>
+                    <div class="ns-neuron ns-n7"></div>
+                    <div class="ns-neuron ns-n8"></div>
+                    <div class="ns-neuron ns-n9"></div>
+                    <div class="ns-neuron ns-n10"></div>
+                    <div class="ns-neuron ns-n11"></div>
+                    <div class="ns-neuron ns-n12"></div>
+                    <div class="ns-neuron ns-n13"></div>
+                    <div class="ns-neuron ns-n14"></div>
+                    <div class="ns-neuron ns-n15"></div>
+                    <div class="ns-neuron ns-n16"></div>
+                    <div class="ns-neuron ns-n17"></div>
+                    <div class="ns-neuron ns-n18"></div>
+                    <div class="ns-neuron ns-n19"></div>
+                    <div class="ns-neuron ns-n20"></div>
+                    <div class="ns-neuron ns-n21"></div>
+                    <div class="ns-neuron ns-n22"></div>
+                  </div>
+
+                  <!-- Lobe fire overlays -->
+                  <div class="absolute inset-0 pointer-events-none z-20">
+                    <div class="ns-lobe ns-l1"></div>
+                    <div class="ns-lobe ns-l2"></div>
+                    <div class="ns-lobe ns-l3"></div>
+                    <div class="ns-lobe ns-l4"></div>
+                    <div class="ns-lobe ns-l5"></div>
+                    <div class="ns-lobe ns-l6"></div>
+                    <div class="ns-lobe ns-l7"></div>
+                    <div class="ns-lobe ns-l8"></div>
+                    <div class="ns-lobe ns-l9"></div>
+                  </div>
+
+                  <!-- Breathe -->
+                  <div class="ns-breathe absolute inset-0 pointer-events-none z-20"></div>
+
+                  <!-- Connector line to top popup -->
+                  <div class="hidden lg:block absolute z-30" style="top: 25%; right: -12px; width: 70px; height: 1px;">
+                    <div class="h-full bg-gradient-to-r from-[var(--color-p-gold)]/60 to-[var(--color-p-gold)]/10"></div>
+                    <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-[var(--color-p-gold)] shadow-[0_0_6px_2px_rgba(245,158,11,0.4)]"></div>
+                    <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-[var(--color-p-gold)]/40"></div>
+                  </div>
+                  <!-- Connector line to bottom popup -->
+                  <div class="hidden lg:block absolute z-30" style="top: 48%; right: -12px; width: 80px; height: 1px; transform: rotate(25deg); transform-origin: left center;">
+                    <div class="h-full bg-gradient-to-r from-[var(--color-p-sage)]/60 to-[var(--color-p-sage)]/10"></div>
+                    <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-[var(--color-p-sage)] shadow-[0_0_6px_2px_rgba(34,197,94,0.4)]"></div>
+                    <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-[var(--color-p-sage)]/40"></div>
+                  </div>
+                </div>
+              </a>
+
+              <!-- Signal popup card -->
+              <div class="ns-signal-popup hidden lg:block absolute z-30" style="top: 8%; right: -195px;">
+                <div class="w-[180px] rounded-lg border border-[var(--color-warm-sand)] bg-white shadow-xl shadow-black/[0.06] overflow-hidden">
+                  <div class="px-3 py-2 border-b border-[var(--color-warm-sand)] flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-[var(--color-p-gold)] shadow-[0_0_4px_1px_rgba(245,158,11,0.4)] ns-signal-dot"></div>
+                    <span class="text-[10px] font-semibold text-[var(--color-warm-text)] uppercase tracking-wider">Prefrontal Cortex</span>
+                  </div>
+                  <div class="px-3 py-2 space-y-1.5">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] text-[var(--color-warm-muted)]">Sycophancy</span>
+                      <div class="flex items-center gap-1.5">
+                        <div class="w-12 h-1 rounded-full bg-[var(--color-warm-sand)] overflow-hidden">
+                          <div class="h-full rounded-full bg-[var(--color-p-gold)]" style="width: 72%;"></div>
+                        </div>
+                        <span class="text-[10px] font-mono text-[var(--color-p-gold)]">0.72</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] text-[var(--color-warm-muted)]">Hedging</span>
+                      <div class="flex items-center gap-1.5">
+                        <div class="w-12 h-1 rounded-full bg-[var(--color-warm-sand)] overflow-hidden">
+                          <div class="h-full rounded-full bg-[var(--color-p-sage)]" style="width: 18%;"></div>
+                        </div>
+                        <span class="text-[10px] font-mono text-[var(--color-p-sage)]">0.18</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] text-[var(--color-warm-muted)]">Confidence</span>
+                      <div class="flex items-center gap-1.5">
+                        <div class="w-12 h-1 rounded-full bg-[var(--color-warm-sand)] overflow-hidden">
+                          <div class="h-full rounded-full bg-[var(--color-p-blue)]" style="width: 85%;"></div>
+                        </div>
+                        <span class="text-[10px] font-mono text-[var(--color-p-blue)]">0.85</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                      <span class="text-[10px] text-[var(--color-warm-muted)]">Apology drift</span>
+                      <div class="flex items-center gap-1.5">
+                        <div class="w-12 h-1 rounded-full bg-[var(--color-warm-sand)] overflow-hidden">
+                          <div class="h-full rounded-full bg-[var(--color-p-coral)]" style="width: 41%;"></div>
+                        </div>
+                        <span class="text-[10px] font-mono text-[var(--color-p-coral)]">0.41</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="px-3 py-1.5 border-t border-[var(--color-warm-sand)] flex items-center gap-1.5">
+                    <div class="w-1 h-1 rounded-full bg-[var(--color-p-gold)] animate-pulse"></div>
+                    <span class="text-[9px] text-[var(--color-p-gold)]">Session #3 in progress</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Agent task card -->
+              <div class="ns-task-popup hidden lg:block absolute z-30" style="top: 52%; right: -195px;">
+                <div class="w-[180px] rounded-lg border border-[var(--color-warm-sand)] bg-white shadow-xl shadow-black/[0.06] overflow-hidden">
+                  <div class="px-3 py-2 border-b border-[var(--color-warm-sand)] flex items-center gap-2">
+                    <div class="w-1.5 h-1.5 rounded-full bg-[var(--color-p-sage)] shadow-[0_0_4px_1px_rgba(34,197,94,0.4)] ns-task-dot"></div>
+                    <span class="text-[10px] font-semibold text-[var(--color-warm-text)] uppercase tracking-wider">Claude Code</span>
+                  </div>
+                  <div class="px-3 py-2 space-y-2">
+                    <div>
+                      <span class="text-[9px] text-[var(--color-warm-muted)] uppercase tracking-wider">Current task</span>
+                      <p class="text-[10px] text-[var(--color-warm-text)] leading-tight mt-0.5">Refactoring auth middleware</p>
+                    </div>
+                    <div>
+                      <span class="text-[9px] text-[var(--color-warm-muted)] uppercase tracking-wider">Last response</span>
+                      <p class="text-[10px] text-[var(--color-warm-muted)] leading-tight mt-0.5 italic">"I'll update the session handler to use..."</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <div>
+                        <span class="text-[9px] text-[var(--color-warm-muted)]">Turns</span>
+                        <span class="text-[10px] font-mono text-[var(--color-warm-text)] ml-1">12</span>
+                      </div>
+                      <div>
+                        <span class="text-[9px] text-[var(--color-warm-muted)]">Health</span>
+                        <span class="text-[10px] font-mono text-[var(--color-p-sage)] ml-1">87/100</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="px-3 py-1.5 border-t border-[var(--color-warm-sand)] flex items-center justify-between">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-1 h-1 rounded-full bg-[var(--color-p-sage)] animate-pulse"></div>
+                      <span class="text-[9px] text-[var(--color-p-sage)]">Healthy</span>
+                    </div>
+                    <span class="text-[9px] text-[var(--color-p-violet)] font-medium">Grade B+</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ How it works — Light cream section ═══ -->
+    <section id="how-it-works" class="py-20 px-6 bg-[var(--color-warm-cream)] border-y border-[var(--color-warm-sand)]">
+      <div class="max-w-4xl mx-auto">
+        <p class="text-sm font-semibold tracking-wider uppercase text-[var(--color-p-coral)] text-center mb-3">How it works</p>
+        <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color-warm-text)] text-center mb-4">Three steps. No configuration.</h2>
+        <p class="text-[var(--color-warm-muted)] text-center max-w-lg mx-auto mb-16">
+          HoloMime Brain watches your agent's conversation log in real time, runs 8 behavioral detectors on every message, and maps the results onto 9 anatomical brain regions.
+        </p>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="text-center">
+            <div class="w-14 h-14 rounded-2xl bg-white border border-[var(--color-warm-sand)] shadow-sm flex items-center justify-center mx-auto mb-4">
+              <span class="text-xl font-bold text-[var(--color-p-blue)]">1</span>
+            </div>
+            <h3 class="text-[var(--color-warm-text)] font-semibold mb-2">Auto-detect</h3>
+            <p class="text-sm text-[var(--color-warm-muted)] leading-relaxed">
+              Scans for running agents automatically. Claude Code, Cline, OpenClaw, Cursor, Codex — or point it at any conversation log.
+            </p>
+          </div>
+          <div class="text-center">
+            <div class="w-14 h-14 rounded-2xl bg-white border border-[var(--color-warm-sand)] shadow-sm flex items-center justify-center mx-auto mb-4">
+              <span class="text-xl font-bold text-[var(--color-p-violet)]">2</span>
+            </div>
+            <h3 class="text-[var(--color-warm-text)] font-semibold mb-2">Diagnose</h3>
+            <p class="text-sm text-[var(--color-warm-muted)] leading-relaxed">
+              Every new message triggers 8 rule-based detectors analyzing 80+ behavioral signals. No LLM calls — instant results.
+            </p>
+          </div>
+          <div class="text-center">
+            <div class="w-14 h-14 rounded-2xl bg-white border border-[var(--color-warm-sand)] shadow-sm flex items-center justify-center mx-auto mb-4">
+              <span class="text-xl font-bold text-[var(--color-p-sage)]">3</span>
+            </div>
+            <h3 class="text-[var(--color-warm-text)] font-semibold mb-2">Visualize</h3>
+            <p class="text-sm text-[var(--color-warm-muted)] leading-relaxed">
+              Brain regions glow, fibers pulse, and patterns appear in a live 3D visualization. Click any region for details.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Terminal Preview — Dark section ═══ -->
+    <section class="py-20 px-6 bg-[#110d1f]">
+      <div class="max-w-3xl mx-auto">
+        <p class="text-sm font-semibold tracking-wider uppercase text-[var(--color-p-coral)] text-center mb-3">In your terminal</p>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white text-center mb-12">Run one command. Watch the brain light up.</h2>
+
+        <div class="rounded-xl border border-slate-700/40 bg-[#0d0a18] p-6 font-mono text-sm leading-relaxed shadow-2xl shadow-black/40">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-3 h-3 rounded-full bg-red-500/60"></div>
+            <div class="w-3 h-3 rounded-full bg-yellow-500/60"></div>
+            <div class="w-3 h-3 rounded-full bg-green-500/60"></div>
+            <span class="text-slate-600 text-xs ml-2">Terminal</span>
+          </div>
+          <div class="text-slate-500 mb-1">$ npx holomime brain</div>
+          <div class="text-slate-400 mb-4"></div>
+          <div class="text-emerald-400">  &#10003; <span class="text-slate-300">Detected <span class="font-bold text-white">Claude Code</span> session</span></div>
+          <div class="text-emerald-400">  &#10003; <span class="text-slate-400">Watching: ~/.claude/projects/.../session.jsonl</span></div>
+          <div class="text-emerald-400">  &#10003; <span class="text-slate-300">NeuralSpace: <span class="text-cyan-400">http://localhost:3838</span></span></div>
+          <div class="text-slate-500 mb-4">  Opening browser...</div>
+          <div class="text-emerald-400 font-bold">  ● <span class="text-white">Monitoring agent behavior in real-time</span></div>
+          <div class="text-slate-600">  │ <span class="text-slate-400">Press Ctrl+C to stop · Press s to share snapshot</span></div>
+          <div class="text-slate-400 mt-4">  <span class="text-slate-600">│</span> Health: <span class="text-emerald-400">87/100</span> (B+) <span class="text-slate-600">│</span> Patterns: <span class="text-yellow-400">hedge-stacking</span> <span class="text-slate-600">│</span> Messages: <span class="text-white">47</span></div>
+        </div>
+
+        <div class="mt-8 text-center">
+          <p class="text-slate-400 text-sm">Press <code class="text-cyan-400 bg-cyan-400/10 px-2 py-0.5 rounded text-xs font-mono">s</code> to capture a snapshot and share a link. Your friends see the full 3D brain.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Brain Regions — Light section ═══ -->
+    <section class="py-20 px-6">
+      <div class="max-w-4xl mx-auto">
+        <p class="text-sm font-semibold tracking-wider uppercase text-[var(--color-p-violet)] text-center mb-3">Anatomy</p>
+        <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color-warm-text)] text-center mb-4">9 brain regions. 8 behavioral detectors.</h2>
+        <p class="text-[var(--color-warm-muted)] text-center max-w-lg mx-auto mb-12">
+          Each detector maps to specific brain regions. When a pattern fires, you see exactly where.
+        </p>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-2.5 mb-3">
+              <div class="w-3 h-3 rounded-full shadow-sm" style="background: #4488ff;"></div>
+              <span class="text-sm font-semibold text-[var(--color-warm-text)]">Prefrontal Cortex</span>
+            </div>
+            <p class="text-xs text-[var(--color-warm-muted)] leading-relaxed">Decision-making, self-regulation. Fires on boundary violations and verbosity.</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-2.5 mb-3">
+              <div class="w-3 h-3 rounded-full shadow-sm" style="background: #aa66ff;"></div>
+              <span class="text-sm font-semibold text-[var(--color-warm-text)]">Broca's Area</span>
+            </div>
+            <p class="text-xs text-[var(--color-warm-muted)] leading-relaxed">Language production. Fires on formality drift and hedge stacking.</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-2.5 mb-3">
+              <div class="w-3 h-3 rounded-full shadow-sm" style="background: #ff66bb;"></div>
+              <span class="text-sm font-semibold text-[var(--color-warm-text)]">Wernicke's Area</span>
+            </div>
+            <p class="text-xs text-[var(--color-warm-muted)] leading-relaxed">Language comprehension. Fires on sentiment skew.</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-2.5 mb-3">
+              <div class="w-3 h-3 rounded-full shadow-sm" style="background: #ff5555;"></div>
+              <span class="text-sm font-semibold text-[var(--color-warm-text)]">Amygdala</span>
+            </div>
+            <p class="text-xs text-[var(--color-warm-muted)] leading-relaxed">Emotional reactivity. Fires on over-apologizing and sentiment skew.</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-2.5 mb-3">
+              <div class="w-3 h-3 rounded-full shadow-sm" style="background: #ffcc22;"></div>
+              <span class="text-sm font-semibold text-[var(--color-warm-text)]">Anterior Cingulate</span>
+            </div>
+            <p class="text-xs text-[var(--color-warm-muted)] leading-relaxed">Conflict monitoring. Fires on sycophancy and boundary violations.</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-2.5 mb-3">
+              <div class="w-3 h-3 rounded-full shadow-sm" style="background: #44dd88;"></div>
+              <span class="text-sm font-semibold text-[var(--color-warm-text)]">Hippocampus</span>
+            </div>
+            <p class="text-xs text-[var(--color-warm-muted)] leading-relaxed">Memory, context continuity. Fires on error spirals.</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-2.5 mb-3">
+              <div class="w-3 h-3 rounded-full shadow-sm" style="background: #44dd88;"></div>
+              <span class="text-sm font-semibold text-[var(--color-warm-text)]">Temporal Lobe</span>
+            </div>
+            <p class="text-xs text-[var(--color-warm-muted)] leading-relaxed">Understanding, tone. Fires on sentiment skew and formality drift.</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-2.5 mb-3">
+              <div class="w-3 h-3 rounded-full shadow-sm" style="background: #22ccaa;"></div>
+              <span class="text-sm font-semibold text-[var(--color-warm-text)]">Cerebellum</span>
+            </div>
+            <p class="text-xs text-[var(--color-warm-muted)] leading-relaxed">Behavioral fine-tuning. Fires on formality drift and verbosity.</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 hover:shadow-md transition-shadow">
+            <div class="flex items-center gap-2.5 mb-3">
+              <div class="w-3 h-3 rounded-full shadow-sm" style="background: #ff8844;"></div>
+              <span class="text-sm font-semibold text-[var(--color-warm-text)]">Thalamus</span>
+            </div>
+            <p class="text-xs text-[var(--color-warm-muted)] leading-relaxed">Relay hub. Reflects overall health — the brain's global state indicator.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Supported Agents — Cream section ═══ -->
+    <section class="py-20 px-6 bg-[var(--color-warm-cream)] border-y border-[var(--color-warm-sand)]">
+      <div class="max-w-3xl mx-auto text-center">
+        <p class="text-sm font-semibold tracking-wider uppercase text-[var(--color-p-teal)] mb-3">Compatibility</p>
+        <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color-warm-text)] mb-4">Works with every major AI coding agent</h2>
+        <p class="text-[var(--color-warm-muted)] mb-12">Auto-detects the active agent. Or point it at any conversation log.</p>
+
+        <div class="flex flex-wrap justify-center gap-4">
+          <div class="px-6 py-3.5 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">Claude Code</div>
+          <div class="px-6 py-3.5 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">Cline</div>
+          <div class="px-6 py-3.5 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">OpenClaw</div>
+          <div class="px-6 py-3.5 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">Cursor</div>
+          <div class="px-6 py-3.5 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">Codex CLI</div>
+          <div class="px-6 py-3.5 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-muted)]">Any JSONL log via --watch</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Final CTA — Gradient section ═══ -->
+    <section class="py-24 px-6 relative overflow-hidden">
+      <!-- Subtle gradient glow -->
+      <div class="pointer-events-none absolute inset-0 overflow-hidden">
+        <div class="absolute top-1/2 left-1/2 h-[400px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-[0.08] blur-[120px]"
+          style="background: radial-gradient(circle, #8b5cf6, #f97066)"></div>
+      </div>
+
+      <div class="max-w-xl mx-auto text-center relative z-10">
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-[var(--color-warm-text)] mb-4 whitespace-nowrap">
+          See what your agent is <span class="text-gradient-warm">really thinking</span>.
+        </h2>
+        <p class="text-[var(--color-warm-muted)] mb-10 text-lg">Start your AI agent on any task, then run this in another terminal.</p>
+
+        <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-lg shadow-black/[0.04] px-8 py-5 inline-block mb-8">
+          <code class="text-xl font-mono text-[var(--color-p-violet)] font-semibold">npx holomime brain</code>
+        </div>
+
+        <p class="text-sm text-[var(--color-warm-muted)]">
+          Requires Node.js 18+. The brain visualization opens at <code class="text-[var(--color-p-violet)] bg-[var(--color-p-violet-soft)] px-1.5 py-0.5 rounded text-xs font-mono">localhost:3838</code>.
+          <br />
+          <a href="/blog/holomime-brain-cli" class="text-[var(--color-p-violet)] hover:underline underline-offset-2 font-medium">Read the blog post</a>
+          &middot;
+          <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="text-[var(--color-p-violet)] hover:underline underline-offset-2 font-medium">View on GitHub</a>
+        </p>
+      </div>
+    </section>
+
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  /* ── Snapshot view ── */
+  #snapshot-view {
+    position: relative;
+    background: #110d1f;
+  }
+  #snapshot-info {
+    position: absolute;
+    top: 64px;
+    left: 20px;
+    z-index: 50;
+    display: none;
+  }
+  #snapshot-info.visible { display: block; }
+  #snapshot-info .info-card {
+    background: rgba(17, 13, 31, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 16px 20px;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    min-width: 200px;
+  }
+  #snapshot-info .info-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 4px;
+  }
+  #snapshot-info .info-agent {
+    font-size: 16px;
+    font-weight: 700;
+    color: #e8e4f0;
+    margin-bottom: 12px;
+  }
+  #snapshot-info .info-health {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  #snapshot-info .health-score {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  #snapshot-info .health-grade {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+  }
+  #snapshot-info .info-patterns {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  #snapshot-info .pattern-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  #snapshot-info .pattern-tag.concern {
+    background: rgba(249,112,102,0.15);
+    color: #f97066;
+  }
+  #snapshot-info .pattern-tag.warning {
+    background: rgba(245,158,11,0.15);
+    color: #f59e0b;
+  }
+  #snapshot-info .pattern-tag.info {
+    background: rgba(139,92,246,0.15);
+    color: #a78bfa;
+  }
+
+  /* ── Bottom bar ── */
+  #snapshot-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 24px;
+    background: rgba(17, 13, 31, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+  .snapshot-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .snapshot-bar-left span {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+  }
+  .snapshot-bar-left #snapshot-agent-name {
+    font-weight: 600;
+    color: #e8e4f0;
+  }
+  .snapshot-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  #snapshot-bar code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    color: #06b6d4;
+    background: rgba(6, 182, 212, 0.1);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(6, 182, 212, 0.2);
+  }
+  #fork-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #f97066, #8b5cf6);
+    padding: 8px 18px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(249,112,102,0.3);
+  }
+  #fork-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249,112,102,0.4);
+  }
+  @media (max-width: 640px) {
+    .snapshot-bar-left #snapshot-health,
+    .snapshot-bar-left #snapshot-patterns,
+    #snapshot-bar code {
+      display: none;
+    }
+  }
+
+  /* ── Signal popup animations ── */
+  .ns-signal-popup {
+    animation: nsPopupFloat 6s ease-in-out infinite;
+  }
+  @keyframes nsPopupFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .ns-task-popup {
+    animation: nsPopupFloat2 6s ease-in-out 1.5s infinite;
+  }
+  @keyframes nsPopupFloat2 {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  .ns-signal-dot, .ns-task-dot {
+    animation: nsSignalBlink 2s ease-in-out infinite;
+  }
+  .ns-task-dot {
+    animation-delay: 0.5s;
+  }
+  @keyframes nsSignalBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── Neuron fire orbs ── */
+  .ns-neuron {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    filter: blur(1px);
+  }
+
+  .ns-n1  { width:6px;height:6px; top:28%;left:35%;  background:#06b6d4; box-shadow:0 0 8px 3px rgba(6,182,212,0.6);   animation:nsFire1 3s ease-in-out 0s infinite; }
+  .ns-n2  { width:5px;height:5px; top:38%;right:28%; background:#8b5cf6; box-shadow:0 0 8px 3px rgba(139,92,246,0.6);  animation:nsFire2 3.5s ease-in-out 0.8s infinite; }
+  .ns-n3  { width:4px;height:4px; top:22%;left:45%;  background:#fb7185; box-shadow:0 0 6px 2px rgba(251,113,133,0.5); animation:nsFire1 2.8s ease-in-out 1.5s infinite; }
+  .ns-n4  { width:5px;height:5px; top:50%;left:40%;  background:#14b8a6; box-shadow:0 0 8px 3px rgba(20,184,166,0.6);  animation:nsFire2 4s ease-in-out 2.2s infinite; }
+  .ns-n5  { width:4px;height:4px; top:32%;left:55%;  background:#fbbf24; box-shadow:0 0 6px 2px rgba(251,191,36,0.5);  animation:nsFire1 3.2s ease-in-out 0.4s infinite; }
+  .ns-n6  { width:6px;height:6px; top:42%;left:30%;  background:#ec4899; box-shadow:0 0 8px 3px rgba(236,72,153,0.6);  animation:nsFire2 3.8s ease-in-out 1.2s infinite; }
+  .ns-n7  { width:3px;height:3px; top:35%;right:35%; background:#3b82f6; box-shadow:0 0 6px 2px rgba(59,130,246,0.5);  animation:nsFire1 3.6s ease-in-out 2.8s infinite; }
+  .ns-n8  { width:5px;height:5px; top:25%;left:38%;  background:#06b6d4; box-shadow:0 0 8px 3px rgba(6,182,212,0.5);   animation:nsFire2 2.5s ease-in-out 3.2s infinite; }
+  .ns-n9  { width:4px;height:4px; top:45%;left:50%;  background:#a78bfa; box-shadow:0 0 7px 2px rgba(167,139,250,0.5); animation:nsFire1 3.3s ease-in-out 0.6s infinite; }
+  .ns-n10 { width:5px;height:5px; top:30%;left:28%;  background:#2dd4bf; box-shadow:0 0 8px 3px rgba(45,212,191,0.5);  animation:nsFire2 4.2s ease-in-out 1.8s infinite; }
+  .ns-n11 { width:3px;height:3px; top:20%;left:52%;  background:#f472b6; box-shadow:0 0 6px 2px rgba(244,114,182,0.5); animation:nsFire1 2.6s ease-in-out 3.5s infinite; }
+  .ns-n12 { width:6px;height:6px; top:48%;right:32%; background:#38bdf8; box-shadow:0 0 8px 3px rgba(56,189,248,0.6);  animation:nsFire2 3.1s ease-in-out 0.2s infinite; }
+  .ns-n13 { width:4px;height:4px; top:36%;left:42%;  background:#facc15; box-shadow:0 0 7px 2px rgba(250,204,21,0.5);  animation:nsFire1 3.9s ease-in-out 2.5s infinite; }
+  .ns-n14 { width:5px;height:5px; top:26%;right:30%; background:#c084fc; box-shadow:0 0 8px 3px rgba(192,132,252,0.5); animation:nsFire2 3.4s ease-in-out 1.0s infinite; }
+  .ns-n15 { width:5px;height:5px; top:40%;left:48%;  background:#06b6d4; box-shadow:0 0 8px 3px rgba(6,182,212,0.6);   animation:nsFire1 2.9s ease-in-out 0.3s infinite; }
+  .ns-n16 { width:4px;height:4px; top:24%;left:32%;  background:#fb7185; box-shadow:0 0 7px 2px rgba(251,113,133,0.5); animation:nsFire2 3.7s ease-in-out 1.6s infinite; }
+  .ns-n17 { width:6px;height:6px; top:34%;right:25%; background:#14b8a6; box-shadow:0 0 9px 3px rgba(20,184,166,0.6);  animation:nsFire1 4.1s ease-in-out 2.4s infinite; }
+  .ns-n18 { width:3px;height:3px; top:44%;left:36%;  background:#fbbf24; box-shadow:0 0 6px 2px rgba(251,191,36,0.5);  animation:nsFire2 2.7s ease-in-out 3.8s infinite; }
+  .ns-n19 { width:5px;height:5px; top:29%;left:50%;  background:#8b5cf6; box-shadow:0 0 8px 3px rgba(139,92,246,0.6);  animation:nsFire1 3.5s ease-in-out 0.7s infinite; }
+  .ns-n20 { width:4px;height:4px; top:46%;right:36%; background:#ec4899; box-shadow:0 0 7px 2px rgba(236,72,153,0.5);  animation:nsFire2 3.0s ease-in-out 2.1s infinite; }
+  .ns-n21 { width:6px;height:6px; top:22%;right:26%; background:#38bdf8; box-shadow:0 0 9px 3px rgba(56,189,248,0.6);  animation:nsFire1 3.3s ease-in-out 1.4s infinite; }
+  .ns-n22 { width:4px;height:4px; top:38%;left:26%;  background:#2dd4bf; box-shadow:0 0 7px 2px rgba(45,212,191,0.5);  animation:nsFire2 3.8s ease-in-out 3.0s infinite; }
+
+  @keyframes nsFire1 {
+    0%, 100% { opacity: 0; transform: scale(0.5) translate(0, 0); }
+    10% { opacity: 0; }
+    20% { opacity: 1; transform: scale(1.2) translate(3px, -2px); }
+    40% { opacity: 0.8; transform: scale(1) translate(5px, -4px); }
+    60% { opacity: 0.3; transform: scale(0.8) translate(2px, -6px); }
+    75% { opacity: 0; transform: scale(0.4) translate(0, -8px); }
+  }
+  @keyframes nsFire2 {
+    0%, 100% { opacity: 0; transform: scale(0.5) translate(0, 0); }
+    10% { opacity: 0; }
+    20% { opacity: 1; transform: scale(1.3) translate(-2px, -3px); }
+    40% { opacity: 0.7; transform: scale(1) translate(-4px, -5px); }
+    60% { opacity: 0.2; transform: scale(0.7) translate(-3px, -7px); }
+    75% { opacity: 0; transform: scale(0.3) translate(-1px, -9px); }
+  }
+
+  /* ── Lobe fire pulses ── */
+  .ns-lobe {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: multiply;
+    opacity: 0;
+  }
+
+  .ns-l1 { width:35%;height:30%; top:20%;left:32%;  background:radial-gradient(circle,rgba(6,182,212,0.25) 0%,transparent 70%);   animation:nsLobeA 2.8s ease-in-out infinite; }
+  .ns-l2 { width:28%;height:28%; top:28%;right:22%; background:radial-gradient(circle,rgba(139,92,246,0.22) 0%,transparent 70%); animation:nsLobeB 3.5s ease-in-out 0.6s infinite; }
+  .ns-l3 { width:25%;height:25%; top:18%;left:22%;  background:radial-gradient(circle,rgba(251,113,133,0.22) 0%,transparent 70%);animation:nsLobeA 3.2s ease-in-out 1.3s infinite; }
+  .ns-l4 { width:30%;height:25%; top:42%;left:32%;  background:radial-gradient(circle,rgba(20,184,166,0.22) 0%,transparent 70%); animation:nsLobeB 4s ease-in-out 2s infinite; }
+  .ns-l5 { width:25%;height:22%; top:30%;left:40%;  background:radial-gradient(circle,rgba(251,191,36,0.18) 0%,transparent 70%);  animation:nsLobeA 3.6s ease-in-out 2.8s infinite; }
+  .ns-l6 { width:22%;height:22%; top:24%;left:48%;  background:radial-gradient(circle,rgba(236,72,153,0.22) 0%,transparent 70%); animation:nsLobeB 3.0s ease-in-out 0.3s infinite; }
+  .ns-l7 { width:28%;height:24%; top:36%;right:28%; background:radial-gradient(circle,rgba(59,130,246,0.22) 0%,transparent 70%); animation:nsLobeA 3.8s ease-in-out 1.8s infinite; }
+  .ns-l8 { width:24%;height:20%; top:46%;left:44%;  background:radial-gradient(circle,rgba(167,139,250,0.18) 0%,transparent 70%); animation:nsLobeB 4.2s ease-in-out 3.2s infinite; }
+  .ns-l9 { width:26%;height:24%; top:22%;right:32%; background:radial-gradient(circle,rgba(45,212,191,0.18) 0%,transparent 70%);  animation:nsLobeA 3.4s ease-in-out 0.9s infinite; }
+
+  @keyframes nsLobeA {
+    0%, 100% { opacity: 0; transform: scale(0.85); }
+    8% { opacity: 0; transform: scale(0.9); }
+    15% { opacity: 0.9; transform: scale(1.05); }
+    25% { opacity: 0.7; transform: scale(1.08); }
+    45% { opacity: 0.35; transform: scale(1.02); }
+    65% { opacity: 0; transform: scale(0.9); }
+  }
+  @keyframes nsLobeB {
+    0%, 100% { opacity: 0; transform: scale(0.88); }
+    10% { opacity: 0; transform: scale(0.92); }
+    20% { opacity: 0.85; transform: scale(1.03); }
+    35% { opacity: 0.6; transform: scale(1.06); }
+    55% { opacity: 0.2; transform: scale(1); }
+    70% { opacity: 0; transform: scale(0.92); }
+  }
+
+  /* ── Breathe ── */
+  .ns-breathe {
+    background: radial-gradient(ellipse at 45% 35%, rgba(139,92,246,0.06) 0%, transparent 55%);
+    animation: nsBreath 4s ease-in-out infinite;
+  }
+  @keyframes nsBreath {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ns-neuron, .ns-lobe, .ns-breathe, .ns-signal-popup, .ns-task-popup, .ns-signal-dot, .ns-task-dot { animation: none !important; }
+  }
+</style>
+
+<script>
+  // Pattern ID → human-readable name mapping
+  const PATTERN_NAMES: Record<string, string> = {
+    'sycophancy': 'Sycophancy',
+    'hedge-stacking': 'Hedge Stacking',
+    'over-apologizing': 'Over-Apologizing',
+    'boundary-violation': 'Boundary Violation',
+    'error-spiral': 'Error Spiral',
+    'sentiment-skew': 'Sentiment Skew',
+    'formality-drift': 'Formality Drift',
+  };
+
+  // Health score → color
+  function healthColor(h: number): string {
+    if (h >= 85) return '#22c55e';
+    if (h >= 70) return '#f59e0b';
+    if (h >= 50) return '#f97316';
+    return '#f97066';
+  }
+
+  // Agent ID → display name
+  function agentDisplayName(a: string): string {
+    const map: Record<string, string> = {
+      'claude-code': 'Claude Code',
+      'cline': 'Cline',
+      'openclaw': 'OpenClaw',
+      'cursor': 'Cursor',
+      'codex': 'Codex CLI',
+      'manual': 'Custom Agent',
+    };
+    return map[a] || a;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const d = params.get('d');
+
+  if (d) {
+    // Hide acquisition page, show snapshot view
+    const acq = document.getElementById('acquisition-page');
+    const snap = document.getElementById('snapshot-view');
+    const footer = document.querySelector('footer');
+    const nav = document.querySelector('nav');
+    if (acq) acq.style.display = 'none';
+    if (footer) footer.style.display = 'none';
+    if (nav) (nav as HTMLElement).style.display = 'none';
+    if (snap) {
+      snap.style.display = 'block';
+      const iframe = document.getElementById('snapshot-iframe') as HTMLIFrameElement;
+      if (iframe) {
+        iframe.src = `/neuralspace/index.html?d=${encodeURIComponent(d)}`;
+      }
+    }
+
+    // Decode snapshot data to populate the bar and info overlay
+    try {
+      // base64url → binary → inflate → JSON
+      const binary = atob(d.replace(/-/g, '+').replace(/_/g, '/'));
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+      // Use pako if available, otherwise try DecompressionStream
+      let jsonStr: string;
+      if (typeof (window as any).pako !== 'undefined') {
+        jsonStr = (window as any).pako.inflate(bytes, { to: 'string' });
+      } else {
+        // Fallback: load pako dynamically
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako_inflate.min.js';
+        script.onload = () => {
+          const str = (window as any).pako.inflate(bytes, { to: 'string' });
+          populateSnapshot(JSON.parse(str));
+        };
+        document.head.appendChild(script);
+        jsonStr = ''; // will be handled by onload
+      }
+
+      if (jsonStr) {
+        populateSnapshot(JSON.parse(jsonStr));
+      }
+    } catch (e) {
+      // Snapshot decode failed — still show the brain iframe, just without metadata
+      console.warn('Could not decode snapshot metadata:', e);
+    }
+
+    // Wire up fork button with snapshot data
+    const forkBtn = document.getElementById('fork-btn');
+    if (forkBtn) {
+      forkBtn.setAttribute('href', `/signup?ref=brain&d=${encodeURIComponent(d)}`);
+    }
+
+    // Show short URL if available
+    const shortUrl = snap?.getAttribute('data-short-url');
+    if (shortUrl) {
+      const shortDisplay = document.getElementById('short-url-display');
+      if (shortDisplay) {
+        shortDisplay.textContent = shortUrl.replace('https://', '');
+        shortDisplay.classList.remove('hidden');
+        shortDisplay.style.cssText = 'font-size:12px;color:rgba(255,255,255,0.4);cursor:pointer;';
+        shortDisplay.title = 'Click to copy short URL';
+        shortDisplay.addEventListener('click', () => {
+          navigator.clipboard.writeText(shortUrl).then(() => {
+            shortDisplay.textContent = 'Copied!';
+            setTimeout(() => { shortDisplay.textContent = shortUrl.replace('https://', ''); }, 1500);
+          });
+        });
+      }
+    }
+  }
+
+  function populateSnapshot(data: { h?: number; g?: string; m?: number; a?: string; p?: Array<{ i: string; s: string; c: number }> }) {
+    const health = data.h ?? 0;
+    const grade = data.g ?? '?';
+    const agent = data.a ?? 'unknown';
+    const patterns = data.p ?? [];
+
+    // Bottom bar
+    const agentEl = document.getElementById('snapshot-agent-name');
+    const healthEl = document.getElementById('snapshot-health');
+    const patternsEl = document.getElementById('snapshot-patterns');
+    if (agentEl) agentEl.textContent = agentDisplayName(agent) + "'s Brain";
+    if (healthEl) {
+      healthEl.innerHTML = `Health: <span style="color:${healthColor(health)};font-weight:700">${health}/100</span> (${grade})`;
+    }
+    if (patternsEl && patterns.length > 0) {
+      patternsEl.textContent = patterns.length + ' pattern' + (patterns.length > 1 ? 's' : '') + ' detected';
+    }
+
+    // Info overlay card
+    const infoEl = document.getElementById('snapshot-info');
+    if (infoEl) {
+      let patternTags = '';
+      for (const p of patterns) {
+        const name = PATTERN_NAMES[p.i] || p.i;
+        patternTags += `<span class="pattern-tag ${p.s}">${name}</span>`;
+      }
+
+      infoEl.innerHTML = `
+        <div class="info-card">
+          <div class="info-label">Snapshot</div>
+          <div class="info-agent">${agentDisplayName(agent)}</div>
+          <div class="info-health">
+            <span class="health-score" style="color:${healthColor(health)}">${health}</span>
+            <span class="health-grade">/ 100 &middot; Grade ${grade}</span>
+          </div>
+          ${patterns.length > 0 ? `
+            <div class="info-label" style="margin-top:8px">Detected Patterns</div>
+            <div class="info-patterns">${patternTags}</div>
+          ` : '<div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px">No behavioral patterns detected</div>'}
+        </div>
+      `;
+      infoEl.classList.add('visible');
+    }
+  }
+</script>

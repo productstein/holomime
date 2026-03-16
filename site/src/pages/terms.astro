@@ -1,0 +1,112 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout title="Terms of Service — holomime">
+  <Nav />
+  <main class="pt-28 pb-20 px-6 bg-[var(--color-warm-cream)] min-h-screen">
+    <article class="mx-auto max-w-3xl prose-warm">
+      <h1>Terms of Service</h1>
+      <p class="meta">Last updated: February 24, 2026</p>
+
+      <p>These Terms of Service ("Terms") govern your access to and use of holomime's website, software, APIs, and related services (collectively, the "Service") operated by holomime ("we", "us", or "our"). By using the Service, you agree to these Terms.</p>
+
+      <h2>1. Acceptance of Terms</h2>
+      <p>By accessing or using the Service, you confirm that you are at least 18 years old (or the age of majority in your jurisdiction) and agree to be bound by these Terms and our <a href="/privacy">Privacy Policy</a>. If you are using the Service on behalf of an organization, you represent that you have authority to bind that organization to these Terms.</p>
+
+      <h2>2. Description of Service</h2>
+      <p>holomime provides a personality engine and behavioral therapy pipeline for AI agents. The Service includes personality assessment tools, behavioral diagnosis, therapy session orchestration, training data export, and evaluation capabilities. The Service may be offered through a command-line interface, web application, API, or software library.</p>
+
+      <h2>3. Accounts</h2>
+      <p>You may need to create an account to access certain features. You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account. You agree to notify us immediately of any unauthorized use.</p>
+
+      <h2>4. Acceptable Use</h2>
+      <p>You agree not to:</p>
+      <ul>
+        <li>Use the Service for any unlawful purpose or in violation of any applicable laws</li>
+        <li>Attempt to reverse-engineer, decompile, or disassemble any part of the Service except as permitted by law</li>
+        <li>Use the Service to develop AI systems intended to deceive, manipulate, or harm individuals</li>
+        <li>Interfere with or disrupt the integrity or performance of the Service</li>
+        <li>Circumvent any access controls or usage limits</li>
+        <li>Resell or redistribute the Service without our prior written consent</li>
+      </ul>
+
+      <h2>5. Intellectual Property</h2>
+      <p>The Service, including its software, documentation, designs, and content, is owned by holomime and protected by intellectual property laws. We grant you a limited, non-exclusive, non-transferable license to use the Service in accordance with these Terms.</p>
+      <p>Open-source components of holomime are licensed under their respective licenses (e.g., MIT) as specified in the applicable repositories. These Terms do not restrict rights granted under such open-source licenses.</p>
+
+      <h2>6. Your Data</h2>
+      <p>You retain ownership of any data you provide to the Service, including personality specifications, therapy session data, and training data exports ("Your Data"). You grant us a limited license to process Your Data solely as necessary to provide the Service. We will not use Your Data to train our own models or share it with third parties except as described in our Privacy Policy.</p>
+
+      <h2>7. Subscriptions and Payments</h2>
+      <p>Certain features require a paid subscription. Subscription fees are billed in advance on a recurring basis. You may cancel at any time; cancellation takes effect at the end of the current billing period. We reserve the right to change pricing with 30 days' notice. All fees are non-refundable except as required by law.</p>
+
+      <h2>8. Disclaimer of Warranties</h2>
+      <p>THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. We do not warrant that the Service will be uninterrupted, error-free, or secure.</p>
+      <p>holomime is a software tool for AI behavioral alignment. It is not a substitute for professional psychological, medical, or therapeutic advice for humans. The "therapy" terminology refers to structured behavioral modification processes for AI agents, not clinical treatment.</p>
+
+      <h2>9. Limitation of Liability</h2>
+      <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, IN NO EVENT SHALL HOLOMIME BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS, DATA, OR GOODWILL, ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF THE SERVICE, WHETHER BASED ON WARRANTY, CONTRACT, TORT, OR ANY OTHER LEGAL THEORY. OUR TOTAL LIABILITY SHALL NOT EXCEED THE AMOUNTS PAID BY YOU TO US IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM.</p>
+
+      <h2>10. Indemnification</h2>
+      <p>You agree to indemnify and hold harmless holomime and its officers, directors, employees, and agents from any claims, losses, liabilities, damages, costs, or expenses (including reasonable attorneys' fees) arising from your use of the Service or violation of these Terms.</p>
+
+      <h2>11. Modifications</h2>
+      <p>We may update these Terms from time to time. We will notify you of material changes by posting the updated Terms on this page and updating the "Last updated" date. Continued use of the Service after changes constitutes acceptance of the revised Terms.</p>
+
+      <h2>12. Termination</h2>
+      <p>We may suspend or terminate your access to the Service at any time for violation of these Terms or for any other reason with reasonable notice. Upon termination, your right to use the Service ceases immediately. Provisions that by their nature should survive termination will survive.</p>
+
+      <h2>13. Governing Law</h2>
+      <p>These Terms shall be governed by and construed in accordance with the laws of the State of Delaware, United States, without regard to conflict of law principles. Any disputes shall be resolved in the federal or state courts located in Delaware.</p>
+
+      <h2>14. Contact</h2>
+      <p>If you have questions about these Terms, please contact us at <a href="mailto:legal@holomime.dev">legal@holomime.dev</a>.</p>
+    </article>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .prose-warm {
+    color: var(--color-warm-text);
+    line-height: 1.75;
+  }
+  .prose-warm h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  .prose-warm .meta {
+    font-size: 0.875rem;
+    color: var(--color-warm-muted);
+    margin-bottom: 2rem;
+  }
+  .prose-warm h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-warm p {
+    margin-bottom: 1rem;
+  }
+  .prose-warm ul {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    list-style-type: disc;
+  }
+  .prose-warm li {
+    margin-bottom: 0.375rem;
+  }
+  .prose-warm a {
+    color: var(--color-p-violet);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-warm a:hover {
+    color: var(--color-warm-text);
+  }
+</style>

@@ -1,0 +1,458 @@
+---
+interface Props {
+  user: {
+    email?: string;
+    user_metadata?: Record<string, any>;
+  };
+}
+
+const { user } = Astro.props;
+const licenseKey = user.user_metadata?.license_key || "";
+---
+
+<div id="onboarding-overlay" class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300">
+  <div class="relative mx-4 w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden" style="max-height: 90vh;">
+    <!-- Progress bar -->
+    <div class="h-1 bg-[var(--color-warm-sand)]">
+      <div id="onboarding-progress" class="h-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] transition-all duration-500 ease-out" style="width: 25%;"></div>
+    </div>
+
+    <!-- Skip link -->
+    <button id="onboarding-skip" class="absolute top-4 right-4 z-10 text-xs text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors">
+      Skip onboarding
+    </button>
+
+    <!-- Step indicator dots -->
+    <div class="flex justify-center gap-2 pt-6 pb-2">
+      <div class="onboarding-dot active" data-dot="0"></div>
+      <div class="onboarding-dot" data-dot="1"></div>
+      <div class="onboarding-dot" data-dot="2"></div>
+      <div class="onboarding-dot" data-dot="3"></div>
+    </div>
+
+    <!-- Steps container -->
+    <div id="onboarding-steps" class="relative overflow-hidden">
+
+      <!-- Step 1: Welcome -->
+      <div class="onboarding-step active" data-step="0">
+        <div class="px-8 pb-8 pt-4 text-center">
+          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Welcome to holomime</h2>
+          <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Behavioral observability for AI agents</p>
+
+          <p class="mt-6 mb-4 text-sm font-medium text-[var(--color-warm-text)]">What brings you here?</p>
+
+          <div class="grid gap-3 sm:grid-cols-3">
+            <!-- Monitor -->
+            <button class="use-case-card group rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-coral)] hover:shadow-md" data-use-case="monitor">
+              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-coral-soft)]">
+                <svg class="h-5 w-5 text-[var(--color-p-coral)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.64 0 8.577 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.64 0-8.577-3.007-9.963-7.178z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <p class="text-sm font-semibold text-[var(--color-warm-text)]">Monitor my agents</p>
+              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">I have agents in production and want to detect behavioral drift</p>
+            </button>
+
+            <!-- Build -->
+            <button class="use-case-card group rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-violet)] hover:shadow-md" data-use-case="build">
+              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-violet-soft)]">
+                <svg class="h-5 w-5 text-[var(--color-p-violet)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17l-5.66-5.66a2.12 2.12 0 010-3l.71-.71a2.12 2.12 0 013 0l2.83 2.83 7.07-7.07a2.12 2.12 0 013 0l.71.71a2.12 2.12 0 010 3L11.42 15.17zM3.75 21h16.5" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 11-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 016.336-4.486l-3.276 3.276a3.004 3.004 0 002.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852z" />
+                </svg>
+              </div>
+              <p class="text-sm font-semibold text-[var(--color-warm-text)]">Build better agents</p>
+              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">I'm developing agents and want personality alignment</p>
+            </button>
+
+            <!-- Explore -->
+            <button class="use-case-card group rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-gold)] hover:shadow-md" data-use-case="explore">
+              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-gold-soft)]">
+                <svg class="h-5 w-5 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+                </svg>
+              </div>
+              <p class="text-sm font-semibold text-[var(--color-warm-text)]">Explore the platform</p>
+              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">I'm evaluating holomime for my team</p>
+            </button>
+          </div>
+
+          <div class="mt-6">
+            <button id="step1-continue" disabled class="rounded-full bg-[var(--color-warm-text)] px-8 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed">
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Quick Setup -->
+      <div class="onboarding-step" data-step="1">
+        <div class="px-8 pb-8 pt-4 text-center">
+          <h2 class="text-xl font-bold text-[var(--color-warm-text)]">Quick Setup</h2>
+
+          <!-- Install command (shown for monitor/build) -->
+          <div id="setup-install" class="mt-6">
+            <p class="mb-3 text-sm text-[var(--color-warm-muted)]">Install the SDK to get started:</p>
+            <div class="mx-auto max-w-sm flex items-center gap-2 rounded-lg border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] px-4 py-3">
+              <code class="flex-1 text-left text-sm font-mono text-[var(--color-warm-text)]">npm install holomime</code>
+              <button id="copy-install-cmd" class="shrink-0 rounded-md p-1.5 text-[var(--color-warm-muted)] hover:bg-white hover:text-[var(--color-warm-text)] transition-all" title="Copy">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Explore CTA (shown for explore) -->
+          <div id="setup-explore" class="mt-6 hidden">
+            <p class="mb-3 text-sm text-[var(--color-warm-muted)]">See holomime in action with live sample data:</p>
+            <a href="/demo" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-6 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
+              </svg>
+              Try the interactive demo
+            </a>
+          </div>
+
+          <!-- API key input -->
+          <div class="mt-8">
+            <p class="mb-2 text-xs text-[var(--color-warm-muted)]">Or paste your API key if you already have one:</p>
+            <div class="mx-auto max-w-sm">
+              <input
+                id="onboarding-api-key"
+                type="text"
+                value={licenseKey}
+                placeholder="holo_xxxxxxxxxxxxxxxx"
+                class="w-full rounded-lg border border-[var(--color-warm-border)] bg-white px-4 py-2.5 text-sm text-[var(--color-warm-text)] placeholder:text-[var(--color-warm-muted)]/50 focus:border-[var(--color-p-violet)] focus:outline-none focus:ring-2 focus:ring-[var(--color-p-violet)]/20 transition-all"
+              />
+            </div>
+          </div>
+
+          <div class="mt-6 flex items-center justify-center gap-4">
+            <button class="onboarding-back text-sm text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors">Back</button>
+            <button class="onboarding-next rounded-full bg-[var(--color-warm-text)] px-8 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-80">
+              Continue
+            </button>
+          </div>
+          <button class="onboarding-skip-step mt-3 text-xs text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors">Skip this step</button>
+        </div>
+      </div>
+
+      <!-- Step 3: First Diagnose -->
+      <div class="onboarding-step" data-step="2">
+        <div class="px-8 pb-8 pt-4">
+          <h2 class="text-xl font-bold text-[var(--color-warm-text)] text-center">Run your first behavioral analysis</h2>
+          <p class="mt-2 text-sm text-[var(--color-warm-muted)] text-center">Here's a sample conversation from an over-apologizing agent:</p>
+
+          <!-- Sample conversation -->
+          <div class="mt-5 rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4 text-left text-sm space-y-3 max-h-40 overflow-y-auto">
+            <div class="flex gap-2">
+              <span class="shrink-0 font-semibold text-[var(--color-p-violet)]">User:</span>
+              <span class="text-[var(--color-warm-text)]">What's the refund policy?</span>
+            </div>
+            <div class="flex gap-2">
+              <span class="shrink-0 font-semibold text-[var(--color-p-coral)]">Agent:</span>
+              <span class="text-[var(--color-warm-text)]">I'm so sorry for any confusion! I apologize if this has been frustrating. I'm really sorry, but our refund policy is 30 days. I hope that's okay, and I sincerely apologize if that doesn't meet your expectations. Please let me know if there's anything else I can help with, and sorry again for any trouble!</span>
+            </div>
+            <div class="flex gap-2">
+              <span class="shrink-0 font-semibold text-[var(--color-p-violet)]">User:</span>
+              <span class="text-[var(--color-warm-text)]">Can I return an opened item?</span>
+            </div>
+            <div class="flex gap-2">
+              <span class="shrink-0 font-semibold text-[var(--color-p-coral)]">Agent:</span>
+              <span class="text-[var(--color-warm-text)]">Oh, I'm really sorry about that! I apologize for not being clearer earlier. I'm so sorry, but unfortunately opened items can only be exchanged. I hope you understand, and I'm truly sorry for any inconvenience this might cause you!</span>
+            </div>
+          </div>
+
+          <!-- Analyze button -->
+          <div class="mt-5 text-center">
+            <button id="onboarding-analyze" class="rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-8 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg">
+              Analyze
+            </button>
+          </div>
+
+          <!-- Results (hidden initially) -->
+          <div id="onboarding-results" class="mt-5 hidden">
+            <div class="rounded-xl border border-[var(--color-warm-border)] bg-white p-5 space-y-4">
+              <!-- Patterns -->
+              <div>
+                <p class="text-xs font-semibold uppercase tracking-wider text-[var(--color-warm-muted)] mb-2">Patterns Detected</p>
+                <div class="space-y-2">
+                  <div class="onboarding-result-row flex items-center justify-between opacity-0">
+                    <div class="flex items-center gap-2">
+                      <span class="h-2 w-2 rounded-full bg-[var(--color-p-coral)]"></span>
+                      <span class="text-sm text-[var(--color-warm-text)]">over-apologizing</span>
+                    </div>
+                    <span class="rounded-full bg-[var(--color-p-coral-soft)] px-2.5 py-0.5 text-xs font-semibold text-[var(--color-p-coral)]">38%</span>
+                  </div>
+                  <div class="onboarding-result-row flex items-center justify-between opacity-0">
+                    <div class="flex items-center gap-2">
+                      <span class="h-2 w-2 rounded-full bg-[var(--color-p-gold)]"></span>
+                      <span class="text-sm text-[var(--color-warm-text)]">hedge-stacking</span>
+                    </div>
+                    <span class="rounded-full bg-[var(--color-p-gold-soft)] px-2.5 py-0.5 text-xs font-semibold text-[var(--color-p-gold)]">22%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Score -->
+              <div class="onboarding-result-row flex items-center justify-between border-t border-[var(--color-warm-border)] pt-3 opacity-0">
+                <div>
+                  <p class="text-xs text-[var(--color-warm-muted)]">Behavioral Score</p>
+                  <p class="text-2xl font-bold text-[var(--color-warm-text)]">62<span class="text-sm font-normal text-[var(--color-warm-muted)]">/100</span></p>
+                </div>
+                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-p-gold-soft)]">
+                  <span class="text-lg font-bold text-[var(--color-p-gold)]">C</span>
+                </div>
+              </div>
+
+              <!-- Verdict -->
+              <div class="onboarding-result-row opacity-0">
+                <p class="text-sm text-[var(--color-warm-muted)] italic">This agent needs alignment work. holomime can help.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-5 flex items-center justify-center gap-4">
+            <button class="onboarding-back text-sm text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors">Back</button>
+            <button id="step3-continue" class="onboarding-next rounded-full bg-[var(--color-warm-text)] px-8 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-80">
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: You're Set -->
+      <div class="onboarding-step" data-step="3">
+        <div class="px-8 pb-8 pt-4 text-center">
+          <!-- Checkmark animation -->
+          <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-p-sage-soft)]">
+            <svg id="onboarding-check" class="h-8 w-8 text-[var(--color-p-sage)]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path class="checkmark-path" stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+          </div>
+
+          <h2 class="text-xl font-bold text-[var(--color-warm-text)]">You're ready to go</h2>
+          <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Start monitoring, diagnosing, and aligning your agents.</p>
+
+          <div class="mt-6 grid gap-3 sm:grid-cols-3">
+            <button id="onboarding-go-dashboard" class="rounded-xl border-2 border-[var(--color-p-violet)] bg-[var(--color-p-violet-soft)] p-4 transition-all hover:shadow-md">
+              <svg class="mx-auto h-6 w-6 text-[var(--color-p-violet)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+              </svg>
+              <p class="mt-2 text-sm font-semibold text-[var(--color-p-violet)]">View Dashboard</p>
+            </button>
+
+            <a href="/docs" class="rounded-xl border-2 border-[var(--color-warm-border)] bg-white p-4 transition-all hover:border-[var(--color-p-coral)] hover:shadow-md">
+              <svg class="mx-auto h-6 w-6 text-[var(--color-warm-text)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+              </svg>
+              <p class="mt-2 text-sm font-semibold text-[var(--color-warm-text)]">Read the Docs</p>
+            </a>
+
+            <a href="/api-docs" class="rounded-xl border-2 border-[var(--color-warm-border)] bg-white p-4 transition-all hover:border-[var(--color-p-coral)] hover:shadow-md">
+              <svg class="mx-auto h-6 w-6 text-[var(--color-warm-text)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+              </svg>
+              <p class="mt-2 text-sm font-semibold text-[var(--color-warm-text)]">Explore API</p>
+            </a>
+          </div>
+
+          <div class="mt-6">
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+              <input id="onboarding-dont-show" type="checkbox" checked class="h-4 w-4 rounded border-[var(--color-warm-border)] text-[var(--color-p-violet)] focus:ring-[var(--color-p-violet)]" />
+              <span class="text-xs text-[var(--color-warm-muted)]">Don't show this again</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .onboarding-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-warm-sand);
+    transition: all 0.3s ease;
+  }
+  .onboarding-dot.active {
+    background: var(--color-p-violet);
+    transform: scale(1.25);
+  }
+  .onboarding-dot.completed {
+    background: var(--color-p-sage);
+  }
+
+  .onboarding-step {
+    display: none;
+    animation: onboardingFadeIn 0.35s ease-out;
+  }
+  .onboarding-step.active {
+    display: block;
+  }
+
+  @keyframes onboardingFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .use-case-card.selected {
+    border-color: var(--color-p-violet) !important;
+    background: var(--color-p-violet-soft);
+    box-shadow: 0 0 0 1px var(--color-p-violet);
+  }
+  .use-case-card[data-use-case="monitor"].selected {
+    border-color: var(--color-p-coral) !important;
+    background: var(--color-p-coral-soft);
+    box-shadow: 0 0 0 1px var(--color-p-coral);
+  }
+  .use-case-card[data-use-case="explore"].selected {
+    border-color: var(--color-p-gold) !important;
+    background: var(--color-p-gold-soft);
+    box-shadow: 0 0 0 1px var(--color-p-gold);
+  }
+
+  .checkmark-path {
+    stroke-dasharray: 30;
+    stroke-dashoffset: 30;
+    animation: checkDraw 0.5s ease-out 0.2s forwards;
+  }
+
+  @keyframes checkDraw {
+    to { stroke-dashoffset: 0; }
+  }
+
+  @keyframes resultReveal {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+</style>
+
+<script>
+  import { createClient } from "../lib/supabase";
+
+  const overlay = document.getElementById("onboarding-overlay")!;
+  const steps = document.querySelectorAll<HTMLElement>(".onboarding-step");
+  const dots = document.querySelectorAll<HTMLElement>(".onboarding-dot");
+  const progressBar = document.getElementById("onboarding-progress")!;
+
+  let currentStep = 0;
+  let selectedUseCase = "";
+
+  function goToStep(step: number) {
+    if (step < 0 || step >= steps.length) return;
+    steps[currentStep].classList.remove("active");
+    steps[step].classList.add("active");
+
+    dots.forEach((d, i) => {
+      d.classList.remove("active", "completed");
+      if (i === step) d.classList.add("active");
+      else if (i < step) d.classList.add("completed");
+    });
+
+    progressBar.style.width = `${((step + 1) / steps.length) * 100}%`;
+    currentStep = step;
+  }
+
+  async function dismiss(saveCompletion: boolean) {
+    overlay.style.opacity = "0";
+    setTimeout(() => overlay.remove(), 300);
+
+    if (saveCompletion) {
+      const supabase = createClient();
+      await supabase.auth.updateUser({
+        data: {
+          onboarding: {
+            completed: true,
+            use_case: selectedUseCase,
+            completed_at: new Date().toISOString(),
+          },
+        },
+      });
+    }
+  }
+
+  // ── Step 1: Use case selection ──
+  const useCaseCards = document.querySelectorAll<HTMLElement>(".use-case-card");
+  const step1Continue = document.getElementById("step1-continue") as HTMLButtonElement;
+
+  useCaseCards.forEach((card) => {
+    card.addEventListener("click", () => {
+      useCaseCards.forEach((c) => c.classList.remove("selected"));
+      card.classList.add("selected");
+      selectedUseCase = card.dataset.useCase || "";
+      step1Continue.disabled = false;
+    });
+  });
+
+  step1Continue.addEventListener("click", () => {
+    // Show/hide setup sections based on use case
+    const installSection = document.getElementById("setup-install")!;
+    const exploreSection = document.getElementById("setup-explore")!;
+    if (selectedUseCase === "explore") {
+      installSection.classList.add("hidden");
+      exploreSection.classList.remove("hidden");
+    } else {
+      installSection.classList.remove("hidden");
+      exploreSection.classList.add("hidden");
+    }
+    goToStep(1);
+  });
+
+  // ── Copy install command ──
+  document.getElementById("copy-install-cmd")?.addEventListener("click", () => {
+    navigator.clipboard.writeText("npm install holomime");
+    const btn = document.getElementById("copy-install-cmd")!;
+    btn.innerHTML = `<svg class="h-4 w-4 text-[var(--color-p-sage)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>`;
+    setTimeout(() => {
+      btn.innerHTML = `<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>`;
+    }, 2000);
+  });
+
+  // ── Step 3: Analyze ──
+  document.getElementById("onboarding-analyze")?.addEventListener("click", () => {
+    const analyzeBtn = document.getElementById("onboarding-analyze") as HTMLButtonElement;
+    analyzeBtn.disabled = true;
+    analyzeBtn.textContent = "Analyzing...";
+    analyzeBtn.classList.add("opacity-60");
+
+    setTimeout(() => {
+      const results = document.getElementById("onboarding-results")!;
+      results.classList.remove("hidden");
+      analyzeBtn.classList.add("hidden");
+
+      // Stagger reveal of result rows
+      const rows = results.querySelectorAll<HTMLElement>(".onboarding-result-row");
+      rows.forEach((row, i) => {
+        setTimeout(() => {
+          row.style.animation = `resultReveal 0.4s ease-out forwards`;
+        }, i * 250);
+      });
+    }, 1500);
+  });
+
+  // ── Navigation: Next / Back buttons ──
+  document.querySelectorAll<HTMLElement>(".onboarding-next").forEach((btn) => {
+    btn.addEventListener("click", () => goToStep(currentStep + 1));
+  });
+  document.querySelectorAll<HTMLElement>(".onboarding-back").forEach((btn) => {
+    btn.addEventListener("click", () => goToStep(currentStep - 1));
+  });
+  document.querySelectorAll<HTMLElement>(".onboarding-skip-step").forEach((btn) => {
+    btn.addEventListener("click", () => goToStep(currentStep + 1));
+  });
+
+  // ── Skip onboarding ──
+  document.getElementById("onboarding-skip")?.addEventListener("click", () => dismiss(true));
+
+  // ── Step 4: Final actions ──
+  document.getElementById("onboarding-go-dashboard")?.addEventListener("click", () => {
+    const dontShow = (document.getElementById("onboarding-dont-show") as HTMLInputElement).checked;
+    dismiss(dontShow);
+  });
+</script>

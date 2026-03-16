@@ -1,0 +1,156 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout title="Privacy Policy — holomime">
+  <Nav />
+  <main class="pt-28 pb-20 px-6 bg-[var(--color-warm-cream)] min-h-screen">
+    <article class="mx-auto max-w-3xl prose-warm">
+      <h1>Privacy Policy</h1>
+      <p class="meta">Last updated: February 24, 2026</p>
+
+      <p>This Privacy Policy explains how holomime ("we", "us", or "our") collects, uses, and protects your information when you use our website, software, APIs, and related services (the "Service"). By using the Service, you agree to the practices described here.</p>
+
+      <h2>1. Information We Collect</h2>
+
+      <h3>Information you provide</h3>
+      <ul>
+        <li><strong>Account information:</strong> name, email address, and password when you create an account</li>
+        <li><strong>Payment information:</strong> billing details processed securely through our third-party payment provider (Polar). We do not store your full credit card number.</li>
+        <li><strong>Agent data:</strong> personality specifications, therapy session logs, behavioral assessments, training data exports, and other content you create through the Service ("Agent Data")</li>
+        <li><strong>Communications:</strong> messages you send to us via email or support channels</li>
+      </ul>
+
+      <h3>Information collected automatically</h3>
+      <ul>
+        <li><strong>Usage data:</strong> pages visited, features used, session duration, and interaction patterns</li>
+        <li><strong>Device information:</strong> browser type, operating system, device type, and screen resolution</li>
+        <li><strong>Log data:</strong> IP address, access times, and referring URLs</li>
+        <li><strong>Cookies:</strong> we use essential cookies for authentication and session management. We use analytics cookies only with your consent.</li>
+      </ul>
+
+      <h2>2. How We Use Your Information</h2>
+      <p>We use your information to:</p>
+      <ul>
+        <li>Provide, maintain, and improve the Service</li>
+        <li>Process transactions and send billing-related communications</li>
+        <li>Respond to your inquiries and provide customer support</li>
+        <li>Send product updates and service announcements (you can opt out at any time)</li>
+        <li>Monitor and analyze usage patterns to improve user experience</li>
+        <li>Detect, prevent, and address technical issues and security threats</li>
+        <li>Comply with legal obligations</li>
+      </ul>
+
+      <h2>3. How We Handle Agent Data</h2>
+      <p>Your Agent Data (personality specs, therapy sessions, training exports) is treated with particular care:</p>
+      <ul>
+        <li><strong>Your data stays yours.</strong> We do not use your Agent Data to train our own models, build competing products, or improve the Service's AI capabilities.</li>
+        <li><strong>Processing only.</strong> We process Agent Data solely to deliver the features you request (e.g., running therapy sessions, generating training exports).</li>
+        <li><strong>No third-party sharing.</strong> We do not sell, rent, or share your Agent Data with third parties except as necessary for service delivery (e.g., LLM providers for therapy sessions) or as required by law.</li>
+        <li><strong>Deletion.</strong> You can request deletion of your Agent Data at any time. We will remove it from our active systems within 30 days and from backups within 90 days.</li>
+      </ul>
+
+      <h2>4. Third-Party Services</h2>
+      <p>We use the following categories of third-party services:</p>
+      <ul>
+        <li><strong>Payment processing:</strong> Polar (for subscription billing)</li>
+        <li><strong>LLM providers:</strong> to power therapy sessions and behavioral analysis (Agent Data sent to these providers is subject to their data processing agreements with us)</li>
+        <li><strong>Analytics:</strong> to understand how the Service is used (anonymized data only)</li>
+        <li><strong>Hosting:</strong> cloud infrastructure providers for service delivery</li>
+      </ul>
+      <p>We require all third-party providers to maintain appropriate security measures and restrict their use of your data to the services they perform on our behalf.</p>
+
+      <h2>5. Data Security</h2>
+      <p>We implement industry-standard security measures to protect your information, including:</p>
+      <ul>
+        <li>Encryption in transit (TLS 1.2+) and at rest</li>
+        <li>Access controls and authentication requirements</li>
+        <li>Regular security assessments</li>
+        <li>Incident response procedures</li>
+      </ul>
+      <p>No method of transmission or storage is 100% secure. While we strive to protect your information, we cannot guarantee absolute security.</p>
+
+      <h2>6. Data Retention</h2>
+      <p>We retain your information for as long as your account is active or as needed to provide the Service. After account deletion, we retain certain data as required by law or for legitimate business purposes (e.g., fraud prevention, dispute resolution) for up to 12 months.</p>
+
+      <h2>7. Your Rights</h2>
+      <p>Depending on your jurisdiction, you may have the following rights:</p>
+      <ul>
+        <li><strong>Access:</strong> request a copy of your personal data</li>
+        <li><strong>Correction:</strong> request correction of inaccurate data</li>
+        <li><strong>Deletion:</strong> request deletion of your personal data</li>
+        <li><strong>Portability:</strong> receive your data in a structured, machine-readable format</li>
+        <li><strong>Objection:</strong> object to processing of your data in certain circumstances</li>
+        <li><strong>Restriction:</strong> request restriction of processing in certain circumstances</li>
+      </ul>
+      <p>To exercise these rights, contact us at <a href="mailto:privacy@holomime.dev">privacy@holomime.dev</a>. We will respond within 30 days.</p>
+
+      <h2>8. International Data Transfers</h2>
+      <p>Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place for such transfers, including standard contractual clauses or other mechanisms recognized by applicable data protection authorities.</p>
+
+      <h2>9. Children's Privacy</h2>
+      <p>The Service is not intended for individuals under 18 years of age. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately.</p>
+
+      <h2>10. Changes to This Policy</h2>
+      <p>We may update this Privacy Policy from time to time. We will notify you of material changes by posting the updated policy on this page and updating the "Last updated" date. We encourage you to review this policy periodically.</p>
+
+      <h2>11. Contact Us</h2>
+      <p>If you have questions about this Privacy Policy or our data practices, please contact us at:</p>
+      <ul>
+        <li>Email: <a href="mailto:privacy@holomime.dev">privacy@holomime.dev</a></li>
+        <li>General inquiries: <a href="mailto:hello@holomime.dev">hello@holomime.dev</a></li>
+      </ul>
+    </article>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .prose-warm {
+    color: var(--color-warm-text);
+    line-height: 1.75;
+  }
+  .prose-warm h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  .prose-warm .meta {
+    font-size: 0.875rem;
+    color: var(--color-warm-muted);
+    margin-bottom: 2rem;
+  }
+  .prose-warm h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  .prose-warm h3 {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  .prose-warm p {
+    margin-bottom: 1rem;
+  }
+  .prose-warm ul {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+    list-style-type: disc;
+  }
+  .prose-warm li {
+    margin-bottom: 0.375rem;
+  }
+  .prose-warm a {
+    color: var(--color-p-violet);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-warm a:hover {
+    color: var(--color-warm-text);
+  }
+</style>

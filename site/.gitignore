@@ -1,0 +1,19 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+.dev.vars
+
+# Build
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Wrangler
+.wrangler/

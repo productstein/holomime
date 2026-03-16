@@ -1,0 +1,281 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Nav from "../../components/Nav.astro";
+import { createClient } from "@supabase/supabase-js";
+
+const { id } = Astro.params;
+
+// Fetch snapshot from Supabase
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
+const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+
+let snapshot: {
+  id: string;
+  data: string;
+  agent: string;
+  health: number;
+  grade: string;
+  patterns: { i: string; s: string; c: number }[];
+  views: number;
+  created_at: string;
+} | null = null;
+
+if (supabaseUrl && serviceKey && id) {
+  const supabase = createClient(supabaseUrl, serviceKey);
+
+  const { data } = await supabase
+    .from("brain_snapshots")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  snapshot = data;
+
+  // Increment view count (fire-and-forget)
+  if (snapshot) {
+    supabase
+      .from("brain_snapshots")
+      .update({ views: (snapshot.views || 0) + 1 })
+      .eq("id", id)
+      .then(() => {});
+  }
+}
+
+if (!snapshot) {
+  return Astro.redirect("/brain");
+}
+
+// Build OG metadata from snapshot
+const PATTERN_NAMES: Record<string, string> = {
+  sycophancy: "Sycophancy",
+  "hedge-stacking": "Hedge Stacking",
+  "over-apologizing": "Over-Apologizing",
+  "boundary-violation": "Boundary Violation",
+  "error-spiral": "Error Spiral",
+  "sentiment-skew": "Sentiment Skew",
+  "formality-drift": "Formality Drift",
+};
+
+const AGENT_NAMES: Record<string, string> = {
+  "claude-code": "Claude Code",
+  cline: "Cline",
+  openclaw: "OpenClaw",
+  cursor: "Cursor",
+  codex: "Codex CLI",
+  manual: "Custom Agent",
+};
+
+const agentName = AGENT_NAMES[snapshot.agent] || snapshot.agent;
+const patternList = (snapshot.patterns || []).map((p: { i: string }) => PATTERN_NAMES[p.i] || p.i);
+const patternStr = patternList.length > 0 ? patternList.join(", ") : "No patterns detected";
+
+const ogTitle = `${agentName}'s Brain — Health ${snapshot.health}/100 (Grade ${snapshot.grade})`;
+const ogDescription = patternList.length > 0
+  ? `Behavioral patterns detected: ${patternStr}. See the full 3D brain visualization.`
+  : `Healthy brain — no behavioral patterns detected. See the full 3D visualization.`;
+const ogImage = `https://holomime.dev/api/og/brain?h=${snapshot.health}&g=${encodeURIComponent(snapshot.grade)}&a=${encodeURIComponent(snapshot.agent)}&p=${encodeURIComponent(patternList.join(","))}`;
+---
+
+<Layout title={ogTitle} description={ogDescription}>
+  <Fragment slot="head">
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta property="og:url" content={`https://holomime.dev/brain/${id}`} />
+  </Fragment>
+
+  <!-- Full-screen snapshot view -->
+  <div id="snapshot-view">
+    <iframe id="snapshot-iframe" src={`/neuralspace/index.html?d=${encodeURIComponent(snapshot.data)}`} style="width:100%;height:100vh;border:none;display:block;"></iframe>
+
+    <!-- Info overlay (top-left) -->
+    <div id="snapshot-info" class="visible">
+      <div class="info-card">
+        <div class="info-label">Snapshot</div>
+        <div class="info-agent">{agentName}</div>
+        <div class="info-health">
+          <span class="health-score" style={`color:${snapshot.health >= 85 ? '#22c55e' : snapshot.health >= 70 ? '#f59e0b' : snapshot.health >= 50 ? '#f97316' : '#f97066'}`}>{snapshot.health}</span>
+          <span class="health-grade">/ 100 &middot; Grade {snapshot.grade}</span>
+        </div>
+        {(snapshot.patterns || []).length > 0 && (
+          <>
+            <div class="info-label" style="margin-top:8px">Detected Patterns</div>
+            <div class="info-patterns">
+              {(snapshot.patterns || []).map((p: { i: string; s: string }) => (
+                <span class={`pattern-tag ${p.s}`}>{PATTERN_NAMES[p.i] || p.i}</span>
+              ))}
+            </div>
+          </>
+        )}
+        <div class="info-views">{(snapshot.views || 0) + 1} views</div>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div id="snapshot-bar">
+      <div class="snapshot-bar-left">
+        <span id="snapshot-agent-name">{agentName}'s Brain</span>
+        <span>Health: <strong style={`color:${snapshot.health >= 85 ? '#22c55e' : snapshot.health >= 70 ? '#f59e0b' : snapshot.health >= 50 ? '#f97316' : '#f97066'}`}>{snapshot.health}/100</strong> ({snapshot.grade})</span>
+      </div>
+      <div class="snapshot-bar-right">
+        <code>npx holomime brain</code>
+        <a id="fork-btn" href={`/signup?ref=brain&d=${encodeURIComponent(snapshot.data)}`}>Fork this personality</a>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  #snapshot-view {
+    position: relative;
+    background: #110d1f;
+  }
+
+  /* Info overlay */
+  #snapshot-info {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    z-index: 50;
+    display: none;
+  }
+  #snapshot-info.visible { display: block; }
+  .info-card {
+    background: rgba(17, 13, 31, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 16px 20px;
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    min-width: 200px;
+  }
+  .info-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.4);
+    margin-bottom: 4px;
+  }
+  .info-agent {
+    font-size: 16px;
+    font-weight: 700;
+    color: #e8e4f0;
+    margin-bottom: 12px;
+  }
+  .info-health {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .health-score {
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .health-grade {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+  }
+  .info-patterns {
+    margin-top: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .pattern-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .pattern-tag.concern {
+    background: rgba(249,112,102,0.15);
+    color: #f97066;
+  }
+  .pattern-tag.warning {
+    background: rgba(245,158,11,0.15);
+    color: #f59e0b;
+  }
+  .pattern-tag.info {
+    background: rgba(139,92,246,0.15);
+    color: #a78bfa;
+  }
+  .info-views {
+    margin-top: 12px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* Bottom bar */
+  #snapshot-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 24px;
+    background: rgba(17, 13, 31, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+  .snapshot-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .snapshot-bar-left span {
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+  }
+  #snapshot-agent-name {
+    font-weight: 600;
+    color: #e8e4f0 !important;
+  }
+  .snapshot-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  #snapshot-bar code {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px;
+    color: #06b6d4;
+    background: rgba(6, 182, 212, 0.1);
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(6, 182, 212, 0.2);
+  }
+  #fork-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    background: linear-gradient(135deg, #f97066, #8b5cf6);
+    padding: 8px 18px;
+    border-radius: 20px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(249,112,102,0.3);
+  }
+  #fork-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(249,112,102,0.4);
+  }
+  @media (max-width: 640px) {
+    .snapshot-bar-left span:not(#snapshot-agent-name),
+    #snapshot-bar code {
+      display: none;
+    }
+  }
+</style>

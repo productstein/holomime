@@ -1,0 +1,118 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { Polar } from "@polar-sh/sdk";
+import { createClient } from "@supabase/supabase-js";
+
+const checkoutId = Astro.url.searchParams.get("checkout_id");
+let licenseKey = "";
+let isPending = false;
+
+if (checkoutId) {
+  const accessToken = import.meta.env.POLAR_ACCESS_TOKEN;
+  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
+  const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (accessToken && supabaseUrl && serviceKey) {
+    try {
+      const polar = new Polar({ accessToken });
+      const checkout = await polar.checkouts.get({ id: checkoutId });
+      const email = checkout.customerEmail;
+
+      if (email) {
+        const supabase = createClient(supabaseUrl, serviceKey);
+        const { data } = await supabase
+          .from("licenses")
+          .select("key")
+          .eq("customer_email", email)
+          .eq("status", "active")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (data?.key) {
+          licenseKey = data.key;
+        }
+      }
+    } catch (e) {
+      console.error("[HoloMime] License lookup failed:", e);
+    }
+  }
+
+  // Fallback if webhook hasn't fired yet
+  if (!licenseKey) {
+    licenseKey = `holo_${checkoutId.slice(0, 24)}`;
+    isPending = true;
+  }
+}
+---
+
+<Layout title="Welcome to holomime Pro!">
+  <Nav />
+  <main class="flex min-h-screen items-center justify-center pt-20">
+    <div class="mx-auto max-w-lg px-6 py-20 text-center">
+      <!-- Success icon -->
+      <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-green-500/10">
+        <svg class="h-8 w-8 text-green-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+        </svg>
+      </div>
+
+      <h1 class="text-3xl font-bold">Welcome to holomime Pro!</h1>
+      <p class="mt-4 text-[var(--color-holo-muted)]">
+        Your license is ready. Activate it in your terminal to unlock therapy sessions, autopilot, and growth tracking.
+      </p>
+
+      {isPending && (
+        <p class="mt-4 text-sm text-yellow-400">
+          Your license is being provisioned. If the key below doesn't work, refresh this page in a few seconds.
+        </p>
+      )}
+
+      <!-- License key -->
+      <div class="mt-8 rounded-xl border border-[var(--color-holo-border)] bg-[var(--color-holo-card)] p-6">
+        <p class="mb-2 text-sm font-medium text-[var(--color-holo-muted)]">Your license key</p>
+        <div class="flex items-center gap-2">
+          <code id="license-key" class="flex-1 rounded-lg bg-[var(--color-holo-dark)] px-4 py-3 font-mono text-sm text-[var(--color-holo-cyan)] select-all">
+            {licenseKey}
+          </code>
+          <button
+            id="copy-btn"
+            class="rounded-lg border border-[var(--color-holo-border)] px-3 py-3 text-sm transition-colors hover:border-[var(--color-holo-muted)]"
+            title="Copy to clipboard"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Activation instructions -->
+      <div class="mt-8 rounded-xl border border-[var(--color-holo-border)] bg-[var(--color-holo-slate)] p-6 text-left">
+        <p class="mb-3 text-sm font-medium">Activate in your terminal:</p>
+        <div class="rounded-lg bg-[var(--color-holo-dark)] p-4 font-mono text-sm">
+          <p><span class="text-[var(--color-holo-cyan)]">$</span> holomime activate {licenseKey}</p>
+          <p class="mt-2 text-green-400">  Pro license activated!</p>
+        </div>
+      </div>
+
+      <a href="/" class="mt-8 inline-block text-sm text-[var(--color-holo-muted)] transition-colors hover:text-white">
+        &larr; Back to home
+      </a>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  document.getElementById("copy-btn")?.addEventListener("click", () => {
+    const key = document.getElementById("license-key")?.textContent?.trim();
+    if (key) {
+      navigator.clipboard.writeText(key);
+      const btn = document.getElementById("copy-btn");
+      if (btn) btn.innerHTML = '<svg class="h-4 w-4 text-green-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+    }
+  });
+</script>

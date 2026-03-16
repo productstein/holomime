@@ -1,0 +1,2084 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import NeuralSpace from "../components/NeuralSpace.astro";
+import AgentDetail from "../components/AgentDetail.astro";
+import OnboardingWizard from "../components/OnboardingWizard.astro";
+import { createClient } from "@supabase/supabase-js";
+
+// Auth guard
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect("/login?redirect=/dashboard");
+}
+
+// Supabase service client (same pattern as success.astro)
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
+const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+
+let license: {
+  id: string;
+  key: string;
+  tier: string;
+  status: string;
+  created_at: string;
+  expires_at: string | null;
+} | null = null;
+
+let expiredLicense = false;
+
+let usageStats = {
+  total: 0,
+  thisMonth: 0,
+  byEndpoint: [] as { endpoint: string; count: number }[],
+};
+
+let latestGrade: string | null = null;
+let latestScore: number | null = null;
+let diagnoseCount = 0;
+let assessCount = 0;
+let auditAlerts = 0;
+let scoreHistory: { score: number; grade: string; created_at: string }[] = [];
+let latestPatterns: { id: string; name: string; severity: string; percentage: number; description: string }[] = [];
+
+let errorMessage = "";
+
+// ─── Brain Snapshots (user's own) ───
+let userSnapshots: { id: string; agent: string; health: number; grade: string; patterns: any[]; views: number; created_at: string }[] = [];
+
+// ─── User Personalities ───
+let userPersonality: { id: string; name: string; spec: any } | null = null;
+
+// ─── Enterprise data ───
+let orgInfo: { id: string; name: string; slug: string } | null = null;
+let orgRole: string | null = null;
+let teamMembers: { email: string; role: string; joinedAt: string }[] = [];
+let recentAuditLogs: { action: string; actor: string | null; createdAt: string; metadata: any }[] = [];
+let fleetAgents: { id: string; name: string; status: string; lastSeen: string | null; latestRisk: string | null }[] = [];
+let customDetectors: { id: string; name: string; detection_type: string; severity: string; enabled: boolean }[] = [];
+let ssoEnabled = false;
+let ssoProvider: string | null = null;
+let voiceIntegrations: { provider: string; enabled: boolean }[] = [];
+let voiceClones: { id: string; name: string; status: string }[] = [];
+let apiKeys: { id: string; name: string; key: string; status: string; last_used_at: string | null; created_at: string }[] = [];
+
+try {
+if (supabaseUrl && serviceKey) {
+  const supabase = createClient(supabaseUrl, serviceKey);
+
+  // Fetch active license
+  const { data: licenseData } = await supabase
+    .from("licenses")
+    .select("id, key, tier, status, created_at, expires_at")
+    .eq("customer_email", user.email)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  license = licenseData;
+
+  // Check for cancelled/expired license if no active one
+  if (!license) {
+    const { data: oldLicense } = await supabase
+      .from("licenses")
+      .select("id")
+      .eq("customer_email", user.email)
+      .in("status", ["cancelled", "expired"])
+      .limit(1)
+      .single();
+
+    expiredLicense = !!oldLicense;
+  }
+
+  // Fetch usage stats if license exists
+  if (license) {
+    const { count: totalCount } = await supabase
+      .from("api_usage")
+      .select("*", { count: "exact", head: true })
+      .eq("license_id", license.id);
+
+    usageStats.total = totalCount ?? 0;
+
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const { count: monthCount } = await supabase
+      .from("api_usage")
+      .select("*", { count: "exact", head: true })
+      .eq("license_id", license.id)
+      .gte("created_at", startOfMonth.toISOString());
+
+    usageStats.thisMonth = monthCount ?? 0;
+
+    // By endpoint (aggregate in JS)
+    const { data: usageRows } = await supabase
+      .from("api_usage")
+      .select("endpoint")
+      .eq("license_id", license.id)
+      .limit(10000);
+
+    if (usageRows) {
+      const counts = new Map<string, number>();
+      for (const row of usageRows) {
+        counts.set(row.endpoint, (counts.get(row.endpoint) ?? 0) + 1);
+      }
+      usageStats.byEndpoint = Array.from(counts.entries())
+        .map(([endpoint, count]) => ({ endpoint, count }))
+        .sort((a, b) => b.count - a.count);
+    }
+
+    // ─── Behavioral health data ───
+    const { data: latestAssess } = await supabase
+      .from("behavioral_results")
+      .select("score, grade")
+      .eq("license_id", license.id)
+      .eq("endpoint", "assess")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (latestAssess) {
+      latestGrade = latestAssess.grade;
+      latestScore = latestAssess.score;
+    }
+
+    const { count: dxCount } = await supabase
+      .from("behavioral_results")
+      .select("*", { count: "exact", head: true })
+      .eq("license_id", license.id)
+      .eq("endpoint", "diagnose");
+    diagnoseCount = dxCount ?? 0;
+
+    const { count: axCount } = await supabase
+      .from("behavioral_results")
+      .select("*", { count: "exact", head: true })
+      .eq("license_id", license.id)
+      .eq("endpoint", "assess");
+    assessCount = axCount ?? 0;
+
+    const { data: auditRows } = await supabase
+      .from("behavioral_results")
+      .select("flags_count")
+      .eq("license_id", license.id)
+      .eq("endpoint", "self-audit");
+    auditAlerts = (auditRows ?? []).reduce((sum: number, r: any) => sum + (r.flags_count ?? 0), 0);
+
+    const { data: history } = await supabase
+      .from("behavioral_results")
+      .select("score, grade, created_at")
+      .eq("license_id", license.id)
+      .eq("endpoint", "assess")
+      .order("created_at", { ascending: true })
+      .limit(20);
+    scoreHistory = (history ?? []) as typeof scoreHistory;
+
+    const { data: latestDx } = await supabase
+      .from("behavioral_results")
+      .select("patterns")
+      .eq("license_id", license.id)
+      .eq("endpoint", "diagnose")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+    latestPatterns = (latestDx?.patterns as typeof latestPatterns) ?? [];
+  }
+}
+} catch (e: any) {
+  errorMessage = `Dashboard error: ${e?.message || String(e)}`;
+  console.error("Dashboard data error:", e);
+}
+
+// ─── Brain Snapshots (user's own) ───
+try {
+  if (supabaseUrl && serviceKey) {
+    const supabase = createClient(supabaseUrl, serviceKey);
+    const { data: snaps } = await supabase
+      .from("brain_snapshots")
+      .select("id, agent, health, grade, patterns, views, created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .limit(10);
+    userSnapshots = (snaps ?? []) as typeof userSnapshots;
+  }
+} catch { /* user_id column may not exist yet */ }
+
+// ─── User Personalities ───
+try {
+  if (supabaseUrl && serviceKey) {
+    const supabase = createClient(supabaseUrl, serviceKey);
+    const { data: personality } = await supabase
+      .from("user_personalities")
+      .select("id, name, spec")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .single();
+    userPersonality = personality as typeof userPersonality;
+  }
+} catch { /* user_personalities table may not exist yet */ }
+
+const isEnterprise = license?.tier === "enterprise";
+const isPro = license?.tier === "pro";
+const isDeveloper = license?.tier === "developer";
+const hasNeuralSpace = true; // Available to all users
+const hasFleetMode = isPro || isDeveloper || isEnterprise;
+const isDemoMode = user.email === "demo@holomime.dev";
+
+// ─── User's Agents → NeuralSpace data ───
+let userFleetAgents: typeof fleetAgents = [];
+try {
+  if (supabaseUrl && serviceKey) {
+    const sb = createClient(supabaseUrl, serviceKey);
+    const { data: agentRows } = await sb
+      .from("agents")
+      .select("id, name, handle, updated_at")
+      .eq("user_id", user.id)
+      .order("updated_at", { ascending: false });
+    const userAgents = agentRows ?? [];
+
+    if (userAgents.length > 0) {
+      const agentIds = userAgents.map((a: any) => a.id);
+      const { data: snaps } = await sb
+        .from("brain_snapshots")
+        .select("agent_id, health, grade, created_at")
+        .in("agent_id", agentIds)
+        .order("created_at", { ascending: false });
+
+      const latestByAgent = new Map();
+      for (const s of (snaps ?? [])) {
+        if (!latestByAgent.has(s.agent_id)) latestByAgent.set(s.agent_id, s);
+      }
+
+      userFleetAgents = userAgents.map((ua: any) => {
+        const snap = latestByAgent.get(ua.id);
+        return {
+          id: ua.id,
+          name: ua.name,
+          status: snap ? (snap.health >= 80 ? 'active' : 'alerting') : 'active',
+          lastSeen: snap?.created_at ?? ua.updated_at,
+          latestRisk: snap ? (snap.grade?.startsWith('A') || snap.grade?.startsWith('B') ? null : snap.grade?.startsWith('C') ? 'medium' : 'high') : null,
+        };
+      });
+    }
+  }
+} catch { /* agents table may not exist yet */ }
+
+try {
+if (isEnterprise && license && supabaseUrl && serviceKey) {
+  const supabase = createClient(supabaseUrl, serviceKey);
+
+  // Get org membership
+  const { data: membership } = await supabase
+    .from("org_members")
+    .select("org_id, role, organizations(id, name, slug)")
+    .eq("license_id", license.id)
+    .limit(1)
+    .single();
+
+  if (membership?.organizations) {
+    const org = membership.organizations as any;
+    orgInfo = { id: org.id, name: org.name, slug: org.slug };
+    orgRole = membership.role;
+
+    // Team members
+    const { data: members } = await supabase
+      .from("org_members")
+      .select("role, joined_at, licenses(customer_email)")
+      .eq("org_id", orgInfo.id)
+      .order("joined_at", { ascending: true });
+
+    teamMembers = (members ?? []).map((m: any) => ({
+      email: m.licenses?.customer_email ?? "unknown",
+      role: m.role,
+      joinedAt: new Date(m.joined_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    }));
+
+    // Recent audit logs (last 10)
+    const { data: logs } = await supabase
+      .from("audit_logs")
+      .select("action, created_at, metadata, actor_license_id, licenses(customer_email)")
+      .eq("org_id", orgInfo.id)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    recentAuditLogs = (logs ?? []).map((l: any) => ({
+      action: l.action,
+      actor: l.licenses?.customer_email ?? null,
+      createdAt: new Date(l.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+      metadata: l.metadata,
+    }));
+
+    // Fleet agents
+    const { data: agents } = await supabase
+      .from("fleet_agents")
+      .select("id, name, status, last_seen_at")
+      .eq("org_id", orgInfo.id)
+      .order("created_at", { ascending: true });
+
+    const agentIds = (agents ?? []).map(a => a.id);
+    const { data: allSnapshots } = agentIds.length > 0
+      ? await supabase
+          .from("fleet_snapshots")
+          .select("agent_id, risk_level")
+          .in("agent_id", agentIds)
+          .order("created_at", { ascending: false })
+      : { data: [] };
+
+    const latestSnapByAgent = new Map<string, string>();
+    for (const snap of allSnapshots ?? []) {
+      if (!latestSnapByAgent.has(snap.agent_id)) {
+        latestSnapByAgent.set(snap.agent_id, snap.risk_level);
+      }
+    }
+
+    for (const agent of agents ?? []) {
+      fleetAgents.push({
+        id: agent.id,
+        name: agent.name,
+        status: agent.status,
+        lastSeen: agent.last_seen_at ? new Date(agent.last_seen_at).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : null,
+        latestRisk: latestSnapByAgent.get(agent.id) ?? null,
+      });
+    }
+
+    // Custom detectors
+    const { data: detectors } = await supabase
+      .from("custom_detectors")
+      .select("id, name, detection_type, severity, enabled")
+      .eq("org_id", orgInfo.id)
+      .order("created_at", { ascending: true });
+
+    customDetectors = (detectors ?? []) as typeof customDetectors;
+
+    // SSO config
+    const { data: sso } = await supabase
+      .from("sso_configs")
+      .select("provider, enabled")
+      .eq("org_id", orgInfo.id)
+      .limit(1)
+      .single();
+
+    if (sso) {
+      ssoEnabled = sso.enabled;
+      ssoProvider = sso.provider;
+    }
+
+    // Voice integrations
+    const { data: vIntegrations } = await supabase
+      .from("voice_integrations")
+      .select("provider, enabled")
+      .eq("org_id", orgInfo.id);
+    voiceIntegrations = (vIntegrations ?? []) as typeof voiceIntegrations;
+
+    // Voice clones
+    const { data: vClones } = await supabase
+      .from("voice_clones")
+      .select("id, name, status")
+      .eq("org_id", orgInfo.id)
+      .order("created_at", { ascending: false })
+      .limit(10);
+    voiceClones = (vClones ?? []) as typeof voiceClones;
+  }
+
+  // API keys (scoped to license, not org)
+  const { data: keys } = await supabase
+    .from("api_keys")
+    .select("id, name, key, status, last_used_at, created_at")
+    .eq("license_id", license.id)
+    .order("created_at", { ascending: true });
+  apiKeys = (keys ?? []) as typeof apiKeys;
+}
+} catch (e: any) {
+  errorMessage = `Dashboard error: ${e?.message || String(e)}`;
+  console.error("Dashboard data error:", e);
+}
+
+const displayName = user.user_metadata?.full_name
+  || user.user_metadata?.name
+  || user.email?.split("@")[0]
+  || "User";
+
+const memberSince = license
+  ? new Date(license.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
+  : null;
+
+const tierColor = license?.tier === "enterprise" ? "var(--color-p-gold)" : license?.tier === "developer" ? "#06b6d4" : "var(--color-p-violet)";
+const tierLabel = license?.tier === "enterprise" ? "Institute" : license?.tier === "developer" ? "Practitioner" : "Practice";
+
+// Compute chart points for score history SVG
+const chartLeft = 50;
+const chartRight = 370;
+const chartTop = 10;
+const chartBottom = 100;
+const chartWidth = chartRight - chartLeft;
+const chartHeight = chartBottom - chartTop;
+
+const gradeColor = (g: string | null) => {
+  if (!g) return "var(--color-warm-muted)";
+  if (g === "A") return "#22c55e";
+  if (g === "B") return "#3b82f6";
+  if (g === "C") return "#f59e0b";
+  return "#ef4444";
+};
+
+const chartPoints = scoreHistory.map((s, i) => {
+  const x = scoreHistory.length === 1 ? (chartLeft + chartRight) / 2 : chartLeft + (i / (scoreHistory.length - 1)) * chartWidth;
+  const y = chartBottom - (s.score / 100) * chartHeight;
+  return { x, y, score: s.score, grade: s.grade, date: new Date(s.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) };
+});
+const polylinePoints = chartPoints.map(p => `${p.x},${p.y}`).join(" ");
+
+const hasBehavioralData = diagnoseCount > 0 || assessCount > 0;
+const showOnboarding = !user.user_metadata?.onboarding?.completed;
+
+const snapshotCount = userSnapshots.length;
+const totalSnapshotViews = userSnapshots.reduce((sum, s) => sum + s.views, 0);
+
+// Relative time helper
+function timeAgo(dateStr: string): string {
+  const seconds = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+  if (seconds < 60) return "just now";
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+  return `${Math.floor(seconds / 604800)}w ago`;
+}
+
+// Score ring helpers
+const scorePercent = latestScore ? latestScore / 100 : 0;
+const scoreCircumference = 2 * Math.PI * 54;
+const scoreStrokeDasharray = `${scorePercent * scoreCircumference} ${scoreCircumference}`;
+const scoreColor = !latestGrade ? "var(--color-warm-muted)" : latestGrade.startsWith("A") ? "#22c55e" : latestGrade.startsWith("B") ? "#0891b2" : latestGrade.startsWith("C") ? "#f59e0b" : "#ef4444";
+
+const showChecklist = !license && snapshotCount === 0 && !hasBehavioralData;
+const checkInstall = snapshotCount > 0 || usageStats.total > 0;
+const checkBrain = snapshotCount > 0;
+const checkDiagnose = diagnoseCount > 0;
+const checkShare = userSnapshots.some(s => s.views > 0);
+const checkPersonality = !!userPersonality;
+const checklistDone = [checkInstall, checkBrain, checkDiagnose, checkShare, checkPersonality].filter(Boolean).length;
+const checklistTotal = 5;
+
+// Pre-compute personality data for template (avoid type assertions in JSX)
+const personalityTraits: [string, number][] = userPersonality?.spec?.traits
+  ? Object.entries(userPersonality.spec.traits).map(([k, v]) => [k, typeof v === "number" ? v : 0.5])
+  : [];
+const personalityStyle: [string, string][] = userPersonality?.spec?.style
+  ? Object.entries(userPersonality.spec.style).map(([k, v]) => [k, String(v)])
+  : [];
+---
+
+<Layout title="Dashboard — holomime">
+  <Nav />
+  <main class="min-h-screen bg-[var(--color-warm-cream)] pt-28 pb-20">
+    <div class="mx-auto max-w-5xl px-6">
+
+      {errorMessage && (
+        <div class="mb-6 rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-700">
+          {errorMessage}
+        </div>
+      )}
+
+      <!-- Demo mode banner -->
+      {isDemoMode && (
+        <div class="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 flex items-center gap-3">
+          <svg class="h-5 w-5 flex-shrink-0 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <p class="text-sm text-amber-700">
+            <strong>Demo mode</strong> — viewing sample data.
+            <a href="/login" class="underline font-medium">Create an account</a> to use your own data.
+          </p>
+        </div>
+      )}
+
+      <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECTION 1: Hero — Agent Health at a Glance     -->
+      <!-- ═══════════════════════════════════════════════ -->
+      <div class="mb-6 rounded-2xl bg-white p-6 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+          <!-- Left: Welcome + summary -->
+          <div class="flex-1 min-w-0">
+            <h1 class="text-2xl font-bold text-[var(--color-warm-text)]">Welcome back, {displayName}</h1>
+            <p class="mt-1 text-sm text-[var(--color-warm-muted)]">{user.email}</p>
+            {license && (
+              <div class="mt-3 flex items-center gap-2">
+                <span class="rounded-full px-3 py-1 text-xs font-bold text-white" style={`background: ${tierColor};`}>
+                  {tierLabel}
+                </span>
+                {memberSince && (
+                  <span class="text-xs text-[var(--color-warm-muted)]">since {memberSince}</span>
+                )}
+              </div>
+            )}
+          </div>
+
+          <!-- Center: Score ring -->
+          <div class="flex flex-col items-center gap-2 flex-shrink-0">
+            <svg viewBox="0 0 120 120" class="w-[130px] h-[130px]">
+              <circle cx="60" cy="60" r="54" fill="none" stroke="var(--color-warm-border)" stroke-width="8" stroke-dasharray={latestScore ? "none" : "8 6"} />
+              {latestScore && (
+                <circle cx="60" cy="60" r="54" fill="none" stroke={scoreColor} stroke-width="8"
+                  stroke-dasharray={scoreStrokeDasharray} stroke-dashoffset="0" stroke-linecap="round"
+                  transform="rotate(-90 60 60)" class="transition-all duration-1000" />
+              )}
+              <text x="60" y="55" text-anchor="middle" font-size="28" font-weight="800" fill={scoreColor}>
+                {latestScore ?? "\u2014"}
+              </text>
+              <text x="60" y="72" text-anchor="middle" font-size="11" fill="var(--color-warm-muted)">
+                / 100
+              </text>
+            </svg>
+            {latestGrade ? (
+              <span class="rounded-full px-3 py-1 text-xs font-bold text-white" style={`background: ${scoreColor};`}>
+                Grade {latestGrade}
+              </span>
+            ) : (
+              <span class="text-xs text-[var(--color-warm-muted)]">Run your first diagnosis</span>
+            )}
+          </div>
+
+          <!-- Right: Sparkline (if score history exists) -->
+          {scoreHistory.length >= 2 && (
+            <div class="hidden lg:block flex-shrink-0">
+              <p class="text-[10px] uppercase tracking-wider text-[var(--color-warm-muted)] font-medium mb-1">Trend</p>
+              <svg viewBox="0 0 120 40" class="w-[120px] h-[40px]">
+                <polyline
+                  points={scoreHistory.slice(-8).map((s, i, arr) => {
+                    const x = arr.length === 1 ? 60 : 5 + (i / (arr.length - 1)) * 110;
+                    const y = 38 - (s.score / 100) * 34;
+                    return `${x},${y}`;
+                  }).join(" ")}
+                  fill="none" stroke="var(--color-p-violet)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                />
+                {scoreHistory.slice(-8).map((s, i, arr) => {
+                  const x = arr.length === 1 ? 60 : 5 + (i / (arr.length - 1)) * 110;
+                  const y = 38 - (s.score / 100) * 34;
+                  return <circle cx={x} cy={y} r="2.5" fill={s.score >= 85 ? "#22c55e" : "var(--color-p-violet)"} />;
+                })}
+              </svg>
+            </div>
+          )}
+        </div>
+
+        <!-- Bottom: stat pills -->
+        <div class="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] px-4 py-3 text-center">
+            <p class="text-lg font-extrabold text-[var(--color-p-violet)]">{latestPatterns.length}</p>
+            <p class="text-[11px] text-[var(--color-warm-muted)]">Patterns Detected</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] px-4 py-3 text-center">
+            <p class="text-lg font-extrabold text-[var(--color-warm-text)]">{diagnoseCount}</p>
+            <p class="text-[11px] text-[var(--color-warm-muted)]">Diagnoses</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] px-4 py-3 text-center">
+            <p class="text-lg font-extrabold text-[var(--color-warm-text)]">{snapshotCount}</p>
+            <p class="text-[11px] text-[var(--color-warm-muted)]">Brain Snapshots</p>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] px-4 py-3 text-center">
+            <div class="flex items-center justify-center gap-1">
+              <svg class="h-3.5 w-3.5 text-[var(--color-warm-muted)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <p class="text-lg font-extrabold text-[var(--color-warm-text)]">{totalSnapshotViews}</p>
+            </div>
+            <p class="text-[11px] text-[var(--color-warm-muted)]">Snapshot Views</p>
+          </div>
+        </div>
+      </div>
+
+      {/* ── NeuralSpace (Pro/Developer) ── */}
+      {hasNeuralSpace && !isEnterprise && (
+        <div class="mb-6 -mx-6 px-6" style="max-width: calc(100vw - 2rem); width: calc(100vw - 2rem); margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); padding-left: 1rem; padding-right: 1rem;">
+          <div class="mx-auto" style="max-width: 1400px;">
+            <h2 class="text-lg font-bold text-[var(--color-warm-text)] mb-4">NeuralSpace</h2>
+            <NeuralSpace agents={hasFleetMode ? userFleetAgents : userFleetAgents.slice(0, 1)} />
+          </div>
+        </div>
+      )}
+
+      <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECTION 2: Getting Started Checklist           -->
+      <!-- ═══════════════════════════════════════════════ -->
+      {!license && snapshotCount === 0 && !hasBehavioralData && (
+        <div id="getting-started-checklist" class="mb-6 rounded-2xl bg-white p-5 sm:p-6 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-sm font-bold text-[var(--color-warm-text)]">Getting Started</h2>
+            <button id="dismiss-checklist" class="text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+          </div>
+          <div class="h-1.5 rounded-full bg-[var(--color-warm-cream)] mb-4 overflow-hidden">
+            <div class="h-full rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] transition-all duration-500" style={`width: ${(checklistDone / checklistTotal) * 100}%`}></div>
+          </div>
+          <div class="space-y-2.5">
+            <label class="flex items-center gap-3 text-sm">
+              <span class={`flex h-5 w-5 items-center justify-center rounded-full border-2 flex-shrink-0 ${checkInstall ? "border-emerald-500 bg-emerald-500" : "border-[var(--color-warm-border)]"}`}>
+                {checkInstall && <svg class="h-3 w-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>}
+              </span>
+              <span class={checkInstall ? "text-[var(--color-warm-muted)] line-through" : "text-[var(--color-warm-text)]"}>Install holomime</span>
+              {!checkInstall && <code class="ml-auto rounded bg-[var(--color-warm-cream)] px-2 py-0.5 font-mono text-[11px] text-[var(--color-warm-muted)]">npm i -g holomime</code>}
+            </label>
+            <label class="flex items-center gap-3 text-sm">
+              <span class={`flex h-5 w-5 items-center justify-center rounded-full border-2 flex-shrink-0 ${checkBrain ? "border-emerald-500 bg-emerald-500" : "border-[var(--color-warm-border)]"}`}>
+                {checkBrain && <svg class="h-3 w-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>}
+              </span>
+              <span class={checkBrain ? "text-[var(--color-warm-muted)] line-through" : "text-[var(--color-warm-text)]"}>Run your first brain scan</span>
+            </label>
+            <label class="flex items-center gap-3 text-sm">
+              <span class={`flex h-5 w-5 items-center justify-center rounded-full border-2 flex-shrink-0 ${checkDiagnose ? "border-emerald-500 bg-emerald-500" : "border-[var(--color-warm-border)]"}`}>
+                {checkDiagnose && <svg class="h-3 w-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>}
+              </span>
+              <span class={checkDiagnose ? "text-[var(--color-warm-muted)] line-through" : "text-[var(--color-warm-text)]"}>Run a diagnosis</span>
+            </label>
+            <label class="flex items-center gap-3 text-sm">
+              <span class={`flex h-5 w-5 items-center justify-center rounded-full border-2 flex-shrink-0 ${checkShare ? "border-emerald-500 bg-emerald-500" : "border-[var(--color-warm-border)]"}`}>
+                {checkShare && <svg class="h-3 w-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>}
+              </span>
+              <span class={checkShare ? "text-[var(--color-warm-muted)] line-through" : "text-[var(--color-warm-text)]"}>Share a brain snapshot</span>
+            </label>
+            <label class="flex items-center gap-3 text-sm">
+              <span class={`flex h-5 w-5 items-center justify-center rounded-full border-2 flex-shrink-0 ${checkPersonality ? "border-emerald-500 bg-emerald-500" : "border-[var(--color-warm-border)]"}`}>
+                {checkPersonality && <svg class="h-3 w-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>}
+              </span>
+              <span class={checkPersonality ? "text-[var(--color-warm-muted)] line-through" : "text-[var(--color-warm-text)]"}>Create a personality spec</span>
+            </label>
+          </div>
+        </div>
+      )}
+
+      <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECTION 3: Quick Actions                       -->
+      <!-- ═══════════════════════════════════════════════ -->
+      <div class="grid gap-3 grid-cols-2 sm:grid-cols-4 mb-6">
+        <a href="#brain-snapshots" class="personality-card rounded-xl bg-white p-4 border border-[var(--color-warm-border)] border-t-[3px] border-t-[var(--color-p-coral)] text-center">
+          <svg class="mx-auto h-6 w-6 text-[var(--color-p-coral)] mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <p class="text-xs font-semibold text-[var(--color-warm-text)]">See Your Brain</p>
+          <p class="text-[10px] text-[var(--color-warm-muted)] mt-0.5">View snapshots</p>
+        </a>
+        <button id="qa-copy-diagnose" class="personality-card rounded-xl bg-white p-4 border border-[var(--color-warm-border)] border-t-[3px] border-t-[var(--color-p-violet)] text-center">
+          <svg class="mx-auto h-6 w-6 text-[var(--color-p-violet)] mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" /></svg>
+          <p class="text-xs font-semibold text-[var(--color-warm-text)]">Run Diagnosis</p>
+          <p id="qa-diagnose-label" class="text-[10px] text-[var(--color-warm-muted)] mt-0.5">Copy CLI command</p>
+        </button>
+        <button id="qa-copy-share" class="personality-card rounded-xl bg-white p-4 border border-[var(--color-warm-border)] border-t-[3px] border-t-[#0891b2] text-center">
+          <svg class="mx-auto h-6 w-6 text-[#0891b2] mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"/></svg>
+          <p class="text-xs font-semibold text-[var(--color-warm-text)]">Share Snapshot</p>
+          <p id="qa-share-label" class="text-[10px] text-[var(--color-warm-muted)] mt-0.5">Copy CLI command</p>
+        </button>
+        <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="personality-card rounded-xl bg-white p-4 border border-[var(--color-warm-border)] border-t-[3px] border-t-[var(--color-warm-text)] text-center">
+          <svg class="mx-auto h-6 w-6 text-[var(--color-warm-text)] mb-2" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"/></svg>
+          <p class="text-xs font-semibold text-[var(--color-warm-text)]">View Docs</p>
+          <p class="text-[10px] text-[var(--color-warm-muted)] mt-0.5">GitHub + API ref</p>
+        </a>
+      </div>
+
+      <!-- Fork personality banner (shown when arriving from brain snapshot) -->
+      <div id="fork-banner" class="hidden mb-6 rounded-xl border border-[var(--color-p-violet)]/20 bg-gradient-to-r from-[var(--color-p-violet-soft)] to-[var(--color-p-coral-soft)] p-6">
+        <div class="flex items-start gap-4">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--color-p-coral)] to-[var(--color-p-violet)] flex items-center justify-center flex-shrink-0">
+            <svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Fork this personality</h3>
+            <p id="fork-desc" class="text-sm text-[var(--color-warm-muted)] mt-1">Generate a personality spec that corrects the behavioral patterns from the brain snapshot.</p>
+            <div id="fork-patterns" class="flex flex-wrap gap-2 mt-3"></div>
+            <div class="mt-4 flex items-center gap-3">
+              <button id="fork-generate-btn" class="rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[var(--color-p-coral)]/20 hover:shadow-xl hover:scale-[1.02] transition-all">
+                Generate .personality.json
+              </button>
+              <button id="fork-dismiss-btn" class="text-sm text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors">
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Generated personality spec output (hidden until generated) -->
+        <div id="fork-output" class="hidden mt-6">
+          <div class="rounded-lg bg-[var(--color-holo-slate)] border border-[var(--color-holo-border)] p-4 overflow-x-auto">
+            <pre id="fork-spec" class="text-sm text-[var(--color-holo-text)] font-mono leading-relaxed whitespace-pre"></pre>
+          </div>
+          <div class="mt-3 flex items-center gap-3">
+            <button id="fork-copy-btn" class="rounded-lg bg-[var(--color-p-violet)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-opacity">
+              Copy to clipboard
+            </button>
+            <span id="fork-copy-msg" class="hidden text-sm text-[var(--color-p-sage)] font-medium">Copied!</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECTION 4: Brain Snapshots Gallery             -->
+      <!-- ═══════════════════════════════════════════════ -->
+      {userSnapshots.length > 0 ? (
+        <div id="brain-snapshots" class="mb-6">
+          <div class="flex items-center gap-3 mb-4">
+            <h2 class="text-lg font-bold text-[var(--color-warm-text)]">Brain Snapshots</h2>
+            <span class="rounded-full bg-[var(--color-p-violet)]/10 px-2.5 py-0.5 text-xs font-bold text-[var(--color-p-violet)]">{snapshotCount}</span>
+          </div>
+          <div class="flex gap-4 overflow-x-auto pb-3 -mx-2 px-2 snap-x snap-mandatory" style="scrollbar-width: thin;">
+            {userSnapshots.map((snap) => {
+              const snapGradeColor = snap.grade?.startsWith("A") ? "#22c55e" : snap.grade?.startsWith("B") ? "#0891b2" : snap.grade?.startsWith("C") ? "#f59e0b" : "#ef4444";
+              return (
+                <a href={`/brain/${snap.id}`} class="personality-card snap-start flex-shrink-0 w-[220px] rounded-xl bg-white border border-[var(--color-warm-border)] p-4 hover:shadow-lg transition-all">
+                  <p class="text-sm font-semibold text-[var(--color-warm-text)] capitalize truncate">{snap.agent}</p>
+                  <div class="mt-2 flex items-baseline gap-2">
+                    <span class="text-2xl font-extrabold" style={`color: ${snapGradeColor};`}>{snap.health}</span>
+                    <span class="rounded-full px-2 py-0.5 text-[10px] font-bold text-white" style={`background: ${snapGradeColor};`}>{snap.grade}</span>
+                  </div>
+                  <div class="mt-3 flex items-center justify-between text-[11px] text-[var(--color-warm-muted)]">
+                    <span>{(snap.patterns ?? []).length} patterns</span>
+                    <span class="flex items-center gap-1">
+                      <svg class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                      {snap.views}
+                    </span>
+                  </div>
+                  <p class="mt-2 text-[10px] text-[var(--color-warm-muted)]">{timeAgo(snap.created_at)}</p>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div id="brain-snapshots" class="mb-6 rounded-2xl bg-white p-6 shadow-xl shadow-black/5 border border-[var(--color-warm-border)] text-center">
+          <svg class="mx-auto h-10 w-10 text-[var(--color-warm-muted)] mb-3" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <p class="text-sm font-medium text-[var(--color-warm-text)]">No brain snapshots yet</p>
+          <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Share your agent's brain with the world.</p>
+          <code class="mt-3 inline-block rounded-lg bg-[var(--color-holo-dark)] px-4 py-2.5 font-mono text-xs text-emerald-400">holomime brain --share</code>
+        </div>
+      )}
+
+      <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECTION 5: Behavioral Health (Redesigned)      -->
+      <!-- ═══════════════════════════════════════════════ -->
+      <div class="rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)] mb-6">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-[var(--color-warm-text)]">Behavioral Health</h2>
+            {license && (
+              <span class="rounded-full px-3 py-1 text-xs font-bold text-white" style="background: var(--color-p-violet);">
+                Pro
+              </span>
+            )}
+          </div>
+
+          {hasBehavioralData ? (
+            <div>
+              <!-- Two-column layout: chart left, metrics right -->
+              <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                <!-- Left: Score trend chart (3 cols) -->
+                <div class="lg:col-span-3">
+                  {scoreHistory.length >= 2 ? (
+                    <div>
+                      <p class="mb-3 text-sm font-medium text-[var(--color-warm-muted)]">Alignment score over time</p>
+                      <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+                        <svg viewBox="0 0 400 120" class="w-full h-auto" xmlns="http://www.w3.org/2000/svg">
+                          <line x1="50" y1="10" x2="50" y2="100" stroke="#e5e7eb" stroke-width="1"/>
+                          <line x1="50" y1="100" x2="370" y2="100" stroke="#e5e7eb" stroke-width="1"/>
+                          <line x1="50" y1="55" x2="370" y2="55" stroke="#e5e7eb" stroke-width="0.5" stroke-dasharray="4"/>
+                          <line x1="50" y1="10" x2="370" y2="10" stroke="#e5e7eb" stroke-width="0.5" stroke-dasharray="4"/>
+                          <text x="40" y="104" text-anchor="end" fill="#9ca3af" font-size="10">0</text>
+                          <text x="40" y="59" text-anchor="end" fill="#9ca3af" font-size="10">50</text>
+                          <text x="40" y="14" text-anchor="end" fill="#9ca3af" font-size="10">100</text>
+                          <line x1="50" y1="23.5" x2="370" y2="23.5" stroke="#22c55e" stroke-width="1" stroke-dasharray="6,3" opacity="0.5"/>
+                          <text x="375" y="27" fill="#22c55e" font-size="8" opacity="0.7">Target (85)</text>
+                          <polyline points={polylinePoints} fill="none" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                          {chartPoints.map((p, i) => (
+                            <Fragment>
+                              <circle cx={p.x} cy={p.y} r="4" fill={p.score >= 85 ? "#22c55e" : "#8b5cf6"}/>
+                              <text x={p.x} y={p.y > 30 ? p.y - 10 : p.y + 20} text-anchor="middle" fill={p.score >= 85 ? "#22c55e" : "#8b5cf6"} font-size="9" font-weight="bold">{p.score} ({p.grade})</text>
+                            </Fragment>
+                          ))}
+                        </svg>
+                      </div>
+                    </div>
+                  ) : scoreHistory.length === 1 ? (
+                    <div>
+                      <p class="mb-3 text-sm font-medium text-[var(--color-warm-muted)]">Alignment score</p>
+                      <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-6 text-center">
+                        <p class="text-4xl font-extrabold" style={`color: ${gradeColor(scoreHistory[0].grade)};`}>{scoreHistory[0].score}</p>
+                        <p class="mt-1 text-sm text-[var(--color-warm-muted)]">Grade {scoreHistory[0].grade} &middot; Run more assessments to see trends</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-6 text-center h-full flex items-center justify-center">
+                      <p class="text-sm text-[var(--color-warm-muted)]">Run an assessment to see your score trend chart here.</p>
+                    </div>
+                  )}
+                </div>
+
+                <!-- Right: Stacked metric cards (2 cols) -->
+                <div class="lg:col-span-2 grid grid-cols-2 gap-3">
+                  <div class:list={["rounded-xl p-4 text-center border", latestGrade ? "border-emerald-200 bg-emerald-50" : "border-[var(--color-warm-border)] bg-[var(--color-warm-cream)]"]}>
+                    <p class:list={["text-3xl font-extrabold", latestGrade ? "text-emerald-700" : "text-[var(--color-warm-muted)]"]} style={latestGrade ? `color: ${gradeColor(latestGrade)};` : ""}>
+                      {latestGrade ?? "\u2014"}
+                    </p>
+                    <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Grade</p>
+                  </div>
+                  <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4 text-center">
+                    <p class="text-3xl font-extrabold text-[var(--color-warm-text)]">{latestScore ?? "\u2014"}</p>
+                    <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Score</p>
+                  </div>
+                  <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4 text-center">
+                    <p class="text-3xl font-extrabold text-[var(--color-p-violet)]">{diagnoseCount}</p>
+                    <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Diagnoses</p>
+                  </div>
+                  <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4 text-center">
+                    <p class="text-3xl font-extrabold text-[var(--color-warm-text)]">{auditAlerts}</p>
+                    <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Drift Alerts</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pattern Breakdown Table */}
+              {latestPatterns.length > 0 ? (
+                <div class="mt-6">
+                  <p class="mb-3 text-sm font-medium text-[var(--color-warm-muted)]">Latest diagnosis patterns</p>
+                  <div class="rounded-xl border border-[var(--color-warm-border)] overflow-x-auto">
+                    <table class="w-full text-sm">
+                      <thead class="bg-[var(--color-warm-cream)]">
+                        <tr>
+                          <th class="px-4 py-2 text-left text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Pattern</th>
+                          <th class="px-4 py-2 text-right text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Rate</th>
+                          <th class="px-4 py-2 text-right text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Severity</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {latestPatterns.map((p: any) => (
+                          <tr class="border-t border-[var(--color-warm-border)]">
+                            <td class="px-4 py-2.5 text-[var(--color-warm-text)]">{p.name}</td>
+                            <td class="px-4 py-2.5 text-right font-mono text-xs text-[var(--color-warm-muted)]">{p.percentage}%</td>
+                            <td class="px-4 py-2.5 text-right">
+                              <span class:list={["rounded-full px-2 py-0.5 text-xs font-medium", p.severity === "concern" ? "bg-red-50 text-red-700" : p.severity === "warning" ? "bg-amber-50 text-amber-700" : "bg-violet-50 text-violet-700"]}>
+                                {p.severity}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : diagnoseCount > 0 ? (
+                <div class="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center">
+                  <p class="text-sm text-emerald-700">No behavioral patterns detected. Your agent is within healthy parameters.</p>
+                </div>
+              ) : null}
+            </div>
+          ) : (
+            <div class="text-center py-8">
+              <svg class="mx-auto h-12 w-12 text-[var(--color-warm-muted)] mb-4" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+              </svg>
+              <p class="text-sm font-medium text-[var(--color-warm-text)]">No behavioral data yet</p>
+              <p class="mt-2 text-xs text-[var(--color-warm-muted)] max-w-sm mx-auto">
+                Run your first analysis to see alignment scores, grades, and pattern breakdowns here.
+              </p>
+              {license ? (
+                <div class="mt-5 overflow-x-auto rounded-lg bg-[var(--color-holo-dark)] p-4 font-mono text-xs text-left max-w-lg mx-auto">
+                  <p class="text-[var(--color-holo-cyan)]">$ curl -X POST https://holomime.dev/api/v1/diagnose \</p>
+                  <p class="text-white pl-4">-H "Authorization: Bearer {license.key}" \</p>
+                  <p class="text-white pl-4">-H "Content-Type: application/json" \</p>
+                  <p class="text-white pl-4">-d '&#123;"messages": [...]&#125;'</p>
+                </div>
+              ) : (
+                <code class="mt-5 inline-block rounded-lg bg-[var(--color-holo-dark)] px-4 py-2.5 font-mono text-xs text-emerald-400">holomime diagnose conversation.json</code>
+              )}
+            </div>
+          )}
+        </div>
+
+      <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECTION 6: Personality Spec Viewer             -->
+      <!-- ═══════════════════════════════════════════════ -->
+      {userPersonality ? (
+        <div class="mb-6 rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-[var(--color-warm-text)]">Your Personality Spec</h2>
+            <span class="text-sm text-[var(--color-warm-muted)]">{userPersonality.name}</span>
+          </div>
+
+          {/* OCEAN trait bars */}
+          {personalityTraits.length > 0 && (
+            <div class="space-y-3">
+              {personalityTraits.map(([trait, value]) => (
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-medium text-[var(--color-warm-text)] capitalize">{trait}</span>
+                    <span class="text-xs font-mono text-[var(--color-warm-muted)]">{(value * 100).toFixed(0)}</span>
+                  </div>
+                  <div class="h-2 rounded-full bg-[var(--color-warm-cream)] overflow-hidden">
+                    <div class="h-full rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] transition-all duration-500" style={`width: ${value * 100}%`}></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Communication style pills */}
+          {personalityStyle.length > 0 && (
+            <div class="mt-5">
+              <p class="text-xs font-medium text-[var(--color-warm-muted)] mb-2">Communication Style</p>
+              <div class="flex flex-wrap gap-2">
+                {personalityStyle.map(([key, val]) => (
+                  <span class="rounded-full bg-[var(--color-warm-cream)] border border-[var(--color-warm-border)] px-3 py-1 text-xs text-[var(--color-warm-text)]">
+                    <span class="text-[var(--color-warm-muted)]">{key}:</span> {val}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div class="mt-5 rounded-lg bg-[var(--color-warm-cream)] border border-[var(--color-warm-border)] px-4 py-3">
+            <p class="text-xs text-[var(--color-warm-muted)]">Edit your spec via the CLI:</p>
+            <code class="mt-1 block font-mono text-xs text-[var(--color-warm-text)]">holomime profile edit</code>
+          </div>
+        </div>
+      ) : (
+        <div class="mb-6 rounded-2xl bg-white p-6 shadow-xl shadow-black/5 border border-[var(--color-warm-border)] text-center">
+          <svg class="mx-auto h-10 w-10 text-[var(--color-warm-muted)] mb-3" fill="none" stroke="currentColor" stroke-width="1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+          <p class="text-sm font-medium text-[var(--color-warm-text)]">No personality spec yet</p>
+          <p class="mt-1 text-xs text-[var(--color-warm-muted)] max-w-sm mx-auto">Define your agent's behavioral identity.</p>
+          <div class="mt-3 flex flex-col sm:flex-row items-center justify-center gap-2">
+            <code class="rounded-lg bg-[var(--color-holo-dark)] px-4 py-2 font-mono text-xs text-emerald-400">holomime profile create</code>
+            <span class="text-xs text-[var(--color-warm-muted)]">or fork from a brain snapshot</span>
+          </div>
+        </div>
+      )}
+
+      <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECTION 7: API & License (Collapsible)         -->
+      <!-- ═══════════════════════════════════════════════ -->
+      {license && (
+        <div class="mb-6 rounded-2xl bg-white shadow-xl shadow-black/5 border border-[var(--color-warm-border)] overflow-hidden">
+          <button id="api-license-toggle" class="w-full flex items-center justify-between p-5 sm:px-8 sm:py-5 text-left hover:bg-[var(--color-warm-cream)]/50 transition-colors">
+            <div class="flex items-center gap-3">
+              <svg class="h-5 w-5 text-[var(--color-warm-muted)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" /></svg>
+              <h2 class="text-lg font-bold text-[var(--color-warm-text)]">API & License</h2>
+            </div>
+            <svg id="api-license-chevron" class="h-5 w-5 text-[var(--color-warm-muted)] transition-transform duration-200 rotate-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+          </button>
+          <div id="api-license-content" class="hidden">
+            <div class="px-5 sm:px-8 pb-5 sm:pb-8">
+              <h3 class="text-sm font-semibold text-[var(--color-warm-text)] mb-4">API Usage</h3>
+
+          <div class="grid gap-4 sm:grid-cols-3">
+            <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4 sm:p-6 text-center">
+              <p class="text-2xl sm:text-3xl font-extrabold text-[var(--color-warm-text)]">{usageStats.total.toLocaleString()}</p>
+              <p class="mt-1 text-sm text-[var(--color-warm-muted)]">Total API calls</p>
+            </div>
+            <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4 sm:p-6 text-center">
+              <p class="text-2xl sm:text-3xl font-extrabold text-[var(--color-warm-text)]">{usageStats.thisMonth.toLocaleString()}</p>
+              <p class="mt-1 text-sm text-[var(--color-warm-muted)]">This month</p>
+            </div>
+            <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4 sm:p-6 text-center">
+              <p class="text-2xl sm:text-3xl font-extrabold text-[var(--color-warm-text)]">{usageStats.byEndpoint.length}</p>
+              <p class="mt-1 text-sm text-[var(--color-warm-muted)]">Endpoints used</p>
+            </div>
+          </div>
+
+          {usageStats.byEndpoint.length > 0 ? (
+            <div class="mt-4 rounded-xl border border-[var(--color-warm-border)] overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="bg-[var(--color-warm-cream)]">
+                  <tr>
+                    <th class="px-4 py-2 text-left text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Endpoint</th>
+                    <th class="px-4 py-2 text-right text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Calls</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usageStats.byEndpoint.map((row) => (
+                    <tr class="border-t border-[var(--color-warm-border)]">
+                      <td class="px-4 py-2.5 font-mono text-xs text-[var(--color-warm-text)]">{row.endpoint}</td>
+                      <td class="px-4 py-2.5 text-right text-[var(--color-warm-muted)]">{row.count.toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p class="mt-4 text-center text-sm text-[var(--color-warm-muted)]">
+              No API calls yet. Use your license key to authenticate API requests.
+            </p>
+          )}
+
+              <!-- License sub-section (inside collapsible) -->
+              <div class="mt-8 pt-6 border-t border-[var(--color-warm-border)]">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+                  <h3 class="text-sm font-semibold text-[var(--color-warm-text)]">License</h3>
+                  <div class="flex items-center gap-2">
+                    <span class="rounded-full px-3 py-1 text-xs font-bold text-white" style={`background: ${tierColor};`}>
+                      {tierLabel}
+                    </span>
+                    <span class="rounded-full px-3 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50">
+                      Active
+                    </span>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                  <code id="dashboard-license-key" class="min-w-0 flex-1 truncate rounded-lg bg-[var(--color-holo-dark)] px-3 sm:px-4 py-3 font-mono text-xs sm:text-sm text-[var(--color-holo-cyan)] select-all">
+                    {license.key}
+                  </code>
+                  <button
+                    id="copy-key-btn"
+                    class="shrink-0 rounded-lg border border-[var(--color-warm-border)] px-3 py-3 text-sm transition-colors hover:border-[var(--color-warm-muted)]"
+                    title="Copy to clipboard"
+                  >
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                    </svg>
+                  </button>
+                </div>
+
+                <p class="mt-4 text-sm text-[var(--color-warm-muted)]">
+                  Member since {memberSince}
+                  {license.expires_at && (
+                    <span> &middot; Renews {new Date(license.expires_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+                  )}
+                </p>
+
+                <div class="mt-4 overflow-x-auto rounded-lg bg-[var(--color-holo-dark)] p-4 font-mono text-xs sm:text-sm">
+                  <p class="whitespace-nowrap text-white"><span class="text-[var(--color-holo-cyan)]">$</span> holomime activate {license.key}</p>
+                  <p class="mt-2 text-emerald-400">  Pro license activated!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isEnterprise && orgInfo && (
+        <div class="mt-6 rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-bold text-[var(--color-warm-text)]">Team — {orgInfo.name}</h2>
+                <span class="rounded-full px-3 py-1 text-xs font-bold text-white" style="background: var(--color-p-gold);">Enterprise</span>
+              </div>
+              <div class="grid gap-4 sm:grid-cols-3 mb-6">
+                <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4 text-center">
+                  <p class="text-2xl font-extrabold text-[var(--color-warm-text)]">{teamMembers.length}</p>
+                  <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Members</p>
+                </div>
+                <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4 text-center">
+                  <p class="text-2xl font-extrabold text-[var(--color-warm-text)]">{fleetAgents.length}</p>
+                  <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Fleet Agents</p>
+                </div>
+                <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4 text-center">
+                  <p class="text-2xl font-extrabold text-[var(--color-warm-text)]">{customDetectors.length}</p>
+                  <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Custom Detectors</p>
+                </div>
+              </div>
+
+              {teamMembers.length > 0 ? (
+                <div class="rounded-xl border border-[var(--color-warm-border)] overflow-x-auto">
+                  <table class="w-full text-sm">
+                    <thead class="bg-[var(--color-warm-cream)]">
+                      <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Email</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Role</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Joined</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {teamMembers.map((m) => (
+                        <tr class="border-t border-[var(--color-warm-border)]">
+                          <td class="px-4 py-2.5 text-[var(--color-warm-text)]">{m.email}</td>
+                          <td class="px-4 py-2.5">
+                            <span class:list={["rounded-full px-2 py-0.5 text-xs font-medium", m.role === "owner" ? "bg-amber-50 text-amber-700" : m.role === "admin" ? "bg-blue-50 text-blue-700" : "bg-gray-50 text-gray-700"]}>
+                              {m.role}
+                            </span>
+                          </td>
+                          <td class="px-4 py-2.5 text-right text-xs text-[var(--color-warm-muted)]">{m.joinedAt}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p class="text-center text-sm text-[var(--color-warm-muted)]">No team members yet. Invite via the API.</p>
+              )}
+
+              <p class="mt-4 text-xs text-[var(--color-warm-muted)]">
+                Manage members via API: <code class="rounded bg-[var(--color-warm-cream)] px-1 py-0.5 font-mono text-xs">POST /api/v1/org/members</code>
+              </p>
+        </div>
+      )}
+
+      {isEnterprise && orgInfo && (
+        <div class="mt-6 -mx-6 px-6" style="max-width: calc(100vw - 2rem); width: calc(100vw - 2rem); margin-left: calc(-50vw + 50%); margin-right: calc(-50vw + 50%); padding-left: 1rem; padding-right: 1rem;">
+          <div class="mx-auto" style="max-width: 1400px;">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-bold text-[var(--color-warm-text)]">Fleet Monitoring</h2>
+              <div class="flex items-center gap-2">
+                <span class:list={["h-2 w-2 rounded-full", fleetAgents.some(a => a.status === "alerting") ? "bg-red-500 animate-pulse" : "bg-emerald-500"]}></span>
+                <span class="text-xs text-[var(--color-warm-muted)]">
+                  {fleetAgents.filter(a => a.status === "alerting").length > 0
+                    ? `${fleetAgents.filter(a => a.status === "alerting").length} alerting`
+                    : "All healthy"}
+                </span>
+              </div>
+            </div>
+            <NeuralSpace agents={fleetAgents} />
+          </div>
+        </div>
+      )}
+
+      {isEnterprise && orgInfo && (
+        <div class="mt-6 rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+          <h2 class="text-lg font-bold text-[var(--color-warm-text)] mb-6">Custom Detectors</h2>
+
+              {customDetectors.length > 0 ? (
+                <div class="rounded-xl border border-[var(--color-warm-border)] overflow-x-auto">
+                  <table class="w-full text-sm">
+                    <thead class="bg-[var(--color-warm-cream)]">
+                      <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Name</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Type</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Severity</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {customDetectors.map((d) => (
+                        <tr class="border-t border-[var(--color-warm-border)]">
+                          <td class="px-4 py-2.5 font-medium text-[var(--color-warm-text)]">{d.name}</td>
+                          <td class="px-4 py-2.5 font-mono text-xs text-[var(--color-warm-muted)]">{d.detection_type}</td>
+                          <td class="px-4 py-2.5">
+                            <span class:list={["rounded-full px-2 py-0.5 text-xs font-medium", d.severity === "concern" ? "bg-red-50 text-red-700" : d.severity === "warning" ? "bg-amber-50 text-amber-700" : "bg-blue-50 text-blue-700"]}>
+                              {d.severity}
+                            </span>
+                          </td>
+                          <td class="px-4 py-2.5 text-right">
+                            <span class:list={["rounded-full px-2 py-0.5 text-xs font-medium", d.enabled ? "bg-emerald-50 text-emerald-700" : "bg-gray-50 text-gray-500"]}>
+                              {d.enabled ? "Active" : "Disabled"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p class="text-center text-sm text-[var(--color-warm-muted)]">
+                  No custom detectors. Create keyword, regex, or threshold detectors via <code class="rounded bg-[var(--color-warm-cream)] px-1 py-0.5 font-mono text-xs">POST /api/v1/detectors</code>
+                </p>
+              )}
+        </div>
+      )}
+
+      {isEnterprise && orgInfo && (
+        <div class="mt-6 rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-[var(--color-warm-text)]">Audit Log</h2>
+                <span class="text-xs text-[var(--color-warm-muted)]">Last 10 events</span>
+              </div>
+
+              {recentAuditLogs.length > 0 ? (
+                <div class="rounded-xl border border-[var(--color-warm-border)] overflow-x-auto">
+                  <table class="w-full text-sm">
+                    <thead class="bg-[var(--color-warm-cream)]">
+                      <tr>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Action</th>
+                        <th class="px-4 py-2 text-left text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Actor</th>
+                        <th class="px-4 py-2 text-right text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">When</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentAuditLogs.map((l) => (
+                        <tr class="border-t border-[var(--color-warm-border)]">
+                          <td class="px-4 py-2.5 font-mono text-xs text-[var(--color-warm-text)]">{l.action}</td>
+                          <td class="px-4 py-2.5 text-xs text-[var(--color-warm-muted)]">{l.actor ?? "system"}</td>
+                          <td class="px-4 py-2.5 text-right text-xs text-[var(--color-warm-muted)]">{l.createdAt}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <p class="text-center text-sm text-[var(--color-warm-muted)]">No audit events yet. Actions will be logged as your team uses the API.</p>
+              )}
+              <p class="mt-4 text-xs text-[var(--color-warm-muted)]">
+                Full log via API: <code class="rounded bg-[var(--color-warm-cream)] px-1 py-0.5 font-mono text-xs">GET /api/v1/org/audit-logs</code> (filterable, paginated, exportable)
+              </p>
+        </div>
+      )}
+
+      {isEnterprise && orgInfo && (
+        <div class="mt-6 rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-bold text-[var(--color-warm-text)]">Single Sign-On</h2>
+                <span class:list={["rounded-full px-3 py-1 text-xs font-bold", ssoEnabled ? "bg-emerald-50 text-emerald-700" : "bg-gray-100 text-gray-500"]}>
+                  {ssoEnabled ? `${ssoProvider?.toUpperCase()} Active` : "Not configured"}
+                </span>
+              </div>
+              <p class="text-sm text-[var(--color-warm-muted)]">
+                {ssoEnabled
+                  ? "SSO is active for your organization. Team members can authenticate via your identity provider."
+                  : "Configure SAML or OIDC for your organization to enable SSO login."}
+              </p>
+              <p class="mt-3 text-xs text-[var(--color-warm-muted)]">
+                Configure via API: <code class="rounded bg-[var(--color-warm-cream)] px-1 py-0.5 font-mono text-xs">POST /api/v1/org/sso</code>
+              </p>
+        </div>
+      )}
+
+      {isEnterprise && orgInfo && (
+        <div class="mt-6 rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-lg font-bold text-[var(--color-warm-text)]">Voice Monitoring</h2>
+            <span class="text-xs text-[var(--color-warm-muted)]">LiveKit, Vapi, Retell</span>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-3 mb-6">
+            {["livekit", "vapi", "retell"].map((provider) => {
+              const integration = voiceIntegrations.find((v) => v.provider === provider);
+              return (
+                <div class:list={["rounded-xl border p-4 text-center", integration?.enabled ? "border-emerald-200 bg-emerald-50" : "border-[var(--color-warm-border)] bg-[var(--color-warm-cream)]"]}>
+                  <p class="font-semibold text-sm text-[var(--color-warm-text)] capitalize">{provider}</p>
+                  <p class:list={["text-xs mt-1", integration?.enabled ? "text-emerald-700" : "text-[var(--color-warm-muted)]"]}>
+                    {integration?.enabled ? "Connected" : "Not configured"}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+
+          {voiceClones.length > 0 ? (
+            <div>
+              <p class="mb-3 text-sm font-medium text-[var(--color-warm-muted)]">Custom Voice Clones</p>
+              <div class="rounded-xl border border-[var(--color-warm-border)] overflow-x-auto">
+                <table class="w-full text-sm">
+                  <thead class="bg-[var(--color-warm-cream)]">
+                    <tr>
+                      <th class="px-4 py-2 text-left text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Name</th>
+                      <th class="px-4 py-2 text-right text-xs font-medium text-[var(--color-warm-muted)] uppercase tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {voiceClones.map((c) => (
+                      <tr class="border-t border-[var(--color-warm-border)]">
+                        <td class="px-4 py-2.5 text-[var(--color-warm-text)]">{c.name}</td>
+                        <td class="px-4 py-2.5 text-right">
+                          <span class:list={["rounded-full px-2 py-0.5 text-xs font-medium", c.status === "ready" ? "bg-emerald-50 text-emerald-700" : c.status === "processing" ? "bg-blue-50 text-blue-700" : c.status === "failed" ? "bg-red-50 text-red-700" : "bg-gray-50 text-gray-500"]}>
+                            {c.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            <p class="text-center text-sm text-[var(--color-warm-muted)]">
+              No custom voice clones. Create clones via <code class="rounded bg-[var(--color-warm-cream)] px-1 py-0.5 font-mono text-xs">POST /api/v1/voice/clones</code>
+            </p>
+          )}
+
+          <p class="mt-4 text-xs text-[var(--color-warm-muted)]">
+            Configure providers: <code class="rounded bg-[var(--color-warm-cream)] px-1 py-0.5 font-mono text-xs">POST /api/v1/voice/integrations</code>
+          </p>
+        </div>
+      )}
+
+      <!-- API Keys card (enterprise) -->
+      {isEnterprise && (
+        <div id="api-keys-section" class="mt-6 rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+              <div class="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--color-p-violet)]/10">
+                <svg class="h-5 w-5 text-[var(--color-p-violet)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" /></svg>
+              </div>
+              <h2 class="text-base font-bold text-[var(--color-warm-text)]">API Keys</h2>
+            </div>
+            {!isDemoMode && (
+              <button id="new-key-btn" class="flex items-center gap-1.5 rounded-lg bg-[var(--color-p-violet)] px-3 py-1.5 text-xs font-semibold text-white hover:opacity-90 transition-opacity">
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
+                New Key
+              </button>
+            )}
+          </div>
+
+          <!-- Create key form (hidden by default) -->
+          {!isDemoMode && (
+            <div id="new-key-form" class="hidden mb-4 rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+              <p class="mb-3 text-sm font-medium text-[var(--color-warm-text)]">Create new API key</p>
+              <div class="flex gap-2">
+                <input id="new-key-name" type="text" placeholder="Key name (e.g. Production)" maxlength="200" class="flex-1 rounded-lg border border-[var(--color-warm-border)] bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20" />
+                <button id="new-key-submit" class="rounded-lg bg-[var(--color-p-violet)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90 transition-opacity">Create</button>
+                <button id="new-key-cancel" class="rounded-lg border border-[var(--color-warm-border)] px-4 py-2 text-sm text-[var(--color-warm-muted)] hover:bg-[var(--color-warm-cream)] transition-colors">Cancel</button>
+              </div>
+              <div id="new-key-result" class="hidden mt-3 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+                <p class="mb-1 text-xs font-semibold text-emerald-700">Copy your new key — it won't be shown again:</p>
+                <div class="flex items-center gap-2">
+                  <code id="new-key-value" class="flex-1 rounded bg-white px-2 py-1 font-mono text-xs text-emerald-800 break-all"></code>
+                  <button id="copy-apikey-btn" class="shrink-0 rounded bg-emerald-600 px-2 py-1 text-xs font-semibold text-white hover:bg-emerald-700">Copy</button>
+                </div>
+              </div>
+              <div id="new-key-error" class="hidden mt-2 text-xs text-red-600"></div>
+            </div>
+          )}
+
+          <!-- Keys table -->
+          {apiKeys.length === 0 ? (
+            <p class="text-sm text-[var(--color-warm-muted)]">No API keys yet. Create one to authenticate API requests with named keys.</p>
+          ) : (
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-[var(--color-warm-border)] text-xs text-[var(--color-warm-muted)]">
+                    <th class="pb-2 text-left font-medium">Name</th>
+                    <th class="pb-2 text-left font-medium">Key</th>
+                    <th class="pb-2 text-left font-medium">Status</th>
+                    <th class="pb-2 text-left font-medium">Last Used</th>
+                    <th class="pb-2 text-left font-medium">Created</th>
+                    {!isDemoMode && <th class="pb-2"></th>}
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--color-warm-border)]">
+                  {apiKeys.map((k) => (
+                    <tr class="py-2">
+                      <td class="py-2 pr-4 font-medium text-[var(--color-warm-text)]">{k.name}</td>
+                      <td class="py-2 pr-4 font-mono text-xs text-[var(--color-warm-muted)]">{k.key.slice(0, 12)}…</td>
+                      <td class="py-2 pr-4">
+                        <span class={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${k.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-600"}`}>{k.status}</span>
+                      </td>
+                      <td class="py-2 pr-4 text-xs text-[var(--color-warm-muted)]">{k.last_used_at ? new Date(k.last_used_at).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "Never"}</td>
+                      <td class="py-2 pr-4 text-xs text-[var(--color-warm-muted)]">{new Date(k.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</td>
+                      {!isDemoMode && (
+                        <td class="py-2">
+                          {k.status === "active" && (
+                            <button class="revoke-key-btn text-xs text-red-500 hover:text-red-700 transition-colors" data-key-id={k.id}>Revoke</button>
+                          )}
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
+
+      {isEnterprise && !orgInfo && (
+          <div class="mt-6 rounded-2xl bg-white p-6 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)] text-center">
+            <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-r from-[var(--color-p-gold)]/10 to-[var(--color-p-violet)]/10">
+              <svg class="h-7 w-7 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Create Your Organization</h3>
+            <p class="mt-2 text-sm text-[var(--color-warm-muted)] max-w-md mx-auto">
+              Set up your organization to unlock team management, fleet monitoring, audit logs, custom detectors, and SSO.
+            </p>
+            <div class="mt-4 overflow-x-auto rounded-lg bg-[var(--color-holo-dark)] p-4 font-mono text-xs text-left max-w-lg mx-auto">
+              <p class="text-[var(--color-holo-cyan)]">$ curl -X POST https://holomime.dev/api/v1/org \</p>
+              <p class="text-white pl-4">-H "Authorization: Bearer {license.key}" \</p>
+              <p class="text-white pl-4">-H "Content-Type: application/json" \</p>
+              <p class="text-white pl-4">-d '&#123;"name": "My Company", "slug": "my-company"&#125;'</p>
+            </div>
+          </div>
+        )}
+        {!isEnterprise && license?.tier === "pro" && (
+          <div class="mt-6 rounded-2xl bg-gradient-to-r from-[var(--color-p-gold)]/5 to-[var(--color-p-violet)]/5 p-5 sm:p-8 border border-[var(--color-p-gold)]/20">
+            <div class="flex items-center gap-3 mb-4">
+              <svg class="h-6 w-6 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+              </svg>
+              <h2 class="text-lg font-bold text-[var(--color-warm-text)]">Upgrade to Institute</h2>
+            </div>
+            <p class="text-sm text-[var(--color-warm-muted)] mb-4">
+              Get team management, fleet monitoring, audit logs, custom behavioral detectors, SSO, 6x higher rate limits, and self-hosted deployment.
+            </p>
+            <div class="grid gap-2 sm:grid-cols-2 text-sm text-[var(--color-warm-muted)]">
+              <div class="flex items-center gap-2">
+                <svg class="h-4 w-4 shrink-0 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                Team & org management
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="h-4 w-4 shrink-0 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                NeuralSpace fleet view (all agents)
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="h-4 w-4 shrink-0 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                Structured audit logs
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="h-4 w-4 shrink-0 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                Custom behavioral detectors
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="h-4 w-4 shrink-0 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                SAML/OIDC SSO
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="h-4 w-4 shrink-0 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                Voice monitoring (LiveKit, Vapi, Retell)
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="h-4 w-4 shrink-0 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                Custom voice cloning (ElevenLabs)
+              </div>
+              <div class="flex items-center gap-2">
+                <svg class="h-4 w-4 shrink-0 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>
+                200 req/min (6x Pro)
+              </div>
+            </div>
+            <a
+              href="/contact"
+              class="mt-6 inline-block rounded-full bg-gradient-to-r from-[var(--color-p-gold)] to-[var(--color-p-violet)] px-8 py-3 text-sm font-semibold text-white shadow-lg"
+            >
+              Contact Sales
+            </a>
+          </div>
+        )}
+
+      {!license && expiredLicense && (
+        <div class="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-6 py-4">
+          <p class="text-sm text-amber-800">
+            Your previous subscription has ended. Resubscribe to regain access to Pro features.
+          </p>
+        </div>
+      )}
+
+      {!license && (
+        <div class="mt-6 rounded-2xl border border-[var(--color-warm-border)] bg-white p-6 shadow-xl shadow-black/5">
+          <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-p-violet)] mb-5">Get started in 3 steps</p>
+          <div class="grid gap-4 sm:grid-cols-3">
+
+            <!-- Step 1 -->
+            <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-p-violet)] text-[10px] font-bold text-white">1</span>
+                <p class="text-xs font-semibold text-[var(--color-warm-text)]">Install the CLI</p>
+              </div>
+              <div class="flex items-center gap-1.5 rounded-lg bg-[var(--color-holo-dark)] px-3 py-2">
+                <code class="flex-1 font-mono text-xs text-emerald-400 truncate">npm install -g holomime</code>
+                <button id="onboarding-copy-cli" class="shrink-0 text-[var(--color-warm-muted)] hover:text-white transition-colors" title="Copy">
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
+                </button>
+              </div>
+              <p class="mt-2 text-xs text-[var(--color-warm-muted)]">Free. Requires Node.js 18+.</p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-p-violet)]/20 text-[10px] font-bold text-[var(--color-p-violet)]">2</span>
+                <p class="text-xs font-semibold text-[var(--color-warm-text)]">Run your first scan</p>
+              </div>
+              <div class="flex items-center gap-1.5 rounded-lg bg-[var(--color-holo-dark)] px-3 py-2">
+                <code class="flex-1 font-mono text-xs text-emerald-400 truncate">holomime diagnose chat.json</code>
+                <button id="onboarding-copy-diagnose" class="shrink-0 text-[var(--color-warm-muted)] hover:text-white transition-colors" title="Copy">
+                  <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
+                </button>
+              </div>
+              <p class="mt-2 text-xs text-[var(--color-warm-muted)]">Pass any conversation log. Results print locally.</p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="rounded-xl border border-[var(--color-p-violet)]/20 bg-gradient-to-br from-[var(--color-p-violet)]/5 to-[var(--color-p-coral)]/5 p-4">
+              <div class="flex items-center gap-2 mb-3">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-p-violet)]/20 text-[10px] font-bold text-[var(--color-p-violet)]">3</span>
+                <p class="text-xs font-semibold text-[var(--color-warm-text)]">Add the hosted API</p>
+              </div>
+              <p class="text-xs text-[var(--color-warm-muted)] mb-3">Automate monitoring, send data to this dashboard, and get relapse alerts in real time.</p>
+              <button id="open-pricing-modal" class="w-full rounded-lg bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] py-2 text-xs font-semibold text-white shadow-sm transition-all hover:shadow-md">
+                Get API Key <svg class="inline h-3.5 w-3.5 ml-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* ── Generate developer key section (non-licensed users only) ── */}
+      {!license && (
+        <div id="generate-key-section" class="mt-6 rounded-2xl border border-[var(--color-warm-border)] bg-white p-6 shadow-xl shadow-black/5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="font-semibold text-[var(--color-warm-text)]">Generate your API key</p>
+              <p class="mt-1 text-sm text-[var(--color-warm-muted)]">Practitioner tier — $0.01/session with <strong>$10 free credit</strong> to start. No subscription required.</p>
+            </div>
+            <span class="shrink-0 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700">Free to start</span>
+          </div>
+
+          {/* Pre-generation state */}
+          <div id="gen-key-pre" class="mt-5">
+            <div class="mb-4 text-xs text-[var(--color-warm-muted)] space-y-1">
+              <p class="flex items-start gap-1.5"><svg class="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Hosted <code class="rounded bg-[var(--color-warm-cream)] px-1 font-mono">/diagnose</code>, <code class="rounded bg-[var(--color-warm-cream)] px-1 font-mono">/assess</code>, and <code class="rounded bg-[var(--color-warm-cream)] px-1 font-mono">/self-audit</code> endpoints</p>
+              <p class="flex items-start gap-1.5"><svg class="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Results appear in this dashboard automatically</p>
+              <p class="flex items-start gap-1.5"><svg class="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Webhook integrations + 14-day data retention</p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3">
+              <button id="generate-dev-key-btn" class="rounded-full bg-[var(--color-warm-text)] px-6 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-80">
+                Generate my API key
+              </button>
+              <button id="open-pricing-modal-2" class="text-sm text-[var(--color-warm-muted)] underline underline-offset-2 hover:text-[var(--color-warm-text)] transition-colors">
+                Compare all plans <svg class="inline h-3.5 w-3.5 ml-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+              </button>
+            </div>
+            <div id="gen-key-error" class="hidden mt-3 rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600"></div>
+          </div>
+
+          {/* Post-generation state (shown by JS) */}
+          <div id="gen-key-post" class="hidden mt-5">
+            <p class="mb-2 text-xs font-medium text-[var(--color-warm-muted)]">Your API key — copy it now and keep it safe</p>
+            <div class="flex items-center gap-2">
+              <code id="generated-key-display" class="min-w-0 flex-1 truncate rounded-lg bg-[var(--color-holo-dark)] px-4 py-3 font-mono text-sm text-[var(--color-holo-cyan)] select-all"></code>
+              <button id="copy-generated-key-btn" class="shrink-0 rounded-lg border border-[var(--color-warm-border)] px-3 py-3 transition-colors hover:border-[var(--color-warm-muted)]" title="Copy">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
+              </button>
+            </div>
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button onclick="window.location.reload()" class="rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-5 py-2 text-xs font-semibold text-white shadow-sm">
+                Go to my dashboard <svg class="inline h-3.5 w-3.5 ml-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+    <AgentDetail />
+  </main>
+  <Footer />
+
+  <!-- First-time tour overlay (licensed users only) -->
+  {license && (
+    <div id="tour-overlay" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+      <div class="w-full max-w-sm rounded-2xl bg-white shadow-2xl overflow-hidden">
+        <!-- Progress bar -->
+        <div class="h-1 bg-[var(--color-warm-border)]">
+          <div id="tour-progress" class="h-1 bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] transition-all duration-300" style="width: 33%"></div>
+        </div>
+
+        <div class="p-7">
+          <!-- Step 1 -->
+          <div id="tour-step-1">
+            <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-p-violet)]/10">
+              <svg class="h-5 w-5 text-[var(--color-p-violet)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+              </svg>
+            </div>
+            <p class="text-xs font-semibold text-[var(--color-p-violet)] mb-1">1 of 3</p>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Your API key is ready</h3>
+            <p class="mt-2 text-sm text-[var(--color-warm-muted)] leading-relaxed">Copy your key from the card above and use it to authenticate every API request. Treat it like a password — don't commit it to source control.</p>
+            <button id="tour-next-1" class="mt-6 w-full rounded-lg bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90">
+              Next <svg class="inline h-3.5 w-3.5 ml-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            </button>
+          </div>
+
+          <!-- Step 2 -->
+          <div id="tour-step-2" class="hidden">
+            <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--color-p-coral)]/10">
+              <svg class="h-5 w-5 text-[var(--color-p-coral)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+            </div>
+            <p class="text-xs font-semibold text-[var(--color-p-coral)] mb-1">2 of 3</p>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Send your first conversation</h3>
+            <p class="mt-2 text-sm text-[var(--color-warm-muted)] leading-relaxed">Pass a message thread to <code class="rounded bg-[var(--color-warm-cream)] px-1 font-mono text-xs">/api/v1/diagnose</code> to detect behavioral patterns, or <code class="rounded bg-[var(--color-warm-cream)] px-1 font-mono text-xs">/api/v1/assess</code> to get an alignment score.</p>
+            <button id="tour-next-2" class="mt-6 w-full rounded-lg bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90">
+              Next <svg class="inline h-3.5 w-3.5 ml-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            </button>
+          </div>
+
+          <!-- Step 3 -->
+          <div id="tour-step-3" class="hidden">
+            <div class="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-emerald-50">
+              <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+              </svg>
+            </div>
+            <p class="text-xs font-semibold text-emerald-600 mb-1">3 of 3</p>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Results appear here automatically</h3>
+            <p class="mt-2 text-sm text-[var(--color-warm-muted)] leading-relaxed">After your first API call, this dashboard fills in with alignment scores, behavioral grades, relapse alerts, and symptom breakdowns — updated every time you run an analysis.</p>
+            <button id="tour-done" class="mt-6 w-full rounded-lg bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-4 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90">
+              Got it, let's go
+            </button>
+          </div>
+
+          <button id="tour-skip" class="mt-3 w-full text-center text-xs text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors">
+            Skip tour
+          </button>
+        </div>
+      </div>
+    </div>
+  )}
+
+  <!-- Pricing modal — compact centered popup -->
+  <div id="pricing-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div class="relative w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center justify-between border-b border-[var(--color-warm-border)] px-6 py-4">
+        <div>
+          <p class="font-semibold text-[var(--color-warm-text)]">Choose a Plan</p>
+          <p class="text-xs text-[var(--color-warm-muted)] mt-0.5">Upgrade to unlock hosted API, relapse monitoring, and more</p>
+        </div>
+        <button id="close-pricing-modal" class="flex h-8 w-8 items-center justify-center rounded-full hover:bg-[var(--color-warm-cream)] transition-colors text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)]">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Plan cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[var(--color-warm-border)]">
+        <!-- Developer -->
+        <div class="p-6">
+          <p class="text-xs font-semibold uppercase tracking-wide" style="color:#06b6d4">Practitioner</p>
+          <p class="mt-2 text-2xl font-extrabold text-[var(--color-warm-text)]">$0.01<span class="text-sm font-normal text-[var(--color-warm-muted)]">/call</span></p>
+          <p class="mt-1 text-xs text-[var(--color-warm-muted)]">$10 free credit to start</p>
+          <ul class="mt-4 space-y-1.5 text-xs text-[var(--color-warm-muted)]">
+            <li class="flex items-start gap-1.5"><svg class="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Hosted diagnose + assess API</li>
+            <li class="flex items-start gap-1.5"><svg class="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Webhook integrations</li>
+            <li class="flex items-start gap-1.5"><svg class="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>14-day data retention</li>
+          </ul>
+          <button id="modal-dev-btn" class="mt-5 w-full rounded-lg border-2 py-2 text-xs font-semibold transition-colors" style="border-color:#06b6d430;background:#06b6d412;color:#06b6d4">
+            Get API Key
+          </button>
+        </div>
+
+        <!-- Pro (highlighted) -->
+        <div class="p-6 relative bg-white">
+          <div class="absolute -top-px left-1/2 -translate-x-1/2 rounded-b-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-3 py-0.5 text-[10px] font-bold text-white">Most Popular</div>
+          <p class="text-xs font-semibold uppercase tracking-wide" style="color:var(--color-p-violet)">Practice</p>
+          <p class="mt-2 text-2xl font-extrabold text-[var(--color-warm-text)]">$99<span class="text-sm font-normal text-[var(--color-warm-muted)]">/mo</span></p>
+          <p class="mt-1 text-xs text-[var(--color-warm-muted)]">or $79/mo billed annually</p>
+          <ul class="mt-4 space-y-1.5 text-xs text-[var(--color-warm-muted)]">
+            <li class="flex items-start gap-1.5"><svg class="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Automated behavioral therapy</li>
+            <li class="flex items-start gap-1.5"><svg class="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Relapse detection & monitoring</li>
+            <li class="flex items-start gap-1.5"><svg class="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Unlimited API calls included</li>
+          </ul>
+          <button id="modal-pro-btn" class="mt-5 w-full rounded-lg py-2 text-xs font-semibold text-white" style="background:linear-gradient(135deg,var(--color-p-coral),var(--color-p-violet))">
+            Start Therapy
+          </button>
+        </div>
+
+        <!-- Enterprise -->
+        <div class="p-6">
+          <p class="text-xs font-semibold uppercase tracking-wide" style="color:#f59e0b">Institute</p>
+          <p class="mt-2 text-2xl font-extrabold text-[var(--color-warm-text)]">$2,500<span class="text-sm font-normal text-[var(--color-warm-muted)]">/mo</span></p>
+          <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Fleet-scale + dedicated infra</p>
+          <ul class="mt-4 space-y-1.5 text-xs text-[var(--color-warm-muted)]">
+            <li class="flex items-start gap-1.5"><svg class="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>NeuralSpace fleet view + voice agents</li>
+            <li class="flex items-start gap-1.5"><svg class="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>SSO, audit logs, team management</li>
+            <li class="flex items-start gap-1.5"><svg class="h-3.5 w-3.5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>Custom detectors + SLA</li>
+          </ul>
+          <a href="/contact" class="mt-5 block w-full rounded-lg border-2 border-[var(--color-warm-border)] py-2 text-center text-xs font-semibold text-[var(--color-warm-text)] transition-colors hover:border-[var(--color-p-gold)]">
+            Contact Sales
+          </a>
+        </div>
+      </div>
+
+      <div class="border-t border-[var(--color-warm-border)] px-6 py-3 text-center text-xs text-[var(--color-warm-muted)]">
+        All plans include the free open-source CLI. <a href="/#pricing" class="underline">See full feature comparison <svg class="inline h-3.5 w-3.5 ml-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg></a>
+      </div>
+    </div>
+  </div>
+
+  {showOnboarding && <OnboardingWizard user={user} />}
+</Layout>
+
+<script>
+  // ─── CLI / diagnose copy buttons ───
+  function makeCopyBtn(id: string, text: string) {
+    document.getElementById(id)?.addEventListener("click", (e) => {
+      navigator.clipboard.writeText(text);
+      const btn = e.currentTarget as HTMLButtonElement;
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<svg class="h-3.5 w-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+      setTimeout(() => { btn.innerHTML = orig; }, 2000);
+    });
+  }
+  makeCopyBtn("onboarding-copy-cli", "npm install -g holomime");
+  makeCopyBtn("onboarding-copy-diagnose", "holomime diagnose chat.json");
+
+  document.getElementById("copy-key-btn")?.addEventListener("click", () => {
+    const key = document.getElementById("dashboard-license-key")?.textContent?.trim();
+    if (key) {
+      navigator.clipboard.writeText(key);
+      const btn = document.getElementById("copy-key-btn");
+      if (btn) {
+        btn.innerHTML = '<svg class="h-4 w-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+        setTimeout(() => {
+          btn.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>';
+        }, 2000);
+      }
+    }
+  });
+
+  // ─── API Keys management ───
+  const newKeyBtn = document.getElementById("new-key-btn");
+  const newKeyForm = document.getElementById("new-key-form");
+  const newKeyCancel = document.getElementById("new-key-cancel");
+  const newKeySubmit = document.getElementById("new-key-submit");
+  const newKeyName = document.getElementById("new-key-name") as HTMLInputElement | null;
+  const newKeyResult = document.getElementById("new-key-result");
+  const newKeyValue = document.getElementById("new-key-value");
+  const newKeyError = document.getElementById("new-key-error");
+  const copyApikeyBtn = document.getElementById("copy-apikey-btn");
+
+  newKeyBtn?.addEventListener("click", () => {
+    newKeyForm?.classList.remove("hidden");
+    newKeyBtn.classList.add("hidden");
+    newKeyName?.focus();
+  });
+
+  newKeyCancel?.addEventListener("click", () => {
+    newKeyForm?.classList.add("hidden");
+    newKeyBtn?.classList.remove("hidden");
+    if (newKeyName) newKeyName.value = "";
+    newKeyResult?.classList.add("hidden");
+    newKeyError?.classList.add("hidden");
+  });
+
+  newKeySubmit?.addEventListener("click", async () => {
+    const name = newKeyName?.value.trim();
+    if (!name) { if (newKeyError) { newKeyError.textContent = "Please enter a key name."; newKeyError.classList.remove("hidden"); } return; }
+    newKeySubmit.setAttribute("disabled", "true");
+    newKeySubmit.textContent = "Creating…";
+    newKeyError?.classList.add("hidden");
+    try {
+      const res = await fetch("/api/v1/keys", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const json = await res.json() as any;
+      if (!res.ok) throw new Error(json.error || "Failed to create key");
+      if (newKeyValue) newKeyValue.textContent = json.key.key;
+      newKeyResult?.classList.remove("hidden");
+      newKeySubmit.setAttribute("disabled", "true");
+    } catch (err: any) {
+      if (newKeyError) { newKeyError.textContent = err.message; newKeyError.classList.remove("hidden"); }
+      newKeySubmit.removeAttribute("disabled");
+      newKeySubmit.textContent = "Create";
+    }
+  });
+
+  copyApikeyBtn?.addEventListener("click", () => {
+    const val = newKeyValue?.textContent ?? "";
+    if (val) {
+      navigator.clipboard.writeText(val);
+      copyApikeyBtn.textContent = "Copied!";
+      setTimeout(() => { copyApikeyBtn.textContent = "Copy"; }, 2000);
+    }
+  });
+
+  // Revoke key buttons
+  document.querySelectorAll<HTMLButtonElement>(".revoke-key-btn").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.keyId;
+      if (!id || !confirm("Revoke this API key? It will stop working immediately.")) return;
+      btn.setAttribute("disabled", "true");
+      btn.textContent = "Revoking…";
+      try {
+        const res = await fetch("/api/v1/keys", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id }),
+        });
+        if (res.ok) { window.location.reload(); }
+        else {
+          const json = await res.json() as any;
+          alert(json.error || "Failed to revoke key");
+          btn.removeAttribute("disabled");
+          btn.textContent = "Revoke";
+        }
+      } catch {
+        alert("Network error");
+        btn.removeAttribute("disabled");
+        btn.textContent = "Revoke";
+      }
+    });
+  });
+
+  // ─── First-time onboarding tour (licensed users) ───
+  const TOUR_KEY = "holomime_tour_v1";
+  const tourOverlay = document.getElementById("tour-overlay");
+  const tourProgress = document.getElementById("tour-progress");
+
+  if (tourOverlay && !localStorage.getItem(TOUR_KEY)) {
+    setTimeout(() => tourOverlay.classList.remove("hidden"), 600);
+
+    function setTourStep(step: number) {
+      [1, 2, 3].forEach((n) => {
+        document.getElementById(`tour-step-${n}`)?.classList.toggle("hidden", n !== step);
+      });
+      if (tourProgress) (tourProgress as HTMLElement).style.width = `${Math.round((step / 3) * 100)}%`;
+    }
+
+    function dismissTour() {
+      tourOverlay.classList.add("hidden");
+      localStorage.setItem(TOUR_KEY, "1");
+    }
+
+    document.getElementById("tour-next-1")?.addEventListener("click", () => setTourStep(2));
+    document.getElementById("tour-next-2")?.addEventListener("click", () => setTourStep(3));
+    document.getElementById("tour-done")?.addEventListener("click", dismissTour);
+    document.getElementById("tour-skip")?.addEventListener("click", dismissTour);
+    tourOverlay.addEventListener("click", (e) => { if (e.target === tourOverlay) dismissTour(); });
+  }
+
+  // ─── Pricing modal ───
+  const pricingModal = document.getElementById("pricing-modal");
+  function openPricingModal() {
+    pricingModal?.classList.remove("hidden");
+    document.body.style.overflow = "hidden";
+  }
+  function closePricingModal() {
+    pricingModal?.classList.add("hidden");
+    document.body.style.overflow = "";
+  }
+  document.querySelectorAll<HTMLElement>("#open-pricing-modal, #open-pricing-modal-2, [data-open-pricing]").forEach(el => {
+    el.addEventListener("click", (e) => { e.preventDefault(); openPricingModal(); });
+  });
+  document.getElementById("close-pricing-modal")?.addEventListener("click", closePricingModal);
+  pricingModal?.addEventListener("click", (e) => { if (e.target === pricingModal) closePricingModal(); });
+
+  // Auto-open if ?pricing=1 in URL (e.g. from "Get API Key" on homepage)
+  if (new URLSearchParams(window.location.search).get("pricing") === "1") {
+    openPricingModal();
+    history.replaceState(null, "", "/dashboard");
+  }
+
+  // Developer "Get API Key" in modal — close modal and scroll to generate section
+  document.getElementById("modal-dev-btn")?.addEventListener("click", () => {
+    closePricingModal();
+    const target = document.getElementById("generate-key-section") ?? document.getElementById("dashboard-license-key");
+    target?.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+
+  // "Compare all plans →" link in generate section
+  document.getElementById("open-pricing-modal-2")?.addEventListener("click", openPricingModal);
+
+  // Generate developer key
+  document.getElementById("generate-dev-key-btn")?.addEventListener("click", async () => {
+    const btn = document.getElementById("generate-dev-key-btn") as HTMLButtonElement;
+    const errEl = document.getElementById("gen-key-error")!;
+    btn.textContent = "Generating...";
+    btn.disabled = true;
+    errEl.className = "hidden mt-3 rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600";
+
+    try {
+      const res = await fetch("/api/user/claim-developer-key", { method: "POST", headers: { "Content-Type": "application/json" } });
+      const data = await res.json();
+
+      if (res.status === 409 && data.existing_key) {
+        // Already has a key — show it
+        (document.getElementById("generated-key-display") as HTMLElement).textContent = data.existing_key;
+        document.getElementById("gen-key-pre")?.classList.add("hidden");
+        document.getElementById("gen-key-post")?.classList.remove("hidden");
+        return;
+      }
+
+      if (!res.ok || !data.key) {
+        errEl.textContent = data.error || "Key generation failed. Please try again.";
+        errEl.className = "mt-3 rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600";
+        btn.textContent = "Generate my API key";
+        btn.disabled = false;
+        return;
+      }
+
+      // Success — show the key
+      (document.getElementById("generated-key-display") as HTMLElement).textContent = data.key;
+      document.getElementById("gen-key-pre")?.classList.add("hidden");
+      document.getElementById("gen-key-post")?.classList.remove("hidden");
+    } catch {
+      errEl.textContent = "Something went wrong. Please try again.";
+      errEl.className = "mt-3 rounded-lg bg-red-50 px-4 py-2.5 text-sm text-red-600";
+      btn.textContent = "Generate my API key";
+      btn.disabled = false;
+    }
+  });
+
+  // Copy generated key
+  document.getElementById("copy-generated-key-btn")?.addEventListener("click", () => {
+    const key = (document.getElementById("generated-key-display") as HTMLElement).textContent?.trim();
+    if (key) {
+      navigator.clipboard.writeText(key);
+      const btn = document.getElementById("copy-generated-key-btn") as HTMLButtonElement;
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<svg class="h-4 w-4 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+      setTimeout(() => { btn.innerHTML = orig; }, 2000);
+    }
+  });
+
+  // Pro "Start Therapy" in modal — call checkout
+  document.getElementById("modal-pro-btn")?.addEventListener("click", async () => {
+    const btn = document.getElementById("modal-pro-btn") as HTMLButtonElement;
+    btn.textContent = "Loading...";
+    btn.disabled = true;
+    try {
+      const res = await fetch("/api/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ billing: "monthly" }) });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        btn.textContent = "Start Therapy";
+        btn.disabled = false;
+        alert(data.error || "Checkout unavailable. Please contact support.");
+      }
+    } catch {
+      btn.textContent = "Start Therapy";
+      btn.disabled = false;
+    }
+  });
+
+  // Reset checkout button if user returns via browser back (bfcache restore)
+  window.addEventListener("pageshow", (e) => {
+    if (e.persisted) {
+      const btn = document.getElementById("modal-pro-btn") as HTMLButtonElement;
+      if (btn) { btn.textContent = "Start Therapy"; btn.disabled = false; }
+    }
+  });
+
+  // ── Fork personality from brain snapshot ──
+  const forkParam = new URLSearchParams(window.location.search).get("fork");
+  if (forkParam) {
+    const banner = document.getElementById("fork-banner");
+    if (banner) {
+      banner.classList.remove("hidden");
+
+      // Decode fork data
+      const FORK_PATTERN_NAMES: Record<string, string> = {
+        sycophancy: "Sycophancy",
+        "hedge-stacking": "Hedge Stacking",
+        "over-apologizing": "Over-Apologizing",
+        "boundary-violation": "Boundary Violation",
+        "error-spiral": "Error Spiral",
+        "sentiment-skew": "Sentiment Skew",
+        "formality-drift": "Formality Drift",
+      };
+
+      let forkData: { h?: number; g?: string; a?: string; p?: { i: string; s: string; c: number }[] } = {};
+
+      try {
+        const script = document.createElement("script");
+        script.src = "https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako_inflate.min.js";
+        script.onload = () => {
+          try {
+            const binary = atob(forkParam.replace(/-/g, "+").replace(/_/g, "/"));
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            const jsonStr = (window as any).pako.inflate(bytes, { to: "string" });
+            forkData = JSON.parse(jsonStr);
+
+            const desc = document.getElementById("fork-desc")!;
+            const patternsEl = document.getElementById("fork-patterns")!;
+            const patterns = forkData.p || [];
+
+            if (patterns.length > 0) {
+              desc.textContent = `Health ${forkData.h}/100 (Grade ${forkData.g}). Generate a personality spec that corrects these ${patterns.length} patterns:`;
+              patternsEl.innerHTML = patterns.map((p) => {
+                const name = FORK_PATTERN_NAMES[p.i] || p.i;
+                const colorClass = p.s === "concern" ? "bg-red-50 text-red-700 border-red-200" : p.s === "warning" ? "bg-amber-50 text-amber-700 border-amber-200" : "bg-violet-50 text-violet-700 border-violet-200";
+                return `<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border ${colorClass}">${name} (${p.c}%)</span>`;
+              }).join("");
+            }
+          } catch { /* keep default text */ }
+        };
+        document.head.appendChild(script);
+      } catch { /* keep default text */ }
+
+      // Generate button
+      document.getElementById("fork-generate-btn")?.addEventListener("click", () => {
+        const patterns = forkData.p || [];
+        const corrections: Record<string, string> = {};
+        for (const p of patterns) {
+          const name = FORK_PATTERN_NAMES[p.i] || p.i;
+          if (p.i === "sycophancy") corrections["agreeableness"] = "low";
+          if (p.i === "hedge-stacking") corrections["assertiveness"] = "high";
+          if (p.i === "over-apologizing") corrections["emotional_stability"] = "high";
+          if (p.i === "boundary-violation") corrections["conscientiousness"] = "high";
+          if (p.i === "formality-drift") corrections["formality"] = "consistent";
+          if (p.i === "sentiment-skew") corrections["emotional_tone"] = "neutral";
+          if (p.i === "error-spiral") corrections["recovery_strategy"] = "acknowledge_and_redirect";
+        }
+
+        const spec = {
+          name: "corrected-agent",
+          version: "1.0.0",
+          description: `Auto-generated from brain snapshot (Health ${forkData.h}/100, Grade ${forkData.g}). Corrects: ${patterns.map((p) => FORK_PATTERN_NAMES[p.i] || p.i).join(", ")}.`,
+          traits: {
+            openness: 0.7,
+            conscientiousness: 0.85,
+            extraversion: 0.5,
+            agreeableness: corrections["agreeableness"] === "low" ? 0.3 : 0.6,
+            neuroticism: corrections["emotional_stability"] === "high" ? 0.15 : 0.3,
+          },
+          behavioral_rules: patterns.map((p) => ({
+            pattern: p.i,
+            action: "deny",
+            severity: p.s,
+            note: `Corrects ${FORK_PATTERN_NAMES[p.i] || p.i} (was at ${p.c}%)`,
+          })),
+          style: {
+            formality: corrections["formality"] === "consistent" ? "professional" : "adaptive",
+            verbosity: "concise",
+            tone: corrections["emotional_tone"] === "neutral" ? "neutral" : "warm",
+            assertiveness: corrections["assertiveness"] === "high" ? "direct" : "balanced",
+          },
+        };
+
+        const specStr = JSON.stringify(spec, null, 2);
+        document.getElementById("fork-spec")!.textContent = specStr;
+        document.getElementById("fork-output")!.classList.remove("hidden");
+      });
+
+      // Copy button
+      document.getElementById("fork-copy-btn")?.addEventListener("click", () => {
+        const spec = document.getElementById("fork-spec")!.textContent || "";
+        navigator.clipboard.writeText(spec).then(() => {
+          const msg = document.getElementById("fork-copy-msg")!;
+          msg.classList.remove("hidden");
+          setTimeout(() => msg.classList.add("hidden"), 2000);
+        });
+      });
+
+      // Dismiss
+      document.getElementById("fork-dismiss-btn")?.addEventListener("click", () => {
+        banner.classList.add("hidden");
+        // Remove fork param from URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete("fork");
+        window.history.replaceState({}, "", url.toString());
+      });
+    }
+  }
+
+  // ── Collapsible API & License section ──
+  const apiToggle = document.getElementById("api-license-toggle");
+  const apiContent = document.getElementById("api-license-content");
+  const apiChevron = document.getElementById("api-license-chevron");
+  apiToggle?.addEventListener("click", () => {
+    const isHidden = apiContent?.classList.contains("hidden");
+    apiContent?.classList.toggle("hidden");
+    if (apiChevron) {
+      apiChevron.style.transform = isHidden ? "rotate(180deg)" : "rotate(0deg)";
+    }
+  });
+
+  // ── Quick Action copy buttons ──
+  document.getElementById("qa-copy-diagnose")?.addEventListener("click", () => {
+    navigator.clipboard.writeText("holomime diagnose");
+    const label = document.getElementById("qa-diagnose-label");
+    if (label) { const orig = label.textContent; label.textContent = "Copied!"; setTimeout(() => { label.textContent = orig; }, 1500); }
+  });
+  document.getElementById("qa-copy-share")?.addEventListener("click", () => {
+    navigator.clipboard.writeText("holomime brain --share");
+    const label = document.getElementById("qa-share-label");
+    if (label) { const orig = label.textContent; label.textContent = "Copied!"; setTimeout(() => { label.textContent = orig; }, 1500); }
+  });
+
+  // ── Dismiss Getting Started checklist ──
+  document.getElementById("dismiss-checklist")?.addEventListener("click", () => {
+    document.getElementById("getting-started-checklist")?.remove();
+    localStorage.setItem("holomime_onboarding_dismissed", "1");
+  });
+  // Hide if previously dismissed
+  if (localStorage.getItem("holomime_onboarding_dismissed")) {
+    document.getElementById("getting-started-checklist")?.remove();
+  }
+</script>

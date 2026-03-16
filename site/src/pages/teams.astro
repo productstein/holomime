@@ -1,0 +1,246 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import { createClient } from "@supabase/supabase-js";
+
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect("/login?redirect=/teams");
+}
+
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
+const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+
+let teams: any[] = [];
+let agents: any[] = [];
+
+if (supabaseUrl && serviceKey) {
+  const supabase = createClient(supabaseUrl, serviceKey);
+
+  const { data: teamData } = await supabase
+    .from("teams")
+    .select("*, team_members(count)")
+    .eq("user_id", user.id)
+    .order("updated_at", { ascending: false });
+
+  teams = (teamData ?? []).map((t: any) => ({
+    ...t,
+    member_count: t.team_members?.[0]?.count ?? 0,
+  }));
+
+  // Fetch user's agents for the add-member dropdown
+  const { data: agentData } = await supabase
+    .from("agents")
+    .select("id, name, handle")
+    .eq("user_id", user.id)
+    .order("name");
+
+  agents = agentData ?? [];
+}
+---
+
+<Layout title="Teams — holomime">
+  <Nav />
+
+  <main class="min-h-screen px-6 pt-28 pb-20" style="background: var(--color-warm-cream, #faf6f1);">
+    <div class="max-w-4xl mx-auto">
+
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight" style="color: var(--color-warm-text, #2a2520);">Agent Teams</h1>
+          <p class="mt-1 text-sm" style="color: var(--color-warm-muted, #9a9693);">Group agents and analyze team compatibility.</p>
+        </div>
+        <button id="create-team-btn"
+          class="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-lg text-white transition-all"
+          style="background: linear-gradient(to right, var(--color-p-coral, #ff6b6b), var(--color-p-violet, #8b5cf6));">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Create Team
+        </button>
+      </div>
+
+      {teams.length > 0 ? (
+        <div class="space-y-4" id="teams-list">
+          {teams.map((team: any) => (
+            <div class="team-card rounded-2xl border p-5 transition-all hover:shadow-lg" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff;" data-team-id={team.id}>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-bold" style="color: var(--color-warm-text, #2a2520);">{team.name}</h3>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-medium px-2 py-0.5 rounded-full" style="background: rgba(139,92,246,0.1); color: #8b5cf6;">
+                    {team.member_count} agents
+                  </span>
+                  <button class="check-compat-btn text-xs font-medium px-3 py-1 rounded-lg border transition-colors hover:bg-[var(--color-warm-cream)]"
+                    style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-p-violet, #8b5cf6);"
+                    data-team-id={team.id}>
+                    Compatibility
+                  </button>
+                </div>
+              </div>
+              {team.description && (
+                <p class="text-sm mb-3" style="color: var(--color-warm-muted, #9a9693);">{team.description}</p>
+              )}
+              <div class="flex items-center justify-between text-xs" style="color: var(--color-warm-muted, #9a9693);">
+                <span>Created {new Date(team.created_at).toLocaleDateString()}</span>
+                <button class="manage-members-btn text-[var(--color-p-violet)] font-medium" data-team-id={team.id}>Manage Members</button>
+              </div>
+
+              <!-- Compatibility result (hidden by default) -->
+              <div class="compat-result hidden mt-4 rounded-xl p-4" style="background: var(--color-warm-cream, #faf6f1);" data-team-id={team.id}></div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="rounded-2xl border-2 border-dashed p-10 text-center" style="border-color: var(--color-warm-border, #e8e2d9);">
+          <div class="flex items-center justify-center w-14 h-14 rounded-2xl mx-auto mb-4" style="background: rgba(139, 92, 246, 0.08);">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <h3 class="text-lg font-bold mb-1" style="color: var(--color-warm-text, #2a2520);">No teams yet</h3>
+          <p class="text-sm mb-4 max-w-sm mx-auto" style="color: var(--color-warm-muted, #9a9693);">Create a team to group agents and analyze their compatibility.</p>
+        </div>
+      )}
+
+      <!-- Create Team Modal -->
+      <div id="create-team-modal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+        <div id="team-backdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        <div class="relative z-10 mx-4 w-full max-w-md rounded-2xl bg-white p-8 shadow-2xl">
+          <button id="team-close" class="absolute top-4 right-4 text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)]" aria-label="Close">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+
+          <h2 class="text-xl font-bold mb-1" style="color: var(--color-warm-text, #2a2520);">Create Team</h2>
+          <p class="text-sm mb-6" style="color: var(--color-warm-muted, #9a9693);">Group your agents together.</p>
+
+          <form id="create-team-form" class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Team Name</label>
+              <input id="ct-name" type="text" required maxlength="100" placeholder="Sales Team"
+                class="w-full rounded-lg border px-3 py-2.5 text-sm outline-none focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20"
+                style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);" />
+            </div>
+            <div>
+              <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Description (optional)</label>
+              <textarea id="ct-desc" rows="2" maxlength="500"
+                class="w-full rounded-lg border px-3 py-2.5 text-sm outline-none resize-none focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20"
+                style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);"></textarea>
+            </div>
+
+            <div id="ct-message" class="hidden rounded-lg px-3 py-2 text-sm"></div>
+
+            <button type="submit" class="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white" style="background: var(--color-p-violet, #8b5cf6);">
+              Create Team
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<script>
+(function() {
+  const modal = document.getElementById('create-team-modal');
+  const backdrop = document.getElementById('team-backdrop');
+  const closeBtn = document.getElementById('team-close');
+  const form = document.getElementById('create-team-form') as HTMLFormElement | null;
+  const msgEl = document.getElementById('ct-message');
+
+  function openModal() {
+    modal?.classList.remove('hidden');
+    modal?.classList.add('flex');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    modal?.classList.add('hidden');
+    modal?.classList.remove('flex');
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('create-team-btn')?.addEventListener('click', openModal);
+  backdrop?.addEventListener('click', closeModal);
+  closeBtn?.addEventListener('click', closeModal);
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = (document.getElementById('ct-name') as HTMLInputElement).value.trim();
+    const desc = (document.getElementById('ct-desc') as HTMLTextAreaElement).value.trim();
+
+    try {
+      const res = await fetch('/api/teams', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description: desc || undefined }),
+      });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        const data = await res.json();
+        if (msgEl) {
+          msgEl.textContent = data.error || 'Failed to create team';
+          msgEl.classList.remove('hidden');
+          msgEl.classList.add('bg-red-50', 'text-red-700');
+        }
+      }
+    } catch {
+      if (msgEl) {
+        msgEl.textContent = 'Network error';
+        msgEl.classList.remove('hidden');
+        msgEl.classList.add('bg-red-50', 'text-red-700');
+      }
+    }
+  });
+
+  // Compatibility check
+  document.querySelectorAll('.check-compat-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const teamId = (btn as HTMLElement).getAttribute('data-team-id');
+      const resultEl = document.querySelector(`.compat-result[data-team-id="${teamId}"]`) as HTMLElement | null;
+      if (!resultEl) return;
+
+      (btn as HTMLButtonElement).disabled = true;
+      (btn as HTMLElement).textContent = 'Loading...';
+
+      try {
+        const res = await fetch(`/api/teams/${teamId}/compatibility`);
+        const data = await res.json();
+
+        if (res.ok) {
+          resultEl.classList.remove('hidden');
+          resultEl.innerHTML = `
+            <div class="grid grid-cols-3 gap-3 mb-3">
+              <div class="text-center">
+                <div class="text-2xl font-bold" style="color: var(--color-p-violet, #8b5cf6);">${data.overallScore}</div>
+                <div class="text-[10px]" style="color: var(--color-warm-muted);">Overall</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold" style="color: #06b6d4;">${data.diversityScore}</div>
+                <div class="text-[10px]" style="color: var(--color-warm-muted);">Diversity</div>
+              </div>
+              <div class="text-center">
+                <div class="text-2xl font-bold" style="color: #10b981;">${data.coverageScore}</div>
+                <div class="text-[10px]" style="color: var(--color-warm-muted);">Coverage</div>
+              </div>
+            </div>
+            ${data.gapAnalysis?.filter((g: any) => g.coverage === 'weak' || g.coverage === 'missing').map((g: any) =>
+              `<div class="text-xs px-2 py-1 rounded mb-1" style="background: rgba(245,158,11,0.1); color: #d97706;">${g.recommendation}</div>`
+            ).join('') ?? ''}
+          `;
+        } else {
+          resultEl.classList.remove('hidden');
+          resultEl.innerHTML = `<p class="text-xs text-red-500">${data.error}</p>`;
+        }
+      } catch {
+        if (resultEl) {
+          resultEl.classList.remove('hidden');
+          resultEl.innerHTML = '<p class="text-xs text-red-500">Network error</p>';
+        }
+      }
+
+      (btn as HTMLButtonElement).disabled = false;
+      (btn as HTMLElement).textContent = 'Compatibility';
+    });
+  });
+})();
+</script>

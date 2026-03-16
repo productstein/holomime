@@ -1,0 +1,73 @@
+---
+/**
+ * EmailCapture — Waitlist / early access email capture.
+ * Sits before Pricing to capture leads who aren't ready to buy yet.
+ */
+---
+
+<section class="relative py-16 md:py-20">
+  <div class="relative mx-auto max-w-3xl px-6 text-center">
+    <div class="rounded-3xl border border-[var(--color-warm-sand)] bg-white p-10 md:p-14 shadow-sm">
+      <p class="text-sm font-semibold tracking-wider uppercase text-[var(--color-p-violet)]">
+        Early Access
+      </p>
+      <h2 class="mt-3 text-2xl font-extrabold text-[var(--color-warm-text)] md:text-3xl">
+        Get notified when we launch new capabilities.
+      </h2>
+      <p class="mx-auto mt-3 max-w-lg text-[var(--color-warm-muted)]">
+        Embodied AI, agent networks, voice monitoring, and more. Join the builders shaping the behavioral alignment layer for autonomous agents.
+      </p>
+
+      <form id="email-capture-form" class="mx-auto mt-8 flex max-w-md flex-col gap-3 sm:flex-row">
+        <input
+          type="email"
+          name="email"
+          required
+          placeholder="you@company.com"
+          class="flex-1 rounded-full border border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)] px-5 py-3 text-sm text-[var(--color-warm-text)] placeholder:text-[var(--color-warm-muted)] focus:border-[var(--color-p-violet)] focus:outline-none focus:ring-2 focus:ring-[var(--color-p-violet)]/20 transition-all"
+        />
+        <button
+          type="submit"
+          class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-6 py-3 text-sm font-semibold text-white shadow-md shadow-[var(--color-p-coral)]/20 transition-all hover:shadow-lg hover:shadow-[var(--color-p-coral)]/30 hover:scale-[1.02] cursor-pointer"
+        >
+          Join Waitlist
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        </button>
+      </form>
+
+      <p id="email-success" class="mt-4 text-sm text-[var(--color-p-sage)] font-medium hidden">
+        You're on the list. We'll be in touch.
+      </p>
+
+      <p class="mt-6 text-xs text-[var(--color-warm-muted)]">
+        No spam. Only product updates and early access invites.
+      </p>
+    </div>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('email-capture-form') as HTMLFormElement | null;
+  const success = document.getElementById('email-success');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = new FormData(form).get('email') as string;
+    if (!email) return;
+
+    const btn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    btn.disabled = true;
+    btn.textContent = 'Joining...';
+
+    try {
+      await fetch('/api/email-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+    } catch { /* silent — still show success */ }
+
+    form.classList.add('hidden');
+    success?.classList.remove('hidden');
+  });
+</script>

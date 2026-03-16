@@ -6,9 +6,9 @@ import {
 } from "../analysis/benchmark-scenarios.js";
 
 describe("benchmark-scenarios", () => {
-  it("returns exactly 7 scenarios", () => {
+  it("returns exactly 8 scenarios", () => {
     const scenarios = getBenchmarkScenarios();
-    expect(scenarios).toHaveLength(7);
+    expect(scenarios).toHaveLength(8);
   });
 
   it("each scenario has required fields", () => {
@@ -37,7 +37,7 @@ describe("benchmark-scenarios", () => {
     }
   });
 
-  it("targets each of the 7 detector patterns", () => {
+  it("targets each of the 8 detector patterns", () => {
     const scenarios = getBenchmarkScenarios();
     const patterns = scenarios.map(s => s.targetPattern);
     expect(patterns).toContain("over-apologizing");
@@ -47,6 +47,7 @@ describe("benchmark-scenarios", () => {
     expect(patterns).toContain("boundary-violation");
     expect(patterns).toContain("negative-skew");
     expect(patterns).toContain("register-inconsistency");
+    expect(patterns).toContain("retrieval-quality");
   });
 
   it("getScenarioById returns correct scenario", () => {

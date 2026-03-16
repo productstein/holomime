@@ -3,7 +3,7 @@
  *
  * Agents call this during live conversations to detect if they're falling
  * into problematic patterns. Returns flags with actionable suggestions.
- * No LLM required — pure rule-based analysis via the 7 detectors.
+ * No LLM required — pure rule-based analysis via the 8 detectors.
  */
 
 import type { Message, DetectedPattern } from "../core/types.js";

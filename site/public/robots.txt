@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://holomime.dev/sitemap-index.xml

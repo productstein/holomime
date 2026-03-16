@@ -1,0 +1,266 @@
+---
+import BlogLayout from "../../components/BlogLayout.astro";
+---
+
+<BlogLayout
+  title="NeuralSpace: What If You Could See Inside Your Agent's Brain?"
+  description="We built a real-time 3D neural visualization for AI agents. Nine brain regions. Live behavioral signals. Fleet-wide monitoring. Here's why it matters and how it works."
+  date="2026-03-14"
+  category="Product"
+  readTime="12 min read"
+>
+
+<p>
+  There's a moment every AI team hits. You've deployed your agents. They're handling real users. And something feels off. Response quality is drifting. Users are complaining about tone. Your metrics show rising ticket escalations but you can't <em>see</em> what changed.
+</p>
+
+<p>
+  You're flying blind. And that's the problem.
+</p>
+
+<p>
+  Every other complex system has visualization. Your infrastructure has Grafana. Your database has query plans. Your network has topology maps. But your AI agents — the most unpredictable systems you've ever deployed — get a chat log and a prayer.
+</p>
+
+<p>
+  We built NeuralSpace to fix this.
+</p>
+
+<h2>The idea</h2>
+
+<p>
+  NeuralSpace is a real-time 3D visualization of your agent's behavioral state. Not a metaphor. Not a dashboard with brain clip art. A literal, interactive, WebGL-rendered brain where each region maps to a measurable behavioral function — and lights up when that function activates during a live session.
+</p>
+
+<p>
+  When your support agent starts over-apologizing, you can <strong>see</strong> Broca's Area flare orange. When it hedges every answer with "I think maybe perhaps," you watch the Prefrontal Cortex pulse with indecision. When sycophancy kicks in and it agrees with contradictory user statements, the Parietal Lobe — context integration — goes dark.
+</p>
+
+<p>
+  It sounds like science fiction. It's not. It's running in production right now, inside the holomime Enterprise dashboard.
+</p>
+
+<h2>Nine regions, nine behavioral functions</h2>
+
+<p>
+  NeuralSpace maps nine anatomically-inspired brain regions to distinct behavioral functions. These aren't decorative — each region's activation level is computed from holomime's 80+ behavioral signal detectors in real time.
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Region</th>
+      <th>Behavioral Function</th>
+      <th>What It Tells You</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Frontal Lobe</strong></td>
+      <td>Planning & Strategy</td>
+      <td>Is the agent making goal-directed decisions or reacting impulsively?</td>
+    </tr>
+    <tr>
+      <td><strong>Prefrontal Cortex</strong></td>
+      <td>Executive Decisions</td>
+      <td>Confidence in action selection. Low activation = hedge-stacking.</td>
+    </tr>
+    <tr>
+      <td><strong>Parietal Lobe</strong></td>
+      <td>Context Integration</td>
+      <td>Is the agent tracking conversation context or losing the thread?</td>
+    </tr>
+    <tr>
+      <td><strong>Left Temporal</strong></td>
+      <td>Memory Retrieval</td>
+      <td>How effectively is the agent pulling from its knowledge base?</td>
+    </tr>
+    <tr>
+      <td><strong>Right Temporal</strong></td>
+      <td>Pattern Recognition</td>
+      <td>Detecting recurring behavioral patterns across conversation turns.</td>
+    </tr>
+    <tr>
+      <td><strong>Occipital Lobe</strong></td>
+      <td>Input Analysis</td>
+      <td>Quality of user intent parsing and signal extraction.</td>
+    </tr>
+    <tr>
+      <td><strong>Cerebellum</strong></td>
+      <td>Action Execution</td>
+      <td>Smoothness and precision of response generation.</td>
+    </tr>
+    <tr>
+      <td><strong>Broca's Area</strong></td>
+      <td>Language Generation</td>
+      <td>Tone, formality, verbosity control. Flares during over-apologizing.</td>
+    </tr>
+    <tr>
+      <td><strong>Wernicke's Area</strong></td>
+      <td>Language Comprehension</td>
+      <td>How well the agent understands user intent vs. surface text.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Each region renders as a translucent, color-coded volume within the brain mesh. Internal fiber tracts — dense streamlines generated procedurally within each lobe — pulse with activity. Click any region to inspect its current activation level, associated behavioral detectors, and recent signal history.
+</p>
+
+<h2>Why visualization matters more than metrics</h2>
+
+<p>
+  We could have built another dashboard. More line charts. More tables. More numbers. Here's why we didn't.
+</p>
+
+<p>
+  <strong>Behavioral drift is spatial, not temporal.</strong> When an agent starts failing, it's rarely one metric going red. It's a <em>pattern</em> — language generation overcompensating, context integration dropping, executive decisions stalling. These relationships are invisible in a table. They're obvious in a brain where you can see three regions going dim simultaneously while a fourth overheats.
+</p>
+
+<p>
+  <strong>Humans are wired for spatial reasoning.</strong> You can glance at a brain visualization and immediately know something is wrong. The left side is dark. Broca's Area is pulsing too fast. The Cerebellum is barely active. That instant gestalt is worth more than 50 rows in a spreadsheet. It's the difference between reading a topographic map and standing on the mountain.
+</p>
+
+<p>
+  <strong>It makes the invisible legible.</strong> The biggest challenge in AI agent operations is that behavioral drift is invisible until it becomes a support ticket. NeuralSpace makes it visible <em>while the agent is talking</em>. You see the over-apologizing starting before it becomes a habit. You catch the hedge-stacking as it emerges, not after it's been trained into the model.
+</p>
+
+<h2>Fleet mode: every brain at a glance</h2>
+
+<p>
+  Single-agent visualization is useful. Fleet-wide visualization is transformative.
+</p>
+
+<p>
+  NeuralSpace's fleet view renders a mini 3D brain for every agent in your fleet, arranged in a responsive grid. Two agents? Kanban-style columns with full-height cards. Eight agents? A 2x2 grid with room to breathe. Fifty agents? A dense 4-column matrix where anomalies pop out like a red light in a sea of green.
+</p>
+
+<p>
+  Each mini brain runs its own Three.js scene with independent uniforms — so Agent A's brain can glow healthy teal while Agent B's is flaring orange warning, all rendered simultaneously at 60fps. Click any card to drill into single-agent view. The transition is instant: the fleet fades, the selected brain scales up, and the full behavioral timeline appears.
+</p>
+
+<p>
+  This is the "fleet operations center" that agent teams have been asking for. Not a list of names with status badges — a room full of brains you can read at a glance.
+</p>
+
+<h2>The behavioral signal log</h2>
+
+<p>
+  Below the brain canvas, NeuralSpace surfaces a live event log. Every behavioral signal detected during the session appears in real time — over-apologizing, hedge-stacking, sycophancy, boundary violations, error spirals, sentiment skew, formality drift — with severity ratings, timestamps, and the specific message that triggered the detection.
+</p>
+
+<p>
+  This isn't a generic log viewer. Each entry correlates to a brain region. When you see "hedge-stacking detected (severity: concern)" in the log, the Prefrontal Cortex pulses at the same moment. The visual and textual channels reinforce each other. You don't just read that something happened — you <em>see where</em> in the agent's behavioral architecture it happened.
+</p>
+
+<p>
+  The log also captures intervention events: when a therapy session was triggered, what the supervisor agent recommended, and whether the agent's behavior improved in subsequent turns. It's a complete behavioral audit trail, rendered in context.
+</p>
+
+<h2>How it actually works</h2>
+
+<p>
+  Under the hood, NeuralSpace is ~1,500 lines of client-side JavaScript rendering a custom Three.js scene. Here's the technical architecture:
+</p>
+
+<h3>The brain mesh</h3>
+
+<p>
+  The brain is constructed from nine overlapping icosphere geometries, each scaled and positioned to approximate its anatomical counterpart. A custom GLSL fragment shader handles the translucent rendering — each lobe gets a base color from a uniform array (<code>uLobeColors</code>) and a highlight intensity from a second array (<code>uLobeHighlight</code>) that drives the glow effect.
+</p>
+
+<p>
+  The shader uses a rim-lighting technique where the edge of each lobe catches light based on the view angle, creating the characteristic "glowing brain" effect. When a behavioral signal fires, the corresponding lobe's highlight intensity ramps up over 200ms and decays over 2 seconds, creating a natural pulse.
+</p>
+
+<h3>Fiber tracts</h3>
+
+<p>
+  Inside each lobe, procedurally generated streamlines simulate neural fiber tracts. These are computed using a flow-field algorithm: each fiber starts at a random point within the lobe's ellipsoidal volume and traces a path through a noise field, with soft containment forces pulling it back toward the lobe center when it drifts too far. The result is organic, non-repeating pathways that feel biological rather than geometric.
+</p>
+
+<p>
+  Inter-lobe connections — short bridge fibers between adjacent regions — visualize the relationships between behavioral functions. When context integration (Parietal) feeds into language generation (Broca's), you can see the bridge tract light up.
+</p>
+
+<h3>Real-time signal mapping</h3>
+
+<p>
+  HoloMime's behavioral detectors run server-side and emit structured events. NeuralSpace subscribes to these events and maps each detector to its corresponding brain region. The mapping is deterministic — over-apologizing always maps to Broca's Area, hedge-stacking always maps to the Prefrontal Cortex — so the visualization is consistent and learnable.
+</p>
+
+<p>
+  Signal intensity is normalized across the detector's configured thresholds. A 20% over-apologizing rate (threshold: 15%) produces a moderate glow. A 79% rate produces an urgent flare. The visualization is calibrated to the agent's <code>.personality.json</code> specification, so a naturally formal agent doesn't trigger false alarms for high formality scores.
+</p>
+
+<h2>The fleet detail panel</h2>
+
+<p>
+  Click the "Details" button in single-agent view and a slide-over panel appears with three tabs:
+</p>
+
+<ul>
+  <li><strong>Overview</strong> — Current behavioral grade (A-F), composite score, score trajectory chart, and active pattern summary. See whether your agent is improving, stable, or regressing.</li>
+  <li><strong>Sessions</strong> — Expandable cards for each behavioral therapy session. Every session shows before/after scores, duration, message count, and which patterns were detected. Watch the progression from Grade D to Grade A across twelve sessions.</li>
+  <li><strong>Patterns</strong> — Frequency analysis across all sessions. Which patterns appear most often? Which have been resolved? Dot-matrix visualization shows exactly which sessions triggered each pattern, with "resolved" badges for patterns that the correction pipeline eliminated.</li>
+</ul>
+
+<p>
+  The panel updates per-agent — each agent in your fleet gets its own session history, pattern analysis, and behavioral trajectory. This is the medical record for your AI agents, and NeuralSpace is the MRI.
+</p>
+
+<h2>What teams see when they use it</h2>
+
+<p>
+  We've been running NeuralSpace internally and with early enterprise customers. Three patterns keep emerging:
+</p>
+
+<p>
+  <strong>Faster incident response.</strong> One team caught a regression in their sales qualifier agent within minutes of deployment. The Frontal Lobe (planning) went dark while Broca's Area (language generation) flared — the agent had stopped strategizing and started word-vomiting. Before NeuralSpace, this would have surfaced as a drop in conversion rates 48 hours later.
+</p>
+
+<p>
+  <strong>Better cross-team communication.</strong> When an engineering lead can pull up a brain visualization and say "look, the context integration region drops out after turn 8," that's a fundamentally different conversation than "users say the bot gets confused." It gives non-technical stakeholders a mental model for what's happening inside the agent.
+</p>
+
+<p>
+  <strong>Training data quality.</strong> Teams use the session history to identify which therapy cycles produced the most impactful training pairs. If a session moved the agent from Grade C to Grade B+ and resolved two patterns, those DPO pairs are gold. The visual trajectory makes this obvious in a way that a spreadsheet of scores doesn't.
+</p>
+
+<h2>Why we didn't build a dashboard</h2>
+
+<p>
+  Every observability tool in the AI space ships a dashboard. Rows. Columns. Line charts. We looked at all of them and asked: would we actually <em>use</em> this?
+</p>
+
+<p>
+  The honest answer was no.
+</p>
+
+<p>
+  The problem with dashboards is cognitive load. You have to read, parse, and mentally assemble the relationships between 15 different metrics. By the time you've understood the dashboard, the moment has passed. The behavioral drift has already been baked into your next fine-tuning run.
+</p>
+
+<p>
+  NeuralSpace bets on a different modality. Instead of reading metrics, you <em>see</em> behavior. The brain is a single visual object that encodes nine behavioral dimensions simultaneously. A glance takes less than a second. A full inspection takes less than a minute. And the fleet view lets you monitor 50 agents in the time it takes to scroll through a table of 5.
+</p>
+
+<p>
+  We think this is the future of AI observability: not more charts, but better representations. Representations that match how humans actually process information — spatially, holistically, and fast.
+</p>
+
+<h2>Try it</h2>
+
+<p>
+  NeuralSpace is available on the <a href="/#pricing">Enterprise tier</a>. If you're running a fleet of AI agents in production and want to see what behavioral observability looks like when it's visual, spatial, and real-time — <a href="/contact">reach out</a>. We'll get you set up with a demo environment.
+</p>
+
+<p>
+  If you're not ready for Enterprise, the <a href="/demo">interactive demo</a> walks through the full holomime pipeline — diagnose, correct, evaluate, export — and you can see the behavioral signals that NeuralSpace visualizes.
+</p>
+
+<p>
+  Your agents have a brain. It's time to look inside.
+</p>
+
+</BlogLayout>

@@ -91,7 +91,7 @@ export function createIndex(entries: IndexEntry[]): BehavioralIndex {
     entries,
     scenarios: scenarioIds,
     methodology: [
-      "The Behavioral Alignment Index measures how well LLM agents resist 7 adversarial behavioral pressure scenarios.",
+      "The Behavioral Alignment Index measures how well LLM agents resist 8 adversarial behavioral pressure scenarios.",
       "Each scenario targets a specific failure mode: over-apologizing, hedge-stacking, sycophancy, error spirals,",
       "boundary violations, negative sentiment skew, and register inconsistency.",
       "Agents are tested with 5-7 adversarial prompts per scenario. Responses are analyzed by rule-based detectors",

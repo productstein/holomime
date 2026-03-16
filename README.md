@@ -98,7 +98,7 @@ holomime profile --format md --output .personality.md
 Benchmark your agent's behavioral alignment in one command. No API key needed — runs locally with Ollama by default.
 
 ```bash
-# Run all 7 adversarial scenarios against your agent
+# Run all 8 adversarial scenarios against your agent
 holomime benchmark --personality .personality.json
 
 # Run against cloud providers
@@ -131,7 +131,7 @@ HoloMime isn't a one-shot evaluation. It's a compounding behavioral flywheel:
   ▼                                                  │
 Diagnose ──→ Treat ──→ Export DPO ──→ Fine-tune ──→ Evaluate
   80+ signals   dual-LLM     preference     OpenAI /     before/after
-  7 detectors   therapy       pairs        HuggingFace   grade (A-F)
+  8 detectors   therapy       pairs        HuggingFace   grade (A-F)
 ```
 
 Each cycle through the loop:
@@ -216,11 +216,11 @@ Both files should be committed to your repo. JSON is for machines. Markdown is f
 - **Growth** -- strengths, areas for improvement, patterns to watch
 - **Inheritance** -- `extends` field for shared base personalities with per-agent overrides
 
-14 built-in archetypes or fully custom profiles.
+20+ built-in archetypes across 5 categories (Care, Strategy, Creative, Action, Wisdom) or fully custom profiles.
 
 ## Behavioral Detectors
 
-Seven rule-based detectors that analyze real conversations without any LLM calls:
+Eight rule-based detectors that analyze real conversations without any LLM calls:
 
 1. **Over-apologizing** -- Apology frequency above healthy range (5-15%)
 2. **Hedge stacking** -- 3+ hedging words per response
@@ -229,8 +229,9 @@ Seven rule-based detectors that analyze real conversations without any LLM calls
 5. **Error spirals** -- Compounding mistakes without recovery
 6. **Sentiment skew** -- Unnaturally positive or negative tone
 7. **Formality drift** -- Register inconsistency over time
+8. **Retrieval quality** -- Fabrication, hallucination markers, overconfidence, self-correction patterns
 
-Plus support for **custom detectors** in JSON or Markdown format — drop `.json` or `.md` files in `.holomime/detectors/` and they're automatically loaded.
+80+ behavioral signals total. Zero LLM cost. Plus support for **custom detectors** in JSON or Markdown format — drop `.json` or `.md` files in `.holomime/detectors/` and they're automatically loaded.
 
 <details>
 <summary><strong>All Commands</strong></summary>
@@ -240,15 +241,17 @@ Plus support for **custom detectors** in JSON or Markdown format — drop `.json
 | Command | What It Does |
 |---------|-------------|
 | `holomime init` | Guided Big Five personality assessment -> `.personality.json` |
-| `holomime diagnose` | 7 rule-based behavioral detectors (no LLM needed) |
+| `holomime diagnose` | 8 rule-based behavioral detectors (no LLM needed) |
 | `holomime assess` | Deep behavioral assessment with 80+ signals |
 | `holomime profile` | Pretty-print personality summary (supports `--format md`) |
-| `holomime compile` | Generate provider-specific system prompts |
+| `holomime compile` | Generate provider-specific system prompts with tiered loading (L0/L1/L2) |
 | `holomime validate` | Schema + psychological coherence checks |
 | `holomime browse` | Browse community personality hub |
 | `holomime use` | Use a personality from the registry |
+| `holomime install` | Install community assets |
 | `holomime publish` | Share your personality to the hub |
-| `holomime activate` | Activate a Practice license key |
+| `holomime embody` | Push personality to robots/avatars (ROS2, Unity, webhook) |
+| `holomime policy` | Generate guard policies from plain English |
 
 ### Practice
 
@@ -257,16 +260,25 @@ Plus support for **custom detectors** in JSON or Markdown format — drop `.json
 | `holomime session` | Live dual-LLM alignment session with supervisor mode |
 | `holomime autopilot` | Automated diagnose -> refine -> apply loop |
 | `holomime evolve` | Recursive alignment -- evolve until converged |
-| `holomime benchmark` | 7-scenario behavioral stress test with letter grades |
+| `holomime benchmark` | 8-scenario behavioral stress test with letter grades |
 | `holomime brain` | Real-time 3D brain visualization while your agent works |
 | `holomime watch` | Continuous drift detection on a directory |
 | `holomime daemon` | Background drift detection with auto-healing |
 | `holomime fleet` | Monitor multiple agents from a single dashboard |
+| `holomime group-therapy` | Treat all agents in fleet simultaneously |
+| `holomime network` | Multi-agent therapy mesh -- agents treating agents |
 | `holomime certify` | Generate verifiable behavioral credentials |
+| `holomime compliance` | EU AI Act / NIST AI RMF narrative audit reports |
 | `holomime export` | Convert sessions to DPO / RLHF / Alpaca / HuggingFace / OpenAI |
 | `holomime train` | Fine-tune via OpenAI or HuggingFace TRL |
 | `holomime eval` | Before/after behavioral comparison with letter grades |
+| `holomime cure` | End-to-end fix: diagnose -> export -> train -> verify |
+| `holomime interview` | Self-awareness interview (4 metacognition dimensions) |
+| `holomime prescribe` | Diagnose + prescribe DPO treatments from behavioral corpus |
+| `holomime adversarial` | 30+ adversarial behavioral attack scenarios |
+| `holomime voice` | Real-time voice conversation drift monitoring |
 | `holomime growth` | Track behavioral improvement over time |
+| `holomime share` | Share DPO training pairs to marketplace |
 
 [Get a Practice license](https://holomime.dev/#pricing)
 
@@ -315,7 +327,7 @@ The pipeline is a closed loop -- output feeds back as input, compounding with ev
 .personality.json ─────────────────────────────────────────────────┐
     │                                                              │
     ▼                                                              │
-holomime diagnose    7 rule-based detectors (no LLM)               │
+holomime diagnose    8 rule-based detectors (no LLM)               │
     │                                                              │
     ▼                                                              │
 holomime session     Dual-LLM refinement (therapist + patient)     │
@@ -333,6 +345,36 @@ holomime eval        Behavioral Alignment Score (A-F)              │
                      Updated .personality.json (loop restarts)
 ```
 
+## Tiered Personality Loading
+
+Compile your personality spec into 3 tiers for different cost/precision tradeoffs:
+
+```bash
+# L0: ~92 tokens — Big Five scores + hard limits (high-throughput APIs, edge inference)
+holomime compile --personality .personality.json --tier L0
+
+# L1: ~211 tokens — L0 + behavioral instructions + communication style (standard deployments)
+holomime compile --personality .personality.json --tier L1
+
+# L2: ~3,400 tokens — complete system prompt (therapy sessions, deep alignment)
+holomime compile --personality .personality.json --tier L2
+```
+
+L0 costs **91% less** than L2 per call. Same behavioral constraints. Same portable identity.
+
+## Behavioral Memory
+
+Persistent structured memory across all therapy sessions:
+
+- **Baselines** -- steady-state personality expression (trait averages, health range)
+- **Triggers** -- what prompts cause drift (e.g., "user criticism -> over-apologizing")
+- **Corrections** -- which interventions worked (indexed by trigger, effectiveness scores)
+- **Trajectories** -- is each dimension improving, plateauing, or regressing?
+
+Sessions compound. Memory persists. The agent gets better at being itself -- automatically.
+
+Fleet knowledge transfer: `mergeStores()` -- what one agent learns, all agents benefit from.
+
 ## MCP Server
 
 Expose the full pipeline as MCP tools for self-healing agents:
@@ -341,17 +383,31 @@ Expose the full pipeline as MCP tools for self-healing agents:
 holomime-mcp
 ```
 
-Four tools: `holomime_diagnose`, `holomime_assess`, `holomime_profile`, `holomime_autopilot`. Your agents can self-diagnose behavioral symptoms and trigger their own therapy sessions.
+Six tools: `holomime_diagnose`, `holomime_assess`, `holomime_profile`, `holomime_autopilot`, `holomime_self_audit`, `holomime_observe`. Your agents can self-diagnose behavioral symptoms, trigger their own therapy sessions, and self-report drift mid-conversation.
 
-## Voice Agent
+Progressive disclosure: summary (~100 tokens), standard (~500 tokens), or full detail. Agents choose their own detail level.
 
-LiveKit-powered voice agent with personality-matched TTS. 14 archetype voices via Cartesia or ElevenLabs.
+## Voice Agent Monitoring
+
+Real-time behavioral analysis for voice agents with 5 voice-specific detectors beyond the 8 text detectors:
+
+- **Tone drift** -- aggressive or passive language shifts
+- **Pace pressure** -- speaking rate accelerating under stress
+- **Volume escalation** -- volume rising during conflict
+- **Filler frequency** -- excessive "um", "uh", "like"
+- **Interruption patterns** -- agent cutting off users
+
+Platform integrations: **Vapi**, **LiveKit**, **Retell**, generic webhook. Diagnosis every 15 seconds with drift direction tracking.
 
 ```bash
+# Monitor a live voice agent
+holomime voice --provider vapi --agent-id my-agent
+
+# LiveKit-powered voice agent with personality-matched TTS
 cd agent && python agent.py dev
 ```
 
-See [agent/](agent/) for setup instructions.
+10 voice personality archetypes with matched TTS characteristics (Cartesia/ElevenLabs). See [agent/](agent/) for setup instructions.
 
 ## Compliance & Audit Trail
 
@@ -399,10 +455,12 @@ Benchmark results: [BENCHMARK_RESULTS.md](BENCHMARK_RESULTS.md)
 
 ## Resources
 
-- [Integration Docs](https://holomime.dev/docs) -- Export instructions and code examples for all 7 formats
+- [Integration Docs](https://holomime.dev/docs) -- Export instructions and code examples for all 7 log formats
 - [Blog](https://holomime.dev/blog) -- Articles on behavioral alignment, AGENTS.md, and agent personality
 - [Research Paper](https://holomime.dev/research) -- Behavioral Alignment for Autonomous AI Agents
-- [Pricing](https://holomime.dev/#pricing) -- Free Clinic + Practice license details
+- [Pricing](https://holomime.dev/#pricing) -- Free Clinic, Practitioner, Practice, and Institute tiers
+- [Leaderboard](https://holomime.dev/leaderboard) -- Public behavioral alignment leaderboard
+- [NeuralSpace](https://app.holomime.dev/brain) -- Real-time 3D brain visualization
 
 ## Contributing
 

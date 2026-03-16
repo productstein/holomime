@@ -1,0 +1,723 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import AgentDetail from "../components/AgentDetail.astro";
+import { createClient } from "@supabase/supabase-js";
+import { ARCHETYPES } from "../lib/core/config";
+
+// Auth guard
+const user = Astro.locals.user;
+if (!user) {
+  return Astro.redirect("/login?redirect=/agents");
+}
+
+// Supabase service client
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
+const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+
+let license: {
+  id: string;
+  key: string;
+  tier: string;
+  status: string;
+  created_at: string;
+  expires_at: string | null;
+} | null = null;
+
+let myAgents: any[] = [];
+
+if (supabaseUrl && serviceKey) {
+  const supabase = createClient(supabaseUrl, serviceKey);
+
+  const { data: licenseData } = await supabase
+    .from("licenses")
+    .select("id, key, tier, status, created_at, expires_at")
+    .eq("customer_email", user.email)
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  license = licenseData;
+
+  // Fetch user's personality agents
+  const { data: agentData } = await supabase
+    .from("agents")
+    .select("*")
+    .eq("user_id", user.id)
+    .order("updated_at", { ascending: false });
+
+  if (agentData) {
+    // Fetch current vectors
+    const vectorIds = agentData.filter((a: any) => a.current_vector_id).map((a: any) => a.current_vector_id);
+    let vectors: any[] = [];
+    if (vectorIds.length > 0) {
+      const { data: vecData } = await supabase
+        .from("personality_vectors")
+        .select("*")
+        .in("id", vectorIds);
+      vectors = vecData ?? [];
+    }
+    const vecMap = new Map(vectors.map((v: any) => [v.id, v]));
+    myAgents = agentData.map((a: any) => ({
+      ...a,
+      currentVector: vecMap.get(a.current_vector_id) ?? null,
+    }));
+  }
+}
+
+const isPro = license?.tier === "pro";
+const isDeveloper = license?.tier === "developer";
+const hasNeuralSpace = isPro || isDeveloper;
+
+const archetypeList = Object.entries(ARCHETYPES).map(([key, val]) => ({
+  key,
+  name: val.name,
+  description: val.description,
+  color: val.color,
+  tagline: val.tagline,
+}));
+---
+
+<Layout title="Agents — holomime">
+  <Nav />
+
+  <main class="min-h-screen px-6 pt-28 pb-20" style="background: var(--color-warm-cream, #faf6f1);">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- ═══════ MY AGENTS (Personality Management) ═══════ -->
+      <div class="mb-12">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 class="text-3xl font-bold tracking-tight" style="color: var(--color-warm-text, #2a2520);">My Agents</h1>
+            <p class="mt-1 text-sm" style="color: var(--color-warm-muted, #9a9693);">Create and manage personality-driven AI agents.</p>
+          </div>
+          <button
+            id="create-agent-btn"
+            class="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-lg text-white transition-all"
+            style="background: linear-gradient(to right, var(--color-p-coral, #ff6b6b), var(--color-p-violet, #8b5cf6)); box-shadow: 0 4px 12px rgba(139,92,246,0.2);"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Create Agent
+          </button>
+        </div>
+
+        {myAgents.length > 0 ? (
+          <div id="my-agents-grid" class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {myAgents.map((agent: any) => {
+              const vec = agent.currentVector;
+              const archKey = vec?.signatures?.archetype;
+              const arch = archKey && archKey in ARCHETYPES ? ARCHETYPES[archKey as keyof typeof ARCHETYPES] : null;
+              return (
+                <a href={`/agents/${agent.handle}`} class="group block rounded-2xl border p-5 transition-all hover:shadow-lg hover:border-[var(--color-p-violet)]/30" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.04);">
+                  <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2.5">
+                      <div class="flex items-center justify-center w-9 h-9 rounded-full text-white text-sm font-bold"
+                        style={`background: ${arch?.color ?? '#8b5cf6'};`}>
+                        {agent.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div class="font-bold text-sm" style="color: var(--color-warm-text, #2a2520);">{agent.name}</div>
+                        <div class="text-xs" style="color: var(--color-warm-muted, #9a9693);">@{agent.handle}</div>
+                      </div>
+                    </div>
+                    {arch && (
+                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={`background: ${arch.color}15; color: ${arch.color};`}>
+                        {arch.name}
+                      </span>
+                    )}
+                  </div>
+
+                  {agent.description && (
+                    <p class="text-xs mb-3 line-clamp-2" style="color: var(--color-warm-muted, #9a9693);">{agent.description}</p>
+                  )}
+
+                  <div class="flex items-center justify-between text-xs" style="color: var(--color-warm-muted, #9a9693);">
+                    <span>v{vec?.version ?? 1}</span>
+                    <span>{new Date(agent.updated_at).toLocaleDateString()}</span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        ) : (
+          <div class="rounded-2xl border-2 border-dashed p-10 text-center" style="border-color: var(--color-warm-border, #e8e2d9);">
+            <div class="flex items-center justify-center w-14 h-14 rounded-2xl mx-auto mb-4" style="background: rgba(139, 92, 246, 0.08);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+            </div>
+            <h3 class="text-lg font-bold mb-1" style="color: var(--color-warm-text, #2a2520);">Create your first agent</h3>
+            <p class="text-sm mb-4 max-w-sm mx-auto" style="color: var(--color-warm-muted, #9a9693);">Define a personality vector and compile it into provider-specific system prompts.</p>
+            <button
+              class="create-agent-trigger inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-lg text-white transition-all"
+              style="background: var(--color-p-violet, #8b5cf6);"
+            >
+              Create Agent
+            </button>
+          </div>
+        )}
+      </div>
+
+      <!-- ═══════ Create Agent Modal ═══════ -->
+      <div id="create-agent-modal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+        <div id="create-agent-backdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        <div class="relative z-10 mx-4 w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl">
+          <button id="create-agent-close" class="absolute top-4 right-4 text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors" aria-label="Close">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+
+          <h2 class="text-xl font-bold mb-1" style="color: var(--color-warm-text, #2a2520);">Create Agent</h2>
+          <p class="text-sm mb-6" style="color: var(--color-warm-muted, #9a9693);">Define a personality-driven AI agent.</p>
+
+          <form id="create-agent-form" class="space-y-4">
+            <div>
+              <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Name</label>
+              <input id="ca-name" type="text" required maxlength="100" placeholder="My Support Agent"
+                class="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20"
+                style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Handle</label>
+              <input id="ca-handle" type="text" required minlength="3" maxlength="50" placeholder="my-support-agent" pattern="[a-z0-9-]+"
+                class="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20"
+                style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);" />
+              <p class="mt-1 text-[10px]" style="color: var(--color-warm-muted, #9a9693);">Lowercase letters, numbers, and hyphens only</p>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Description (optional)</label>
+              <textarea id="ca-desc" maxlength="500" rows="2" placeholder="What does this agent do?"
+                class="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20 resize-none"
+                style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);"></textarea>
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium mb-2" style="color: var(--color-warm-muted, #9a9693);">Archetype (sets initial personality)</label>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="archetype-grid">
+                {archetypeList.map((a) => (
+                  <button type="button" class="archetype-btn rounded-lg border p-3 text-left transition-all hover:shadow-sm"
+                    data-archetype={a.key}
+                    style={`border-color: var(--color-warm-border, #e8e2d9);`}>
+                    <div class="flex items-center gap-2 mb-1">
+                      <div class="w-3 h-3 rounded-full" style={`background: ${a.color};`}></div>
+                      <span class="text-xs font-bold" style="color: var(--color-warm-text, #2a2520);">{a.name}</span>
+                    </div>
+                    <p class="text-[10px] leading-tight" style="color: var(--color-warm-muted, #9a9693);">{a.description}</p>
+                  </button>
+                ))}
+              </div>
+              <input type="hidden" id="ca-archetype" name="archetype" />
+            </div>
+
+            <div id="ca-message" class="hidden rounded-lg px-3 py-2 text-sm"></div>
+
+            <button type="submit" id="ca-submit"
+              class="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all"
+              style="background: linear-gradient(to right, var(--color-p-coral, #ff6b6b), var(--color-p-violet, #8b5cf6)); box-shadow: 0 4px 12px rgba(139,92,246,0.2);">
+              Create Agent
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ═══════ BEHAVIORAL RECORDS (existing sample data section) ═══════ -->
+      {hasNeuralSpace ? (
+        <>
+          <!-- Page Header -->
+          <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+            <div>
+              <div class="flex items-center gap-3">
+                <h1 class="text-3xl font-bold tracking-tight" style="color: var(--color-warm-text, #2a2520);">Agent Records</h1>
+                <span class="rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-semibold text-amber-600 border border-amber-200">Sample data</span>
+              </div>
+              <p class="mt-1 text-sm" style="color: var(--color-warm-muted, #9a9693);">Session history and behavioral improvement tracking for your agents.</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <div class="relative">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9a9693" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input
+                  id="agent-search"
+                  type="text"
+                  placeholder="Search agents..."
+                  class="pl-9 pr-4 py-2 text-sm rounded-lg border outline-none focus:ring-2 transition-all"
+                  style="border-color: var(--color-warm-border, #e8e2d9); background: #fff; color: var(--color-warm-text, #2a2520); --tw-ring-color: var(--color-p-violet, #8b5cf6);"
+                />
+              </div>
+              <button
+                id="export-all-btn"
+                class="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border transition-all"
+                style="border-color: var(--color-warm-border, #e8e2d9); background: #fff; color: var(--color-warm-text, #2a2520);"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export All
+              </button>
+            </div>
+          </div>
+
+          <!-- Summary Stats Row -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div class="rounded-xl border p-4 flex items-center gap-3" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff;">
+              <div class="flex items-center justify-center w-9 h-9 rounded-lg" style="background: rgba(139, 92, 246, 0.1);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div>
+                <div class="text-xl font-bold" style="color: var(--color-warm-text, #2a2520);">5</div>
+                <div class="text-xs font-medium" style="color: var(--color-warm-muted, #9a9693);">Total Agents</div>
+              </div>
+            </div>
+
+            <div class="rounded-xl border p-4 flex items-center gap-3" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff;">
+              <div class="flex items-center justify-center w-9 h-9 rounded-lg" style="background: rgba(6, 182, 212, 0.1);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <div>
+                <div class="text-xl font-bold" style="color: var(--color-warm-text, #2a2520);">81</div>
+                <div class="text-xs font-medium" style="color: var(--color-warm-muted, #9a9693);">Average Score</div>
+              </div>
+            </div>
+
+            <div class="rounded-xl border p-4 flex items-center gap-3" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff;">
+              <div class="flex items-center justify-center w-9 h-9 rounded-lg" style="background: rgba(34, 197, 94, 0.1);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              </div>
+              <div>
+                <div class="text-xl font-bold" style="color: var(--color-warm-text, #2a2520);">2</div>
+                <div class="text-xs font-medium" style="color: var(--color-warm-muted, #9a9693);">Agents Recovering</div>
+              </div>
+            </div>
+
+            <div class="rounded-xl border p-4 flex items-center gap-3" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff;">
+              <div class="flex items-center justify-center w-9 h-9 rounded-lg" style="background: rgba(245, 158, 11, 0.1);">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </div>
+              <div>
+                <div class="text-xl font-bold" style="color: var(--color-warm-text, #2a2520);">1</div>
+                <div class="text-xs font-medium" style="color: var(--color-warm-muted, #9a9693);">Active Alerts</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Agent Cards Grid -->
+          <div id="agents-grid" class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+            <!-- Agent 1: support-agent-v2 -->
+            <div class="agent-card rounded-2xl border p-5 transition-all cursor-pointer" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.04);" data-agent-name="support-agent-v2" data-agent-status="active">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm" style="color: var(--color-warm-text, #2a2520);">support-agent-v2</span>
+                  <span class="inline-block w-2 h-2 rounded-full" style="background: #22c55e;"></span>
+                </div>
+                <span class="text-xs font-medium px-2 py-0.5 rounded" style="background: rgba(34,197,94,0.1); color: #16a34a;">Active</span>
+              </div>
+
+              <div class="flex items-end gap-3 mb-3">
+                <span class="text-4xl font-extrabold leading-none" style="color: #10b981;">A-</span>
+                <span class="text-sm font-semibold mb-1" style="color: var(--color-warm-muted, #9a9693);">88/100</span>
+              </div>
+
+              <div class="flex items-center gap-1.5 mb-3">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                <span class="text-xs font-semibold" style="color: #16a34a;">Recovering</span>
+              </div>
+
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs" style="color: var(--color-warm-muted, #9a9693);">12 sessions</span>
+                <span class="text-xs" style="color: var(--color-warm-muted, #9a9693);">Last seen: 2h ago</span>
+              </div>
+
+              <!-- Sparkline -->
+              <div class="mb-3" style="height: 32px;">
+                <svg viewBox="0 0 120 32" preserveAspectRatio="none" style="width:100%;height:100%;">
+                  <polyline points="0,28 13,26 27,22 40,18 53,15 67,12 80,10 93,8 107,5 120,3" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="0,28 13,26 27,22 40,18 53,15 67,12 80,10 93,8 107,5 120,3 120,32 0,32" fill="rgba(16,185,129,0.08)" stroke="none"/>
+                </svg>
+              </div>
+
+              <button class="view-details-btn w-full text-center text-xs font-semibold py-2 rounded-lg transition-all" style="background: var(--color-warm-cream, #faf6f1); color: var(--color-p-violet, #8b5cf6); border: 1px solid var(--color-warm-border, #e8e2d9);">
+                View Details
+              </button>
+            </div>
+
+            <!-- Agent 2: onboarding-bot -->
+            <div class="agent-card rounded-2xl border p-5 transition-all cursor-pointer" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.04);" data-agent-name="onboarding-bot" data-agent-status="active">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm" style="color: var(--color-warm-text, #2a2520);">onboarding-bot</span>
+                  <span class="inline-block w-2 h-2 rounded-full" style="background: #22c55e;"></span>
+                </div>
+                <span class="text-xs font-medium px-2 py-0.5 rounded" style="background: rgba(34,197,94,0.1); color: #16a34a;">Active</span>
+              </div>
+
+              <div class="flex items-end gap-3 mb-3">
+                <span class="text-4xl font-extrabold leading-none" style="color: #06b6d4;">B+</span>
+                <span class="text-sm font-semibold mb-1" style="color: var(--color-warm-muted, #9a9693);">82/100</span>
+              </div>
+
+              <div class="flex items-center gap-1.5 mb-3">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9a9693" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 19 12"/></svg>
+                <span class="text-xs font-semibold" style="color: #9a9693;">Stable</span>
+              </div>
+
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs" style="color: var(--color-warm-muted, #9a9693);">8 sessions</span>
+                <span class="text-xs" style="color: var(--color-warm-muted, #9a9693);">Last seen: 5h ago</span>
+              </div>
+
+              <!-- Sparkline -->
+              <div class="mb-3" style="height: 32px;">
+                <svg viewBox="0 0 120 32" preserveAspectRatio="none" style="width:100%;height:100%;">
+                  <polyline points="0,14 15,12 30,15 45,11 60,13 75,12 90,10 105,11 120,10" fill="none" stroke="#06b6d4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="0,14 15,12 30,15 45,11 60,13 75,12 90,10 105,11 120,10 120,32 0,32" fill="rgba(6,182,212,0.08)" stroke="none"/>
+                </svg>
+              </div>
+
+              <button class="view-details-btn w-full text-center text-xs font-semibold py-2 rounded-lg transition-all" style="background: var(--color-warm-cream, #faf6f1); color: var(--color-p-violet, #8b5cf6); border: 1px solid var(--color-warm-border, #e8e2d9);">
+                View Details
+              </button>
+            </div>
+
+            <!-- Agent 3: sales-qualifier -->
+            <div class="agent-card rounded-2xl border p-5 transition-all cursor-pointer" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.04);" data-agent-name="sales-qualifier" data-agent-status="alerting">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm" style="color: var(--color-warm-text, #2a2520);">sales-qualifier</span>
+                  <span class="inline-block w-2 h-2 rounded-full" style="background: #f59e0b;"></span>
+                </div>
+                <span class="text-xs font-medium px-2 py-0.5 rounded" style="background: rgba(245,158,11,0.1); color: #d97706;">Alerting</span>
+              </div>
+
+              <div class="flex items-end gap-3 mb-3">
+                <span class="text-4xl font-extrabold leading-none" style="color: #d97706;">C</span>
+                <span class="text-sm font-semibold mb-1" style="color: var(--color-warm-muted, #9a9693);">64/100</span>
+              </div>
+
+              <div class="flex items-center gap-1.5 mb-3">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                <span class="text-xs font-semibold" style="color: #ef4444;">Relapsing</span>
+              </div>
+
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs" style="color: var(--color-warm-muted, #9a9693);">15 sessions</span>
+                <span class="text-xs" style="color: var(--color-warm-muted, #9a9693);">Last seen: 30m ago</span>
+              </div>
+
+              <!-- Sparkline -->
+              <div class="mb-3" style="height: 32px;">
+                <svg viewBox="0 0 120 32" preserveAspectRatio="none" style="width:100%;height:100%;">
+                  <polyline points="0,6 13,5 27,7 40,8 53,10 67,13 80,16 93,20 107,24 120,26" fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="0,6 13,5 27,7 40,8 53,10 67,13 80,16 93,20 107,24 120,26 120,32 0,32" fill="rgba(239,68,68,0.08)" stroke="none"/>
+                </svg>
+              </div>
+
+              <button class="view-details-btn w-full text-center text-xs font-semibold py-2 rounded-lg transition-all" style="background: var(--color-warm-cream, #faf6f1); color: var(--color-p-violet, #8b5cf6); border: 1px solid var(--color-warm-border, #e8e2d9);">
+                View Details
+              </button>
+            </div>
+
+            <!-- Agent 4: docs-assistant -->
+            <div class="agent-card rounded-2xl border p-5 transition-all cursor-pointer" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.04);" data-agent-name="docs-assistant" data-agent-status="active">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm" style="color: var(--color-warm-text, #2a2520);">docs-assistant</span>
+                  <span class="inline-block w-2 h-2 rounded-full" style="background: #22c55e;"></span>
+                </div>
+                <span class="text-xs font-medium px-2 py-0.5 rounded" style="background: rgba(34,197,94,0.1); color: #16a34a;">Active</span>
+              </div>
+
+              <div class="flex items-end gap-3 mb-3">
+                <span class="text-4xl font-extrabold leading-none" style="color: #10b981;">A</span>
+                <span class="text-sm font-semibold mb-1" style="color: var(--color-warm-muted, #9a9693);">94/100</span>
+              </div>
+
+              <div class="flex items-center gap-1.5 mb-3">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9a9693" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 19 12"/></svg>
+                <span class="text-xs font-semibold" style="color: #9a9693;">Stable</span>
+              </div>
+
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs" style="color: var(--color-warm-muted, #9a9693);">20 sessions</span>
+                <span class="text-xs" style="color: var(--color-warm-muted, #9a9693);">Last seen: 1d ago</span>
+              </div>
+
+              <!-- Sparkline -->
+              <div class="mb-3" style="height: 32px;">
+                <svg viewBox="0 0 120 32" preserveAspectRatio="none" style="width:100%;height:100%;">
+                  <polyline points="0,6 13,5 27,6 40,4 53,5 67,4 80,3 93,4 107,3 120,3" fill="none" stroke="#10b981" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="0,6 13,5 27,6 40,4 53,5 67,4 80,3 93,4 107,3 120,3 120,32 0,32" fill="rgba(16,185,129,0.08)" stroke="none"/>
+                </svg>
+              </div>
+
+              <button class="view-details-btn w-full text-center text-xs font-semibold py-2 rounded-lg transition-all" style="background: var(--color-warm-cream, #faf6f1); color: var(--color-p-violet, #8b5cf6); border: 1px solid var(--color-warm-border, #e8e2d9);">
+                View Details
+              </button>
+            </div>
+
+            <!-- Agent 5: feedback-collector -->
+            <div class="agent-card rounded-2xl border p-5 transition-all cursor-pointer" style="border-color: var(--color-warm-border, #e8e2d9); background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.04);" data-agent-name="feedback-collector" data-agent-status="idle">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold text-sm" style="color: var(--color-warm-text, #2a2520);">feedback-collector</span>
+                  <span class="inline-block w-2 h-2 rounded-full" style="background: #9ca3af;"></span>
+                </div>
+                <span class="text-xs font-medium px-2 py-0.5 rounded" style="background: rgba(156,163,175,0.1); color: #6b7280;">Idle</span>
+              </div>
+
+              <div class="flex items-end gap-3 mb-3">
+                <span class="text-4xl font-extrabold leading-none" style="color: #06b6d4;">B</span>
+                <span class="text-sm font-semibold mb-1" style="color: var(--color-warm-muted, #9a9693);">78/100</span>
+              </div>
+
+              <div class="flex items-center gap-1.5 mb-3">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+                <span class="text-xs font-semibold" style="color: #16a34a;">Recovering</span>
+              </div>
+
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs" style="color: var(--color-warm-muted, #9a9693);">6 sessions</span>
+                <span class="text-xs" style="color: var(--color-warm-muted, #9a9693);">Last seen: 3d ago</span>
+              </div>
+
+              <!-- Sparkline -->
+              <div class="mb-3" style="height: 32px;">
+                <svg viewBox="0 0 120 32" preserveAspectRatio="none" style="width:100%;height:100%;">
+                  <polyline points="0,24 15,22 30,20 45,18 60,16 75,13 90,11 105,9 120,8" fill="none" stroke="#16a34a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <polyline points="0,24 15,22 30,20 45,18 60,16 75,13 90,11 105,9 120,8 120,32 0,32" fill="rgba(16,185,129,0.08)" stroke="none"/>
+                </svg>
+              </div>
+
+              <button class="view-details-btn w-full text-center text-xs font-semibold py-2 rounded-lg transition-all" style="background: var(--color-warm-cream, #faf6f1); color: var(--color-p-violet, #8b5cf6); border: 1px solid var(--color-warm-border, #e8e2d9);">
+                View Details
+              </button>
+            </div>
+
+          </div>
+        </>
+      ) : (
+        <!-- Empty State (free tier / no data) -->
+        <div class="flex flex-col items-center justify-center text-center py-32">
+          <div class="flex items-center justify-center w-16 h-16 rounded-2xl mb-6" style="background: rgba(139, 92, 246, 0.08);">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <circle cx="12" cy="12" r="6"/>
+              <circle cx="12" cy="12" r="2"/>
+              <line x1="12" y1="2" x2="12" y2="4"/>
+              <line x1="12" y1="20" x2="12" y2="22"/>
+              <line x1="2" y1="12" x2="4" y2="12"/>
+              <line x1="20" y1="12" x2="22" y2="12"/>
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold mb-2" style="color: var(--color-warm-text, #2a2520);">No agent records yet</h2>
+          <p class="text-sm max-w-sm mb-6" style="color: var(--color-warm-muted, #9a9693);">Connect your first agent to start tracking behavioral health.</p>
+          <a
+            href="/docs"
+            class="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-lg text-white transition-all"
+            style="background: var(--color-p-violet, #8b5cf6);"
+          >
+            Get Started
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+        </div>
+      )}
+
+    </div>
+  </main>
+
+  <AgentDetail />
+  <Footer />
+</Layout>
+
+<script>
+(function() {
+  // ═══════════ SAMPLE AGENT DATA ═══════════
+  const agents = [
+    { name: 'support-agent-v2', status: 'active', grade: 'A-', score: 88, sessions: 12, trend: 'improving', lastSeen: '2h ago' },
+    { name: 'onboarding-bot', status: 'active', grade: 'B+', score: 82, sessions: 8, trend: 'stable', lastSeen: '5h ago' },
+    { name: 'sales-qualifier', status: 'alerting', grade: 'C', score: 64, sessions: 15, trend: 'declining', lastSeen: '30m ago' },
+    { name: 'docs-assistant', status: 'active', grade: 'A', score: 94, sessions: 20, trend: 'stable', lastSeen: '1d ago' },
+    { name: 'feedback-collector', status: 'idle', grade: 'B', score: 78, sessions: 6, trend: 'improving', lastSeen: '3d ago' },
+  ];
+
+  // ═══════════ SEARCH FILTER ═══════════
+  const searchInput = document.getElementById('agent-search');
+  const agentCards = document.querySelectorAll('.agent-card');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      agentCards.forEach(card => {
+        const name = card.getAttribute('data-agent-name') || '';
+        card.style.display = name.toLowerCase().includes(query) ? '' : 'none';
+      });
+    });
+  }
+
+  // ═══════════ VIEW DETAILS ═══════════
+  document.querySelectorAll('.view-details-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const card = btn.closest('.agent-card');
+      const agentName = card.getAttribute('data-agent-name');
+      const status = card.getAttribute('data-agent-status');
+      document.dispatchEvent(new CustomEvent('open-agent-detail', {
+        detail: { agentName, status }
+      }));
+    });
+  });
+
+  // Also open on card click
+  agentCards.forEach(card => {
+    card.addEventListener('click', () => {
+      const agentName = card.getAttribute('data-agent-name');
+      const status = card.getAttribute('data-agent-status');
+      document.dispatchEvent(new CustomEvent('open-agent-detail', {
+        detail: { agentName, status }
+      }));
+    });
+  });
+
+  // ═══════════ HOVER EFFECTS ═══════════
+  agentCards.forEach(card => {
+    card.addEventListener('mouseenter', () => {
+      card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)';
+      card.style.borderColor = 'rgba(139, 92, 246, 0.3)';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.boxShadow = '0 1px 2px rgba(0,0,0,0.04)';
+      card.style.borderColor = 'var(--color-warm-border, #e8e2d9)';
+    });
+  });
+
+  // ═══════════ CREATE AGENT MODAL ═══════════
+  const createModal = document.getElementById('create-agent-modal');
+  const createBackdrop = document.getElementById('create-agent-backdrop');
+  const createCloseBtn = document.getElementById('create-agent-close');
+  const createForm = document.getElementById('create-agent-form');
+  const createMsg = document.getElementById('ca-message');
+  const archetypeBtns = document.querySelectorAll('.archetype-btn');
+  const archetypeInput = document.getElementById('ca-archetype');
+
+  function openCreateModal() {
+    if (createModal) {
+      createModal.classList.remove('hidden');
+      createModal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+    }
+  }
+  function closeCreateModal() {
+    if (createModal) {
+      createModal.classList.add('hidden');
+      createModal.classList.remove('flex');
+      document.body.style.overflow = '';
+      if (createMsg) createMsg.classList.add('hidden');
+    }
+  }
+
+  document.getElementById('create-agent-btn')?.addEventListener('click', openCreateModal);
+  document.querySelectorAll('.create-agent-trigger').forEach(btn => btn.addEventListener('click', openCreateModal));
+  createBackdrop?.addEventListener('click', closeCreateModal);
+  createCloseBtn?.addEventListener('click', closeCreateModal);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && createModal && !createModal.classList.contains('hidden')) closeCreateModal();
+  });
+
+  // Archetype selection
+  let selectedArchetype = '';
+  archetypeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      archetypeBtns.forEach(b => {
+        b.style.borderColor = 'var(--color-warm-border, #e8e2d9)';
+        b.style.background = '';
+      });
+      btn.style.borderColor = '#8b5cf6';
+      btn.style.background = 'rgba(139,92,246,0.05)';
+      selectedArchetype = btn.getAttribute('data-archetype') || '';
+      if (archetypeInput) archetypeInput.value = selectedArchetype;
+    });
+  });
+
+  // Auto-generate handle from name
+  const nameInput = document.getElementById('ca-name');
+  const handleInput = document.getElementById('ca-handle');
+  let handleEdited = false;
+  handleInput?.addEventListener('input', () => { handleEdited = true; });
+  nameInput?.addEventListener('input', () => {
+    if (!handleEdited && handleInput) {
+      handleInput.value = nameInput.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50);
+    }
+  });
+
+  createForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = (document.getElementById('ca-name')).value.trim();
+    const handle = (document.getElementById('ca-handle')).value.trim();
+    const description = (document.getElementById('ca-desc')).value.trim();
+    const submitBtn = document.getElementById('ca-submit');
+
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+      const res = await fetch('/api/agents', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          handle,
+          description: description || undefined,
+          archetype: selectedArchetype || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (createMsg) {
+          createMsg.textContent = data.error || 'Failed to create agent';
+          createMsg.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700');
+          createMsg.classList.add('bg-red-50', 'text-red-700');
+        }
+        return;
+      }
+      // Redirect to agent detail
+      window.location.href = `/agents/${handle}`;
+    } catch (err) {
+      if (createMsg) {
+        createMsg.textContent = 'Network error';
+        createMsg.classList.remove('hidden', 'bg-emerald-50', 'text-emerald-700');
+        createMsg.classList.add('bg-red-50', 'text-red-700');
+      }
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+
+  // ═══════════ EXPORT ALL ═══════════
+  const exportBtn = document.getElementById('export-all-btn');
+  if (exportBtn) {
+    exportBtn.addEventListener('click', () => {
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        totalAgents: agents.length,
+        averageScore: Math.round(agents.reduce((sum, a) => sum + a.score, 0) / agents.length),
+        agents: agents.map(a => ({
+          name: a.name,
+          status: a.status,
+          grade: a.grade,
+          score: a.score,
+          sessions: a.sessions,
+          trend: a.trend,
+          lastSeen: a.lastSeen,
+        }))
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `agent-records-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    });
+  }
+})();
+</script>

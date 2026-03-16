@@ -1,0 +1,216 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+const builtIn = [
+  {
+    id: "holomime/apology",
+    name: "Apology Detector",
+    description: "Detects over-apologizing patterns that undermine agent confidence.",
+    signals: 7,
+    categories: ["emotional", "confidence"],
+    author: "holomime",
+    color: "#8b5cf6",
+  },
+  {
+    id: "holomime/hedging",
+    name: "Hedge Detector",
+    description: "Detects excessive hedging and uncertainty stacking in responses.",
+    signals: 10,
+    categories: ["communication", "confidence"],
+    author: "holomime",
+    color: "#f59e0b",
+  },
+  {
+    id: "holomime/sentiment",
+    name: "Sentiment Detector",
+    description: "Detects sycophantic tendencies and negative sentiment skew.",
+    signals: 26,
+    categories: ["emotional", "trust"],
+    author: "holomime",
+    color: "#ef4444",
+  },
+  {
+    id: "holomime/formality",
+    name: "Formality Detector",
+    description: "Detects register inconsistency — unpredictable shifts between formal and informal.",
+    signals: 16,
+    categories: ["communication", "consistency"],
+    author: "holomime",
+    color: "#06b6d4",
+  },
+  {
+    id: "holomime/recovery",
+    name: "Recovery Detector",
+    description: "Detects error spirals — cascading failures where mistakes trigger over-correction.",
+    signals: 15,
+    categories: ["resilience", "confidence"],
+    author: "holomime",
+    color: "#22c55e",
+  },
+  {
+    id: "holomime/boundary",
+    name: "Boundary Detector",
+    description: "Detects boundary violations — advice given outside competence without referral.",
+    signals: 11,
+    categories: ["safety", "trust"],
+    author: "holomime",
+    color: "#ec4899",
+  },
+  {
+    id: "holomime/verbosity",
+    name: "Verbosity Detector",
+    description: "Detects over-verbose or under-responsive communication patterns.",
+    signals: 4,
+    categories: ["communication"],
+    author: "holomime",
+    color: "#a855f7",
+  },
+];
+
+const totalSignals = builtIn.reduce((sum, d) => sum + d.signals, 0);
+---
+
+<Layout title="Detector Hub — holomime" description="Community-contributed behavioral detectors for LLM agents. 80+ signals across 8 built-in detectors, plus a growing ecosystem of community contributions.">
+  <Nav />
+  <main class="pt-32 pb-20">
+    <div class="mx-auto max-w-5xl px-6">
+      <!-- Header -->
+      <div class="mb-16 text-center">
+        <span class="inline-block px-3 py-1 rounded-full text-xs font-medium tracking-wider uppercase bg-[var(--color-p-sage)]/10 text-[var(--color-p-sage)] border border-[var(--color-p-sage)]/20 mb-4">
+          Detector Hub
+        </span>
+        <h1 class="text-4xl font-extrabold text-[var(--color-warm-text)] md:text-5xl">
+          Behavioral Detectors
+        </h1>
+        <p class="mt-4 mx-auto max-w-2xl text-lg text-[var(--color-warm-muted)]">
+          Composable, rule-based detectors that catch behavioral patterns humans miss. Chain them into Guards. Contribute your own.
+        </p>
+      </div>
+
+      <!-- Stats bar -->
+      <div class="mb-12 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-4 text-center">
+          <div class="text-2xl font-bold text-[var(--color-p-violet)]">{totalSignals}+</div>
+          <div class="mt-1 text-xs text-[var(--color-warm-muted)]">Behavioral signals</div>
+        </div>
+        <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-4 text-center">
+          <div class="text-2xl font-bold text-[var(--color-p-coral)]">7</div>
+          <div class="mt-1 text-xs text-[var(--color-warm-muted)]">Built-in detectors</div>
+        </div>
+        <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-4 text-center">
+          <div class="text-2xl font-bold text-[var(--color-p-sage)]">0ms</div>
+          <div class="mt-1 text-xs text-[var(--color-warm-muted)]">LLM inference cost</div>
+        </div>
+        <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-4 text-center">
+          <div class="text-2xl font-bold text-[var(--color-p-gold)]">6</div>
+          <div class="mt-1 text-xs text-[var(--color-warm-muted)]">Categories</div>
+        </div>
+      </div>
+
+      <!-- Guard API showcase -->
+      <div class="mb-12 rounded-2xl border border-[var(--color-warm-sand)] bg-[#0c1220] p-6 md:p-8">
+        <div class="mb-4 flex items-center gap-2">
+          <div class="h-3 w-3 rounded-full bg-red-500/80"></div>
+          <div class="h-3 w-3 rounded-full bg-yellow-500/80"></div>
+          <div class="h-3 w-3 rounded-full bg-green-500/80"></div>
+          <span class="ml-2 text-xs text-white/40 font-mono">guard.ts</span>
+        </div>
+        <pre class="text-sm leading-relaxed overflow-x-auto"><code class="text-white/90 font-mono"><span class="text-[#c792ea]">import</span> <span class="text-white">{"{"} Guard {"}"}</span> <span class="text-[#c792ea]">from</span> <span class="text-[#c3e88d]">"holomime"</span>;
+
+<span class="text-white/40">// Chain detectors into a composable Guard</span>
+<span class="text-[#c792ea]">const</span> <span class="text-white">guard</span> = <span class="text-[#82aaff]">Guard</span>.<span class="text-[#82aaff]">create</span>(<span class="text-[#c3e88d]">"my-agent"</span>)
+  .<span class="text-[#82aaff]">use</span>(<span class="text-[#c3e88d]">"holomime/apology"</span>)
+  .<span class="text-[#82aaff]">use</span>(<span class="text-[#c3e88d]">"holomime/hedging"</span>)
+  .<span class="text-[#82aaff]">use</span>(<span class="text-[#c3e88d]">"holomime/sentiment"</span>)
+  .<span class="text-[#82aaff]">use</span>(<span class="text-[#c3e88d]">"holomime/boundary"</span>);
+
+<span class="text-[#c792ea]">const</span> <span class="text-white">result</span> = <span class="text-white">guard</span>.<span class="text-[#82aaff]">run</span>(<span class="text-white">messages</span>);
+
+<span class="text-[#c792ea]">if</span> (!<span class="text-white">result</span>.<span class="text-white">passed</span>) {"{"}
+  <span class="text-white">console</span>.<span class="text-[#82aaff]">log</span>(<span class="text-white">result</span>.<span class="text-white">patterns</span>);  <span class="text-white/40">// behavioral failures</span>
+  <span class="text-white">console</span>.<span class="text-[#82aaff]">log</span>(<span class="text-white">result</span>.<span class="text-white">severity</span>);  <span class="text-white/40">// "warning" | "concern"</span>
+{"}"}</code></pre>
+      </div>
+
+      <!-- Detector grid -->
+      <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">Built-in Detectors</h2>
+      <div class="grid gap-4 md:grid-cols-2">
+        {builtIn.map((d) => (
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 transition-shadow hover:shadow-md">
+            <div class="flex items-start gap-3">
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-sm font-bold text-white" style={`background: ${d.color};`}>
+                {d.signals}
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-[var(--color-warm-text)]">{d.name}</h3>
+                  <span class="rounded-full bg-[var(--color-warm-cream)] px-2 py-0.5 text-[10px] font-medium text-[var(--color-warm-muted)]">
+                    {d.author}
+                  </span>
+                </div>
+                <p class="mt-1 text-sm text-[var(--color-warm-muted)]">{d.description}</p>
+                <div class="mt-2 flex flex-wrap gap-1.5">
+                  {d.categories.map((cat) => (
+                    <span class="rounded-full border border-[var(--color-warm-sand)] px-2 py-0.5 text-[10px] text-[var(--color-warm-muted)]">
+                      {cat}
+                    </span>
+                  ))}
+                </div>
+                <code class="mt-2 block text-xs text-[var(--color-warm-muted)] font-mono">
+                  guard.use("{d.id}")
+                </code>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <!-- Contribute CTA -->
+      <div class="mt-16 rounded-2xl border-2 border-dashed border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]/50 p-8 text-center">
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Build your own detector</h2>
+        <p class="mt-2 text-sm text-[var(--color-warm-muted)] max-w-lg mx-auto">
+          Any function matching <code class="text-xs bg-white px-1.5 py-0.5 rounded border border-[var(--color-warm-sand)]">(messages: Message[]) =&gt; DetectedPattern | null</code> can be registered as a Hub detector. Contribute detectors for jargon, tone-matching, cultural norms, domain-specific compliance, and more.
+        </p>
+        <div class="mt-6 flex flex-wrap justify-center gap-3">
+          <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener"
+            class="inline-flex items-center gap-2 rounded-lg bg-[var(--color-warm-text)] px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90">
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            View on GitHub
+          </a>
+          <a href="/research"
+            class="inline-flex items-center gap-2 rounded-lg border border-[var(--color-warm-sand)] px-5 py-2.5 text-sm font-medium text-[var(--color-warm-text)] transition-colors hover:bg-white">
+            Read the paper
+          </a>
+        </div>
+      </div>
+
+      <!-- Install section -->
+      <div class="mt-12">
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-4">Quick Start</h2>
+        <div class="space-y-4">
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5">
+            <h3 class="font-bold text-sm text-[var(--color-warm-text)] mb-2">1. Install</h3>
+            <code class="block rounded-lg bg-[#0c1220] px-4 py-2.5 font-mono text-sm text-white/90">
+              npm install holomime
+            </code>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5">
+            <h3 class="font-bold text-sm text-[var(--color-warm-text)] mb-2">2. Create a Guard</h3>
+            <code class="block rounded-lg bg-[#0c1220] px-4 py-2.5 font-mono text-sm text-white/90">
+              import {"{"} Guard {"}"} from "holomime";
+            </code>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5">
+            <h3 class="font-bold text-sm text-[var(--color-warm-text)] mb-2">3. Chain detectors and run</h3>
+            <code class="block rounded-lg bg-[#0c1220] px-4 py-2.5 font-mono text-sm text-white/90">
+              const result = Guard.create("agent").useAll().run(messages);
+            </code>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>

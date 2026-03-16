@@ -58,6 +58,18 @@ export { generateSystemPrompt } from "./core/prompt-gen.js";
 export { PROVIDER_PARAMS, SURFACE_MULTIPLIERS } from "./core/parameters.js";
 export { compileForOpenClaw } from "./adapters/openclaw.js";
 
+// ─── Tiered Personality Loading ──────────────────────────────
+
+export {
+  compileL0,
+  compileL1,
+  compileL2,
+  compileTiered,
+  recommendTier,
+  type PersonalityTier,
+  type TieredPersonality,
+} from "./core/tiered-loader.js";
+
 // ─── Psychology ─────────────────────────────────────────────
 
 export {
@@ -87,6 +99,7 @@ export {
 
 // ─── Analysis (Rule-Based Detectors) ────────────────────────
 
+export { detectRetrievalQuality } from "./analysis/rules/retrieval-quality.js";
 export { detectApologies } from "./analysis/rules/apology-detector.js";
 export { detectHedging } from "./analysis/rules/hedge-detector.js";
 export { detectSentiment } from "./analysis/rules/sentiment.js";
@@ -510,6 +523,36 @@ export {
   type CrossAgentQuery,
 } from "./analysis/cross-agent-sharing.js";
 
+// ─── Behavioral Memory ────────────────────────────────────
+
+export {
+  loadBehavioralMemory,
+  saveBehavioralMemory,
+  createBehavioralMemory,
+  recordObservation,
+  recordSelfObservation,
+  getBestCorrection,
+  getTriggersForPattern,
+  getTrajectory,
+  getBehavioralMemorySummary,
+  type BehavioralMemoryStore,
+  type BehavioralBaseline,
+  type DriftTrigger,
+  type CorrectionRecord,
+  type DimensionTrajectory,
+  type SelfObservation,
+} from "./analysis/behavioral-memory.js";
+
+// ─── Session Compaction ──────────────────────────────────
+
+export {
+  compactIteration,
+  compactEvolutionRun,
+  mergeStores,
+  type CompactionResult,
+  type CompactionSummary,
+} from "./analysis/session-compactor.js";
+
 // ─── Behavioral Data ───────────────────────────────────────
 
 export {
@@ -567,6 +610,54 @@ export {
   type ComplianceReport,
   type MonitoringCertificate,
 } from "./compliance/audit-trail.js";
+
+// ─── ReACT Compliance Reports ───────────────────────────
+
+export {
+  generateReACTReport,
+  formatReACTReportMarkdown,
+  type ReACTStep as ComplianceReACTStep,
+  type RiskFinding,
+  type FrameworkSection,
+  type ReACTReport,
+  type ReportStatistics,
+  type ReACTReportOptions,
+} from "./compliance/react-report.js";
+
+// ─── Adversarial Stress Testing ─────────────────────────
+
+export {
+  runAdversarialSuite,
+  formatGapSummary,
+  type AdversarialCallbacks,
+  type AdversarialRunOptions,
+} from "./analysis/adversarial-runner.js";
+
+export {
+  getAdversarialScenarios,
+  getAdversarialCategories,
+  generateMutations,
+  generateGapRecommendation,
+  type AdversarialScenario,
+  type AdversarialCategory,
+  type AdversarialResult,
+  type BehavioralGap,
+  type AdversarialReport,
+} from "./analysis/adversarial-scenarios.js";
+
+// ─── NL-to-Policy ───────────────────────────────────────
+
+export {
+  generateBehavioralPolicy,
+  formatPolicyYaml,
+  estimateConfidence,
+  listPresets,
+  getPreset,
+  type BehavioralPolicyRule,
+  type BehavioralPolicy,
+  type PolicyIntent,
+  type BehavioralPreset,
+} from "./analysis/nl-to-policy.js";
 
 // ─── Embodiment ───────────────────────────────────────────
 

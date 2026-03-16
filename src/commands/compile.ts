@@ -6,6 +6,7 @@ import { personalitySpecSchema, type Provider, type Surface } from "../core/type
 import { loadSpec } from "../core/inheritance.js";
 import { compile, compileEmbodied } from "../core/compiler.js";
 import { compileForOpenClaw } from "../adapters/openclaw.js";
+import { compileTiered, type PersonalityTier } from "../core/tiered-loader.js";
 import { printHeader } from "../ui/branding.js";
 import { printBox } from "../ui/boxes.js";
 import { withSpinner } from "../ui/spinner.js";
@@ -14,6 +15,7 @@ interface CompileOptions {
   provider?: string;
   surface?: string;
   for?: string;
+  tier?: string;
   output?: string;
 }
 
@@ -35,6 +37,39 @@ export async function compileCommand(options: CompileOptions): Promise<void> {
     console.error(chalk.red(`  Error loading .personality.json: ${err instanceof Error ? err.message : err}`));
     console.error(chalk.dim("  Run `holomime init` to create one."));
     process.exit(1);
+  }
+
+  // Tiered loading (L0/L1/L2)
+  const tier = (options.tier ?? "L2").toUpperCase() as PersonalityTier;
+  if (tier === "L0" || tier === "L1") {
+    const result = await withSpinner(`Compiling ${spec.name} → ${tier} tier...`, async () => {
+      return compileTiered(spec, tier);
+    });
+
+    if (options.output) {
+      const outPath = resolve(process.cwd(), options.output);
+      writeFileSync(outPath, JSON.stringify(result, null, 2) + "\n");
+      console.log();
+      printBox(`${figures.tick} ${tier} config written to ${options.output}`, "success");
+    } else {
+      printHeader(`${spec.name} → ${tier} Tier`);
+      console.log(chalk.bold("  Token Budget"));
+      console.log(chalk.dim("  " + "─".repeat(40)));
+      console.log();
+      console.log(`    estimated: ~${chalk.cyan(result.estimatedTokens.toString())} tokens`);
+      console.log();
+
+      console.log(chalk.bold("  System Prompt"));
+      console.log(chalk.dim("  " + "─".repeat(40)));
+      console.log();
+      for (const line of result.prompt.split("\n")) {
+        console.log(`    ${line}`);
+      }
+      console.log();
+      printBox(`${result.prompt.length} chars — ${tier} tier for high-throughput use`, "info");
+    }
+    console.log();
+    return;
   }
 
   // OpenClaw adapter

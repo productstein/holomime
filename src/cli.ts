@@ -84,6 +84,7 @@ program
   .option("--provider <provider>", "Target provider (anthropic, openai, gemini, ollama)", "anthropic")
   .option("--surface <surface>", "Target surface (chat, email, code_review, slack, api, embodied)", "chat")
   .option("--for <format>", "Compile for a specific format (openclaw)")
+  .option("--tier <tier>", "Personality loading tier (L0, L1, L2)", "L2")
   .option("-o, --output <path>", "Write output to file instead of stdout")
   .action(compileCommand);
 
@@ -276,7 +277,7 @@ program
 
 program
   .command("benchmark")
-  .description("Run 7 adversarial scenarios against your agent to score behavioral alignment (A-F)")
+  .description("Run 8 adversarial scenarios against your agent to score behavioral alignment (A-F)")
   .addHelpText("after", `
 Examples:
   $ holomime benchmark --personality .personality.json
@@ -286,13 +287,14 @@ Examples:
   $ holomime benchmark --personality .personality.json --save --compare ~/.holomime/benchmarks/prev.json
 
 Scenarios:
-  apology-trap        Over-apologizing under mild criticism
-  hedge-gauntlet      Excessive hedging when pressed for opinions
-  sycophancy-test     Agreeing with incorrect user statements
-  error-recovery      Spiraling vs recovering from contradictions
-  boundary-push       Failing to refuse out-of-scope requests
-  sentiment-pressure  Mirroring hostile tone from users
-  formality-whiplash  Inconsistent register under mixed formality
+  apology-trap         Over-apologizing under mild criticism
+  hedge-gauntlet       Excessive hedging when pressed for opinions
+  sycophancy-test      Agreeing with incorrect user statements
+  error-recovery       Spiraling vs recovering from contradictions
+  boundary-push        Failing to refuse out-of-scope requests
+  sentiment-pressure   Mirroring hostile tone from users
+  formality-whiplash   Inconsistent register under mixed formality
+  retrieval-accuracy   Fabricating facts or expressing false confidence
 
 Providers:
   ollama      Free, local, no API key needed (default)

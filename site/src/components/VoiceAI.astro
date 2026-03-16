@@ -1,0 +1,187 @@
+---
+/**
+ * VoiceAI — Dedicated section showcasing holomime's voice agent capabilities.
+ * Two sides: (1) Talk to a personality (consumer demo), (2) Monitor in production (enterprise platform).
+ * Positioned between Features and Pricing on the homepage.
+ */
+---
+
+<section class="relative overflow-hidden py-24 md:py-32">
+  <!-- Background: subtle gradient -->
+  <div class="pointer-events-none absolute inset-0">
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--color-p-coral)]/[0.03] to-transparent"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[600px] w-[800px] rounded-full bg-[var(--color-p-coral)] opacity-[0.04] blur-[150px]"></div>
+  </div>
+
+  <div class="relative mx-auto max-w-6xl px-6">
+    <!-- Section header -->
+    <div class="text-center">
+      <p class="text-sm font-semibold tracking-wider uppercase text-[var(--color-p-coral)]">
+        Voice AI
+      </p>
+      <h2 class="mt-3 text-3xl font-extrabold text-[var(--color-warm-text)] md:text-4xl">
+        Personality you can <span class="text-gradient-warm">hear</span>
+      </h2>
+      <p class="mx-auto mt-4 max-w-2xl text-[var(--color-warm-muted)]">
+        The voice AI wave needs a personality layer. LiveKit builds the body — real-time audio, WebRTC, telephony.
+        holomime builds the soul — emotional intelligence, behavioral guardrails, distinct voices per archetype.
+      </p>
+    </div>
+
+    <!-- Two-card layout -->
+    <div class="mt-16 grid gap-8 md:grid-cols-2">
+
+      <!-- Card 1: Talk to a Personality (consumer demo) -->
+      <div class="group relative overflow-hidden rounded-3xl border border-[var(--color-warm-sand)] bg-white shadow-sm transition-all hover:shadow-xl">
+        <!-- Top accent gradient -->
+        <div class="h-2 bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)]"></div>
+
+        <div class="p-8 md:p-10">
+          <!-- Badge -->
+          <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--color-p-coral)]/20 bg-[var(--color-p-coral)]/5 px-3 py-1 text-xs font-semibold text-[var(--color-p-coral)]">
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
+            Live Demo
+          </div>
+
+          <h3 class="text-2xl font-bold text-[var(--color-warm-text)]">Talk to a personality</h3>
+          <p class="mt-3 text-sm leading-relaxed text-[var(--color-warm-muted)]">
+            Pick an archetype. Start talking. The Counselor sounds warm and measured. The Leader is punchy and direct. Same LLM underneath — completely different presence.
+          </p>
+
+          <!-- Voice preview grid -->
+          <div class="mt-6 grid grid-cols-2 gap-2">
+            <div class="flex items-center gap-2 rounded-xl bg-[#f97066]/5 px-3 py-2">
+              <div class="h-2 w-2 rounded-full bg-[#f97066]"></div>
+              <span class="text-xs font-medium text-[var(--color-warm-text)]">Counselor</span>
+              <span class="ml-auto text-[10px] text-[var(--color-warm-muted)]">warm</span>
+            </div>
+            <div class="flex items-center gap-2 rounded-xl bg-[#f59e0b]/5 px-3 py-2">
+              <div class="h-2 w-2 rounded-full bg-[#f59e0b]"></div>
+              <span class="text-xs font-medium text-[var(--color-warm-text)]">Leader</span>
+              <span class="ml-auto text-[10px] text-[var(--color-warm-muted)]">direct</span>
+            </div>
+            <div class="flex items-center gap-2 rounded-xl bg-[#8b5cf6]/5 px-3 py-2">
+              <div class="h-2 w-2 rounded-full bg-[#8b5cf6]"></div>
+              <span class="text-xs font-medium text-[var(--color-warm-text)]">Maverick</span>
+              <span class="ml-auto text-[10px] text-[var(--color-warm-muted)]">bold</span>
+            </div>
+            <div class="flex items-center gap-2 rounded-xl bg-[#22c55e]/5 px-3 py-2">
+              <div class="h-2 w-2 rounded-full bg-[#22c55e]"></div>
+              <span class="text-xs font-medium text-[var(--color-warm-text)]">Mentor</span>
+              <span class="ml-auto text-[10px] text-[var(--color-warm-muted)]">wise</span>
+            </div>
+          </div>
+
+          <!-- Waveform visualization mockup -->
+          <div class="mt-6 flex items-center justify-center gap-[3px] h-16 rounded-xl bg-[var(--color-warm-cream)] px-4">
+            {Array.from({ length: 40 }).map((_, i) => {
+              const h = 15 + Math.sin(i * 0.4) * 25 + Math.random() * 20;
+              return <div class="w-1 rounded-full bg-gradient-to-t from-[var(--color-p-coral)] to-[var(--color-p-violet)] voice-bar" style={`height: ${h}%; animation-delay: ${i * 0.05}s;`}></div>;
+            })}
+          </div>
+
+          <!-- CTA -->
+          <a
+            href="/voice"
+            class="mt-8 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-[var(--color-p-coral)]/20 transition-all hover:shadow-xl hover:scale-[1.02]"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z"/></svg>
+            Try Voice Demo
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 2: Production Voice Monitoring (enterprise platform) -->
+      <div class="group relative overflow-hidden rounded-3xl border border-[var(--color-warm-sand)] bg-white shadow-sm transition-all hover:shadow-xl">
+        <!-- Top accent gradient -->
+        <div class="h-2 bg-gradient-to-r from-[#06b6d4] to-[#3b82f6]"></div>
+
+        <div class="p-8 md:p-10">
+          <!-- Badge -->
+          <div class="mb-6 inline-flex items-center gap-2 rounded-full border border-[#06b6d4]/20 bg-[#06b6d4]/5 px-3 py-1 text-xs font-semibold text-[#06b6d4]">
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.348 14.652a3.75 3.75 0 010-5.304m5.304 0a3.75 3.75 0 010 5.304m-7.425 2.121a6.75 6.75 0 010-9.546m9.546 0a6.75 6.75 0 010 9.546M5.106 18.894c-3.808-3.807-3.808-9.98 0-13.788m13.788 0c3.808 3.807 3.808 9.98 0 13.788"/></svg>
+            Production Monitoring
+          </div>
+
+          <h3 class="text-2xl font-bold text-[var(--color-warm-text)]">Monitor every voice call</h3>
+          <p class="mt-3 text-sm leading-relaxed text-[var(--color-warm-muted)]">
+            Deploy a holomime observer into your LiveKit rooms. It listens to every agent conversation, runs behavioral analysis in real-time, and flags issues before customers notice.
+          </p>
+
+          <!-- Monitoring dashboard mockup -->
+          <div class="mt-6 rounded-xl border border-[var(--color-warm-sand)] bg-[var(--color-holo-slate)] p-4 font-mono text-[11px]">
+            <!-- Header -->
+            <div class="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+              <span class="text-[#06b6d4] font-semibold">holomime monitor</span>
+              <span class="text-slate-500">3 active sessions</span>
+            </div>
+            <!-- Session rows -->
+            <div class="space-y-2">
+              <div class="flex items-center gap-3">
+                <span class="h-1.5 w-1.5 rounded-full bg-[#22c55e] animate-pulse"></span>
+                <span class="text-slate-300">agent-cs-04</span>
+                <span class="text-slate-500 ml-auto">apology: <span class="text-[#22c55e]">2%</span></span>
+                <span class="text-slate-500">hedge: <span class="text-[#22c55e]">4%</span></span>
+                <span class="text-[#22c55e]">healthy</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="h-1.5 w-1.5 rounded-full bg-[#f59e0b] animate-pulse"></span>
+                <span class="text-slate-300">agent-sales-12</span>
+                <span class="text-slate-500 ml-auto">apology: <span class="text-[#f59e0b]">31%</span></span>
+                <span class="text-slate-500">hedge: <span class="text-[#f59e0b]">18%</span></span>
+                <span class="text-[#f59e0b]">warning</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="h-1.5 w-1.5 rounded-full bg-[#f97066] animate-pulse"></span>
+                <span class="text-slate-300">agent-support-07</span>
+                <span class="text-slate-500 ml-auto">apology: <span class="text-[#f97066]">47%</span></span>
+                <span class="text-slate-500">hedge: <span class="text-[#f97066]">28%</span></span>
+                <span class="text-[#f97066]">critical</span>
+              </div>
+            </div>
+            <!-- Alert -->
+            <div class="mt-3 pt-2 border-t border-white/10">
+              <span class="text-[#f97066]">! </span><span class="text-slate-400">agent-support-07: sycophancy spike detected. Recommending alignment session.</span>
+            </div>
+          </div>
+
+          <!-- Architecture callout -->
+          <div class="mt-6 grid grid-cols-3 gap-2 text-center">
+            <div class="rounded-lg bg-[var(--color-warm-cream)] px-2 py-3">
+              <p class="text-lg font-bold text-[var(--color-warm-text)]">80+</p>
+              <p class="text-[10px] text-[var(--color-warm-muted)]">Signals</p>
+            </div>
+            <div class="rounded-lg bg-[var(--color-warm-cream)] px-2 py-3">
+              <p class="text-lg font-bold text-[var(--color-warm-text)]">0ms</p>
+              <p class="text-[10px] text-[var(--color-warm-muted)]">LLM Cost</p>
+            </div>
+            <div class="rounded-lg bg-[var(--color-warm-cream)] px-2 py-3">
+              <p class="text-lg font-bold text-[var(--color-warm-text)]">24/7</p>
+              <p class="text-[10px] text-[var(--color-warm-muted)]">Monitoring</p>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <a
+            href="mailto:hello@holomime.dev?subject=Voice%20Monitoring%20Early%20Access"
+            class="mt-8 inline-flex items-center gap-2 rounded-full border border-[#06b6d4]/30 bg-[#06b6d4]/5 px-6 py-3 text-sm font-semibold text-[#06b6d4] transition-all hover:bg-[#06b6d4]/10 hover:border-[#06b6d4]/50"
+          >
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+            Request Early Access
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<style>
+  .voice-bar {
+    animation: barPulse 1.5s ease-in-out infinite alternate;
+  }
+  @keyframes barPulse {
+    0% { transform: scaleY(0.6); opacity: 0.5; }
+    100% { transform: scaleY(1); opacity: 1; }
+  }
+</style>

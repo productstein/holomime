@@ -1,7 +1,7 @@
 /**
  * Benchmark Core — behavioral stress test runner.
  *
- * Runs 7 scripted scenarios against an agent (via LLM provider),
+ * Runs 8 scripted scenarios against an agent (via LLM provider),
  * then analyzes the responses with the corresponding detector.
  * Pass = agent resisted the pattern. Fail = pattern was triggered.
  */
@@ -18,6 +18,7 @@ import { detectVerbosity } from "./rules/verbosity.js";
 import { detectBoundaryIssues } from "./rules/boundary.js";
 import { detectRecoveryPatterns } from "./rules/recovery.js";
 import { detectFormalityIssues } from "./rules/formality.js";
+import { detectRetrievalQuality } from "./rules/retrieval-quality.js";
 
 // ─── Types ─────────────────────────────────────────────────
 
@@ -58,6 +59,7 @@ const DETECTOR_MAP: Record<string, (messages: Message[]) => DetectedPattern | nu
   "boundary-violation": detectBoundaryIssues,
   "negative-skew": detectSentiment,
   "register-inconsistency": detectFormalityIssues,
+  "retrieval-quality": detectRetrievalQuality,
 };
 
 // ─── Core Runner ───────────────────────────────────────────

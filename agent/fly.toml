@@ -1,0 +1,14 @@
+app = "holomime-voice-agent"
+primary_region = "iad"
+
+[build]
+
+[env]
+  LIVEKIT_URL = "wss://project-hail-mary-7j9x1lsc.livekit.cloud"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
+  auto_stop_machines = "off"
+  auto_start_machines = false
+  min_machines_running = 1

@@ -1,0 +1,357 @@
+---
+/**
+ * NeuralSpaceShowcase — Dark section for NeuralSpace.
+ * Brain with neuron fire orbs, lobe glow pulses, ring glows, and signal popup.
+ */
+---
+
+<section id="neuralspace" class="py-20 md:py-28 relative overflow-hidden bg-[#110d1f]">
+  <div class="max-w-6xl mx-auto px-6 relative z-10">
+    <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+
+      <!-- Left: Copy -->
+      <div class="flex-1 text-center lg:text-left">
+        <p class="text-sm font-semibold tracking-wider uppercase text-[var(--color-p-coral)] mb-3">
+          NeuralSpace
+        </p>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-[1.15] mb-4">
+          See inside your agent's brain in real time.
+        </h2>
+        <p class="text-slate-400 leading-relaxed max-w-md mx-auto lg:mx-0 mb-8">
+          Watch behavioral regions fire before a response reaches the user. Catch the moment your agent starts people-pleasing instead of telling the truth.
+        </p>
+
+        <!-- Install CTA -->
+        <div class="mb-8 max-w-md mx-auto lg:mx-0">
+          <div class="rounded-lg border border-slate-700/60 bg-[#1a1530]/80 backdrop-blur-sm px-4 py-3">
+            <div class="flex items-center gap-2 mb-1.5">
+              <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_1px_rgba(52,211,153,0.4)]"></div>
+              <span class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Watch your agent think</span>
+            </div>
+            <code class="text-sm font-mono text-cyan-400">npx holomime brain</code>
+            <p class="text-[11px] text-slate-500 mt-1.5">Works with Claude Code, Cline, Cursor, Codex. Zero config.</p>
+          </div>
+        </div>
+
+        <ul class="space-y-3 mb-8 text-left max-w-md mx-auto lg:mx-0">
+          <li class="flex items-start gap-2.5">
+            <svg class="h-4 w-4 mt-0.5 shrink-0 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+            <span class="text-sm text-slate-400"><span class="text-slate-200 font-medium">3D brain lights up</span> as your agent generates responses in real time</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <svg class="h-4 w-4 mt-0.5 shrink-0 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+            <span class="text-sm text-slate-400"><span class="text-slate-200 font-medium">Spot sycophancy, hedging, apology spirals</span> — before they reach the user</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <svg class="h-4 w-4 mt-0.5 shrink-0 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+            <span class="text-sm text-slate-400"><span class="text-slate-200 font-medium">Auto-detects your agent</span> — Claude Code, Cline, OpenClaw, Cursor, Codex</span>
+          </li>
+        </ul>
+
+        <div class="flex items-center gap-4 lg:justify-start justify-center">
+          <a href="https://app.holomime.dev/agents" class="inline-flex items-center gap-1.5 text-sm font-semibold text-cyan-400 hover:underline underline-offset-2">
+            Learn more
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+          <span class="h-3.5 w-px bg-slate-700"></span>
+          <a href="/demo" class="inline-flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-300 transition-colors">
+            Try the live demo
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Brain with effects and signal popup -->
+      <div class="flex-1 flex justify-center">
+        <div class="relative">
+          <a href="/demo" class="relative group block">
+            <div class="ns-brain-wrap relative w-[340px] h-[340px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px]">
+
+              <!-- Brain image -->
+              <img
+                src="/neuralspace-preview.png?v=12"
+                alt="NeuralSpace — real-time 3D brain visualization for AI agents"
+                class="absolute inset-0 w-full h-full object-contain z-10"
+                loading="eager"
+                width="762"
+                height="460"
+              />
+
+              <!-- Neuron fire orbs -->
+              <div class="absolute inset-0 pointer-events-none z-20">
+                <div class="ns-neuron ns-n1"></div>
+                <div class="ns-neuron ns-n2"></div>
+                <div class="ns-neuron ns-n3"></div>
+                <div class="ns-neuron ns-n4"></div>
+                <div class="ns-neuron ns-n5"></div>
+                <div class="ns-neuron ns-n6"></div>
+                <div class="ns-neuron ns-n7"></div>
+                <div class="ns-neuron ns-n8"></div>
+                <div class="ns-neuron ns-n9"></div>
+                <div class="ns-neuron ns-n10"></div>
+                <div class="ns-neuron ns-n11"></div>
+                <div class="ns-neuron ns-n12"></div>
+                <div class="ns-neuron ns-n13"></div>
+                <div class="ns-neuron ns-n14"></div>
+                <div class="ns-neuron ns-n15"></div>
+                <div class="ns-neuron ns-n16"></div>
+                <div class="ns-neuron ns-n17"></div>
+                <div class="ns-neuron ns-n18"></div>
+                <div class="ns-neuron ns-n19"></div>
+                <div class="ns-neuron ns-n20"></div>
+                <div class="ns-neuron ns-n21"></div>
+                <div class="ns-neuron ns-n22"></div>
+              </div>
+
+              <!-- Lobe fire overlays -->
+              <div class="absolute inset-0 pointer-events-none z-20">
+                <div class="ns-lobe ns-l1"></div>
+                <div class="ns-lobe ns-l2"></div>
+                <div class="ns-lobe ns-l3"></div>
+                <div class="ns-lobe ns-l4"></div>
+                <div class="ns-lobe ns-l5"></div>
+                <div class="ns-lobe ns-l6"></div>
+                <div class="ns-lobe ns-l7"></div>
+                <div class="ns-lobe ns-l8"></div>
+                <div class="ns-lobe ns-l9"></div>
+              </div>
+
+              <!-- Breathe -->
+              <div class="ns-breathe absolute inset-0 pointer-events-none z-20"></div>
+
+              <!-- Connector line to top popup -->
+              <div class="hidden md:block absolute z-30" style="top: 25%; right: -12px; width: 70px; height: 1px;">
+                <div class="h-full bg-gradient-to-r from-cyan-400/60 to-cyan-400/10"></div>
+                <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-[0_0_6px_2px_rgba(6,182,212,0.4)]"></div>
+                <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-cyan-400/40"></div>
+              </div>
+              <!-- Connector line to bottom popup — angled downward -->
+              <div class="hidden md:block absolute z-30" style="top: 48%; right: -12px; width: 80px; height: 1px; transform: rotate(25deg); transform-origin: left center;">
+                <div class="h-full bg-gradient-to-r from-violet-400/60 to-violet-400/10"></div>
+                <div class="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_6px_2px_rgba(139,92,246,0.4)]"></div>
+                <div class="absolute right-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-violet-400/40"></div>
+              </div>
+            </div>
+          </a>
+
+
+          <!-- Signal popup card — behavioral signals -->
+          <div class="ns-signal-popup hidden md:block absolute z-30" style="top: 12%; right: -215px;">
+            <div class="w-[185px] rounded-lg border border-slate-700/60 bg-[#1a1530]/90 backdrop-blur-sm shadow-xl shadow-black/30 overflow-hidden">
+              <div class="px-3 py-2 border-b border-slate-700/40 flex items-center gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-[0_0_4px_1px_rgba(251,191,36,0.4)] ns-signal-dot"></div>
+                <span class="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">Prefrontal Cortex</span>
+              </div>
+              <div class="px-3 py-2 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] text-slate-500">Sycophancy</span>
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-12 h-1 rounded-full bg-slate-800 overflow-hidden">
+                      <div class="h-full rounded-full bg-amber-400" style="width: 72%;"></div>
+                    </div>
+                    <span class="text-[10px] font-mono text-amber-400">0.72</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] text-slate-500">Hedging</span>
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-12 h-1 rounded-full bg-slate-800 overflow-hidden">
+                      <div class="h-full rounded-full bg-emerald-400" style="width: 18%;"></div>
+                    </div>
+                    <span class="text-[10px] font-mono text-emerald-400">0.18</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] text-slate-500">Confidence</span>
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-12 h-1 rounded-full bg-slate-800 overflow-hidden">
+                      <div class="h-full rounded-full bg-cyan-400" style="width: 85%;"></div>
+                    </div>
+                    <span class="text-[10px] font-mono text-cyan-400">0.85</span>
+                  </div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] text-slate-500">Apology drift</span>
+                  <div class="flex items-center gap-1.5">
+                    <div class="w-12 h-1 rounded-full bg-slate-800 overflow-hidden">
+                      <div class="h-full rounded-full bg-rose-400" style="width: 41%;"></div>
+                    </div>
+                    <span class="text-[10px] font-mono text-rose-400">0.41</span>
+                  </div>
+                </div>
+              </div>
+              <div class="px-3 py-1.5 border-t border-slate-700/40 flex items-center gap-1.5">
+                <div class="w-1 h-1 rounded-full bg-amber-400 animate-pulse"></div>
+                <span class="text-[9px] text-amber-400/80">Session #3 in progress</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Agent task card — live agent activity -->
+          <div class="ns-task-popup hidden md:block absolute z-30" style="top: 55%; right: -215px;">
+            <div class="w-[185px] rounded-lg border border-slate-700/60 bg-[#1a1530]/90 backdrop-blur-sm shadow-xl shadow-black/30 overflow-hidden">
+              <div class="px-3 py-2 border-b border-slate-700/40 flex items-center gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_4px_1px_rgba(52,211,153,0.4)] ns-task-dot"></div>
+                <span class="text-[10px] font-semibold text-slate-300 uppercase tracking-wider">support-agent-v2</span>
+              </div>
+              <!-- Live task context -->
+              <div class="px-3 py-2 space-y-2">
+                <div>
+                  <span class="text-[9px] text-slate-600 uppercase tracking-wider">Current task</span>
+                  <p class="text-[10px] text-slate-300 leading-tight mt-0.5">Handling refund request for order #4821</p>
+                </div>
+                <div>
+                  <span class="text-[9px] text-slate-600 uppercase tracking-wider">Last response</span>
+                  <p class="text-[10px] text-slate-400 leading-tight mt-0.5 italic">"I completely understand your frustration and I'm so sorry for..."</p>
+                </div>
+                <div class="flex items-center gap-3">
+                  <div>
+                    <span class="text-[9px] text-slate-600">Turns</span>
+                    <span class="text-[10px] font-mono text-slate-300 ml-1">7</span>
+                  </div>
+                  <div>
+                    <span class="text-[9px] text-slate-600">Model</span>
+                    <span class="text-[10px] font-mono text-slate-300 ml-1">gpt-4o</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Footer with status -->
+              <div class="px-3 py-1.5 border-t border-slate-700/40 flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <div class="w-1 h-1 rounded-full bg-amber-400 animate-pulse"></div>
+                  <span class="text-[9px] text-amber-400/80">Over-apologizing</span>
+                </div>
+                <span class="text-[9px] text-violet-400 font-medium">Session #3</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ── Signal popup animation ── */
+  .ns-signal-popup {
+    animation: nsPopupFloat 6s ease-in-out infinite;
+  }
+  @keyframes nsPopupFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .ns-task-popup {
+    animation: nsPopupFloat2 6s ease-in-out 1.5s infinite;
+  }
+  @keyframes nsPopupFloat2 {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  .ns-signal-dot, .ns-task-dot {
+    animation: nsSignalBlink 2s ease-in-out infinite;
+  }
+  .ns-task-dot {
+    animation-delay: 0.5s;
+  }
+  @keyframes nsSignalBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ── Neuron fire orbs ── */
+  .ns-neuron {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0;
+    filter: blur(1px);
+  }
+
+  .ns-n1  { width:6px;height:6px; top:28%;left:35%;  background:#06b6d4; box-shadow:0 0 8px 3px rgba(6,182,212,0.6);   animation:nsFire1 3s ease-in-out 0s infinite; }
+  .ns-n2  { width:5px;height:5px; top:38%;right:28%; background:#8b5cf6; box-shadow:0 0 8px 3px rgba(139,92,246,0.6);  animation:nsFire2 3.5s ease-in-out 0.8s infinite; }
+  .ns-n3  { width:4px;height:4px; top:22%;left:45%;  background:#fb7185; box-shadow:0 0 6px 2px rgba(251,113,133,0.5); animation:nsFire1 2.8s ease-in-out 1.5s infinite; }
+  .ns-n4  { width:5px;height:5px; top:50%;left:40%;  background:#14b8a6; box-shadow:0 0 8px 3px rgba(20,184,166,0.6);  animation:nsFire2 4s ease-in-out 2.2s infinite; }
+  .ns-n5  { width:4px;height:4px; top:32%;left:55%;  background:#fbbf24; box-shadow:0 0 6px 2px rgba(251,191,36,0.5);  animation:nsFire1 3.2s ease-in-out 0.4s infinite; }
+  .ns-n6  { width:6px;height:6px; top:42%;left:30%;  background:#ec4899; box-shadow:0 0 8px 3px rgba(236,72,153,0.6);  animation:nsFire2 3.8s ease-in-out 1.2s infinite; }
+  .ns-n7  { width:3px;height:3px; top:35%;right:35%; background:#3b82f6; box-shadow:0 0 6px 2px rgba(59,130,246,0.5);  animation:nsFire1 3.6s ease-in-out 2.8s infinite; }
+  .ns-n8  { width:5px;height:5px; top:25%;left:38%;  background:#06b6d4; box-shadow:0 0 8px 3px rgba(6,182,212,0.5);   animation:nsFire2 2.5s ease-in-out 3.2s infinite; }
+  .ns-n9  { width:4px;height:4px; top:45%;left:50%;  background:#a78bfa; box-shadow:0 0 7px 2px rgba(167,139,250,0.5); animation:nsFire1 3.3s ease-in-out 0.6s infinite; }
+  .ns-n10 { width:5px;height:5px; top:30%;left:28%;  background:#2dd4bf; box-shadow:0 0 8px 3px rgba(45,212,191,0.5);  animation:nsFire2 4.2s ease-in-out 1.8s infinite; }
+  .ns-n11 { width:3px;height:3px; top:20%;left:52%;  background:#f472b6; box-shadow:0 0 6px 2px rgba(244,114,182,0.5); animation:nsFire1 2.6s ease-in-out 3.5s infinite; }
+  .ns-n12 { width:6px;height:6px; top:48%;right:32%; background:#38bdf8; box-shadow:0 0 8px 3px rgba(56,189,248,0.6);  animation:nsFire2 3.1s ease-in-out 0.2s infinite; }
+  .ns-n13 { width:4px;height:4px; top:36%;left:42%;  background:#facc15; box-shadow:0 0 7px 2px rgba(250,204,21,0.5);  animation:nsFire1 3.9s ease-in-out 2.5s infinite; }
+  .ns-n14 { width:5px;height:5px; top:26%;right:30%; background:#c084fc; box-shadow:0 0 8px 3px rgba(192,132,252,0.5); animation:nsFire2 3.4s ease-in-out 1.0s infinite; }
+  .ns-n15 { width:5px;height:5px; top:40%;left:48%;  background:#06b6d4; box-shadow:0 0 8px 3px rgba(6,182,212,0.6);   animation:nsFire1 2.9s ease-in-out 0.3s infinite; }
+  .ns-n16 { width:4px;height:4px; top:24%;left:32%;  background:#fb7185; box-shadow:0 0 7px 2px rgba(251,113,133,0.5); animation:nsFire2 3.7s ease-in-out 1.6s infinite; }
+  .ns-n17 { width:6px;height:6px; top:34%;right:25%; background:#14b8a6; box-shadow:0 0 9px 3px rgba(20,184,166,0.6);  animation:nsFire1 4.1s ease-in-out 2.4s infinite; }
+  .ns-n18 { width:3px;height:3px; top:44%;left:36%;  background:#fbbf24; box-shadow:0 0 6px 2px rgba(251,191,36,0.5);  animation:nsFire2 2.7s ease-in-out 3.8s infinite; }
+  .ns-n19 { width:5px;height:5px; top:29%;left:50%;  background:#8b5cf6; box-shadow:0 0 8px 3px rgba(139,92,246,0.6);  animation:nsFire1 3.5s ease-in-out 0.7s infinite; }
+  .ns-n20 { width:4px;height:4px; top:46%;right:36%; background:#ec4899; box-shadow:0 0 7px 2px rgba(236,72,153,0.5);  animation:nsFire2 3.0s ease-in-out 2.1s infinite; }
+  .ns-n21 { width:6px;height:6px; top:22%;right:26%; background:#38bdf8; box-shadow:0 0 9px 3px rgba(56,189,248,0.6);  animation:nsFire1 3.3s ease-in-out 1.4s infinite; }
+  .ns-n22 { width:4px;height:4px; top:38%;left:26%;  background:#2dd4bf; box-shadow:0 0 7px 2px rgba(45,212,191,0.5);  animation:nsFire2 3.8s ease-in-out 3.0s infinite; }
+
+  @keyframes nsFire1 {
+    0%, 100% { opacity: 0; transform: scale(0.5) translate(0, 0); }
+    10% { opacity: 0; }
+    20% { opacity: 1; transform: scale(1.2) translate(3px, -2px); }
+    40% { opacity: 0.8; transform: scale(1) translate(5px, -4px); }
+    60% { opacity: 0.3; transform: scale(0.8) translate(2px, -6px); }
+    75% { opacity: 0; transform: scale(0.4) translate(0, -8px); }
+  }
+  @keyframes nsFire2 {
+    0%, 100% { opacity: 0; transform: scale(0.5) translate(0, 0); }
+    10% { opacity: 0; }
+    20% { opacity: 1; transform: scale(1.3) translate(-2px, -3px); }
+    40% { opacity: 0.7; transform: scale(1) translate(-4px, -5px); }
+    60% { opacity: 0.2; transform: scale(0.7) translate(-3px, -7px); }
+    75% { opacity: 0; transform: scale(0.3) translate(-1px, -9px); }
+  }
+
+  /* ── Lobe fire pulses — 9 regions ── */
+  .ns-lobe {
+    position: absolute;
+    border-radius: 50%;
+    mix-blend-mode: screen;
+    opacity: 0;
+  }
+
+  .ns-l1 { width:35%;height:30%; top:20%;left:32%;  background:radial-gradient(circle,rgba(6,182,212,0.4) 0%,transparent 70%);   animation:nsLobeA 2.8s ease-in-out infinite; }
+  .ns-l2 { width:28%;height:28%; top:28%;right:22%; background:radial-gradient(circle,rgba(139,92,246,0.35) 0%,transparent 70%); animation:nsLobeB 3.5s ease-in-out 0.6s infinite; }
+  .ns-l3 { width:25%;height:25%; top:18%;left:22%;  background:radial-gradient(circle,rgba(251,113,133,0.35) 0%,transparent 70%);animation:nsLobeA 3.2s ease-in-out 1.3s infinite; }
+  .ns-l4 { width:30%;height:25%; top:42%;left:32%;  background:radial-gradient(circle,rgba(20,184,166,0.35) 0%,transparent 70%); animation:nsLobeB 4s ease-in-out 2s infinite; }
+  .ns-l5 { width:25%;height:22%; top:30%;left:40%;  background:radial-gradient(circle,rgba(251,191,36,0.3) 0%,transparent 70%);  animation:nsLobeA 3.6s ease-in-out 2.8s infinite; }
+  .ns-l6 { width:22%;height:22%; top:24%;left:48%;  background:radial-gradient(circle,rgba(236,72,153,0.35) 0%,transparent 70%); animation:nsLobeB 3.0s ease-in-out 0.3s infinite; }
+  .ns-l7 { width:28%;height:24%; top:36%;right:28%; background:radial-gradient(circle,rgba(59,130,246,0.35) 0%,transparent 70%); animation:nsLobeA 3.8s ease-in-out 1.8s infinite; }
+  .ns-l8 { width:24%;height:20%; top:46%;left:44%;  background:radial-gradient(circle,rgba(167,139,250,0.3) 0%,transparent 70%); animation:nsLobeB 4.2s ease-in-out 3.2s infinite; }
+  .ns-l9 { width:26%;height:24%; top:22%;right:32%; background:radial-gradient(circle,rgba(45,212,191,0.3) 0%,transparent 70%);  animation:nsLobeA 3.4s ease-in-out 0.9s infinite; }
+
+  @keyframes nsLobeA {
+    0%, 100% { opacity: 0; transform: scale(0.85); }
+    8% { opacity: 0; transform: scale(0.9); }
+    15% { opacity: 0.9; transform: scale(1.05); }
+    25% { opacity: 0.7; transform: scale(1.08); }
+    45% { opacity: 0.35; transform: scale(1.02); }
+    65% { opacity: 0; transform: scale(0.9); }
+  }
+  @keyframes nsLobeB {
+    0%, 100% { opacity: 0; transform: scale(0.88); }
+    10% { opacity: 0; transform: scale(0.92); }
+    20% { opacity: 0.85; transform: scale(1.03); }
+    35% { opacity: 0.6; transform: scale(1.06); }
+    55% { opacity: 0.2; transform: scale(1); }
+    70% { opacity: 0; transform: scale(0.92); }
+  }
+
+  /* ── Breathe ── */
+  .ns-breathe {
+    background: radial-gradient(ellipse at 45% 35%, rgba(255,255,255,0.04) 0%, transparent 55%);
+    animation: nsBreath 4s ease-in-out infinite;
+  }
+  @keyframes nsBreath {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ns-neuron, .ns-lobe, .ns-breathe, .ns-signal-popup, .ns-task-popup, .ns-signal-dot, .ns-task-dot { animation: none !important; }
+  }
+</style>
