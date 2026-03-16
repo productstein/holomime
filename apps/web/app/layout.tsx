@@ -18,6 +18,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "HoloMime — Give Your Agent a Soul",
   description: "The personality engine for AI agents. Build, version, test, and deploy structured identity across any LLM provider.",
+  icons: {
+    icon: "/favicon.svg",
+  },
   openGraph: {
     title: "HoloMime",
     description: "Give your agent a soul. Structured, versioned, cross-provider personality for AI agents.",
