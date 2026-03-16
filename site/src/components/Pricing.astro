@@ -23,6 +23,10 @@ const tiers = [
       "ChatGPT, Claude, OpenAI, Anthropic, OTEL, and JSONL log import",
       "Guard middleware (monitor / enforce / strict)",
       "Policy generation from plain English",
+      "OpenClaw plugin — behavioral monitoring for OpenClaw agents",
+      "VS Code extension — 3D brain visualization in your editor",
+      "LangChain & CrewAI callback handler",
+      "Shareable brain snapshots — one-click share URLs",
     ],
   },
   {
@@ -50,7 +54,7 @@ const tiers = [
   },
   {
     name: "Practice",
-    price: "$99",
+    price: "$149",
     period: "/month",
     description: "Full behavioral correction suite with training data export.",
     cta: "Start Treatment",
@@ -101,6 +105,7 @@ const tiers = [
       "EU AI Act & NIST AI RMF compliance reporting",
       "Tamper-evident audit trail (append-only, chained hashes)",
       "Custom behavioral detectors & alignment protocols",
+      "NemoClaw integration — behavioral governance for NVIDIA's enterprise agent security",
       "Embodiment compiler (ROS2, Unity, Webhook adapters)",
       "Volume API discounts",
       "SSO, audit logs, and team management",
@@ -210,8 +215,8 @@ const tiers = [
           ) : tier.ctaAction === "checkout" ? (
             <div class="mt-8">
               <div class="mb-3 text-center">
-                <span id="pro-price-monthly" class="text-2xl font-extrabold text-[var(--color-warm-text)]">$99<span class="text-sm font-normal text-[var(--color-warm-muted)]">/mo</span></span>
-                <span id="pro-price-annual" style="display:none" class="text-2xl font-extrabold text-emerald-600">$79<span class="text-sm font-normal text-[var(--color-warm-muted)]">/mo · billed annually</span></span>
+                <span id="pro-price-monthly" class="text-2xl font-extrabold text-[var(--color-warm-text)]">$149<span class="text-sm font-normal text-[var(--color-warm-muted)]">/mo</span></span>
+                <span id="pro-price-annual" style="display:none" class="text-2xl font-extrabold text-emerald-600">$119<span class="text-sm font-normal text-[var(--color-warm-muted)]">/mo · billed annually</span></span>
               </div>
               <button
                 id="checkout-btn"
@@ -235,7 +240,7 @@ const tiers = [
     </div>
 
     <p class="mt-8 text-center text-sm text-[var(--color-warm-muted)]">
-      Practice annual: <span class="font-semibold text-[var(--color-warm-text)]">$79/mo</span> ($948/year). Practitioner: pay as you go. Cancel anytime.
+      Practice annual: <span class="font-semibold text-[var(--color-warm-text)]">$119/mo</span> ($1,428/year). Practitioner: pay as you go. Cancel anytime.
     </p>
   </div>
 </section>
@@ -294,7 +299,7 @@ const tiers = [
     // Also update the main card price
     const mainPrice = document.getElementById("main-card-price");
     const mainPeriod = document.getElementById("main-card-period");
-    if (mainPrice) mainPrice.textContent = isAnnual ? "$79" : "$99";
+    if (mainPrice) mainPrice.textContent = isAnnual ? "$119" : "$149";
     if (mainPeriod) mainPeriod.textContent = isAnnual ? "/mo · billed annually" : "/month";
   });
 

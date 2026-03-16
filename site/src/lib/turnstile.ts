@@ -8,7 +8,11 @@ const TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/sit
 export async function verifyTurnstileToken(token: string, ip?: string): Promise<{ success: boolean; error?: string }> {
   const secret = import.meta.env.TURNSTILE_SECRET_KEY;
   if (!secret) {
-    // If no secret key configured, skip verification (dev mode)
+    // In production, Turnstile must be configured — reject if missing
+    if (import.meta.env.PROD) {
+      return { success: false, error: "CAPTCHA service not configured" };
+    }
+    // Dev mode: skip verification
     return { success: true };
   }
 

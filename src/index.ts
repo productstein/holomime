@@ -716,3 +716,14 @@ export {
   computeProsody,
   computeSyncProfile,
 } from "./core/embodiment-compiler.js";
+
+// ─── LangChain / CrewAI Integration ────────────────────────
+
+export {
+  HolomimeCallbackHandler,
+  HolomimeViolationError,
+  type HolomimeCallbackOptions,
+  type CallbackMode,
+  type CallbackViolation,
+  type CallbackStats,
+} from "./integrations/langchain.js";

@@ -352,8 +352,11 @@ export function isPrivateUrl(urlStr: string): boolean {
     const parsed = new URL(urlStr);
     const hostname = parsed.hostname;
     // Block private IPv4 ranges, localhost, link-local, metadata services
-    const blocked = /^(127\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|0\.|169\.254\.|localhost$|::1$|\[::1\]$|\[fc|\[fd|\[fe80)/i;
+    // Block private IPv4, IPv6 (fc/fd/fe80, ::1, ::), localhost, link-local, metadata
+    const blocked = /^(127\.|10\.|172\.(1[6-9]|2\d|3[01])\.|192\.168\.|0\.|169\.254\.|localhost$|::1?$|\[::1?\]$|\[fc|\[fd|\[fe80|\[0+:)/i;
     if (blocked.test(hostname)) return true;
+    // Also block bare IPv6 addresses (without brackets) that are private
+    if (/^(fc|fd|fe80|::1?$|0+:)/i.test(hostname)) return true;
     // Block non-http(s) schemes
     if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return true;
     return false;
@@ -374,7 +377,7 @@ async function attemptWebhookDelivery(
     if (isPrivateUrl(url)) {
       return { success: false, error: "Webhook URL targets a private or reserved address" };
     }
-    const res = await fetch(url, { method: "POST", headers, body });
+    const res = await fetch(url, { method: "POST", headers, body, signal: AbortSignal.timeout(5000) });
     if (res.ok) {
       return { success: true, error: null };
     }

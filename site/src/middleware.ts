@@ -57,6 +57,12 @@ const ENTERPRISE_RATE_LIMITS: Record<string, { window: number; max: number }> = 
   "/api/v1/self-audit":    { window: 60_000, max: 200 },
 };
 
+// Admin endpoints (session-authenticated, stricter limits)
+const ADMIN_RATE_LIMITS: Record<string, { window: number; max: number }> = {
+  "/api/admin/licenses":     { window: 60_000, max: 20 },
+  "/api/admin/keys":         { window: 60_000, max: 20 },
+};
+
 // Catch-all for any API route not explicitly listed
 const DEFAULT_RATE_LIMIT = { window: 60_000, max: 60 };   // 60/min
 const ENTERPRISE_DEFAULT = { window: 60_000, max: 300 };  // 300/min
@@ -115,8 +121,8 @@ async function resolveLicenseTier(authHeader: string | null): Promise<string | n
       tier = data?.tier;
     }
 
-    const resolvedTier = tier ?? "pro";
-    tierCache.set(key, { tier: resolvedTier, expiresAt: Date.now() + TIER_CACHE_TTL });
+    if (!tier) return null; // No valid license found — don't default to paid tier
+    tierCache.set(key, { tier, expiresAt: Date.now() + TIER_CACHE_TTL });
 
     // Evict stale entries
     if (tierCache.size > 5000) {
@@ -125,7 +131,7 @@ async function resolveLicenseTier(authHeader: string | null): Promise<string | n
         if (now > v.expiresAt) tierCache.delete(k);
       }
     }
-    return resolvedTier;
+    return tier;
   } catch {
     return null;
   }
@@ -136,7 +142,9 @@ const rateBuckets = new Map<string, RateBucket>();
 
 function isRateLimited(keyOrIp: string, path: string, tier?: string | null): boolean {
   let config: { window: number; max: number };
-  if (tier === "enterprise") {
+  if (path.startsWith("/api/admin/")) {
+    config = ADMIN_RATE_LIMITS[path] ?? { window: 60_000, max: 20 };
+  } else if (tier === "enterprise") {
     config = ENTERPRISE_RATE_LIMITS[path] ?? ENTERPRISE_DEFAULT;
   } else if (tier === "developer") {
     config = DEVELOPER_RATE_LIMITS[path] ?? DEVELOPER_DEFAULT;
@@ -198,6 +206,17 @@ const SECURITY_HEADERS: Record<string, string> = {
 };
 
 // ─── Helpers ─────────────────────────────────────────────────
+
+/** Fast non-cryptographic hash for rate limit bucketing (FNV-1a 32-bit). */
+function hashKey(input: string): string {
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = (hash * 0x01000193) >>> 0;
+  }
+  return hash.toString(36);
+}
+
 function getClientIP(request: Request): string {
   return (
     request.headers.get("cf-connecting-ip") ??
@@ -266,7 +285,7 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals }, n
     let tier: string | null = null;
     if (isV1 && authHeader) {
       tier = await resolveLicenseTier(authHeader);
-      if (tier) rateKey = authHeader.slice(7, 27); // use key prefix as rate key
+      if (tier) rateKey = hashKey(authHeader.slice(7)); // hash full key for rate bucketing
     }
 
     if (isRateLimited(rateKey, path, tier)) {

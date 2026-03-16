@@ -8,10 +8,10 @@ import type { APIRoute } from "astro";
  * Query params: h (health), g (grade), a (agent), p (comma-separated patterns)
  */
 export const GET: APIRoute = async ({ url }) => {
-  const health = parseInt(url.searchParams.get("h") || "0", 10);
-  const grade = url.searchParams.get("g") || "?";
-  const agentRaw = url.searchParams.get("a") || "unknown";
-  const patternsRaw = url.searchParams.get("p") || "";
+  const health = Math.max(0, Math.min(100, parseInt(url.searchParams.get("h") || "0", 10)));
+  const grade = (url.searchParams.get("g") || "?").slice(0, 2);
+  const agentRaw = (url.searchParams.get("a") || "unknown").slice(0, 50);
+  const patternsRaw = (url.searchParams.get("p") || "").slice(0, 500);
 
   const AGENT_NAMES: Record<string, string> = {
     "claude-code": "Claude Code",
@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ url }) => {
   };
   const agentName = AGENT_NAMES[agentRaw] || agentRaw;
 
-  const patterns = patternsRaw ? patternsRaw.split(",").map((p) => p.trim()).filter(Boolean) : [];
+  const patterns = patternsRaw ? patternsRaw.split(",").map((p) => p.trim().slice(0, 50)).filter(Boolean).slice(0, 10) : [];
 
   // Health color
   const healthColor = health >= 85 ? "#22c55e" : health >= 70 ? "#f59e0b" : health >= 50 ? "#f97316" : "#f97066";

@@ -1,0 +1,58 @@
+{
+  "name": "holomime-nemoclaw",
+  "version": "1.0.0",
+  "description": "HoloMime behavioral governance plugin for NemoClaw — real-time drift detection, compliance audit trails, and behavioral credentials for enterprise AI agents",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "nemoclaw.policy.yaml",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --external holomime",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "nemoclaw",
+    "holomime",
+    "behavioral",
+    "governance",
+    "alignment",
+    "policy",
+    "enterprise",
+    "compliance",
+    "audit",
+    "drift-detection",
+    "ai-agent",
+    "openclaw"
+  ],
+  "author": "holomime <hello@holomime.dev>",
+  "license": "MIT",
+  "peerDependencies": {
+    "holomime": ">=1.8.0"
+  },
+  "devDependencies": {
+    "holomime": "latest",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0"
+  },
+  "nemoclaw": {
+    "type": "policy-plugin",
+    "name": "holomime-behavioral-governance",
+    "version": "1.0",
+    "capabilities": [
+      "pre-action-hook",
+      "post-action-hook",
+      "audit-provider",
+      "health-reporter"
+    ]
+  }
+}

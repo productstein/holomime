@@ -35,4 +35,10 @@ export default defineConfig([
     splitting: false,
     banner: { js: "#!/usr/bin/env node" },
   },
+  {
+    entry: { "integrations/langchain": "src/integrations/langchain.ts" },
+    format: ["esm"],
+    dts: true,
+    splitting: false,
+  },
 ]);

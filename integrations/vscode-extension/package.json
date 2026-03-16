@@ -1,0 +1,74 @@
+{
+  "name": "holomime-brain",
+  "displayName": "HoloMime Brain — AI Agent Behavioral Monitor",
+  "description": "Real-time 3D brain visualization showing your AI agent's behavioral patterns. Detect sycophancy, hedging, over-apologizing, and personality drift.",
+  "publisher": "productstein",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Visualization",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "agent",
+    "behavioral",
+    "alignment",
+    "brain",
+    "visualization",
+    "holomime",
+    "personality",
+    "sycophancy",
+    "claude",
+    "openai",
+    "copilot",
+    "cline",
+    "cursor"
+  ],
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#110d1f",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/productstein/holomime"
+  },
+  "homepage": "https://holomime.dev",
+  "bugs": {
+    "url": "https://github.com/productstein/holomime/issues"
+  },
+  "license": "MIT",
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "holomime.showBrain",
+        "title": "HoloMime: Show Brain"
+      },
+      {
+        "command": "holomime.diagnose",
+        "title": "HoloMime: Diagnose Active File"
+      },
+      {
+        "command": "holomime.shareSnapshot",
+        "title": "HoloMime: Share Brain Snapshot"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "package": "npx @vscode/vsce package --no-dependencies",
+    "publish": "npx @vscode/vsce publish --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.24.0",
+    "typescript": "^5.7.0"
+  }
+}

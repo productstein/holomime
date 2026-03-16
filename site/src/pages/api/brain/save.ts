@@ -53,14 +53,20 @@ export const POST: APIRoute = async ({ request, locals }) => {
     writer.write(bytes);
     writer.close();
 
+    const MAX_DECOMPRESSED = 1_048_576; // 1 MB limit
     const chunks: Uint8Array[] = [];
+    let totalLength = 0;
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
+      totalLength += value.length;
+      if (totalLength > MAX_DECOMPRESSED) break; // abort if decompressed data exceeds limit
       chunks.push(value);
     }
 
-    const totalLength = chunks.reduce((a, c) => a + c.length, 0);
+    if (totalLength > MAX_DECOMPRESSED) {
+      return new Response(JSON.stringify({ error: "Decompressed data too large" }), { status: 400, headers });
+    }
     const result = new Uint8Array(totalLength);
     let offset = 0;
     for (const chunk of chunks) {
