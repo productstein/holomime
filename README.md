@@ -435,15 +435,39 @@ Fleet knowledge transfer: `mergeStores()` -- what one agent learns, all agents b
 
 ## MCP Server
 
-Expose the full pipeline as MCP tools for self-healing agents:
+Your agent can refer itself to therapy. Add holomime to any MCP-compatible IDE in one command:
 
 ```bash
-holomime-mcp
+# Claude Code
+claude mcp add holomime -- npx holomime-mcp
+
+# Cursor — add to .cursor/mcp.json
+# Windsurf — add to ~/.codeium/windsurf/mcp_config.json
+# VS Code — add to .vscode/mcp.json
+{
+  "mcpServers": {
+    "holomime": {
+      "command": "npx",
+      "args": ["holomime-mcp"]
+    }
+  }
+}
 ```
 
-Six tools: `holomime_diagnose`, `holomime_assess`, `holomime_profile`, `holomime_autopilot`, `holomime_self_audit`, `holomime_observe`. Your agents can self-diagnose behavioral symptoms, trigger their own therapy sessions, and self-report drift mid-conversation.
+Six tools your agent can call mid-conversation:
+
+| Tool | What it does |
+|------|-------------|
+| `holomime_diagnose` | Analyze messages for 8 behavioral patterns (zero LLM cost) |
+| `holomime_self_audit` | Mid-conversation self-check with actionable corrections |
+| `holomime_assess` | Full Big Five alignment check against personality spec |
+| `holomime_profile` | Human-readable personality summary |
+| `holomime_autopilot` | Auto-triggered therapy when drift exceeds threshold |
+| `holomime_observe` | Record self-observations to persistent behavioral memory |
 
 Progressive disclosure: summary (~100 tokens), standard (~500 tokens), or full detail. Agents choose their own detail level.
+
+Full docs: [holomime.dev/mcp](https://holomime.dev/mcp)
 
 ## Voice Agent Monitoring
 
