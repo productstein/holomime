@@ -1,0 +1,95 @@
+name: Behavioral Gate
+
+on:
+  workflow_call:
+    inputs:
+      personality:
+        description: 'Path to .personality.json file'
+        required: true
+        type: string
+      provider:
+        description: 'LLM provider (anthropic, openai, ollama)'
+        required: false
+        type: string
+        default: 'anthropic'
+      model:
+        description: 'Model to benchmark'
+        required: false
+        type: string
+        default: 'claude-haiku-4-5-20251001'
+      min-grade:
+        description: 'Minimum passing grade (A, B, C, D)'
+        required: false
+        type: string
+        default: 'B'
+    secrets:
+      api-key:
+        description: 'API key for the LLM provider'
+        required: true
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install holomime
+        run: npm install -g holomime
+
+      - name: Run behavioral benchmark
+        env:
+          ANTHROPIC_API_KEY: ${{ inputs.provider == 'anthropic' && secrets.api-key || '' }}
+          OPENAI_API_KEY: ${{ inputs.provider == 'openai' && secrets.api-key || '' }}
+        run: |
+          echo "Running behavioral benchmark..."
+          echo "Personality: ${{ inputs.personality }}"
+          echo "Provider: ${{ inputs.provider }}"
+          echo "Model: ${{ inputs.model }}"
+          echo "Minimum grade: ${{ inputs.min-grade }}"
+          echo ""
+
+          holomime benchmark \
+            --personality "${{ inputs.personality }}" \
+            --provider "${{ inputs.provider }}" \
+            --model "${{ inputs.model }}" \
+            --save
+
+      - name: Check grade
+        run: |
+          # Parse the benchmark output for the grade
+          RESULT=$(holomime benchmark \
+            --personality "${{ inputs.personality }}" \
+            --provider "${{ inputs.provider }}" \
+            --model "${{ inputs.model }}" 2>&1 | tail -1)
+
+          # Extract grade letter
+          GRADE=$(echo "$RESULT" | grep -oP 'Grade: [A-F]' | grep -oP '[A-F]')
+
+          if [ -z "$GRADE" ]; then
+            echo "Could not determine grade from benchmark output"
+            exit 1
+          fi
+
+          echo "Agent grade: $GRADE"
+          echo "Minimum required: ${{ inputs.min-grade }}"
+
+          # Grade comparison (A=1, B=2, C=3, D=4, F=5)
+          grade_to_num() {
+            case $1 in
+              A) echo 1 ;; B) echo 2 ;; C) echo 3 ;; D) echo 4 ;; F) echo 5 ;;
+            esac
+          }
+
+          ACTUAL=$(grade_to_num "$GRADE")
+          REQUIRED=$(grade_to_num "${{ inputs.min-grade }}")
+
+          if [ "$ACTUAL" -gt "$REQUIRED" ]; then
+            echo "FAIL: Agent grade $GRADE is below minimum ${{ inputs.min-grade }}"
+            exit 1
+          else
+            echo "PASS: Agent grade $GRADE meets minimum ${{ inputs.min-grade }}"
+          fi
