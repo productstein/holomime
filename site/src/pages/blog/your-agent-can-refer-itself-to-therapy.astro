@@ -130,14 +130,14 @@ import BlogLayout from "../../components/BlogLayout.astro";
   <strong>Cursor, Windsurf, VS Code, Claude Desktop</strong> — add to your MCP config:
 </p>
 
-<pre><code>{
+<pre><code set:text={`{
   "mcpServers": {
     "holomime": {
       "command": "npx",
       "args": ["holomime-mcp"]
     }
   }
-}</code></pre>
+}`} /></pre>
 
 <p>
   Full setup instructions for each IDE: <a href="/mcp">holomime.dev/mcp</a>
