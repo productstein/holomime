@@ -469,6 +469,29 @@ Progressive disclosure: summary (~100 tokens), standard (~500 tokens), or full d
 
 Full docs: [holomime.dev/mcp](https://holomime.dev/mcp)
 
+## CI/CD Behavioral Gate
+
+Use `holomime benchmark` as a GitHub Actions PR gate. Fail the build if your agent's behavioral grade drops below a threshold:
+
+```yaml
+# .github/workflows/behavioral-check.yml
+name: Behavioral Check
+on: [pull_request]
+
+jobs:
+  behavioral-gate:
+    uses: productstein/holomime/.github/workflows/behavioral-gate.yml@main
+    with:
+      personality: '.personality.json'
+      provider: 'anthropic'
+      model: 'claude-haiku-4-5-20251001'
+      min-grade: 'B'
+    secrets:
+      api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+```
+
+Prevents personality regressions the same way tests prevent code regressions.
+
 ## Voice Agent Monitoring
 
 Real-time behavioral analysis for voice agents with 5 voice-specific detectors beyond the 8 text detectors:

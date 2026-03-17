@@ -32,6 +32,7 @@
   "engines": {
     "node": ">=18"
   },
+  "mcpName": "io.github.productstein/holomime",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/productstein/holomime.git"
