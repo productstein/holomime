@@ -1,17 +1,17 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.productstein/holomime",
-  "description": "Behavioral therapy for AI agents — 6 MCP tools for self-diagnosis, self-audit, personality assessment, automated alignment, and persistent behavioral memory. 8 rule-based detectors (zero LLM cost) catch over-apologizing, hedging, sycophancy, boundary violations, error spirals, sentiment skew, formality drift, and retrieval quality.",
+  "description": "Behavioral therapy for AI agents — self-diagnosis, alignment, and training via MCP",
   "repository": {
     "url": "https://github.com/productstein/holomime",
     "source": "github"
   },
-  "version": "1.9.1",
+  "version": "1.9.2",
   "packages": [
     {
       "registryType": "npm",
       "identifier": "holomime",
-      "version": "1.9.1",
+      "version": "1.9.2",
       "transport": {
         "type": "stdio"
       }
