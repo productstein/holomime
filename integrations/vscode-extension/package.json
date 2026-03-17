@@ -1,9 +1,9 @@
 {
   "name": "holomime-brain",
-  "displayName": "HoloMime Brain — AI Agent Behavioral Monitor",
+  "displayName": "Holomime Brain — AI Agent Behavioral Monitor",
   "description": "Real-time 3D brain visualization showing your AI agent's behavioral patterns. Detect sycophancy, hedging, over-apologizing, and personality drift.",
   "publisher": "productstein",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "engines": {
     "vscode": "^1.85.0"
   },
