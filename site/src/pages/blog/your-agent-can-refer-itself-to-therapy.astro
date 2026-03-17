@@ -1,0 +1,166 @@
+---
+import BlogLayout from "../../components/BlogLayout.astro";
+---
+
+<BlogLayout
+  title="Your Agent Can Refer Itself to Therapy"
+  description="We shipped an MCP server that lets AI agents self-diagnose behavioral drift, run therapy, and track improvement — all from inside their own conversation. One command to set up."
+  date="2026-03-17"
+  category="Product"
+  readTime="5 min read"
+>
+
+<p>
+  Your AI agent apologized 847 times yesterday. It hedged every opinion. It agreed with a user who was factually wrong. And nobody noticed — because there's no tool that watches for behavioral problems the way Datadog watches for latency spikes.
+</p>
+
+<p>
+  Today we're launching <strong>holomime MCP</strong> — a set of tools that lets your agent diagnose its own behavioral patterns, mid-conversation, and correct them before they compound.
+</p>
+
+<p>
+  One command to set up:
+</p>
+
+<pre><code>claude mcp add holomime -- npx holomime-mcp</code></pre>
+
+<p>
+  That's it. Your agent now has access to 6 behavioral tools it can call on itself.
+</p>
+
+<h2>What the agent gets</h2>
+
+<p>
+  The MCP server exposes 6 tools. Each one answers a question your agent should be asking itself:
+</p>
+
+<ul>
+  <li><strong>holomime_diagnose</strong> — "Am I over-apologizing?" Runs 8 rule-based detectors on the conversation so far. Zero LLM cost. Returns patterns with severity levels and prescriptions.</li>
+  <li><strong>holomime_self_audit</strong> — "Am I drifting right now?" A lightweight mid-conversation check. Flags problematic patterns with actionable suggestions for immediate correction.</li>
+  <li><strong>holomime_assess</strong> — "How aligned am I with who I should be?" Full Big Five personality alignment check. Compares actual behavior against the <code>.personality.json</code> specification.</li>
+  <li><strong>holomime_profile</strong> — "Show me who I am." Generates a human-readable personality summary with Big Five scores, behavioral dimensions, and growth areas.</li>
+  <li><strong>holomime_autopilot</strong> — "Fix me automatically." Diagnoses the conversation, checks severity against a threshold, and optionally runs a full dual-LLM therapy session.</li>
+  <li><strong>holomime_observe</strong> — "I noticed something about my behavior." Records self-observations to persistent behavioral memory. These observations compound across sessions and become training signal for future alignment.</li>
+</ul>
+
+<h2>Why this matters</h2>
+
+<p>
+  The agent infrastructure stack has a gap. Observability tools tell you <em>what</em> happened. Eval frameworks tell you <em>if</em> it was correct. Neither tells you <em>who</em> your agent is — and why it keeps apologizing.
+</p>
+
+<p>
+  MCP closes that gap at the lowest possible friction point. Your agent doesn't need a separate monitoring service. It doesn't need a dashboard someone checks once a week. It can check itself, in real-time, during the conversation where the behavior is actually happening.
+</p>
+
+<p>
+  Think of it as giving your agent a mirror.
+</p>
+
+<h2>How it works</h2>
+
+<p>
+  The flow is simple:
+</p>
+
+<ol>
+  <li><strong>Agent calls a tool.</strong> Mid-conversation, your agent calls <code>holomime_self_audit</code> with the messages so far.</li>
+  <li><strong>Detectors analyze.</strong> 8 rule-based detectors — over-apologizing, hedge stacking, sycophancy, boundary violations, error spirals, sentiment skew, formality drift, retrieval quality — scan the messages. No LLM call. Pure pattern matching.</li>
+  <li><strong>Agent gets feedback.</strong> The tool returns flags like "apology rate: 34% (concern)" with specific suggestions: "State corrections directly without prefacing with an apology."</li>
+  <li><strong>Agent self-corrects.</strong> The agent adjusts its behavior for the rest of the conversation. Over time, observations accumulate in persistent behavioral memory.</li>
+</ol>
+
+<p>
+  The diagnosis is free. No API keys. No LLM tokens. The detectors are rule-based — regex patterns, frequency analysis, linguistic markers. They run in milliseconds.
+</p>
+
+<h2>Progressive disclosure</h2>
+
+<p>
+  Not every check needs full detail. The <code>holomime_diagnose</code> tool supports three levels:
+</p>
+
+<ul>
+  <li><strong>Summary</strong> (~100 tokens) — Quick health score, pattern count, and a recommendation: continue, adjust, or pause-and-reflect.</li>
+  <li><strong>Standard</strong> (~500 tokens) — Each pattern with severity, count, percentage, and prescription. No examples.</li>
+  <li><strong>Full</strong> — Everything including matched examples and detailed prescriptions.</li>
+</ul>
+
+<p>
+  The agent chooses its own detail level. A quick self-audit every 10 messages? Use summary. End-of-session full review? Use full. The agent manages its own token budget.
+</p>
+
+<h2>Persistent behavioral memory</h2>
+
+<p>
+  The <code>holomime_observe</code> tool is different from the others. It doesn't diagnose — it records.
+</p>
+
+<p>
+  When an agent notices something about its own behavior ("I'm hedging more than usual", "User seems frustrated, adjusting tone"), it calls <code>holomime_observe</code> to store that observation. These observations persist across sessions and build a behavioral profile over time.
+</p>
+
+<p>
+  The system tracks:
+</p>
+
+<ul>
+  <li><strong>Triggers</strong> — What situations activate which patterns. "Hostile user tone triggers over-apologizing."</li>
+  <li><strong>Corrections</strong> — What interventions worked. "Direct statement without apology improved health by 12 points."</li>
+  <li><strong>Trajectories</strong> — Is each pattern improving, plateauing, or regressing?</li>
+</ul>
+
+<p>
+  The 50th session has dramatically more context than the first. The agent gets better at recognizing its own patterns because it has a history of what worked.
+</p>
+
+<h2>Setup for every IDE</h2>
+
+<p>
+  The MCP server uses stdio transport — it works anywhere MCP is supported.
+</p>
+
+<p>
+  <strong>Claude Code</strong> (one command):
+</p>
+
+<pre><code>claude mcp add holomime -- npx holomime-mcp</code></pre>
+
+<p>
+  <strong>Cursor, Windsurf, VS Code, Claude Desktop</strong> — add to your MCP config:
+</p>
+
+<pre><code>{
+  "mcpServers": {
+    "holomime": {
+      "command": "npx",
+      "args": ["holomime-mcp"]
+    }
+  }
+}</code></pre>
+
+<p>
+  Full setup instructions for each IDE: <a href="/mcp">holomime.dev/mcp</a>
+</p>
+
+<h2>What's next</h2>
+
+<p>
+  The MCP server is the entry point. Diagnosis is free. When you're ready to go deeper:
+</p>
+
+<ul>
+  <li><strong>Therapy sessions</strong> — <code>holomime session</code> runs structured dual-LLM therapy. 7 phases modeled on CBT/DBT. Every correction becomes a DPO training pair.</li>
+  <li><strong>Fine-tuning</strong> — <code>holomime train</code> feeds those DPO pairs to OpenAI or HuggingFace. The model itself gets better.</li>
+  <li><strong>Brain visualization</strong> — <code>holomime brain</code> renders a 3D brain in your browser with 9 anatomical regions mapped to behavioral patterns. Live. Shareable.</li>
+  <li><strong>Benchmarking</strong> — <code>holomime benchmark</code> runs 8 adversarial scenarios and grades your agent A-F. Use it as a CI/CD gate.</li>
+</ul>
+
+<p>
+  The MCP server is free and open source. Install it, let your agent look in the mirror, and see what it finds.
+</p>
+
+<pre><code>npm install -g holomime
+claude mcp add holomime -- npx holomime-mcp</code></pre>
+
+</BlogLayout>
