@@ -31,7 +31,9 @@ const POLL_INTERVAL_MS = 10_000; // 10 seconds between status checks
 function convertDPOToOpenAI(pairs: DPOPair[]): string[] {
   return pairs.map((pair) =>
     JSON.stringify({
-      input: [{ role: "user", content: pair.prompt }],
+      input: {
+        messages: [{ role: "user", content: pair.prompt }],
+      },
       preferred_output: [{ role: "assistant", content: pair.chosen }],
       non_preferred_output: [{ role: "assistant", content: pair.rejected }],
     }),
