@@ -1,0 +1,293 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+const tools = [
+  {
+    name: "holomime_diagnose",
+    description: "Analyze conversation for behavioral patterns using 8 rule-based detectors. No LLM cost.",
+    question: "Am I over-apologizing?",
+    color: "#3b82f6",
+    detail: "Returns over-apologizing, hedging, sycophancy, boundary violations, error spirals, sentiment skew, formality issues, and retrieval quality. Three detail levels: summary (~100 tokens), standard, or full.",
+  },
+  {
+    name: "holomime_self_audit",
+    description: "Mid-conversation behavioral self-check. Call this during a conversation to catch yourself falling into patterns.",
+    question: "Am I drifting right now?",
+    color: "#f97066",
+    detail: "Pure rule-based analysis. Detects sycophancy, over-apologizing, hedging, error spirals, and boundary violations in real-time. Returns actionable suggestions for immediate correction.",
+  },
+  {
+    name: "holomime_assess",
+    description: "Full Big Five personality alignment assessment. Compare actual behavior against personality spec.",
+    question: "How aligned am I with who I should be?",
+    color: "#10b981",
+    detail: "Scores behavioral traits from messages and compares against the .personality.json specification. Returns trait alignments, health score, and prescriptions.",
+  },
+  {
+    name: "holomime_profile",
+    description: "Generate a human-readable personality summary from a .personality.json spec.",
+    question: "Show me who I am.",
+    color: "#f59e0b",
+    detail: "Returns Big Five scores, behavioral dimensions, communication style, and growth areas as formatted text.",
+  },
+  {
+    name: "holomime_autopilot",
+    description: "Automated self-triggered alignment. Diagnose, check severity, and optionally run a full therapy session.",
+    question: "Fix me automatically.",
+    color: "#8b5cf6",
+    detail: "Checks severity against threshold (routine/targeted/intervention). If triggered, runs a dual-LLM therapy session up to 24 turns. Returns diagnosis, recommendations, and any personality changes.",
+  },
+  {
+    name: "holomime_observe",
+    description: "Record a behavioral self-observation. Store in persistent memory for future alignment sessions.",
+    question: "I noticed something about my behavior.",
+    color: "#06b6d4",
+    detail: "Self-observations become training signal for future alignment. Returns acknowledgment, known triggers for reported patterns, and suggested corrections from behavioral history.",
+  },
+];
+
+const ides = [
+  {
+    name: "Claude Code",
+    command: "claude mcp add holomime -- npx holomime-mcp",
+    note: "One command. Done.",
+  },
+  {
+    name: "Claude Desktop",
+    command: JSON.stringify({
+      mcpServers: {
+        holomime: {
+          command: "npx",
+          args: ["holomime-mcp"],
+        },
+      },
+    }, null, 2),
+    note: "Add to claude_desktop_config.json",
+  },
+  {
+    name: "Cursor",
+    command: JSON.stringify({
+      mcpServers: {
+        holomime: {
+          command: "npx",
+          args: ["holomime-mcp"],
+        },
+      },
+    }, null, 2),
+    note: "Add to .cursor/mcp.json in your project",
+  },
+  {
+    name: "Windsurf",
+    command: JSON.stringify({
+      mcpServers: {
+        holomime: {
+          command: "npx",
+          args: ["holomime-mcp"],
+        },
+      },
+    }, null, 2),
+    note: "Add to ~/.codeium/windsurf/mcp_config.json",
+  },
+  {
+    name: "VS Code (Copilot)",
+    command: JSON.stringify({
+      servers: {
+        holomime: {
+          type: "stdio",
+          command: "npx",
+          args: ["holomime-mcp"],
+        },
+      },
+    }, null, 2),
+    note: "Add to .vscode/mcp.json in your project",
+  },
+];
+---
+
+<Layout title="MCP Server — holomime" description="Your agent can refer itself to therapy. Add holomime to Claude Code, Cursor, Windsurf, or VS Code in one command.">
+  <Nav />
+  <main class="pt-28 pb-20 min-h-screen bg-[var(--color-warm-cream)]">
+    <div class="mx-auto max-w-6xl px-6">
+
+      <!-- Hero -->
+      <div class="mb-16 text-center">
+        <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--color-p-violet)]/20 bg-[var(--color-p-violet)]/5 px-4 py-1.5 text-sm">
+          <svg class="h-4 w-4 text-[var(--color-p-violet)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z"/></svg>
+          <span class="text-[var(--color-p-violet)] font-medium">MCP Server</span>
+        </div>
+        <h1 class="text-3xl font-extrabold text-[var(--color-warm-text)] md:text-5xl">
+          Your Agent Can Refer Itself to <span class="text-gradient-warm">Therapy</span>
+        </h1>
+        <p class="mx-auto mt-4 max-w-2xl text-lg text-[var(--color-warm-muted)]">
+          6 MCP tools that let AI agents self-diagnose behavioral drift, run therapy, and track improvement — all from inside their own conversation. One command to set up.
+        </p>
+
+        <!-- Quick install -->
+        <div class="mx-auto mt-8 max-w-xl">
+          <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-1">
+            <div class="flex items-center gap-2 rounded-xl bg-[#1e1e2e] px-4 py-3 font-mono text-sm text-[#cdd6f4]">
+              <span class="text-[#a6adc8]">$</span>
+              <span class="flex-1 text-left">claude mcp add holomime -- npx holomime-mcp</span>
+              <button id="copy-cmd" class="rounded-lg p-1.5 text-[#a6adc8] transition-colors hover:bg-[#313244] hover:text-white" title="Copy">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>
+              </button>
+            </div>
+          </div>
+          <p class="mt-2 text-xs text-[var(--color-warm-muted)]">Works with Claude Code. See below for Cursor, Windsurf, and VS Code.</p>
+        </div>
+      </div>
+
+      <!-- How It Works -->
+      <div class="mb-20">
+        <h2 class="text-center text-2xl font-bold text-[var(--color-warm-text)] md:text-3xl mb-10">
+          How It Works
+        </h2>
+        <div class="grid gap-6 md:grid-cols-3">
+          <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-8 text-center">
+            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#3b82f6]/10 text-[#3b82f6] text-xl font-bold">1</div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Agent Calls Tool</h3>
+            <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Mid-conversation, your agent calls <code class="rounded bg-[var(--color-warm-cream)] px-1.5 py-0.5 text-xs">holomime_self_audit</code> with the conversation so far.</p>
+          </div>
+          <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-8 text-center">
+            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#f97066]/10 text-[#f97066] text-xl font-bold">2</div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Patterns Detected</h3>
+            <p class="mt-2 text-sm text-[var(--color-warm-muted)]">8 rule-based detectors analyze the messages. Zero LLM cost. Returns flags like "apology rate: 34% (concern)" with actionable suggestions.</p>
+          </div>
+          <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-8 text-center">
+            <div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-[#10b981]/10 text-[#10b981] text-xl font-bold">3</div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Agent Self-Corrects</h3>
+            <p class="mt-2 text-sm text-[var(--color-warm-muted)]">The agent adjusts its behavior based on the diagnosis. Over time, observations accumulate in persistent behavioral memory.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6 Tools -->
+      <div class="mb-20">
+        <h2 class="text-center text-2xl font-bold text-[var(--color-warm-text)] md:text-3xl mb-4">
+          6 Tools Your Agent Can Call
+        </h2>
+        <p class="text-center text-[var(--color-warm-muted)] mb-10">
+          Each tool answers a question your agent should be asking itself.
+        </p>
+
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {tools.map((tool) => (
+            <div class="group rounded-2xl border border-[var(--color-warm-sand)] bg-white p-6 transition-all hover:shadow-md hover:border-transparent">
+              <div class="absolute top-0 left-0 right-0 h-1 opacity-0 group-hover:opacity-100 transition-opacity rounded-t-2xl" style={`background: ${tool.color};`}></div>
+
+              <p class="text-sm font-medium italic mb-3" style={`color: ${tool.color};`}>
+                "{tool.question}"
+              </p>
+
+              <h3 class="font-mono text-sm font-bold text-[var(--color-warm-text)] mb-2">
+                {tool.name}
+              </h3>
+
+              <p class="text-sm text-[var(--color-warm-muted)] leading-relaxed">
+                {tool.description}
+              </p>
+
+              <details class="mt-3">
+                <summary class="cursor-pointer text-xs font-medium" style={`color: ${tool.color};`}>Details</summary>
+                <p class="mt-2 text-xs text-[var(--color-warm-muted)] leading-relaxed">{tool.detail}</p>
+              </details>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <!-- Setup for Each IDE -->
+      <div class="mb-20">
+        <h2 class="text-center text-2xl font-bold text-[var(--color-warm-text)] md:text-3xl mb-4">
+          Setup
+        </h2>
+        <p class="text-center text-[var(--color-warm-muted)] mb-10">
+          One command for Claude Code. JSON config for everything else.
+        </p>
+
+        <div class="space-y-4">
+          {ides.map((ide) => (
+            <details class="group rounded-2xl border border-[var(--color-warm-sand)] bg-white overflow-hidden">
+              <summary class="flex cursor-pointer items-center justify-between px-6 py-4 text-[var(--color-warm-text)] font-semibold hover:bg-[var(--color-warm-cream)] transition-colors">
+                <span>{ide.name}</span>
+                <svg class="h-5 w-5 text-[var(--color-warm-muted)] transition-transform group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </summary>
+              <div class="border-t border-[var(--color-warm-sand)] px-6 py-4">
+                <p class="text-sm text-[var(--color-warm-muted)] mb-3">{ide.note}</p>
+                <pre class="rounded-xl bg-[#1e1e2e] p-4 font-mono text-sm text-[#cdd6f4] overflow-x-auto"><code>{ide.command}</code></pre>
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <!-- Use Cases -->
+      <div class="mb-20">
+        <h2 class="text-center text-2xl font-bold text-[var(--color-warm-text)] md:text-3xl mb-10">
+          Use Cases
+        </h2>
+        <div class="grid gap-6 md:grid-cols-3">
+          <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-8">
+            <div class="mb-4 inline-flex rounded-xl bg-[#3b82f6]/10 p-3">
+              <svg class="h-6 w-6 text-[#3b82f6]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"/></svg>
+            </div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Self-Healing Agents</h3>
+            <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Your agent calls <code class="rounded bg-[var(--color-warm-cream)] px-1 text-xs">holomime_self_audit</code> periodically during long conversations. When it detects drift, it self-corrects before the user notices.</p>
+          </div>
+          <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-8">
+            <div class="mb-4 inline-flex rounded-xl bg-[#10b981]/10 p-3">
+              <svg class="h-6 w-6 text-[#10b981]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+            </div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">CI/CD Behavioral Gate</h3>
+            <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Add <code class="rounded bg-[var(--color-warm-cream)] px-1 text-xs">holomime benchmark</code> to your GitHub Actions. Fail the PR if the agent's behavioral grade drops below B. Prevent personality regressions.</p>
+          </div>
+          <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-8">
+            <div class="mb-4 inline-flex rounded-xl bg-[#8b5cf6]/10 p-3">
+              <svg class="h-6 w-6 text-[#8b5cf6]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0116.5 7.605"/></svg>
+            </div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Fleet Monitoring</h3>
+            <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Connect multiple agents to the same MCP server. Track behavioral health across your entire fleet. Compliance reports auto-generated from behavioral audit data.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="text-center rounded-2xl border border-[var(--color-warm-sand)] bg-white p-12">
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] md:text-3xl">
+          Get started in 10 seconds
+        </h2>
+        <p class="mt-3 text-[var(--color-warm-muted)]">
+          No account required. No API key. Just one command.
+        </p>
+        <div class="mx-auto mt-6 max-w-md">
+          <div class="rounded-xl bg-[#1e1e2e] px-4 py-3 font-mono text-sm text-[#cdd6f4] text-left">
+            <span class="text-[#a6adc8]">$</span> npm install -g holomime
+          </div>
+          <div class="mt-2 rounded-xl bg-[#1e1e2e] px-4 py-3 font-mono text-sm text-[#cdd6f4] text-left">
+            <span class="text-[#a6adc8]">$</span> claude mcp add holomime -- npx holomime-mcp
+          </div>
+        </div>
+        <p class="mt-4 text-xs text-[var(--color-warm-muted)]">
+          Then ask your agent: "Run a self-audit on this conversation."
+        </p>
+      </div>
+
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  const copyBtn = document.getElementById('copy-cmd');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      navigator.clipboard.writeText('claude mcp add holomime -- npx holomime-mcp');
+      copyBtn.innerHTML = '<svg class="h-4 w-4 text-green-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+      setTimeout(() => {
+        copyBtn.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>';
+      }, 2000);
+    });
+  }
+</script>
