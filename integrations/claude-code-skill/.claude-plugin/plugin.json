@@ -1,0 +1,11 @@
+{
+  "name": "holomime",
+  "description": "Behavioral alignment for AI agents — diagnose drift, run therapy sessions, benchmark personality",
+  "version": "1.0.0",
+  "author": {
+    "name": "productstein"
+  },
+  "homepage": "https://holomime.dev",
+  "repository": "https://github.com/productstein/holomime",
+  "license": "MIT"
+}
