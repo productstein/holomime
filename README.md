@@ -433,6 +433,25 @@ Sessions compound. Memory persists. The agent gets better at being itself -- aut
 
 Fleet knowledge transfer: `mergeStores()` -- what one agent learns, all agents benefit from.
 
+## Claude Code Skill Plugin
+
+Install holomime as a Claude Code skill for slash-command access:
+
+```bash
+claude plugin add productstein/holomime
+```
+
+Six commands available:
+
+| Command | What it does | Free? |
+|---------|-------------|-------|
+| `/holomime:diagnose` | Detect 8 behavioral patterns (zero LLM cost) | Yes |
+| `/holomime:benchmark` | Stress-test with 8 adversarial scenarios, grade A-F | Yes |
+| `/holomime:profile` | View personality summary | Yes |
+| `/holomime:brain` | Launch 3D brain visualization | Yes |
+| `/holomime:session` | Run a structured therapy session | Pro |
+| `/holomime:autopilot` | Auto-diagnose, treat, and apply corrections | Pro |
+
 ## MCP Server
 
 Your agent can refer itself to therapy. Add holomime to any MCP-compatible IDE in one command:
