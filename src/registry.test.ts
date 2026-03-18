@@ -34,9 +34,9 @@ describe("registry index", () => {
     expect(() => loadRegistry()).not.toThrow();
   });
 
-  it("has exactly 20 entries", () => {
+  it("has exactly 21 entries", () => {
     const registry = loadRegistry();
-    expect(registry.personalities).toHaveLength(20);
+    expect(registry.personalities).toHaveLength(21);
   });
 
   it("each entry has required fields", () => {
