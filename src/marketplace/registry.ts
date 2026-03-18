@@ -8,7 +8,7 @@ import { readFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const REGISTRY_URL = "https://raw.githubusercontent.com/productstein/holomime-registry/main/index.json";
+const REGISTRY_URL = "https://raw.githubusercontent.com/productstein/holomime/main/registry/index.json";
 
 export interface RegistryEntry {
   handle: string;
