@@ -85,37 +85,6 @@ const tiers = [
       "Priority support",
     ],
   },
-  {
-    name: "Institute",
-    pricePrefix: "From",
-    price: "$2,500",
-    period: "/month",
-    description: "Fleet-scale behavioral alignment. Dedicated infrastructure.",
-    cta: "Contact Sales",
-    ctaAction: "contact",
-    highlighted: false,
-    color: "#f59e0b",
-    visibleCount: 6,
-    features: [
-      "Everything in Practice",
-      "Group Therapy — unlimited agents, cross-agent pattern detection",
-      "Voice agent monitoring (LiveKit, Vapi, Retell) — 5 voice-specific detectors",
-      "Unlimited agents + unlimited voice sessions",
-      "NeuralSpace fleet view — monitor 2-50 agents at 60fps",
-      "EU AI Act & NIST AI RMF compliance reporting",
-      "Tamper-evident audit trail (append-only, chained hashes)",
-      "Custom behavioral detectors & alignment protocols",
-      "NemoClaw integration — behavioral governance for NVIDIA's enterprise agent security",
-      "Embodiment compiler (ROS2, Unity, Webhook adapters)",
-      "Volume API discounts",
-      "SSO, audit logs, and team management",
-      "SOC 2 Type II planned (H1 2026) · DPA available",
-      "Custom alignment for regulated industries (healthcare, finance, legal)",
-      "Self-hosted deployment (Docker / K8s)",
-      "Dedicated customer success manager",
-      "Uptime SLA + dedicated infrastructure",
-    ],
-  },
 ];
 ---
 
@@ -150,7 +119,7 @@ const tiers = [
       </span>
     </div>
 
-    <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {tiers.map((tier) => (
         <div
           class:list={[
@@ -239,9 +208,19 @@ const tiers = [
       ))}
     </div>
 
-    <p class="mt-8 text-center text-sm text-[var(--color-warm-muted)]">
-      Practice annual: <span class="font-semibold text-[var(--color-warm-text)]">$119/mo</span> ($1,428/year). Practitioner: pay as you go. Cancel anytime.
-    </p>
+    <!-- Enterprise banner -->
+    <div class="mt-10 rounded-2xl border-2 border-[var(--color-warm-border)] bg-white px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div>
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Need fleet-scale alignment?</h3>
+        <p class="mt-1 text-sm text-[var(--color-warm-muted)]">Custom deployments, compliance reporting, unlimited agents, and dedicated infrastructure for enterprise teams.</p>
+      </div>
+      <a
+        href="/contact"
+        class="btn-press shrink-0 rounded-xl border-2 border-[var(--color-warm-border)] px-6 py-3 text-sm font-semibold text-[var(--color-warm-text)] transition-colors hover:border-[var(--color-p-gold)]"
+      >
+        Contact Sales
+      </a>
+    </div>
   </div>
 </section>
 
