@@ -3,9 +3,11 @@
   "description": "Behavioral alignment for AI agents — diagnose drift, run therapy sessions, benchmark personality",
   "version": "1.0.0",
   "author": {
-    "name": "productstein"
+    "name": "productstein",
+    "email": "hello@holomime.dev"
   },
   "homepage": "https://holomime.dev",
   "repository": "https://github.com/productstein/holomime",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": ["behavioral-alignment", "personality", "ai-agents", "diagnosis", "therapy", "benchmark", "mcp", "big-five", "dpo", "fine-tuning"]
 }
