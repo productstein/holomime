@@ -123,7 +123,7 @@ export async function publishCommand(options: PublishOptions): Promise<void> {
   console.log();
 
   console.log(chalk.bold("  Next steps:"));
-  console.log(chalk.dim("  Submit a PR to https://github.com/productstein/holomime-registry"));
+  console.log(chalk.dim("  Submit a PR to https://github.com/productstein/holomime"));
   console.log(chalk.dim("  to add your personality to the public index."));
   console.log();
 }
