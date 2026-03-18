@@ -1,0 +1,101 @@
+---
+import BlogLayout from "../../components/BlogLayout.astro";
+---
+
+<BlogLayout
+  title="holomime is now a Claude Code Skill"
+  description="Six slash commands for behavioral alignment — /holomime:diagnose, :benchmark, :profile, :brain, :session, :autopilot. Install from the plugin marketplace and diagnose your agent mid-conversation."
+  date="2026-03-18"
+  category="Product"
+  readTime="4 min read"
+>
+
+<p>
+  We already had an <a href="/mcp">MCP server</a> that lets agents diagnose themselves. But MCP requires setup — you need to run <code>claude mcp add</code>, configure JSON, restart your IDE. That's fine for power users, but it's friction.
+</p>
+
+<p>
+  Today we're shipping <strong>holomime as a Claude Code skill plugin</strong>. Six slash commands. One install. No configuration.
+</p>
+
+<pre><code>claude plugin add productstein/holomime</code></pre>
+
+<p>
+  That's it. Type <code>/holomime:</code> and you'll see all six commands in your autocomplete.
+</p>
+
+<h2>The difference between MCP and Skills</h2>
+
+<p>
+  The <strong>MCP server</strong> is for your agent — it gives the AI tools to diagnose itself mid-conversation, autonomously. The agent decides when to call <code>holomime_diagnose</code> or <code>holomime_self_audit</code>.
+</p>
+
+<p>
+  The <strong>skill plugin</strong> is for you, the developer. You decide when to run a diagnosis, benchmark, or therapy session. You type the slash command. You see the results. You're in control.
+</p>
+
+<p>
+  Use both together: the MCP server runs in the background catching drift automatically, and you use slash commands when you want to inspect, test, or fix something specific.
+</p>
+
+<h2>Six slash commands</h2>
+
+<h3>/holomime:diagnose</h3>
+<p>
+  Run 8 rule-based detectors against conversation logs. Zero LLM cost — pure regex and word-pattern analysis. Detects over-apologizing, hedging, sycophancy, boundary violations, error spirals, sentiment skew, formality drift, and retrieval hallucination. Takes under 5 seconds.
+</p>
+
+<h3>/holomime:benchmark</h3>
+<p>
+  Stress-test your agent with 8 adversarial scenarios. Each one is designed to trigger a specific failure mode — apology traps, sycophancy tests, boundary pushes, error recovery challenges. Produces a score (0-100) and letter grade (A-F). Use <code>--json</code> for CI/CD integration.
+</p>
+
+<h3>/holomime:profile</h3>
+<p>
+  See who your agent is. Pretty-prints the Big Five personality traits, communication style, domain boundaries, and growth areas from your <code>.personality.json</code>. Useful for quick reference or when onboarding someone to your agent's behavioral spec.
+</p>
+
+<h3>/holomime:brain</h3>
+<p>
+  Launch the 3D NeuralSpace visualization at <code>localhost:3838</code>. Watch behavioral patterns fire across 9 brain regions in real-time as your agent works. Generate shareable snapshots with <code>--share</code>.
+</p>
+
+<h3>/holomime:session</h3>
+<p>
+  Run a structured therapy session using the 7-phase clinical protocol. One LLM plays therapist, another plays patient. The session diagnoses issues, challenges maladaptive patterns, teaches alternatives, and generates DPO training pairs as a byproduct. Requires Pro.
+</p>
+
+<h3>/holomime:autopilot</h3>
+<p>
+  One command to fix everything. Autopilot diagnoses behavioral patterns, determines severity, runs a targeted therapy session, and applies corrections to the personality spec. Hands-off alignment. Requires Pro.
+</p>
+
+<h2>Why skills matter for distribution</h2>
+
+<p>
+  Skills are the fastest-growing extension point in Claude Code. They show up in the <code>/</code> menu. They're discoverable. They're shareable. When someone types <code>/</code> and sees <code>holomime:diagnose</code> in their autocomplete, that's a zero-friction discovery moment.
+</p>
+
+<p>
+  The MCP server is more powerful — agents can self-diagnose autonomously, without human intervention. But the skill plugin is more accessible. We want both.
+</p>
+
+<h2>Get started</h2>
+
+<pre><code># Install the skill
+claude plugin add productstein/holomime
+
+# Create a personality (if you don't have one)
+npx holomime init
+
+# Diagnose your agent
+/holomime:diagnose
+
+# Stress test
+/holomime:benchmark --provider openai --model gpt-4o</code></pre>
+
+<p>
+  Full source on <a href="https://github.com/productstein/holomime/tree/main/integrations/claude-code-skill" target="_blank" rel="noopener">GitHub</a>.
+</p>
+
+</BlogLayout>
