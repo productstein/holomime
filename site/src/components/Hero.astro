@@ -10,6 +10,9 @@ const personalities = [
 ---
 
 <section class="relative overflow-hidden pt-32 pb-20 md:pt-44 md:pb-32">
+  <!-- Dot grid texture -->
+  <div class="pointer-events-none absolute inset-0 bg-dot-grid opacity-[0.35]"></div>
+
   <!-- Soft color glow -->
   <div class="pointer-events-none absolute inset-0 overflow-hidden">
     <div class="absolute top-0 left-1/2 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/4 rounded-full opacity-[0.12] blur-[140px]"
@@ -25,7 +28,7 @@ const personalities = [
     >
       <div
         class="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-lg"
-        style={`background: ${p.color}12; border: 1px solid ${p.color}25; color: ${p.color};`}
+        style={`background: ${p.color}12; border: 1px solid ${p.color}25; color: ${p.color}; box-shadow: 0 4px 20px -4px ${p.color}40;`}
       >
         {p.label}
       </div>
@@ -57,7 +60,7 @@ const personalities = [
     </p>
 
     <!-- Stats bar -->
-    <div class="mx-auto mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-medium text-[var(--color-warm-muted)]">
+    <div class="mx-auto mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-semibold text-[var(--color-warm-muted)]">
       <span>7 Body Templates</span>
       <span class="hidden sm:inline text-[var(--color-warm-border)]">&middot;</span>
       <span>5 Adapters</span>
@@ -69,7 +72,7 @@ const personalities = [
 
     <!-- Terminal demo -->
     <div class="mx-auto mt-12 max-w-xl">
-      <div class="rounded-2xl bg-[var(--color-holo-dark)] p-6 shadow-2xl shadow-black/20 text-left">
+      <div class="rounded-2xl bg-[var(--color-holo-dark)] p-6 shadow-2xl shadow-black/20 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
         <!-- Terminal header -->
         <div class="flex items-center gap-2 mb-4">
           <div class="h-3 w-3 rounded-full bg-[#ff5f57]"></div>

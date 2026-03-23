@@ -76,14 +76,22 @@ const tiers = [
 
     <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {tiers.map((tier) => (
+        <div class={tier.highlighted ? "rounded-2xl p-[2px] bg-gradient-to-br from-[var(--color-p-coral)] to-[var(--color-p-violet)]" : ""}>
         <div
           class:list={[
             "personality-card relative flex flex-col rounded-2xl p-8",
             tier.highlighted
-              ? "bg-white shadow-xl shadow-[var(--color-p-violet)]/10 ring-2 ring-[var(--color-p-violet)]/20"
+              ? "bg-white"
               : "bg-white border-2 border-[var(--color-warm-border)]",
+            tier.name === "Open Source" ? "pricing-card-oss" : "",
+            tier.name === "Enterprise" ? "pricing-card-enterprise" : "",
           ]}
         >
+          {tier.highlighted && (
+            <div class="absolute -top-3.5 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-xs font-semibold text-white bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)]">
+              Most Popular
+            </div>
+          )}
 
           <h3 class="text-lg font-bold text-[var(--color-warm-text)]">{tier.name}</h3>
           <div class="mt-4">
@@ -152,10 +160,16 @@ const tiers = [
             </a>
           )}
         </div>
+        </div>
       ))}
     </div>
   </div>
 </section>
+
+<style>
+  .pricing-card-oss:hover { box-shadow: 0 0 24px -6px rgba(34, 197, 94, 0.2); }
+  .pricing-card-enterprise:hover { box-shadow: 0 0 24px -6px rgba(59, 130, 246, 0.2); }
+</style>
 
 <!-- Install modal -->
 <div id="install-modal" class="fixed inset-0 z-[100] hidden items-center justify-center">

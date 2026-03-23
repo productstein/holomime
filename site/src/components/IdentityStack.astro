@@ -6,6 +6,7 @@ const cards = [
     description: "Immutable values, ethics, and purpose. What this agent stands for.",
     color: "var(--color-p-coral)",
     colorSoft: "var(--color-p-coral-soft)",
+    glowClass: "glow-coral",
   },
   {
     file: "psyche.sys",
@@ -13,6 +14,7 @@ const cards = [
     description: "Big Five personality traits, emotional intelligence, communication style.",
     color: "var(--color-p-blue)",
     colorSoft: "var(--color-p-blue-soft)",
+    glowClass: "glow-blue",
   },
   {
     file: "body.api",
@@ -20,6 +22,7 @@ const cards = [
     description: "Morphology, sensors, safety envelope. Swap across any robot.",
     color: "var(--color-p-gold)",
     colorSoft: "var(--color-p-gold-soft)",
+    glowClass: "glow-gold",
   },
   {
     file: "conscience.exe",
@@ -27,7 +30,58 @@ const cards = [
     description: "Moral enforcement layer. Deny, allow, or escalate at the action boundary.",
     color: "var(--color-p-violet)",
     colorSoft: "var(--color-p-violet-soft)",
+    glowClass: "glow-violet",
   },
+];
+
+// Dot-matrix humanoid figure — ~75 dots
+// Coordinates are [x, y, color, hasPulse, pulseDelay]
+// Colors: coral (head), gold (neck/arms/legs), blue (torso), violet (shield)
+const headDots = [
+  [88,8],[100,4],[112,8],[84,18],[96,14],[108,14],[116,18],[84,28],[96,24],[108,24],[116,28],[100,32]
+];
+const neckDots = [
+  [100,42],[100,52],[100,62]
+];
+const torsoDots = [
+  [76,72],[88,72],[100,72],[112,72],[124,72],
+  [76,84],[88,84],[100,84],[112,84],[124,84],
+  [76,96],[88,96],[100,96],[112,96],[124,96],
+  [76,108],[88,108],[100,108],[112,108],[124,108],
+];
+const leftArmDots = [
+  [68,76],[58,86],[48,96],[40,108],[34,120],[30,132],[28,144],[26,156]
+];
+const rightArmDots = [
+  [132,76],[142,86],[152,96],[160,108],[166,120],[170,132],[172,144],[174,156]
+];
+const leftLegDots = [
+  [88,122],[84,136],[80,150],[76,164],[74,178],[72,192],[70,206],[68,220],[66,234],[64,248]
+];
+const rightLegDots = [
+  [112,122],[116,136],[120,150],[124,164],[126,178],[128,192],[130,206],[132,220],[134,234],[136,248]
+];
+
+// Shield dots — large dashed circle around figure
+const shieldDots: [number, number][] = [];
+for (let i = 0; i < 16; i++) {
+  const angle = (i / 16) * Math.PI * 2 - Math.PI / 2;
+  const cx = 100 + Math.cos(angle) * 90;
+  const cy = 140 + Math.sin(angle) * 130;
+  shieldDots.push([Math.round(cx), Math.round(cy)]);
+}
+
+type Dot = { x: number; y: number; color: string; glow: string; pulse: boolean; delay: string };
+
+const allDots: Dot[] = [
+  ...headDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-coral)', glow: 'rgba(249,112,102,0.5)', pulse: i % 4 === 0, delay: `${i * 0.3}s` })),
+  ...neckDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-gold)', glow: 'rgba(245,158,11,0.4)', pulse: false, delay: '0s' })),
+  ...torsoDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-blue)', glow: 'rgba(59,130,246,0.5)', pulse: i % 5 === 0, delay: `${i * 0.2}s` })),
+  ...leftArmDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-gold)', glow: 'rgba(245,158,11,0.4)', pulse: i % 4 === 1, delay: `${i * 0.25}s` })),
+  ...rightArmDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-gold)', glow: 'rgba(245,158,11,0.4)', pulse: i % 4 === 2, delay: `${i * 0.25}s` })),
+  ...leftLegDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-gold)', glow: 'rgba(245,158,11,0.4)', pulse: i % 5 === 0, delay: `${i * 0.2}s` })),
+  ...rightLegDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-gold)', glow: 'rgba(245,158,11,0.4)', pulse: i % 5 === 2, delay: `${i * 0.2}s` })),
+  ...shieldDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-violet)', glow: 'rgba(139,92,246,0.3)', pulse: i % 3 === 0, delay: `${i * 0.4}s` })),
 ];
 ---
 
@@ -49,7 +103,7 @@ const cards = [
       <!-- Left: 4 Cards in 2x2 grid -->
       <div class="flex-1 grid gap-6 sm:grid-cols-2">
         {cards.map((c) => (
-          <div class="personality-card relative overflow-hidden rounded-2xl border border-[var(--color-warm-sand)] bg-white p-6 shadow-sm">
+          <div class={`personality-card ${c.glowClass} relative overflow-hidden rounded-2xl border border-[var(--color-warm-sand)] glass-card p-6 shadow-sm`}>
             <div class="absolute top-0 left-0 right-0 h-1" style={`background: ${c.color};`}></div>
             <div class="font-mono text-lg font-bold text-[var(--color-warm-text)] mt-2">
               {c.file}
@@ -64,40 +118,16 @@ const cards = [
         ))}
       </div>
 
-      <!-- Right: Humanoid diagram (desktop only) -->
+      <!-- Right: Dot-matrix humanoid (desktop only) -->
       <div class="hidden lg:flex flex-col items-center justify-center w-64 shrink-0">
-        <svg viewBox="0 0 200 360" class="w-48 h-auto" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- Conscience: outer shield/halo -->
-          <ellipse cx="100" cy="170" rx="85" ry="155" stroke="var(--color-p-violet)" stroke-width="1.5" stroke-dasharray="6 4" opacity="0.5" />
-
-          <!-- Body: full figure outline -->
-          <!-- Head -->
-          <circle cx="100" cy="52" r="26" stroke="var(--color-p-gold)" stroke-width="2" />
-          <!-- Neck -->
-          <line x1="100" y1="78" x2="100" y2="92" stroke="var(--color-p-gold)" stroke-width="2" />
-          <!-- Torso -->
-          <rect x="68" y="92" width="64" height="80" rx="8" stroke="var(--color-p-gold)" stroke-width="2" />
-          <!-- Left arm -->
-          <line x1="68" y1="100" x2="38" y2="150" stroke="var(--color-p-gold)" stroke-width="2" />
-          <line x1="38" y1="150" x2="30" y2="190" stroke="var(--color-p-gold)" stroke-width="2" />
-          <!-- Right arm -->
-          <line x1="132" y1="100" x2="162" y2="150" stroke="var(--color-p-gold)" stroke-width="2" />
-          <line x1="162" y1="150" x2="170" y2="190" stroke="var(--color-p-gold)" stroke-width="2" />
-          <!-- Left leg -->
-          <line x1="82" y1="172" x2="75" y2="250" stroke="var(--color-p-gold)" stroke-width="2" />
-          <line x1="75" y1="250" x2="70" y2="320" stroke="var(--color-p-gold)" stroke-width="2" />
-          <!-- Right leg -->
-          <line x1="118" y1="172" x2="125" y2="250" stroke="var(--color-p-gold)" stroke-width="2" />
-          <line x1="125" y1="250" x2="130" y2="320" stroke="var(--color-p-gold)" stroke-width="2" />
-
-          <!-- Soul: brain glow in head -->
-          <circle cx="100" cy="48" r="14" fill="var(--color-p-coral)" opacity="0.15" />
-          <circle cx="100" cy="48" r="8" fill="var(--color-p-coral)" opacity="0.3" />
-
-          <!-- Psyche: heart glow in chest -->
-          <circle cx="100" cy="120" r="16" fill="var(--color-p-blue)" opacity="0.15" />
-          <circle cx="100" cy="120" r="9" fill="var(--color-p-blue)" opacity="0.3" />
-        </svg>
+        <div class="dot-humanoid relative" style="width: 200px; height: 280px;">
+          {allDots.map((d) => (
+            <div
+              class={`dot-point ${d.pulse ? 'dot-pulse-anim' : ''}`}
+              style={`left: ${d.x}px; top: ${d.y}px; background: ${d.color}; box-shadow: 0 0 6px 2px ${d.glow}; ${d.pulse ? `animation-delay: ${d.delay};` : ''} ${d.color.includes('violet') ? 'opacity: 0.45;' : ''}`}
+            />
+          ))}
+        </div>
 
         <!-- Labels -->
         <div class="mt-6 space-y-2 text-center">
@@ -133,3 +163,20 @@ const cards = [
     </div>
   </div>
 </section>
+
+<style>
+  .dot-point {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+  }
+
+  .dot-pulse-anim {
+    animation: dotPulse 3s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dot-pulse-anim { animation: none !important; }
+  }
+</style>

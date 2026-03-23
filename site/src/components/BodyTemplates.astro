@@ -66,8 +66,10 @@ const morphologyColors: Record<string, string> = {
 };
 ---
 
-<section id="body-templates" class="py-20 md:py-28 bg-[var(--color-warm-cream)]">
-  <div class="mx-auto max-w-6xl px-6">
+<section id="body-templates" class="py-20 md:py-28 bg-[var(--color-warm-cream)] relative overflow-hidden">
+  <!-- Subtle dot grid overlay -->
+  <div class="bg-dot-grid absolute inset-0 opacity-30 pointer-events-none" aria-hidden="true"></div>
+  <div class="mx-auto max-w-6xl px-6 relative z-10">
     <p class="text-center text-sm font-semibold tracking-wider uppercase text-[var(--color-p-blue)]">
       Hardware
     </p>
@@ -85,7 +87,7 @@ const morphologyColors: Record<string, string> = {
       const renderCard = (r: typeof robots[0]) => {
         const morphColor = morphologyColors[r.morphology] || "var(--color-warm-muted)";
         return (
-          <div class="group rounded-xl border border-[var(--color-warm-border)] bg-white p-5 transition-all hover:shadow-md hover:border-[var(--color-warm-sand)]">
+          <div class="personality-card group rounded-xl bg-white p-5 transition-all" style={`border-left: 3px solid ${morphColor}; border-top: 1px solid var(--color-warm-border); border-right: 1px solid var(--color-warm-border); border-bottom: 1px solid var(--color-warm-border); --card-glow: ${morphColor};`}>
             <div class="flex items-start justify-between">
               <div>
                 <div class="text-base font-bold text-[var(--color-warm-text)]">{r.name}</div>
@@ -108,7 +110,8 @@ const morphologyColors: Record<string, string> = {
             {r.sensors.length > 0 && (
               <div class="mt-2 flex flex-wrap gap-1.5">
                 {r.sensors.map((s: string) => (
-                  <span class="rounded bg-[var(--color-warm-cream)] px-2 py-0.5 text-xs font-mono text-[var(--color-warm-muted)]">
+                  <span class="flex items-center gap-1 rounded bg-[var(--color-warm-cream)] px-2 py-0.5 text-xs font-mono text-[var(--color-warm-muted)]">
+                    <span class="inline-block w-[5px] h-[5px] rounded-full shrink-0" style={`background: ${morphColor};`}></span>
                     {s}
                   </span>
                 ))}
@@ -155,6 +158,12 @@ const morphologyColors: Record<string, string> = {
     </p>
   </div>
 </section>
+
+<style>
+  .personality-card[style*="--card-glow"]:hover {
+    box-shadow: 0 0 24px -6px color-mix(in srgb, var(--card-glow) 25%, transparent);
+  }
+</style>
 
 <script>
   document.querySelectorAll(".body-copy-btn").forEach((btn) => {

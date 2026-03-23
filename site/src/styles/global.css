@@ -153,3 +153,37 @@ body {
   background: currentColor;
   clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
 }
+
+/* ---- Dot grid background pattern ---- */
+.bg-dot-grid {
+  background-image: radial-gradient(circle, var(--color-warm-sand) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ---- Glass card variant ---- */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+/* ---- Fade-in-up animation (for scroll reveals) ---- */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+/* ---- Glow shadow utilities ---- */
+.glow-coral:hover { box-shadow: 0 0 20px -4px rgba(249, 112, 102, 0.3); }
+.glow-blue:hover { box-shadow: 0 0 20px -4px rgba(59, 130, 246, 0.3); }
+.glow-violet:hover { box-shadow: 0 0 20px -4px rgba(139, 92, 246, 0.3); }
+.glow-gold:hover { box-shadow: 0 0 20px -4px rgba(245, 158, 11, 0.3); }
+
+/* ---- Dot pulse animation (for humanoid dots) ---- */
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
