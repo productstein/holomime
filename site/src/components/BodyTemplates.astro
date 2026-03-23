@@ -78,9 +78,11 @@ const morphologyColors: Record<string, string> = {
       Pre-built identity profiles for the world's leading humanoid platforms.
     </p>
 
-    <!-- Robot grid -->
-    <div class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {robots.map((r) => {
+    <!-- Robot grid: top row 4, bottom row 3 centered -->
+    {(() => {
+      const topRow = robots.slice(0, 4);
+      const bottomRow = robots.slice(4);
+      const renderCard = (r: typeof robots[0]) => {
         const morphColor = morphologyColors[r.morphology] || "var(--color-warm-muted)";
         return (
           <div class="group rounded-xl border border-[var(--color-warm-border)] bg-white p-5 transition-all hover:shadow-md hover:border-[var(--color-warm-sand)]">
@@ -105,7 +107,7 @@ const morphologyColors: Record<string, string> = {
 
             {r.sensors.length > 0 && (
               <div class="mt-2 flex flex-wrap gap-1.5">
-                {r.sensors.map((s) => (
+                {r.sensors.map((s: string) => (
                   <span class="rounded bg-[var(--color-warm-cream)] px-2 py-0.5 text-xs font-mono text-[var(--color-warm-muted)]">
                     {s}
                   </span>
@@ -129,13 +131,25 @@ const morphologyColors: Record<string, string> = {
             </div>
           </div>
         );
-      })}
-    </div>
+      };
+      return (
+        <div class="mt-14">
+          <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {topRow.map(renderCard)}
+          </div>
+          <div class="mt-4 flex justify-center">
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 w-full lg:max-w-[calc(75%-0.5rem)]">
+              {bottomRow.map(renderCard)}
+            </div>
+          </div>
+        </div>
+      );
+    })()}
 
     <!-- Bottom text -->
     <p class="mt-8 text-center text-sm text-[var(--color-warm-muted)]">
       Don't see your robot?
-      <a href="/docs/body-api" class="font-medium text-[var(--color-p-blue)] hover:underline underline-offset-2">
+      <a href="/docs" class="font-medium text-[var(--color-p-blue)] hover:underline underline-offset-2">
         Create a body.api in 30 seconds.
       </a>
     </p>
