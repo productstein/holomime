@@ -1,0 +1,161 @@
+---
+import BlogLayout from "../../components/BlogLayout.astro";
+---
+
+<BlogLayout
+  title="Soul, Psyche, Body, Conscience: The Identity Stack for Humanoid Robots"
+  description="29 humanoid OEMs. Zero identity layers. We built one. Four files give any robot a soul, a psyche, and a conscience."
+  date="2026-03-23"
+  category="Vision"
+  readTime="5 min read"
+>
+
+<p>
+  The humanoid robotics market is $6.24 billion in 2026 and projected to reach $165 billion by 2034.
+  Twenty-nine OEMs are racing to build bodies — Figure, Sanctuary AI, 1X, Unitree, Agility, Apptronik,
+  Boston Dynamics, Tesla, Asimov. They're solving locomotion, manipulation, and perception.
+</p>
+
+<p>
+  Nobody is building the soul.
+</p>
+
+<h2>The Gap</h2>
+
+<p>
+  Every humanoid company has a VLA model for motor control. Every one has a sensor fusion stack.
+  None of them have an answer to: <em>"How does your robot behave when no one's watching?"</em>
+</p>
+
+<p>
+  When a care robot develops sycophantic tendencies and agrees with a patient's request to skip medication —
+  that's not a hardware problem. When a warehouse humanoid drifts from its safety protocols after 10,000
+  hours of operation — that's not a perception problem. These are identity problems. And nobody has
+  an identity layer.
+</p>
+
+<p>
+  The only personality system in humanoid robotics is Engineered Arts' Tritium platform — and it's
+  proprietary, locked to their Ameca hardware. There's nothing universal, nothing open, nothing that
+  works across form factors.
+</p>
+
+<p>
+  Until now.
+</p>
+
+<h2>The Identity Stack</h2>
+
+<p>
+  We built a 4-file identity architecture grounded in philosophy and psychology. Four files that give
+  any agent or robot a complete identity — portable across bodies, auditable by humans, enforceable
+  by machines.
+</p>
+
+<pre><code>soul.md          — values, ethics, purpose          (Aristotle)
+psyche.sys       — Big Five, EQ, communication      (Jung)
+body.api         — morphology, safety, hardware     (swappable)
+conscience.exe   — deny/allow/escalate enforcement  (Freud)
+                      ↓ compile
+personality.json — compiled output (existing schema, unchanged)</code></pre>
+
+<p>
+  <strong>soul.md</strong> is Aristotle's rational soul — the essence that persists regardless of
+  what body the agent inhabits. It's written in Markdown because ethics should be readable by anyone,
+  not just engineers. It's immutable. No automation, no therapy session, no training run can modify it.
+</p>
+
+<p>
+  <strong>psyche.sys</strong> is Jung's totality of all psychic processes — cognition, emotion, the
+  unconscious. It contains the Big Five personality profile, emotional intelligence dimensions,
+  communication style, and growth areas. This is the file that therapy auto-patches when it detects
+  cognitive or emotional drift.
+</p>
+
+<p>
+  <strong>body.api</strong> is the physical interface contract. Morphology, modalities, safety envelope,
+  hardware profile. This file is swappable — the same soul and psyche can inhabit a Figure 02 today
+  and a Unitree H1 tomorrow. We ship pre-built body templates for 7 platforms.
+</p>
+
+<p>
+  <strong>conscience.exe</strong> is Freud's superego — the internalized moral authority. Deny rules,
+  allow rules, escalation triggers. Deny dominates in composition. Like soul.md, it's never auto-modified.
+  Changing what a robot refuses to do requires explicit human approval.
+</p>
+
+<h2>Body Swap</h2>
+
+<p>
+  Same soul. Different body. One command.
+</p>
+
+<pre><code>holomime embody --stack ./identity \
+  --swap-body ./bodies/figure-02.body.api \
+  --adapter ros2</code></pre>
+
+<p>
+  The <code>--swap-body</code> flag copies a new body.api into the identity stack and recompiles.
+  The soul, psyche, and conscience stay the same. The robot's values don't change when it gets
+  a new body — just like they shouldn't.
+</p>
+
+<p>
+  We ship body templates for Figure 02, Unitree H1, Sanctuary AI Phoenix, Engineered Arts Ameca,
+  Asimov V1, Boston Dynamics Spot, and virtual avatars. Creating your own takes 30 seconds — it's
+  a JSON file with morphology, modalities, and a safety envelope.
+</p>
+
+<h2>The Conscience Layer</h2>
+
+<p>
+  We don't know if AI is sentient. But we can give it a conscience.
+</p>
+
+<p>
+  <code>conscience.exe</code> is deterministic enforcement. Not a suggestion. Not a guideline.
+  When a deny rule says "never override emergency stop," the agent cannot override it — not through
+  prompt injection, not through fine-tuning, not through social engineering by a user. Deny dominates.
+</p>
+
+<p>
+  For chatbots, this prevents data leaks and boundary violations. For humanoid robots, this prevents
+  physical harm. The same enforcement layer works for both because the architecture separates
+  <em>what the agent is</em> (soul) from <em>what the agent does</em> (conscience) from
+  <em>what body it inhabits</em> (body).
+</p>
+
+<h2>Getting Started</h2>
+
+<pre><code># Create the identity stack
+npx holomime init-stack
+
+# Edit soul.md, psyche.sys, conscience.exe
+
+# Compile to .personality.json
+npx holomime compile-stack
+
+# Push to a robot via ROS2
+npx holomime embody --stack . --adapter ros2</code></pre>
+
+<p>
+  Or migrate an existing personality:
+</p>
+
+<pre><code>npx holomime init-stack --from .personality.json</code></pre>
+
+<h2>Why Open Source</h2>
+
+<p>
+  The identity stack is MIT licensed because it should be a standard, not a product.
+  Every humanoid project that adopts soul/psyche/body/conscience as vocabulary strengthens
+  the ecosystem. The hardware race is on. The soul is missing.
+</p>
+
+<p>
+  <a href="https://github.com/productstein/holomime">GitHub</a> ·
+  <a href="https://holomime.dev">holomime.dev</a> ·
+  <code>npm install holomime</code>
+</p>
+
+</BlogLayout>

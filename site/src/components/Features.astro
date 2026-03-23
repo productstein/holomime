@@ -1,60 +1,34 @@
 ---
-const features = [
+const columns = [
   {
-    icon: `<svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5"/></svg>`,
-    title: "Behavioral Diagnosis",
-    description: "80+ behavioral signals across 8 built-in detectors — plus custom detectors you define as JSON config. Over-apologizing, sycophancy, hedging, boundary issues, error spirals, sentiment skew, formality drift, retrieval quality. Extensible without writing code.",
-    color: "#3b82f6",
-    stat: "8+ detectors",
+    title: "Identity",
+    color: "var(--color-p-coral)",
+    items: [
+      { name: "soul.md", desc: "Immutable values and ethics" },
+      { name: "psyche.sys", desc: "Big Five personality + EQ" },
+      { name: "body.api", desc: "Swap across any robot" },
+      { name: "conscience.exe", desc: "Moral enforcement" },
+    ],
   },
   {
-    icon: `<svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"/></svg>`,
-    title: "Structured Therapy Sessions",
-    description: "Dual-LLM therapy sessions with persistent memory — the therapist remembers every past session, tracks pattern trajectories, and uses ReACT reasoning to choose evidence-based interventions. Sessions compound, just like real therapy.",
-    color: "#f97066",
-    stat: "Memory + ReACT",
+    title: "Intelligence",
+    color: "var(--color-p-blue)",
+    items: [
+      { name: "11 drift detectors", desc: "Real-time behavioral monitoring" },
+      { name: "Adversarial benchmarking", desc: "A-F letter grades" },
+      { name: "Self-improvement loop", desc: "Continuous alignment refinement" },
+      { name: "DPO/RLHF export", desc: "Training data from production" },
+    ],
   },
   {
-    icon: `<svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"/></svg>`,
-    title: `Production Behavior <svg class="inline h-4 w-4 mx-1 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg> Training Data`,
-    description: "Every correction becomes a training pair automatically. Export as DPO, RLHF reward signals, or Alpaca instruction format. Your agent's production behavior becomes its own fine-tuning dataset.",
-    color: "#10b981",
-    stat: "DPO / RLHF / Alpaca",
-  },
-  {
-    icon: `<svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>`,
-    title: "Treatment Outcomes",
-    description: "Before/after behavioral comparison with letter grades (A-F). Did the therapy work? Prove it with per-pattern delta tracking. The accountability layer that prompt engineering never had.",
-    color: "#f59e0b",
-    stat: "A-F grading",
-  },
-  {
-    icon: `<svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z"/></svg>`,
-    title: `Self-Referring Agents <a href="/mcp" class="inline-flex items-center gap-1 rounded-md bg-[#8b5cf6]/10 px-1.5 py-0.5 text-xs font-semibold text-[#8b5cf6] no-underline hover:bg-[#8b5cf6]/20 transition-colors">(MCP + Skill)</a>`,
-    description: "Your agents refer themselves to therapy. 6 MCP tools for autonomous self-diagnosis, plus a Claude Code skill plugin with slash commands — /holomime:diagnose, :benchmark, :brain, and more. Works in Claude Code, Cursor, Windsurf, and VS Code.",
-    color: "#8b5cf6",
-    stat: "MCP + Skill",
-  },
-  {
-    icon: `<svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/></svg>`,
-    title: "Fleet Neural Monitoring",
-    description: "Real-time 3D brain visualization for every agent. Cross-agent knowledge sharing means what works for one agent informs all others. A behavioral knowledge graph tracks interventions, outcomes, and pattern correlations across your entire fleet.",
-    color: "#06b6d4",
-    stat: "Knowledge Graph",
-  },
-  {
-    icon: `<svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>`,
-    title: "20 Personality Library",
-    description: "Browse and use pre-built personality specs from the registry. Counselor, code-reviewer, analyst, sales, recruiter — functional roles across care, strategy, creative, and action categories. Start aligned in seconds.",
-    color: "#8b5cf6",
-    stat: "20 personalities",
-  },
-  {
-    icon: `<svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"/></svg>`,
-    title: "Self-Awareness Interviews",
-    description: "8 structured probes across 4 metacognition dimensions. Score your agent's self-awareness, surface blind spots, and identify growth areas — before therapy even begins. The intake assessment no one else does.",
-    color: "#ec4899",
-    stat: "8 probes",
+    title: "Embodiment",
+    color: "var(--color-p-violet)",
+    items: [
+      { name: "5 protocol adapters", desc: "ROS2, gRPC, REST, MQTT, WebSocket" },
+      { name: "7 OEM body templates", desc: "Pre-built hardware profiles" },
+      { name: "Hot body swap", desc: "Change hardware at runtime" },
+      { name: "Motion/safety/proxemics", desc: "Embodied drift detection" },
+    ],
   },
 ];
 ---
@@ -62,38 +36,37 @@ const features = [
 <section id="features" class="py-20 md:py-28">
   <div class="mx-auto max-w-6xl px-6">
     <p class="text-center text-sm font-semibold tracking-wider uppercase text-[var(--color-p-coral)]">
-      The Full Treatment
+      Capabilities
     </p>
     <h2 class="mt-3 text-center text-3xl font-bold text-[var(--color-warm-text)] md:text-4xl">
-      Diagnosis. Therapy. Cure.<br/>
-      <span class="text-gradient-warm">The behavioral stack no one else has.</span>
+      Identity. Intelligence. Embodiment.
     </h2>
     <p class="mx-auto mt-4 max-w-xl text-center text-[var(--color-warm-muted)]">
-      Not monitoring. Not guardrails. Behavioral therapy that actually fixes your agents — and generates the training data so the fix sticks.
+      The full stack for building aligned, embodied AI agents.
     </p>
 
-    <div class="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-      {features.map((f, i) => (
-        <div class="group relative overflow-hidden rounded-2xl border border-[var(--color-warm-sand)] bg-white p-8 shadow-sm transition-all hover:shadow-md hover:border-transparent w-full"
-          style={`--hover-color: ${f.color};`}
-        >
-          <!-- Colored accent line at top -->
-          <div class="absolute top-0 left-0 right-0 h-1 opacity-0 group-hover:opacity-100 transition-opacity"
-            style={`background: ${f.color};`}></div>
-
-          <div class="flex items-start justify-between">
-            <div class="inline-flex rounded-xl p-3" style={`background: ${f.color}12; color: ${f.color};`}>
-              <Fragment set:html={f.icon} />
-            </div>
-            <span class="rounded-full px-3 py-1 text-xs font-semibold" style={`background: ${f.color}12; color: ${f.color};`}>
-              {f.stat}
-            </span>
+    <div class="mt-14 grid gap-8 md:grid-cols-3">
+      {columns.map((col) => (
+        <div class="rounded-2xl border border-[var(--color-warm-sand)] bg-white p-8 shadow-sm">
+          <!-- Column header -->
+          <div class="flex items-center gap-3 mb-6">
+            <div class="h-3 w-3 rounded-full" style={`background: ${col.color};`}></div>
+            <h3 class="text-xl font-bold text-[var(--color-warm-text)]">{col.title}</h3>
           </div>
 
-          <h3 class="mt-5 text-xl font-bold text-[var(--color-warm-text)]"><Fragment set:html={f.title} /></h3>
-          <p class="mt-3 text-sm leading-relaxed text-[var(--color-warm-muted)]">
-            {f.description}
-          </p>
+          <!-- Items -->
+          <div class="space-y-5">
+            {col.items.map((item) => (
+              <div>
+                <div class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">
+                  {item.name}
+                </div>
+                <div class="mt-0.5 text-sm text-[var(--color-warm-muted)]">
+                  {item.desc}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       ))}
     </div>

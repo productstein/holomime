@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "morphology": "humanoid",
+  "modalities": ["gesture", "gaze", "voice", "posture", "locomotion", "manipulation"],
+  "safety_envelope": {
+    "max_linear_speed_m_s": 1.2,
+    "max_angular_speed_rad_s": 1.5,
+    "min_proximity_m": 0.4,
+    "max_contact_force_n": 15,
+    "emergency_stop_decel_m_s2": 4.0
+  },
+  "hardware_profile": {
+    "oem": "asimov-inc",
+    "model": "Asimov-V1",
+    "actuator_count": 25,
+    "sensors": ["imu", "force_torque", "camera"],
+    "compute": "onboard"
+  }
+}

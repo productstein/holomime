@@ -1,0 +1,161 @@
+---
+const robots = [
+  {
+    name: "Figure 02",
+    oem: "Figure AI",
+    morphology: "humanoid",
+    dof: "44 DOF",
+    sensors: ["lidar", "stereo_camera", "force_torque"],
+    slug: "figure-02",
+  },
+  {
+    name: "Unitree H1",
+    oem: "Unitree",
+    morphology: "humanoid",
+    dof: "23 DOF",
+    sensors: ["lidar", "depth_camera", "imu"],
+    slug: "unitree-h1",
+  },
+  {
+    name: "Phoenix",
+    oem: "Sanctuary AI",
+    morphology: "humanoid",
+    dof: "69 DOF",
+    sensors: ["stereo_camera", "force_torque", "tactile"],
+    slug: "phoenix",
+  },
+  {
+    name: "Ameca",
+    oem: "Engineered Arts",
+    morphology: "humanoid_upper",
+    dof: "52 DOF",
+    sensors: ["stereo_camera", "microphone_array"],
+    slug: "ameca",
+  },
+  {
+    name: "Asimov V1",
+    oem: "Asimov Inc",
+    morphology: "humanoid",
+    dof: "25 DOF",
+    sensors: ["imu", "force_torque", "camera"],
+    slug: "asimov-v1",
+  },
+  {
+    name: "Spot",
+    oem: "Boston Dynamics",
+    morphology: "quadruped",
+    dof: "12 DOF",
+    sensors: ["lidar", "stereo_camera", "imu"],
+    slug: "spot",
+  },
+  {
+    name: "Avatar",
+    oem: "Virtual",
+    morphology: "avatar",
+    dof: null,
+    sensors: [],
+    slug: "avatar",
+  },
+];
+
+const morphologyColors: Record<string, string> = {
+  humanoid: "var(--color-p-blue)",
+  humanoid_upper: "var(--color-p-violet)",
+  quadruped: "var(--color-p-gold)",
+  avatar: "var(--color-p-sage)",
+};
+---
+
+<section id="body-templates" class="py-20 md:py-28 bg-[var(--color-warm-cream)]">
+  <div class="mx-auto max-w-6xl px-6">
+    <p class="text-center text-sm font-semibold tracking-wider uppercase text-[var(--color-p-blue)]">
+      Hardware
+    </p>
+    <h2 class="mt-3 text-center text-3xl font-bold text-[var(--color-warm-text)] md:text-4xl">
+      Body Templates
+    </h2>
+    <p class="mx-auto mt-4 max-w-xl text-center text-[var(--color-warm-muted)]">
+      Pre-built identity profiles for the world's leading humanoid platforms.
+    </p>
+
+    <!-- Robot grid -->
+    <div class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {robots.map((r) => {
+        const morphColor = morphologyColors[r.morphology] || "var(--color-warm-muted)";
+        return (
+          <div class="group rounded-xl border border-[var(--color-warm-border)] bg-white p-5 transition-all hover:shadow-md hover:border-[var(--color-warm-sand)]">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="text-base font-bold text-[var(--color-warm-text)]">{r.name}</div>
+                <div class="text-xs text-[var(--color-warm-muted)]">{r.oem}</div>
+              </div>
+              <span
+                class="rounded-full px-2.5 py-0.5 text-xs font-medium"
+                style={`background: color-mix(in srgb, ${morphColor} 12%, transparent); color: ${morphColor};`}
+              >
+                {r.morphology.replace("_", " ")}
+              </span>
+            </div>
+
+            <div class="mt-4 flex items-center gap-4 text-sm text-[var(--color-warm-muted)]">
+              <span class="font-mono font-medium text-[var(--color-warm-text)]">
+                {r.dof || "\u2014"}
+              </span>
+            </div>
+
+            {r.sensors.length > 0 && (
+              <div class="mt-2 flex flex-wrap gap-1.5">
+                {r.sensors.map((s) => (
+                  <span class="rounded bg-[var(--color-warm-cream)] px-2 py-0.5 text-xs font-mono text-[var(--color-warm-muted)]">
+                    {s}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div class="mt-4 flex items-center gap-2">
+              <code class="flex-1 truncate rounded-lg bg-[var(--color-warm-cream)] px-3 py-1.5 text-xs font-mono text-[var(--color-warm-muted)]">
+                --swap-body bodies/{r.slug}.body.api
+              </code>
+              <button
+                class="body-copy-btn shrink-0 rounded-lg p-1.5 text-[var(--color-warm-muted)] hover:bg-[var(--color-warm-cream)] hover:text-[var(--color-warm-text)] transition-colors"
+                data-copy={`--swap-body bodies/${r.slug}.body.api`}
+                aria-label={`Copy body swap command for ${r.name}`}
+              >
+                <svg class="h-4 w-4 copy-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- Bottom text -->
+    <p class="mt-8 text-center text-sm text-[var(--color-warm-muted)]">
+      Don't see your robot?
+      <a href="/docs/body-api" class="font-medium text-[var(--color-p-blue)] hover:underline underline-offset-2">
+        Create a body.api in 30 seconds.
+      </a>
+    </p>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll(".body-copy-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const text = (btn as HTMLElement).dataset.copy || "";
+      navigator.clipboard.writeText(text);
+      const icon = btn.querySelector(".copy-icon") as SVGElement;
+      if (icon) {
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>';
+        icon.style.color = "#10b981";
+        setTimeout(() => {
+          icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/>';
+          icon.style.color = "";
+        }, 2000);
+      }
+    });
+  });
+</script>
