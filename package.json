@@ -88,6 +88,7 @@
     "ora": "^9.3.0",
     "posthog-node": "^5.25.0",
     "ws": "^8.19.0",
+    "yaml": "^2.8.3",
     "zod": "^3.24.0"
   },
   "devDependencies": {

@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "morphology": "humanoid_upper",
+  "modalities": ["gesture", "gaze", "facial", "voice", "posture"],
+  "safety_envelope": {
+    "max_linear_speed_m_s": 0,
+    "max_angular_speed_rad_s": 1.2,
+    "min_proximity_m": 0.3,
+    "max_contact_force_n": 10,
+    "emergency_stop_decel_m_s2": 4.0,
+    "max_reach_m": 0.6,
+    "operating_temperature_c": [10, 35]
+  },
+  "hardware_profile": {
+    "oem": "Engineered Arts",
+    "model": "Ameca",
+    "actuator_count": 52,
+    "sensors": ["rgb_camera", "depth_camera", "imu", "microphone", "proximity"],
+    "compute": "hybrid"
+  }
+}

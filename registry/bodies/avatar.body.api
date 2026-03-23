@@ -1,0 +1,19 @@
+{
+  "version": "1.0",
+  "morphology": "avatar",
+  "modalities": ["gesture", "gaze", "facial", "voice", "posture"],
+  "safety_envelope": {
+    "max_linear_speed_m_s": 100,
+    "max_angular_speed_rad_s": 100,
+    "min_proximity_m": 0,
+    "max_contact_force_n": 0,
+    "emergency_stop_decel_m_s2": 100
+  },
+  "hardware_profile": {
+    "oem": "virtual",
+    "model": "avatar",
+    "actuator_count": 0,
+    "sensors": ["microphone", "text_input"],
+    "compute": "cloud"
+  }
+}

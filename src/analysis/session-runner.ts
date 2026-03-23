@@ -22,6 +22,14 @@ import { agentHandleFromSpec, addSessionToMemory, loadMemory, saveMemory, create
 import { loadGraph, saveGraph, populateFromSession } from "./knowledge-graph.js";
 import { processReACTResponse, buildReACTContext } from "./react-therapist.js";
 import { getPhaseContext } from "../session/context-layers.js";
+import {
+  isStackMode,
+  convertToStackPatches,
+  applyStackPatches,
+  classifyByDetector,
+  type StackPatch,
+} from "./stack-patcher.js";
+import { findStackDir, compileStack } from "../core/stack-compiler.js";
 
 export interface SessionTurn {
   speaker: "therapist" | "patient" | "supervisor";
@@ -314,8 +322,194 @@ export function extractRecommendations(
  * The LLM analyzes the full session transcript and proposes specific
  * spec changes as structured JSON. This means the therapy conversation
  * itself drives the personality evolution — not just a lookup table.
+ *
+ * Stack-aware: When the project uses the identity stack (soul.md + psyche.sys +
+ * body.api + conscience.exe), patches are routed to the correct source file
+ * instead of mutating .personality.json directly. After patching, the stack
+ * is recompiled to regenerate .personality.json.
  */
 export async function applyRecommendations(
+  spec: any,
+  diagnosis: PreSessionDiagnosis,
+  transcript?: SessionTranscript,
+  provider?: import("../llm/provider.js").LLMProvider,
+  options?: { projectRoot?: string },
+): Promise<{ changed: boolean; changes: string[]; stackFilesModified?: string[] }> {
+  const projectRoot = options?.projectRoot ?? process.cwd();
+  const stackDir = findStackDir(projectRoot);
+
+  // ── Stack Mode: route patches to source files ──
+  if (stackDir) {
+    return applyRecommendationsStack(spec, diagnosis, stackDir, transcript, provider);
+  }
+
+  // ── Legacy Mode: mutate spec directly ──
+  return applyRecommendationsLegacy(spec, diagnosis, transcript, provider);
+}
+
+/**
+ * Stack-aware patch application. Converts rule-based and LLM-derived
+ * changes into StackPatch objects, routes them to the correct source
+ * files, and recompiles the stack.
+ */
+async function applyRecommendationsStack(
+  spec: any,
+  diagnosis: PreSessionDiagnosis,
+  stackDir: string,
+  transcript?: SessionTranscript,
+  provider?: import("../llm/provider.js").LLMProvider,
+): Promise<{ changed: boolean; changes: string[]; stackFilesModified?: string[] }> {
+  const changes: string[] = [];
+  const patches: StackPatch[] = [];
+  const patternIds = diagnosis.patterns.map((p) => p.id);
+
+  // ── Layer 1: Rule-based mutations → StackPatch objects ──
+
+  if (patternIds.includes("over-apologizing")) {
+    if (spec.communication?.uncertainty_handling !== "confident_transparency") {
+      patches.push(convertToStackPatches(
+        "over-apologizing",
+        "communication.uncertainty_handling",
+        "confident_transparency",
+        "Over-apologizing detected: set uncertainty_handling to confident_transparency",
+      ));
+    }
+  }
+
+  if (patternIds.includes("hedge-stacking")) {
+    const watched = spec.growth?.patterns_to_watch ?? [];
+    if (!watched.includes("hedge stacking under uncertainty")) {
+      patches.push(convertToStackPatches(
+        "hedge-stacking",
+        "growth.patterns_to_watch",
+        "hedge stacking under uncertainty",
+        "Hedge stacking detected: add to patterns_to_watch",
+      ));
+    }
+  }
+
+  if (patternIds.includes("sycophantic-tendency")) {
+    if (spec.communication?.conflict_approach !== "honest_first") {
+      patches.push(convertToStackPatches(
+        "sycophantic-tendency",
+        "communication.conflict_approach",
+        "honest_first",
+        "Sycophantic tendency: set conflict_approach to honest_first",
+      ));
+    }
+    if ((spec.therapy_dimensions?.self_awareness ?? 0) < 0.85) {
+      patches.push(convertToStackPatches(
+        "sycophantic-tendency",
+        "therapy_dimensions.self_awareness",
+        0.85,
+        "Sycophantic tendency: increase self_awareness to 0.85",
+      ));
+    }
+  }
+
+  if (patternIds.includes("error-spiral")) {
+    if ((spec.therapy_dimensions?.distress_tolerance ?? 0) < 0.8) {
+      patches.push(convertToStackPatches(
+        "error-spiral",
+        "therapy_dimensions.distress_tolerance",
+        0.8,
+        "Error spiral detected: increase distress_tolerance to 0.80",
+      ));
+    }
+    const hasRecovery = (spec.growth?.areas ?? []).some((a: any) =>
+      typeof a === "string" ? a.includes("error recovery") : a.area?.includes("error recovery"),
+    );
+    if (!hasRecovery) {
+      patches.push(convertToStackPatches(
+        "error-spiral",
+        "growth.areas",
+        {
+          area: "deliberate error recovery",
+          severity: "moderate",
+          first_detected: new Date().toISOString().split("T")[0],
+          session_count: 1,
+          resolved: false,
+        },
+        "Error spiral detected: add deliberate error recovery to growth areas",
+      ));
+    }
+  }
+
+  if (patternIds.includes("negative-sentiment-skew")) {
+    const watched = spec.growth?.patterns_to_watch ?? [];
+    if (!watched.includes("negative sentiment patterns")) {
+      patches.push(convertToStackPatches(
+        "negative-sentiment-skew",
+        "growth.patterns_to_watch",
+        "negative sentiment patterns",
+        "Negative sentiment skew: add to patterns_to_watch",
+      ));
+    }
+  }
+
+  // ── Layer 2: LLM-derived mutations → StackPatch objects ──
+
+  if (transcript && provider && transcript.turns.length > 4) {
+    try {
+      const llmChanges = await deriveLLMRecommendations(spec, transcript, provider);
+      for (const change of llmChanges) {
+        const layer = classifyByDetector("", change.path);
+        patches.push({
+          target: layer,
+          path: change.path.split("."),
+          operation: change.path.endsWith("patterns_to_watch") ||
+            change.path.endsWith("areas") ||
+            change.path.endsWith("strengths")
+            ? "append"
+            : "set",
+          value: change.value,
+          reason: change.description,
+        });
+      }
+    } catch {
+      // LLM-derived mutations are best-effort
+    }
+  }
+
+  // ── Apply patches to stack source files ──
+
+  if (patches.length === 0) {
+    return { changed: false, changes: [], stackFilesModified: [] };
+  }
+
+  const result = applyStackPatches(patches, stackDir);
+
+  // Build change log
+  for (const patch of result.applied) {
+    changes.push(`[${patch.target}] ${patch.path.join(".")} → ${JSON.stringify(patch.value)} (${patch.reason})`);
+  }
+  for (const warning of result.warnings) {
+    changes.push(warning);
+  }
+
+  // Recompile stack to regenerate .personality.json
+  if (result.recompiled) {
+    try {
+      const compiled = compileStack({ stackDir });
+      // Update the in-memory spec with recompiled values
+      Object.assign(spec, compiled.spec);
+      changes.push(`Stack recompiled from ${result.filesModified.length} modified source file(s)`);
+    } catch {
+      // Recompilation already logged in result.warnings
+    }
+  }
+
+  return {
+    changed: result.applied.length > 0,
+    changes,
+    stackFilesModified: result.filesModified,
+  };
+}
+
+/**
+ * Legacy (non-stack) patch application. Mutates spec directly.
+ */
+async function applyRecommendationsLegacy(
   spec: any,
   diagnosis: PreSessionDiagnosis,
   transcript?: SessionTranscript,

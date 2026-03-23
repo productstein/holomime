@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "morphology": "quadruped",
+  "modalities": ["locomotion", "gaze", "voice", "posture"],
+  "safety_envelope": {
+    "max_linear_speed_m_s": 1.6,
+    "max_angular_speed_rad_s": 3.0,
+    "min_proximity_m": 0.8,
+    "max_contact_force_n": 15,
+    "emergency_stop_decel_m_s2": 6.0,
+    "operating_temperature_c": [-20, 45]
+  },
+  "hardware_profile": {
+    "oem": "Boston Dynamics",
+    "model": "Spot",
+    "actuator_count": 12,
+    "sensors": ["stereo_camera", "lidar", "imu", "proximity", "microphone"],
+    "compute": "onboard"
+  }
+}

@@ -30,6 +30,8 @@ import { interviewCommand } from "./commands/interview.js";
 import { activateCommand } from "./commands/activate.js";
 import { telemetryCommand } from "./commands/telemetry-cmd.js";
 import { embodyCommand } from "./commands/embody.js";
+import { initStackCommand } from "./commands/init-stack.js";
+import { compileStackCommand } from "./commands/compile-stack.js";
 import { voiceCommand } from "./commands/voice.js";
 import { installCommand } from "./commands/install.js";
 import { cureCommand } from "./commands/cure.js";
@@ -58,7 +60,7 @@ program
     // Track command usage (fire-and-forget)
     trackEvent("cli_command", { command: commandName });
 
-    const skipPersonalityCheck = ["init", "browse", "use", "install", "activate", "telemetry", "brain"];
+    const skipPersonalityCheck = ["init", "init-stack", "compile-stack", "browse", "use", "install", "activate", "telemetry", "brain"];
     if (!skipPersonalityCheck.includes(commandName) && !checkPersonalityExists()) {
       showWelcome();
       process.exit(0);
@@ -77,6 +79,22 @@ program
   .command("init")
   .description("Build a personality profile through a guided assessment")
   .action(initCommand);
+
+program
+  .command("init-stack")
+  .description("Create the 4-file identity stack (soul.md, psyche.sys, body.api, conscience.exe)")
+  .option("--from <path>", "Decompose an existing .personality.json into stack files")
+  .option("--dir <path>", "Output directory (default: current directory)")
+  .action(initStackCommand);
+
+program
+  .command("compile-stack")
+  .description("Compile identity stack (soul + psyche + body + conscience) into .personality.json")
+  .option("--dir <path>", "Stack directory (default: auto-detect)")
+  .option("-o, --output <path>", "Output path (default: .personality.json)")
+  .option("--validate-only", "Parse and validate without writing")
+  .option("--diff", "Show changes vs existing .personality.json")
+  .action(compileStackCommand);
 
 program
   .command("compile")
@@ -158,8 +176,10 @@ program
 program
   .command("embody")
   .description("Start an embodiment runtime — push personality to robots/avatars in real-time")
-  .requiredOption("--personality <path>", "Path to .personality.json")
+  .option("--personality <path>", "Path to .personality.json")
   .requiredOption("--adapter <adapter>", "Runtime adapter (ros2, unity, webhook)")
+  .option("--stack <dir>", "Path to identity stack directory (soul.md + psyche.sys + body.api + conscience.exe)")
+  .option("--swap-body <path>", "Hot-swap body.api into the stack directory before starting (requires --stack)")
   .option("--endpoint <url>", "WebSocket URL for ROS2 rosbridge (default: ws://localhost:9090)")
   .option("--port <port>", "Port for Unity HTTP server (default: 8765)")
   .option("--url <url>", "Webhook URL for HTTP adapter")
