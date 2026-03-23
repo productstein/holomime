@@ -79,7 +79,7 @@ const morphologyColors: Record<string, string> = {
     </p>
 
     <!-- Robot grid -->
-    <div class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    <div class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {robots.map((r) => {
         const morphColor = morphologyColors[r.morphology] || "var(--color-warm-muted)";
         return (
