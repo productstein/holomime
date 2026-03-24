@@ -1,0 +1,182 @@
+---
+/**
+ * ParticleHumanoid — Dark enterprise bridge section with Three.js rotating particle cloud humanoid.
+ */
+---
+
+<section id="humanoid" class="py-20 md:py-28 relative overflow-hidden bg-[#0a0a12]">
+  <div class="max-w-6xl mx-auto px-6 relative z-10">
+    <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
+
+      <!-- Left: Copy -->
+      <div class="flex-1 text-center lg:text-left">
+        <p class="text-sm font-semibold tracking-wider uppercase text-[var(--color-p-gold)] mb-3">
+          Enterprise
+        </p>
+        <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-white leading-[1.15] mb-4">
+          From agents to humanoids. Same soul.
+        </h2>
+        <p class="text-slate-400 leading-relaxed max-w-md mx-auto lg:mx-0 mb-8">
+          The same identity stack that aligns your chatbot drives a robot's gestures, gaze, and conscience. 7 body templates. 5 protocol adapters. When you're ready for physical AI, we're already there.
+        </p>
+
+        <div class="flex items-center gap-4 lg:justify-start justify-center">
+          <a href="/contact" class="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-p-gold)] hover:underline underline-offset-2">
+            Contact Sales
+            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Three.js particle humanoid -->
+      <div class="flex-1 flex justify-center">
+        <canvas id="humanoid-canvas" class="w-full h-[500px]" style="max-width: 500px;"></canvas>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<script>
+  const script = document.createElement('script');
+  script.src = 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.min.js';
+  script.onload = () => initHumanoid();
+  document.head.appendChild(script);
+
+  function initHumanoid() {
+    const canvas = document.getElementById('humanoid-canvas') as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const THREE = (window as any).THREE;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+    camera.position.set(0, 1, 5);
+    camera.lookAt(0, 1, 0);
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+
+    // Generate humanoid point cloud
+    const points: number[] = [];
+
+    // Helper: scatter points on sphere surface
+    function spherePoints(cx: number, cy: number, cz: number, r: number, count: number) {
+      for (let i = 0; i < count; i++) {
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const radius = r * (0.7 + Math.random() * 0.3);
+        points.push(
+          cx + radius * Math.sin(phi) * Math.cos(theta),
+          cy + radius * Math.sin(phi) * Math.sin(theta),
+          cz + radius * Math.cos(phi)
+        );
+      }
+    }
+
+    // Helper: scatter points in cylinder
+    function cylinderPoints(cx: number, cy: number, cz: number, r: number, h: number, count: number) {
+      for (let i = 0; i < count; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const radius = r * Math.sqrt(Math.random());
+        const yOff = (Math.random() - 0.5) * h;
+        points.push(
+          cx + radius * Math.cos(angle),
+          cy + yOff,
+          cz + radius * Math.sin(angle)
+        );
+      }
+    }
+
+    // Helper: scatter points in box
+    function boxPoints(cx: number, cy: number, cz: number, w: number, h: number, d: number, count: number) {
+      for (let i = 0; i < count; i++) {
+        points.push(
+          cx + (Math.random() - 0.5) * w,
+          cy + (Math.random() - 0.5) * h,
+          cz + (Math.random() - 0.5) * d
+        );
+      }
+    }
+
+    // HEAD
+    spherePoints(0, 2.05, 0, 0.22, 300);
+
+    // NECK
+    cylinderPoints(0, 1.78, 0, 0.08, 0.12, 40);
+
+    // TORSO (box shape)
+    boxPoints(0, 1.35, 0, 0.55, 0.7, 0.25, 500);
+
+    // SHOULDERS (wider box)
+    boxPoints(0, 1.65, 0, 0.7, 0.1, 0.2, 100);
+
+    // UPPER ARMS
+    cylinderPoints(-0.42, 1.4, 0, 0.07, 0.45, 120);
+    cylinderPoints(0.42, 1.4, 0, 0.07, 0.45, 120);
+
+    // FOREARMS
+    cylinderPoints(-0.45, 0.95, 0, 0.06, 0.4, 100);
+    cylinderPoints(0.45, 0.95, 0, 0.06, 0.4, 100);
+
+    // HANDS
+    spherePoints(-0.46, 0.72, 0, 0.06, 40);
+    spherePoints(0.46, 0.72, 0, 0.06, 40);
+
+    // HIPS
+    boxPoints(0, 0.95, 0, 0.45, 0.15, 0.22, 100);
+
+    // UPPER LEGS
+    cylinderPoints(-0.15, 0.6, 0, 0.09, 0.5, 150);
+    cylinderPoints(0.15, 0.6, 0, 0.09, 0.5, 150);
+
+    // LOWER LEGS
+    cylinderPoints(-0.15, 0.15, 0, 0.07, 0.4, 120);
+    cylinderPoints(0.15, 0.15, 0, 0.07, 0.4, 120);
+
+    // FEET
+    boxPoints(-0.15, -0.05, 0.03, 0.12, 0.06, 0.18, 50);
+    boxPoints(0.15, -0.05, 0.03, 0.12, 0.06, 0.18, 50);
+
+    // Create geometry
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+
+    // Material
+    const material = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 0.02,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.7,
+    });
+
+    const mesh = new THREE.Points(geometry, material);
+    scene.add(mesh);
+
+    // Add subtle fog
+    scene.fog = new THREE.Fog(0x0a0a12, 4, 8);
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      if (!prefersReducedMotion) {
+        mesh.rotation.y += 0.002;
+      }
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // Handle resize
+    window.addEventListener('resize', () => {
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+  }
+</script>

@@ -1258,12 +1258,12 @@
     lastSeenEl.textContent = 'Last seen: just now';
 
     backdrop.classList.add('open');
-    renderOverview();
-    // Reset to overview tab
+    renderPsycheTab();
+    // Default to psyche tab
     document.querySelectorAll('.ad-tab').forEach(t => t.classList.remove('active'));
-    document.querySelector('.ad-tab[data-tab="overview"]').classList.add('active');
+    document.querySelector('.ad-tab[data-tab="psyche"]').classList.add('active');
     document.querySelectorAll('.ad-tab-pane').forEach(p => p.classList.remove('active'));
-    document.getElementById('ad-tab-overview').classList.add('active');
+    document.getElementById('ad-tab-psyche').classList.add('active');
   });
 
   // ═══════════ TABS ═══════════

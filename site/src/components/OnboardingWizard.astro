@@ -54,7 +54,8 @@ const licenseKey = user.user_metadata?.license_key || "";
             </button>
 
             <!-- Humanoid Robot -->
-            <button class="use-case-card group rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-blue)] hover:shadow-md" data-use-case="build">
+            <button class="use-case-card group relative rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-blue)] hover:shadow-md" data-use-case="build">
+              <span class="absolute top-2 right-2 rounded-full bg-[var(--color-p-blue)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-p-blue)]">Enterprise</span>
               <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-blue-soft)]">
                 <svg class="h-5 w-5 text-[var(--color-p-blue)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
@@ -346,7 +347,7 @@ const licenseKey = user.user_metadata?.license_key || "";
   const progressBar = document.getElementById("onboarding-progress")!;
 
   let currentStep = 0;
-  let selectedUseCase = "";
+  let selectedUseCase = "monitor";
 
   function goToStep(step: number) {
     if (step < 0 || step >= steps.length) return;
@@ -384,6 +385,13 @@ const licenseKey = user.user_metadata?.license_key || "";
   // ── Step 1: Use case selection ──
   const useCaseCards = document.querySelectorAll<HTMLElement>(".use-case-card");
   const step1Continue = document.getElementById("step1-continue") as HTMLButtonElement;
+
+  // Pre-select AI Agent card on load
+  const defaultCard = document.querySelector<HTMLElement>('.use-case-card[data-use-case="monitor"]');
+  if (defaultCard) {
+    defaultCard.classList.add("selected");
+    step1Continue.disabled = false;
+  }
 
   useCaseCards.forEach((card) => {
     card.addEventListener("click", () => {

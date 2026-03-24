@@ -7,16 +7,6 @@ const columnIcons: Record<string, string> = {
 
 const columns = [
   {
-    title: "Identity",
-    color: "var(--color-p-coral)",
-    items: [
-      { name: "soul.md", desc: "Immutable values and ethics" },
-      { name: "psyche.sys", desc: "Big Five personality + EQ" },
-      { name: "body.api", desc: "Swap across any robot" },
-      { name: "conscience.exe", desc: "Moral enforcement" },
-    ],
-  },
-  {
     title: "Intelligence",
     color: "var(--color-p-blue)",
     items: [
@@ -24,6 +14,16 @@ const columns = [
       { name: "Adversarial benchmarking", desc: "A-F letter grades" },
       { name: "Self-improvement loop", desc: "Continuous alignment refinement" },
       { name: "DPO/RLHF export", desc: "Training data from production" },
+    ],
+  },
+  {
+    title: "Identity",
+    color: "var(--color-p-coral)",
+    items: [
+      { name: "soul.md", desc: "Immutable values and ethics" },
+      { name: "psyche.sys", desc: "Big Five personality + EQ" },
+      { name: "body.api", desc: "Swap across any robot" },
+      { name: "conscience.exe", desc: "Moral enforcement" },
     ],
   },
   {
@@ -45,7 +45,7 @@ const columns = [
       Capabilities
     </p>
     <h2 class="mt-3 text-center text-3xl font-bold text-[var(--color-warm-text)] md:text-4xl">
-      Identity. Intelligence. Embodiment.
+      Intelligence. Identity. Embodiment.
     </h2>
     <p class="mx-auto mt-4 max-w-xl text-center text-[var(--color-warm-muted)]">
       The full stack for building aligned, embodied AI agents.
