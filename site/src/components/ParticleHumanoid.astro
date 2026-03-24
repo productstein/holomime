@@ -12,10 +12,10 @@ const layers = [
 
 <section id="enterprise" class="py-16 md:py-24 border-t border-[var(--color-warm-border)]">
   <div class="mx-auto max-w-5xl px-6">
-    <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+    <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-12">
 
-      <!-- Left: Copy -->
-      <div class="flex-1 text-center lg:text-left">
+      <!-- Left: Copy (wider) -->
+      <div class="lg:w-[55%] shrink-0 text-center lg:text-left">
         <div class="inline-flex items-center gap-2 rounded-full border border-[var(--color-p-gold)]/20 bg-[var(--color-p-gold-soft)] px-3 py-1 text-xs font-semibold text-[var(--color-p-gold)] mb-4">
           Enterprise
         </div>
@@ -24,12 +24,12 @@ const layers = [
           From agents to humanoids.<br />Same soul.
         </h2>
 
-        <p class="mt-4 text-sm leading-relaxed text-[var(--color-warm-muted)] max-w-md mx-auto lg:mx-0">
+        <p class="mt-4 text-sm leading-relaxed text-[var(--color-warm-muted)] max-w-lg mx-auto lg:mx-0">
           The same identity stack that aligns your chatbot drives a robot's gestures, gaze, and conscience. 7 body templates. 5 protocol adapters.
         </p>
 
         <!-- Identity layer legend -->
-        <div class="mt-6 grid grid-cols-2 gap-2 max-w-sm mx-auto lg:mx-0">
+        <div class="mt-6 grid grid-cols-2 gap-x-6 gap-y-2 max-w-md mx-auto lg:mx-0">
           {layers.map((l) => (
             <div class="flex items-center gap-2">
               <div class="h-2.5 w-2.5 rounded-full shrink-0" style={`background: ${l.color};`}></div>
