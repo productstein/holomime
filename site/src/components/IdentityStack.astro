@@ -34,55 +34,134 @@ const cards = [
   },
 ];
 
-// Dot-matrix humanoid figure — ~75 dots
-// Coordinates are [x, y, color, hasPulse, pulseDelay]
-// Colors: coral (head), gold (neck/arms/legs), blue (torso), violet (shield)
-const headDots = [
-  [88,8],[100,4],[112,8],[84,18],[96,14],[108,14],[116,18],[84,28],[96,24],[108,24],[116,28],[100,32]
-];
-const neckDots = [
-  [100,42],[100,52],[100,62]
-];
-const torsoDots = [
-  [76,72],[88,72],[100,72],[112,72],[124,72],
-  [76,84],[88,84],[100,84],[112,84],[124,84],
-  [76,96],[88,96],[100,96],[112,96],[124,96],
-  [76,108],[88,108],[100,108],[112,108],[124,108],
-];
-const leftArmDots = [
-  [68,76],[58,86],[48,96],[40,108],[34,120],[30,132],[28,144],[26,156]
-];
-const rightArmDots = [
-  [132,76],[142,86],[152,96],[160,108],[166,120],[170,132],[172,144],[174,156]
-];
-const leftLegDots = [
-  [88,122],[84,136],[80,150],[76,164],[74,178],[72,192],[70,206],[68,220],[66,234],[64,248]
-];
-const rightLegDots = [
-  [112,122],[116,136],[120,150],[124,164],[126,178],[128,192],[130,206],[132,220],[134,234],[136,248]
-];
-
-// Shield dots — large dashed circle around figure
-const shieldDots: [number, number][] = [];
-for (let i = 0; i < 16; i++) {
-  const angle = (i / 16) * Math.PI * 2 - Math.PI / 2;
-  const cx = 100 + Math.cos(angle) * 90;
-  const cy = 140 + Math.sin(angle) * 130;
-  shieldDots.push([Math.round(cx), Math.round(cy)]);
+// Dense particle cloud humanoid — ~450 dots
+// Monochrome with varying opacity and size for depth
+// Seeded pseudo-random for consistent rendering
+function seededRandom(seed: number) {
+  let s = seed;
+  return () => { s = (s * 16807 + 0) % 2147483647; return s / 2147483647; };
 }
 
-type Dot = { x: number; y: number; color: string; glow: string; pulse: boolean; delay: string };
+type CloudDot = { cx: number; cy: number; r: number; opacity: number; pulse: boolean; delay: string };
 
-const allDots: Dot[] = [
-  ...headDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-coral)', glow: 'rgba(249,112,102,0.5)', pulse: i % 4 === 0, delay: `${i * 0.3}s` })),
-  ...neckDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-gold)', glow: 'rgba(245,158,11,0.4)', pulse: false, delay: '0s' })),
-  ...torsoDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-blue)', glow: 'rgba(59,130,246,0.5)', pulse: i % 5 === 0, delay: `${i * 0.2}s` })),
-  ...leftArmDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-gold)', glow: 'rgba(245,158,11,0.4)', pulse: i % 4 === 1, delay: `${i * 0.25}s` })),
-  ...rightArmDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-gold)', glow: 'rgba(245,158,11,0.4)', pulse: i % 4 === 2, delay: `${i * 0.25}s` })),
-  ...leftLegDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-gold)', glow: 'rgba(245,158,11,0.4)', pulse: i % 5 === 0, delay: `${i * 0.2}s` })),
-  ...rightLegDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-gold)', glow: 'rgba(245,158,11,0.4)', pulse: i % 5 === 2, delay: `${i * 0.2}s` })),
-  ...shieldDots.map(([x, y], i) => ({ x, y, color: 'var(--color-p-violet)', glow: 'rgba(139,92,246,0.3)', pulse: i % 3 === 0, delay: `${i * 0.4}s` })),
-];
+const dots: CloudDot[] = [];
+const rng = seededRandom(42);
+
+// Helper: scatter dots along a path with density control
+function scatterLine(x1: number, y1: number, x2: number, y2: number, count: number, spread: number) {
+  for (let i = 0; i < count; i++) {
+    const t = i / (count - 1);
+    const cx = x1 + (x2 - x1) * t + (rng() - 0.5) * spread;
+    const cy = y1 + (y2 - y1) * t + (rng() - 0.5) * spread;
+    const r = 0.6 + rng() * 1.4;
+    const opacity = 0.2 + rng() * 0.5;
+    dots.push({ cx: Math.round(cx * 10) / 10, cy: Math.round(cy * 10) / 10, r: Math.round(r * 10) / 10, opacity: Math.round(opacity * 100) / 100, pulse: false, delay: '0s' });
+  }
+}
+
+// Helper: fill an ellipse region with scattered dots
+function fillEllipse(cx: number, cy: number, rx: number, ry: number, count: number) {
+  for (let i = 0; i < count; i++) {
+    const angle = rng() * Math.PI * 2;
+    const dist = Math.sqrt(rng());
+    const x = cx + Math.cos(angle) * rx * dist;
+    const y = cy + Math.sin(angle) * ry * dist;
+    const edgeDist = dist;
+    const r = 0.5 + rng() * 1.2;
+    const opacity = edgeDist > 0.7 ? 0.35 + rng() * 0.35 : 0.15 + rng() * 0.25;
+    dots.push({ cx: Math.round(x * 10) / 10, cy: Math.round(y * 10) / 10, r: Math.round(r * 10) / 10, opacity: Math.round(opacity * 100) / 100, pulse: false, delay: '0s' });
+  }
+}
+
+// Helper: outline an ellipse
+function outlineEllipse(cx: number, cy: number, rx: number, ry: number, count: number) {
+  for (let i = 0; i < count; i++) {
+    const angle = (i / count) * Math.PI * 2;
+    const x = cx + Math.cos(angle) * rx + (rng() - 0.5) * 2;
+    const y = cy + Math.sin(angle) * ry + (rng() - 0.5) * 2;
+    const r = 0.7 + rng() * 1.0;
+    dots.push({ cx: Math.round(x * 10) / 10, cy: Math.round(y * 10) / 10, r: Math.round(r * 10) / 10, opacity: 0.4 + rng() * 0.3, pulse: false, delay: '0s' });
+  }
+}
+
+// HEAD — oval, detailed
+outlineEllipse(100, 32, 22, 28, 30);
+fillEllipse(100, 32, 18, 24, 25);
+// Eyes
+fillEllipse(90, 28, 4, 3, 6);
+fillEllipse(110, 28, 4, 3, 6);
+
+// NECK
+scatterLine(100, 58, 100, 72, 8, 6);
+scatterLine(94, 60, 94, 70, 5, 3);
+scatterLine(106, 60, 106, 70, 5, 3);
+
+// SHOULDERS
+scatterLine(72, 78, 100, 74, 18, 4);
+scatterLine(100, 74, 128, 78, 18, 4);
+// Shoulder joints
+outlineEllipse(68, 80, 8, 8, 12);
+outlineEllipse(132, 80, 8, 8, 12);
+
+// TORSO — rectangular with panel detail
+outlineEllipse(100, 108, 30, 36, 40);
+fillEllipse(100, 108, 26, 32, 35);
+// Chest plates (panel lines)
+scatterLine(78, 85, 100, 82, 10, 2);
+scatterLine(100, 82, 122, 85, 10, 2);
+scatterLine(78, 100, 122, 100, 12, 2);
+// Center line
+scatterLine(100, 78, 100, 140, 15, 1.5);
+
+// UPPER ARMS
+scatterLine(60, 84, 46, 130, 18, 5);
+scatterLine(140, 84, 154, 130, 18, 5);
+
+// ELBOWS
+outlineEllipse(44, 132, 6, 6, 10);
+outlineEllipse(156, 132, 6, 6, 10);
+
+// FOREARMS
+scatterLine(42, 138, 36, 180, 16, 4);
+scatterLine(158, 138, 164, 180, 16, 4);
+
+// HANDS
+fillEllipse(34, 184, 6, 8, 10);
+fillEllipse(166, 184, 6, 8, 10);
+
+// HIP / WAIST
+scatterLine(80, 142, 120, 142, 14, 3);
+outlineEllipse(100, 148, 22, 8, 16);
+
+// HIP JOINTS
+outlineEllipse(84, 154, 7, 7, 10);
+outlineEllipse(116, 154, 7, 7, 10);
+
+// UPPER LEGS
+scatterLine(82, 160, 78, 220, 22, 5);
+scatterLine(118, 160, 122, 220, 22, 5);
+
+// KNEES
+outlineEllipse(76, 224, 7, 7, 12);
+outlineEllipse(124, 224, 7, 7, 12);
+
+// LOWER LEGS
+scatterLine(74, 232, 72, 290, 20, 4);
+scatterLine(126, 232, 128, 290, 20, 4);
+
+// FEET
+fillEllipse(68, 296, 10, 5, 8);
+fillEllipse(132, 296, 10, 5, 8);
+
+// Add subtle pulse to ~20 random dots
+let pulseCount = 0;
+for (let i = 0; i < dots.length && pulseCount < 20; i++) {
+  if (rng() < 0.05) {
+    dots[i].pulse = true;
+    dots[i].delay = `${(pulseCount * 0.35).toFixed(1)}s`;
+    pulseCount++;
+  }
+}
 ---
 
 <section id="identity-stack" class="py-20 md:py-28">
@@ -118,34 +197,39 @@ const allDots: Dot[] = [
         ))}
       </div>
 
-      <!-- Right: Dot-matrix humanoid (desktop only) -->
-      <div class="hidden lg:flex flex-col items-center justify-center w-64 shrink-0">
-        <div class="dot-humanoid relative" style="width: 200px; height: 280px;">
-          {allDots.map((d) => (
-            <div
-              class={`dot-point ${d.pulse ? 'dot-pulse-anim' : ''}`}
-              style={`left: ${d.x}px; top: ${d.y}px; background: ${d.color}; box-shadow: 0 0 6px 2px ${d.glow}; ${d.pulse ? `animation-delay: ${d.delay};` : ''} ${d.color.includes('violet') ? 'opacity: 0.45;' : ''}`}
+      <!-- Right: Dense particle cloud humanoid (desktop only) -->
+      <div class="hidden lg:flex flex-col items-center justify-center w-72 shrink-0">
+        <svg viewBox="0 0 200 310" class="w-56 h-auto" xmlns="http://www.w3.org/2000/svg">
+          {dots.map((d) => (
+            <circle
+              cx={d.cx}
+              cy={d.cy}
+              r={d.r}
+              fill="var(--color-warm-text)"
+              opacity={d.opacity}
+              class={d.pulse ? 'cloud-pulse' : ''}
+              style={d.pulse ? `animation-delay: ${d.delay};` : ''}
             />
           ))}
-        </div>
+        </svg>
 
-        <!-- Labels -->
-        <div class="mt-6 space-y-2 text-center">
-          <div class="flex items-center justify-center gap-2 text-xs">
+        <!-- Identity legend -->
+        <div class="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-2">
+          <div class="flex items-center gap-1.5 text-xs">
             <span class="h-2 w-2 rounded-full" style="background: var(--color-p-coral);"></span>
-            <span class="text-[var(--color-warm-muted)]">soul — brain</span>
+            <span class="text-[var(--color-warm-muted)]">soul</span>
           </div>
-          <div class="flex items-center justify-center gap-2 text-xs">
+          <div class="flex items-center gap-1.5 text-xs">
             <span class="h-2 w-2 rounded-full" style="background: var(--color-p-blue);"></span>
-            <span class="text-[var(--color-warm-muted)]">psyche — heart</span>
+            <span class="text-[var(--color-warm-muted)]">psyche</span>
           </div>
-          <div class="flex items-center justify-center gap-2 text-xs">
+          <div class="flex items-center gap-1.5 text-xs">
             <span class="h-2 w-2 rounded-full" style="background: var(--color-p-gold);"></span>
-            <span class="text-[var(--color-warm-muted)]">body — form</span>
+            <span class="text-[var(--color-warm-muted)]">body</span>
           </div>
-          <div class="flex items-center justify-center gap-2 text-xs">
+          <div class="flex items-center gap-1.5 text-xs">
             <span class="h-2 w-2 rounded-full" style="background: var(--color-p-violet);"></span>
-            <span class="text-[var(--color-warm-muted)]">conscience — shield</span>
+            <span class="text-[var(--color-warm-muted)]">conscience</span>
           </div>
         </div>
       </div>
@@ -165,18 +249,16 @@ const allDots: Dot[] = [
 </section>
 
 <style>
-  .dot-point {
-    position: absolute;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
+  .cloud-pulse {
+    animation: cloudPulse 3.5s ease-in-out infinite;
   }
 
-  .dot-pulse-anim {
-    animation: dotPulse 3s ease-in-out infinite;
+  @keyframes cloudPulse {
+    0%, 100% { opacity: 0.2; }
+    50% { opacity: 0.7; }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .dot-pulse-anim { animation: none !important; }
+    .cloud-pulse { animation: none !important; }
   }
 </style>
