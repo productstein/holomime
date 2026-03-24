@@ -1,15 +1,13 @@
 ---
-const personalities = [
-  { label: "Empathetic", emoji: "heart", color: "#f97066", x: "8%", y: "18%", delay: "0s" },
-  { label: "Analytical", emoji: "brain", color: "#3b82f6", x: "85%", y: "22%", delay: "1s" },
-  { label: "Creative", emoji: "sparkle", color: "#8b5cf6", x: "5%", y: "65%", delay: "2.5s" },
-  { label: "Bold", emoji: "fire", color: "#f59e0b", x: "88%", y: "60%", delay: "1.5s" },
-  { label: "Calm", emoji: "leaf", color: "#22c55e", x: "15%", y: "42%", delay: "3s" },
-  { label: "Resilient", emoji: "shield", color: "#14b8a6", x: "82%", y: "42%", delay: "0.5s" },
+const stackFiles = [
+  { label: "soul.md", color: "#f97066", x: "6%", y: "22%", delay: "0s" },
+  { label: "psyche.sys", color: "#3b82f6", x: "88%", y: "18%", delay: "1.2s" },
+  { label: "body.api", color: "#f59e0b", x: "4%", y: "62%", delay: "2.4s" },
+  { label: "conscience.exe", color: "#8b5cf6", x: "84%", y: "58%", delay: "0.6s" },
 ];
 ---
 
-<section class="relative overflow-hidden pt-32 pb-20 md:pt-44 md:pb-32">
+<section class="relative overflow-hidden pt-32 pb-20 md:pt-44 md:pb-28">
   <!-- Dot grid texture -->
   <div class="pointer-events-none absolute inset-0 bg-dot-grid opacity-[0.35]"></div>
 
@@ -17,33 +15,26 @@ const personalities = [
   <div class="pointer-events-none absolute inset-0 overflow-hidden">
     <div class="absolute top-0 left-1/2 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/4 rounded-full opacity-[0.12] blur-[140px]"
       style="background: radial-gradient(circle, #f97066, #8b5cf6, #06b6d4)"></div>
-    <div class="absolute bottom-0 left-1/4 h-80 w-80 rounded-full bg-[var(--color-p-gold)] opacity-[0.08] blur-[100px]"></div>
   </div>
 
-  <!-- Floating personality bubbles -->
-  {personalities.map((p) => (
+  <!-- Floating identity stack file labels (desktop only) -->
+  {stackFiles.map((f) => (
     <div
       class="pointer-events-none absolute hidden lg:block animate-float"
-      style={`left: ${p.x}; top: ${p.y}; animation-delay: ${p.delay}; animation-duration: ${6 + Math.random() * 3}s;`}
+      style={`left: ${f.x}; top: ${f.y}; animation-delay: ${f.delay}; animation-duration: 7s;`}
     >
-      <div
-        class="flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium shadow-lg"
-        style={`background: ${p.color}12; border: 1px solid ${p.color}25; color: ${p.color}; box-shadow: 0 4px 20px -4px ${p.color}40;`}
+      <span
+        class="font-mono text-xs font-medium opacity-40"
+        style={`color: ${f.color};`}
       >
-        {p.label}
-      </div>
+        {f.label}
+      </span>
     </div>
   ))}
 
-  <div class="relative mx-auto max-w-6xl px-6 text-center">
-    <!-- Badge -->
-    <div class="mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--color-p-violet)]/20 bg-[var(--color-p-violet-soft)] px-4 py-1.5 text-sm">
-      <span class="h-2 w-2 rounded-full bg-[var(--color-p-violet)] animate-pulse"></span>
-      <span class="text-[var(--color-p-violet)] font-medium">Open source &middot; MIT Licensed</span>
-    </div>
-
+  <div class="relative mx-auto max-w-4xl px-6 text-center">
     <!-- Headline -->
-    <h1 class="mx-auto max-w-5xl text-4xl font-extrabold leading-[1.1] tracking-tight text-[var(--color-warm-text)] md:text-6xl lg:text-7xl">
+    <h1 class="text-4xl font-extrabold leading-[1.1] tracking-tight text-[var(--color-warm-text)] md:text-6xl lg:text-7xl">
       Your agent has a personality.<br class="hidden sm:block" />
       Your robot has a body.
       <span class="text-gradient-warm">We give them a soul.</span>
@@ -54,13 +45,8 @@ const personalities = [
       The identity stack for embodied AI. Four files. Any body. One conscience.
     </p>
 
-    <!-- Thesis -->
-    <p class="mx-auto mt-6 text-sm font-semibold tracking-wide text-[var(--color-p-coral)]">
-      29 humanoid OEMs. Zero identity layers. <a href="/blog/identity-stack-humanoid-robots" class="underline underline-offset-2 hover:text-[var(--color-p-violet)] transition-colors">Read the thesis &rarr;</a>
-    </p>
-
     <!-- Stats bar -->
-    <div class="mx-auto mt-4 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-semibold text-[var(--color-warm-muted)]">
+    <div class="mx-auto mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm font-semibold text-[var(--color-warm-muted)]">
       <span>7 Body Templates</span>
       <span class="hidden sm:inline text-[var(--color-warm-border)]">&middot;</span>
       <span>5 Adapters</span>
@@ -70,24 +56,34 @@ const personalities = [
       <span>29+ Compatible OEMs</span>
     </div>
 
+    <!-- CTAs -->
+    <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+      <a href="/docs" class="btn-press inline-flex items-center gap-2 rounded-xl px-8 py-3.5 text-base font-semibold text-white shadow-lg"
+        style="background: linear-gradient(135deg, var(--color-p-coral), #e85d54);">
+        Get Started
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+      </a>
+      <a href="#body-templates" class="btn-press inline-flex items-center gap-2 rounded-xl border border-[var(--color-warm-border)] px-8 py-3.5 text-base font-semibold text-[var(--color-warm-text)] hover:bg-[var(--color-warm-cream)] transition-colors">
+        See Body Templates
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"/></svg>
+      </a>
+    </div>
+
     <!-- Terminal demo -->
     <div class="mx-auto mt-12 max-w-xl">
       <div class="rounded-2xl bg-[var(--color-holo-dark)] p-6 shadow-2xl shadow-black/20 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-        <!-- Terminal header -->
         <div class="flex items-center gap-2 mb-4">
           <div class="h-3 w-3 rounded-full bg-[#ff5f57]"></div>
           <div class="h-3 w-3 rounded-full bg-[#febc2e]"></div>
           <div class="h-3 w-3 rounded-full bg-[#28c840]"></div>
           <span class="ml-2 text-xs text-[var(--color-holo-muted)] font-mono">terminal</span>
         </div>
-        <!-- Command -->
         <div class="flex items-center gap-2">
           <span class="text-[var(--color-holo-muted)] font-mono text-sm select-none">$</span>
-          <code class="font-mono text-sm text-emerald-400" id="hero-command">npx holomime init-stack</code>
+          <code class="font-mono text-sm text-emerald-400">npx holomime init-stack</code>
           <span class="cursor-blink text-emerald-400 font-mono">|</span>
         </div>
-        <!-- Output (animated) -->
-        <div class="mt-4 space-y-1 font-mono text-sm" id="hero-output">
+        <div class="mt-4 space-y-1 font-mono text-sm">
           <div class="hero-line text-emerald-400" style="animation-delay: 0.8s">
             &#10004; Created 3 identity stack files:
           </div>
@@ -105,19 +101,6 @@ const personalities = [
           </div>
         </div>
       </div>
-    </div>
-
-    <!-- CTAs -->
-    <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-      <a href="/docs" class="btn-press inline-flex items-center gap-2 rounded-xl px-8 py-3.5 text-base font-semibold text-white shadow-lg"
-        style="background: linear-gradient(135deg, var(--color-p-coral), #e85d54);">
-        Get Started
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-      </a>
-      <a href="#body-templates" class="btn-press inline-flex items-center gap-2 rounded-xl border border-[var(--color-warm-border)] px-8 py-3.5 text-base font-semibold text-[var(--color-warm-text)] hover:bg-[var(--color-warm-cream)] transition-colors">
-        See Body Templates
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"/></svg>
-      </a>
     </div>
   </div>
 </section>
