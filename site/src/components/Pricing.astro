@@ -1,10 +1,10 @@
 ---
 const tiers = [
   {
-    name: "Open Source",
-    price: "Free",
+    name: "Free",
+    price: "$0",
     period: "forever",
-    description: "Everything you need to align one agent.",
+    description: "Everything you need to align one agent. Open source · MIT licensed.",
     cta: "Install",
     ctaAction: "install",
     highlighted: false,
@@ -31,7 +31,7 @@ const tiers = [
     color: "#8b5cf6",
     visibleCount: 5,
     features: [
-      "Everything in Open Source",
+      "Everything in Free",
       "Therapy sessions (LLM-driven correction)",
       "Self-training daemon (autonomous practice)",
       "DPO/RLHF training export",
@@ -83,7 +83,7 @@ const tiers = [
             tier.highlighted
               ? "bg-white"
               : "bg-white border-2 border-[var(--color-warm-border)]",
-            tier.name === "Open Source" ? "pricing-card-oss" : "",
+            tier.name === "Free" ? "pricing-card-oss" : "",
             tier.name === "Enterprise" ? "pricing-card-enterprise" : "",
           ]}
         >
