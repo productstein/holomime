@@ -80,188 +80,144 @@ const layers = [
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
 
-    var pts = [];
+    // 4 color arrays: soul (coral/head), psyche (blue/torso), body (gold/limbs), conscience (violet/shield)
+    var soul = [], psyche = [], body = [], conscience = [];
 
-    // Surface scatter on sphere
-    function sph(cx, cy, cz, r, n) {
+    // Helpers — push to a target array
+    function sph(arr, cx, cy, cz, r, n) {
       for (var i = 0; i < n; i++) {
         var u = Math.random(), v = Math.random();
-        var theta = 2 * Math.PI * u;
-        var phi = Math.acos(2 * v - 1);
+        var theta = 2 * Math.PI * u, phi = Math.acos(2 * v - 1);
         var rr = r * (0.92 + Math.random() * 0.08);
-        pts.push(cx + rr * Math.sin(phi) * Math.cos(theta), cy + rr * Math.cos(phi), cz + rr * Math.sin(phi) * Math.sin(theta));
+        arr.push(cx + rr * Math.sin(phi) * Math.cos(theta), cy + rr * Math.cos(phi), cz + rr * Math.sin(phi) * Math.sin(theta));
       }
     }
-
-    // Surface scatter on cylinder
-    function cylS(cx, cy, cz, r, ht, n) {
+    function cylS(arr, cx, cy, cz, r, ht, n) {
       for (var i = 0; i < n; i++) {
-        var a = Math.random() * Math.PI * 2;
-        var rr = r * (0.9 + Math.random() * 0.1);
-        pts.push(cx + rr * Math.cos(a), cy + (Math.random() - 0.5) * ht, cz + rr * Math.sin(a));
+        var a = Math.random() * Math.PI * 2, rr = r * (0.9 + Math.random() * 0.1);
+        arr.push(cx + rr * Math.cos(a), cy + (Math.random() - 0.5) * ht, cz + rr * Math.sin(a));
       }
     }
-
-    // Ring of dots (for joints, panel lines)
-    function ring(cx, cy, cz, r, n) {
+    function ring(arr, cx, cy, cz, r, n) {
       for (var i = 0; i < n; i++) {
-        var a = (i / n) * Math.PI * 2 + Math.random() * 0.1;
-        var rr = r * (0.95 + Math.random() * 0.1);
-        pts.push(cx + rr * Math.cos(a), cy + (Math.random() - 0.5) * 0.01, cz + rr * Math.sin(a));
+        var a = (i / n) * Math.PI * 2 + Math.random() * 0.1, rr = r * (0.95 + Math.random() * 0.1);
+        arr.push(cx + rr * Math.cos(a), cy + (Math.random() - 0.5) * 0.01, cz + rr * Math.sin(a));
       }
     }
-
-    // Filled disc (for flat surfaces)
-    function disc(cx, cy, cz, r, n) {
+    function boxS(arr, cx, cy, cz, bw, bh, bd, n) {
       for (var i = 0; i < n; i++) {
-        var a = Math.random() * Math.PI * 2;
-        var rr = r * Math.sqrt(Math.random());
-        pts.push(cx + rr * Math.cos(a), cy, cz + rr * Math.sin(a));
+        var face = Math.floor(Math.random() * 6), u = Math.random() - 0.5, v = Math.random() - 0.5;
+        if (face === 0) arr.push(cx + bw/2, cy + u*bh, cz + v*bd);
+        else if (face === 1) arr.push(cx - bw/2, cy + u*bh, cz + v*bd);
+        else if (face === 2) arr.push(cx + u*bw, cy + bh/2, cz + v*bd);
+        else if (face === 3) arr.push(cx + u*bw, cy - bh/2, cz + v*bd);
+        else if (face === 4) arr.push(cx + u*bw, cy + v*bh, cz + bd/2);
+        else arr.push(cx + u*bw, cy + v*bh, cz - bd/2);
       }
     }
 
-    // Box surface scatter
-    function boxS(cx, cy, cz, bw, bh, bd, n) {
-      for (var i = 0; i < n; i++) {
-        var face = Math.floor(Math.random() * 6);
-        var u = Math.random() - 0.5, v = Math.random() - 0.5;
-        if (face === 0) pts.push(cx + bw/2, cy + u*bh, cz + v*bd);
-        else if (face === 1) pts.push(cx - bw/2, cy + u*bh, cz + v*bd);
-        else if (face === 2) pts.push(cx + u*bw, cy + bh/2, cz + v*bd);
-        else if (face === 3) pts.push(cx + u*bw, cy - bh/2, cz + v*bd);
-        else if (face === 4) pts.push(cx + u*bw, cy + v*bh, cz + bd/2);
-        else pts.push(cx + u*bw, cy + v*bh, cz - bd/2);
-      }
+    // === SOUL (coral) — HEAD ===
+    sph(soul, 0, 2.15, 0, 0.20, 600);
+    ring(soul, 0, 2.15, 0, 0.21, 40);
+    sph(soul, -0.07, 2.18, 0.16, 0.035, 60);
+    sph(soul, 0.07, 2.18, 0.16, 0.035, 60);
+    sph(soul, 0, 2.02, 0.08, 0.06, 40);
+
+    // === PSYCHE (blue) — NECK, SHOULDERS, TORSO ===
+    cylS(psyche, 0, 1.90, 0, 0.065, 0.10, 120);
+    ring(psyche, 0, 1.95, 0, 0.07, 30);
+    ring(psyche, 0, 1.85, 0, 0.07, 30);
+    sph(psyche, -0.32, 1.78, 0, 0.08, 150);
+    sph(psyche, 0.32, 1.78, 0, 0.08, 150);
+    cylS(psyche, 0, 1.78, 0, 0.04, 0.02, 60);
+    boxS(psyche, -0.15, 1.78, 0, 0.30, 0.04, 0.08, 80);
+    boxS(psyche, 0.15, 1.78, 0, 0.30, 0.04, 0.08, 80);
+    boxS(psyche, 0, 1.58, 0, 0.42, 0.30, 0.20, 500);
+    boxS(psyche, 0, 1.30, 0, 0.36, 0.26, 0.18, 400);
+    cylS(psyche, 0, 1.44, 0.10, 0.01, 0.50, 60);
+    ring(psyche, 0, 1.65, 0, 0.18, 30);
+    ring(psyche, 0, 1.50, 0, 0.16, 30);
+    ring(psyche, 0, 1.35, 0, 0.14, 25);
+    cylS(psyche, -0.20, 1.50, 0.08, 0.03, 0.20, 40);
+    cylS(psyche, 0.20, 1.50, 0.08, 0.03, 0.20, 40);
+
+    // === BODY (gold) — ARMS, HANDS, HIPS, LEGS, FEET ===
+    cylS(body, -0.38, 1.58, 0, 0.055, 0.35, 200);
+    cylS(body, 0.38, 1.58, 0, 0.055, 0.35, 200);
+    ring(body, -0.38, 1.65, 0, 0.06, 25);
+    ring(body, 0.38, 1.65, 0, 0.06, 25);
+    ring(body, -0.38, 1.50, 0, 0.06, 25);
+    ring(body, 0.38, 1.50, 0, 0.06, 25);
+    sph(body, -0.40, 1.38, 0, 0.055, 120);
+    sph(body, 0.40, 1.38, 0, 0.055, 120);
+    ring(body, -0.40, 1.38, 0, 0.06, 30);
+    ring(body, 0.40, 1.38, 0, 0.06, 30);
+    cylS(body, -0.42, 1.18, 0, 0.045, 0.35, 180);
+    cylS(body, 0.42, 1.18, 0, 0.045, 0.35, 180);
+    ring(body, -0.42, 1.25, 0, 0.05, 20);
+    ring(body, 0.42, 1.25, 0, 0.05, 20);
+    ring(body, -0.42, 1.10, 0, 0.05, 20);
+    ring(body, 0.42, 1.10, 0, 0.05, 20);
+    boxS(body, -0.43, 0.96, 0, 0.06, 0.10, 0.04, 80);
+    boxS(body, 0.43, 0.96, 0, 0.06, 0.10, 0.04, 80);
+    cylS(body, -0.44, 0.88, 0, 0.01, 0.06, 20);
+    cylS(body, -0.42, 0.88, 0, 0.01, 0.06, 20);
+    cylS(body, -0.46, 0.88, 0, 0.01, 0.06, 20);
+    cylS(body, 0.44, 0.88, 0, 0.01, 0.06, 20);
+    cylS(body, 0.42, 0.88, 0, 0.01, 0.06, 20);
+    cylS(body, 0.46, 0.88, 0, 0.01, 0.06, 20);
+    boxS(body, 0, 1.14, 0, 0.32, 0.08, 0.16, 200);
+    ring(body, 0, 1.18, 0, 0.15, 30);
+    ring(body, 0, 1.10, 0, 0.14, 30);
+    sph(body, -0.12, 1.08, 0, 0.06, 100);
+    sph(body, 0.12, 1.08, 0, 0.06, 100);
+    cylS(body, -0.13, 0.85, 0, 0.07, 0.40, 250);
+    cylS(body, 0.13, 0.85, 0, 0.07, 0.40, 250);
+    ring(body, -0.13, 0.95, 0, 0.075, 25);
+    ring(body, 0.13, 0.95, 0, 0.075, 25);
+    ring(body, -0.13, 0.80, 0, 0.075, 25);
+    ring(body, 0.13, 0.80, 0, 0.075, 25);
+    sph(body, -0.13, 0.62, 0, 0.065, 140);
+    sph(body, 0.13, 0.62, 0, 0.065, 140);
+    ring(body, -0.13, 0.62, 0, 0.07, 30);
+    ring(body, 0.13, 0.62, 0, 0.07, 30);
+    cylS(body, -0.13, 0.40, 0, 0.055, 0.38, 220);
+    cylS(body, 0.13, 0.40, 0, 0.055, 0.38, 220);
+    ring(body, -0.13, 0.50, 0, 0.06, 25);
+    ring(body, 0.13, 0.50, 0, 0.06, 25);
+    ring(body, -0.13, 0.32, 0, 0.06, 25);
+    ring(body, 0.13, 0.32, 0, 0.06, 25);
+    boxS(body, -0.13, 0.17, 0.03, 0.10, 0.05, 0.16, 120);
+    boxS(body, 0.13, 0.17, 0.03, 0.10, 0.05, 0.16, 120);
+    boxS(body, -0.13, 0.16, 0.10, 0.08, 0.03, 0.04, 30);
+    boxS(body, 0.13, 0.16, 0.10, 0.08, 0.03, 0.04, 30);
+
+    // === CONSCIENCE (violet) — outer shield ring ===
+    for (var i = 0; i < 300; i++) {
+      var angle = Math.random() * Math.PI * 2;
+      var radius = 0.85 + Math.random() * 0.1;
+      var yy = 0.4 + Math.random() * 1.7;
+      conscience.push(Math.cos(angle) * radius, yy, Math.sin(angle) * radius);
     }
 
-    // === HEAD ===
-    sph(0, 2.15, 0, 0.20, 600);
-    // Face plate detail
-    ring(0, 2.15, 0, 0.21, 40);
-    // Eye sockets
-    sph(-0.07, 2.18, 0.16, 0.035, 60);
-    sph(0.07, 2.18, 0.16, 0.035, 60);
-    // Chin
-    sph(0, 2.02, 0.08, 0.06, 40);
+    // Build 4 meshes in a group
+    function makeMesh(arr, color, size, opacity) {
+      var geo = new T.BufferGeometry();
+      geo.setAttribute('position', new T.Float32BufferAttribute(arr, 3));
+      var mat = new T.PointsMaterial({ color: color, size: size, sizeAttenuation: true, transparent: true, opacity: opacity });
+      return new T.Points(geo, mat);
+    }
 
-    // === NECK ===
-    cylS(0, 1.90, 0, 0.065, 0.10, 120);
-    ring(0, 1.95, 0, 0.07, 30);
-    ring(0, 1.85, 0, 0.07, 30);
-
-    // === SHOULDERS ===
-    // Shoulder caps
-    sph(-0.32, 1.78, 0, 0.08, 150);
-    sph(0.32, 1.78, 0, 0.08, 150);
-    // Shoulder bar
-    cylS(0, 1.78, 0, 0.04, 0.02, 60);
-    boxS(-0.15, 1.78, 0, 0.30, 0.04, 0.08, 80);
-    boxS(0.15, 1.78, 0, 0.30, 0.04, 0.08, 80);
-
-    // === TORSO ===
-    // Upper chest plates
-    boxS(0, 1.58, 0, 0.42, 0.30, 0.20, 500);
-    // Lower torso
-    boxS(0, 1.30, 0, 0.36, 0.26, 0.18, 400);
-    // Center line detail
-    cylS(0, 1.44, 0.10, 0.01, 0.50, 60);
-    // Chest panel lines
-    ring(0, 1.65, 0, 0.18, 30);
-    ring(0, 1.50, 0, 0.16, 30);
-    ring(0, 1.35, 0, 0.14, 25);
-    // Side panel details
-    cylS(-0.20, 1.50, 0.08, 0.03, 0.20, 40);
-    cylS(0.20, 1.50, 0.08, 0.03, 0.20, 40);
-
-    // === UPPER ARMS ===
-    cylS(-0.38, 1.58, 0, 0.055, 0.35, 200);
-    cylS(0.38, 1.58, 0, 0.055, 0.35, 200);
-    // Bicep rings
-    ring(-0.38, 1.65, 0, 0.06, 25);
-    ring(0.38, 1.65, 0, 0.06, 25);
-    ring(-0.38, 1.50, 0, 0.06, 25);
-    ring(0.38, 1.50, 0, 0.06, 25);
-
-    // === ELBOWS ===
-    sph(-0.40, 1.38, 0, 0.055, 120);
-    sph(0.40, 1.38, 0, 0.055, 120);
-    ring(-0.40, 1.38, 0, 0.06, 30);
-    ring(0.40, 1.38, 0, 0.06, 30);
-
-    // === FOREARMS ===
-    cylS(-0.42, 1.18, 0, 0.045, 0.35, 180);
-    cylS(0.42, 1.18, 0, 0.045, 0.35, 180);
-    ring(-0.42, 1.25, 0, 0.05, 20);
-    ring(0.42, 1.25, 0, 0.05, 20);
-    ring(-0.42, 1.10, 0, 0.05, 20);
-    ring(0.42, 1.10, 0, 0.05, 20);
-
-    // === HANDS ===
-    boxS(-0.43, 0.96, 0, 0.06, 0.10, 0.04, 80);
-    boxS(0.43, 0.96, 0, 0.06, 0.10, 0.04, 80);
-    // Fingers (small cylinders)
-    cylS(-0.44, 0.88, 0, 0.01, 0.06, 20);
-    cylS(-0.42, 0.88, 0, 0.01, 0.06, 20);
-    cylS(-0.46, 0.88, 0, 0.01, 0.06, 20);
-    cylS(0.44, 0.88, 0, 0.01, 0.06, 20);
-    cylS(0.42, 0.88, 0, 0.01, 0.06, 20);
-    cylS(0.46, 0.88, 0, 0.01, 0.06, 20);
-
-    // === HIP/WAIST ===
-    boxS(0, 1.14, 0, 0.32, 0.08, 0.16, 200);
-    ring(0, 1.18, 0, 0.15, 30);
-    ring(0, 1.10, 0, 0.14, 30);
-    // Hip joints
-    sph(-0.12, 1.08, 0, 0.06, 100);
-    sph(0.12, 1.08, 0, 0.06, 100);
-
-    // === UPPER LEGS ===
-    cylS(-0.13, 0.85, 0, 0.07, 0.40, 250);
-    cylS(0.13, 0.85, 0, 0.07, 0.40, 250);
-    ring(-0.13, 0.95, 0, 0.075, 25);
-    ring(0.13, 0.95, 0, 0.075, 25);
-    ring(-0.13, 0.80, 0, 0.075, 25);
-    ring(0.13, 0.80, 0, 0.075, 25);
-
-    // === KNEES ===
-    sph(-0.13, 0.62, 0, 0.065, 140);
-    sph(0.13, 0.62, 0, 0.065, 140);
-    ring(-0.13, 0.62, 0, 0.07, 30);
-    ring(0.13, 0.62, 0, 0.07, 30);
-
-    // === LOWER LEGS ===
-    cylS(-0.13, 0.40, 0, 0.055, 0.38, 220);
-    cylS(0.13, 0.40, 0, 0.055, 0.38, 220);
-    ring(-0.13, 0.50, 0, 0.06, 25);
-    ring(0.13, 0.50, 0, 0.06, 25);
-    ring(-0.13, 0.32, 0, 0.06, 25);
-    ring(0.13, 0.32, 0, 0.06, 25);
-
-    // === FEET ===
-    boxS(-0.13, 0.17, 0.03, 0.10, 0.05, 0.16, 120);
-    boxS(0.13, 0.17, 0.03, 0.10, 0.05, 0.16, 120);
-    // Toe detail
-    boxS(-0.13, 0.16, 0.10, 0.08, 0.03, 0.04, 30);
-    boxS(0.13, 0.16, 0.10, 0.08, 0.03, 0.04, 30);
-
-    // Build geometry
-    var geo = new T.BufferGeometry();
-    geo.setAttribute('position', new T.Float32BufferAttribute(pts, 3));
-
-    var mat = new T.PointsMaterial({
-      color: 0x2d2c2b,
-      size: 0.012,
-      sizeAttenuation: true,
-      transparent: true,
-      opacity: 0.75
-    });
-
-    var mesh = new T.Points(geo, mat);
-    scene.add(mesh);
+    var group = new T.Group();
+    group.add(makeMesh(soul, 0xf97066, 0.015, 0.85));
+    group.add(makeMesh(psyche, 0x3b82f6, 0.012, 0.75));
+    group.add(makeMesh(body, 0xf59e0b, 0.012, 0.7));
+    group.add(makeMesh(conscience, 0x8b5cf6, 0.010, 0.3));
+    scene.add(group);
 
     function animate() {
       requestAnimationFrame(animate);
-      if (!noMotion) mesh.rotation.y += 0.004;
+      if (!noMotion) group.rotation.y += 0.004;
       renderer.render(scene, camera);
     }
     animate();
