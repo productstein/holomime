@@ -1,6 +1,6 @@
 ---
 /**
- * Enterprise bridge — robot image + identity layer legend.
+ * Enterprise bridge — Three.js point cloud humanoid + identity legend.
  */
 const layers = [
   { name: "Soul", file: "soul.md", color: "#f97066", desc: "Head — values, ethics" },
@@ -49,31 +49,231 @@ const layers = [
         </div>
       </div>
 
-      <!-- Right: Robot image with slow 3D rotation -->
-      <div class="flex-1 flex justify-center" style="perspective: 1000px;">
-        <img
-          src="/robot-humanoid.png"
-          alt="Humanoid robot point cloud — identity stack visualization"
-          class="robot-spin w-full max-w-[280px] h-auto"
-          loading="lazy"
-          width="730"
-          height="1598"
-        />
+      <!-- Right: Three.js 3D point cloud humanoid -->
+      <div class="flex-1 flex justify-center">
+        <canvas id="humanoid-canvas" width="400" height="600" class="w-full max-w-[400px] h-[600px]"></canvas>
       </div>
 
     </div>
   </div>
 </section>
 
-<style>
-  .robot-spin {
-    animation: robotRotate 18s ease-in-out infinite;
-  }
-  @keyframes robotRotate {
-    0%, 100% { transform: rotateY(0deg); }
-    50% { transform: rotateY(25deg); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .robot-spin { animation: none; }
-  }
-</style>
+<script is:inline>
+(function() {
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js';
+  s.onload = function() {
+    var canvas = document.getElementById('humanoid-canvas');
+    if (!canvas) return;
+    var noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var T = window.THREE;
+
+    var w = canvas.clientWidth || 400;
+    var h = canvas.clientHeight || 600;
+    var scene = new T.Scene();
+    var camera = new T.PerspectiveCamera(32, w / h, 0.1, 100);
+    camera.position.set(0, 1.0, 4.2);
+    camera.lookAt(0, 1.0, 0);
+
+    var renderer = new T.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+
+    var pts = [];
+
+    // Surface scatter on sphere
+    function sph(cx, cy, cz, r, n) {
+      for (var i = 0; i < n; i++) {
+        var u = Math.random(), v = Math.random();
+        var theta = 2 * Math.PI * u;
+        var phi = Math.acos(2 * v - 1);
+        var rr = r * (0.92 + Math.random() * 0.08);
+        pts.push(cx + rr * Math.sin(phi) * Math.cos(theta), cy + rr * Math.cos(phi), cz + rr * Math.sin(phi) * Math.sin(theta));
+      }
+    }
+
+    // Surface scatter on cylinder
+    function cylS(cx, cy, cz, r, ht, n) {
+      for (var i = 0; i < n; i++) {
+        var a = Math.random() * Math.PI * 2;
+        var rr = r * (0.9 + Math.random() * 0.1);
+        pts.push(cx + rr * Math.cos(a), cy + (Math.random() - 0.5) * ht, cz + rr * Math.sin(a));
+      }
+    }
+
+    // Ring of dots (for joints, panel lines)
+    function ring(cx, cy, cz, r, n) {
+      for (var i = 0; i < n; i++) {
+        var a = (i / n) * Math.PI * 2 + Math.random() * 0.1;
+        var rr = r * (0.95 + Math.random() * 0.1);
+        pts.push(cx + rr * Math.cos(a), cy + (Math.random() - 0.5) * 0.01, cz + rr * Math.sin(a));
+      }
+    }
+
+    // Filled disc (for flat surfaces)
+    function disc(cx, cy, cz, r, n) {
+      for (var i = 0; i < n; i++) {
+        var a = Math.random() * Math.PI * 2;
+        var rr = r * Math.sqrt(Math.random());
+        pts.push(cx + rr * Math.cos(a), cy, cz + rr * Math.sin(a));
+      }
+    }
+
+    // Box surface scatter
+    function boxS(cx, cy, cz, bw, bh, bd, n) {
+      for (var i = 0; i < n; i++) {
+        var face = Math.floor(Math.random() * 6);
+        var u = Math.random() - 0.5, v = Math.random() - 0.5;
+        if (face === 0) pts.push(cx + bw/2, cy + u*bh, cz + v*bd);
+        else if (face === 1) pts.push(cx - bw/2, cy + u*bh, cz + v*bd);
+        else if (face === 2) pts.push(cx + u*bw, cy + bh/2, cz + v*bd);
+        else if (face === 3) pts.push(cx + u*bw, cy - bh/2, cz + v*bd);
+        else if (face === 4) pts.push(cx + u*bw, cy + v*bh, cz + bd/2);
+        else pts.push(cx + u*bw, cy + v*bh, cz - bd/2);
+      }
+    }
+
+    // === HEAD ===
+    sph(0, 2.15, 0, 0.20, 600);
+    // Face plate detail
+    ring(0, 2.15, 0, 0.21, 40);
+    // Eye sockets
+    sph(-0.07, 2.18, 0.16, 0.035, 60);
+    sph(0.07, 2.18, 0.16, 0.035, 60);
+    // Chin
+    sph(0, 2.02, 0.08, 0.06, 40);
+
+    // === NECK ===
+    cylS(0, 1.90, 0, 0.065, 0.10, 120);
+    ring(0, 1.95, 0, 0.07, 30);
+    ring(0, 1.85, 0, 0.07, 30);
+
+    // === SHOULDERS ===
+    // Shoulder caps
+    sph(-0.32, 1.78, 0, 0.08, 150);
+    sph(0.32, 1.78, 0, 0.08, 150);
+    // Shoulder bar
+    cylS(0, 1.78, 0, 0.04, 0.02, 60);
+    boxS(-0.15, 1.78, 0, 0.30, 0.04, 0.08, 80);
+    boxS(0.15, 1.78, 0, 0.30, 0.04, 0.08, 80);
+
+    // === TORSO ===
+    // Upper chest plates
+    boxS(0, 1.58, 0, 0.42, 0.30, 0.20, 500);
+    // Lower torso
+    boxS(0, 1.30, 0, 0.36, 0.26, 0.18, 400);
+    // Center line detail
+    cylS(0, 1.44, 0.10, 0.01, 0.50, 60);
+    // Chest panel lines
+    ring(0, 1.65, 0, 0.18, 30);
+    ring(0, 1.50, 0, 0.16, 30);
+    ring(0, 1.35, 0, 0.14, 25);
+    // Side panel details
+    cylS(-0.20, 1.50, 0.08, 0.03, 0.20, 40);
+    cylS(0.20, 1.50, 0.08, 0.03, 0.20, 40);
+
+    // === UPPER ARMS ===
+    cylS(-0.38, 1.58, 0, 0.055, 0.35, 200);
+    cylS(0.38, 1.58, 0, 0.055, 0.35, 200);
+    // Bicep rings
+    ring(-0.38, 1.65, 0, 0.06, 25);
+    ring(0.38, 1.65, 0, 0.06, 25);
+    ring(-0.38, 1.50, 0, 0.06, 25);
+    ring(0.38, 1.50, 0, 0.06, 25);
+
+    // === ELBOWS ===
+    sph(-0.40, 1.38, 0, 0.055, 120);
+    sph(0.40, 1.38, 0, 0.055, 120);
+    ring(-0.40, 1.38, 0, 0.06, 30);
+    ring(0.40, 1.38, 0, 0.06, 30);
+
+    // === FOREARMS ===
+    cylS(-0.42, 1.18, 0, 0.045, 0.35, 180);
+    cylS(0.42, 1.18, 0, 0.045, 0.35, 180);
+    ring(-0.42, 1.25, 0, 0.05, 20);
+    ring(0.42, 1.25, 0, 0.05, 20);
+    ring(-0.42, 1.10, 0, 0.05, 20);
+    ring(0.42, 1.10, 0, 0.05, 20);
+
+    // === HANDS ===
+    boxS(-0.43, 0.96, 0, 0.06, 0.10, 0.04, 80);
+    boxS(0.43, 0.96, 0, 0.06, 0.10, 0.04, 80);
+    // Fingers (small cylinders)
+    cylS(-0.44, 0.88, 0, 0.01, 0.06, 20);
+    cylS(-0.42, 0.88, 0, 0.01, 0.06, 20);
+    cylS(-0.46, 0.88, 0, 0.01, 0.06, 20);
+    cylS(0.44, 0.88, 0, 0.01, 0.06, 20);
+    cylS(0.42, 0.88, 0, 0.01, 0.06, 20);
+    cylS(0.46, 0.88, 0, 0.01, 0.06, 20);
+
+    // === HIP/WAIST ===
+    boxS(0, 1.14, 0, 0.32, 0.08, 0.16, 200);
+    ring(0, 1.18, 0, 0.15, 30);
+    ring(0, 1.10, 0, 0.14, 30);
+    // Hip joints
+    sph(-0.12, 1.08, 0, 0.06, 100);
+    sph(0.12, 1.08, 0, 0.06, 100);
+
+    // === UPPER LEGS ===
+    cylS(-0.13, 0.85, 0, 0.07, 0.40, 250);
+    cylS(0.13, 0.85, 0, 0.07, 0.40, 250);
+    ring(-0.13, 0.95, 0, 0.075, 25);
+    ring(0.13, 0.95, 0, 0.075, 25);
+    ring(-0.13, 0.80, 0, 0.075, 25);
+    ring(0.13, 0.80, 0, 0.075, 25);
+
+    // === KNEES ===
+    sph(-0.13, 0.62, 0, 0.065, 140);
+    sph(0.13, 0.62, 0, 0.065, 140);
+    ring(-0.13, 0.62, 0, 0.07, 30);
+    ring(0.13, 0.62, 0, 0.07, 30);
+
+    // === LOWER LEGS ===
+    cylS(-0.13, 0.40, 0, 0.055, 0.38, 220);
+    cylS(0.13, 0.40, 0, 0.055, 0.38, 220);
+    ring(-0.13, 0.50, 0, 0.06, 25);
+    ring(0.13, 0.50, 0, 0.06, 25);
+    ring(-0.13, 0.32, 0, 0.06, 25);
+    ring(0.13, 0.32, 0, 0.06, 25);
+
+    // === FEET ===
+    boxS(-0.13, 0.17, 0.03, 0.10, 0.05, 0.16, 120);
+    boxS(0.13, 0.17, 0.03, 0.10, 0.05, 0.16, 120);
+    // Toe detail
+    boxS(-0.13, 0.16, 0.10, 0.08, 0.03, 0.04, 30);
+    boxS(0.13, 0.16, 0.10, 0.08, 0.03, 0.04, 30);
+
+    // Build geometry
+    var geo = new T.BufferGeometry();
+    geo.setAttribute('position', new T.Float32BufferAttribute(pts, 3));
+
+    var mat = new T.PointsMaterial({
+      color: 0x2d2c2b,
+      size: 0.012,
+      sizeAttenuation: true,
+      transparent: true,
+      opacity: 0.75
+    });
+
+    var mesh = new T.Points(geo, mat);
+    scene.add(mesh);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (!noMotion) mesh.rotation.y += 0.004;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', function() {
+      var nw = canvas.clientWidth || 400;
+      var nh = canvas.clientHeight || 600;
+      camera.aspect = nw / nh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nw, nh);
+    });
+  };
+  document.head.appendChild(s);
+})();
+</script>
