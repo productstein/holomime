@@ -49,18 +49,31 @@ const layers = [
         </div>
       </div>
 
-      <!-- Right: Robot image -->
-      <div class="flex-1 flex justify-center">
+      <!-- Right: Robot image with slow 3D rotation -->
+      <div class="flex-1 flex justify-center" style="perspective: 1000px;">
         <img
           src="/robot-humanoid.png"
           alt="Humanoid robot point cloud — identity stack visualization"
-          class="w-full max-w-[320px] h-auto opacity-80 mix-blend-multiply"
+          class="robot-spin w-full max-w-[280px] h-auto"
           loading="lazy"
-          width="400"
-          height="800"
+          width="730"
+          height="1598"
         />
       </div>
 
     </div>
   </div>
 </section>
+
+<style>
+  .robot-spin {
+    animation: robotRotate 18s ease-in-out infinite;
+  }
+  @keyframes robotRotate {
+    0%, 100% { transform: rotateY(0deg); }
+    50% { transform: rotateY(25deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .robot-spin { animation: none; }
+  }
+</style>
