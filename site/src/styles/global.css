@@ -47,7 +47,7 @@ html {
 }
 
 body {
-  background-color: #ffffff;
+  background-color: var(--color-warm-cream);
   color: var(--color-warm-text);
   font-family: var(--font-sans);
 }

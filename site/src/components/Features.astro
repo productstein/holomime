@@ -1,85 +1,36 @@
 ---
-const columnIcons: Record<string, string> = {
-  Identity: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>`,
-  Intelligence: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg>`,
-  Embodiment: `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h9a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0015.75 4.5h-9A2.25 2.25 0 004.5 6.75v10.5A2.25 2.25 0 006.75 19.5z"/></svg>`,
-};
-
-const columns = [
-  {
-    title: "Intelligence",
-    color: "var(--color-p-blue)",
-    items: [
-      { name: "11 drift detectors", desc: "Real-time behavioral monitoring" },
-      { name: "Adversarial benchmarking", desc: "A-F letter grades" },
-      { name: "Self-improvement loop", desc: "Continuous alignment refinement" },
-      { name: "DPO/RLHF export", desc: "Training data from production" },
-    ],
-  },
-  {
-    title: "Identity",
-    color: "var(--color-p-coral)",
-    items: [
-      { name: "soul.md", desc: "Immutable values and ethics" },
-      { name: "psyche.sys", desc: "Big Five personality + EQ" },
-      { name: "body.api", desc: "Swap across any robot" },
-      { name: "conscience.exe", desc: "Moral enforcement" },
-    ],
-  },
-  {
-    title: "Embodiment",
-    color: "var(--color-p-violet)",
-    items: [
-      { name: "5 protocol adapters", desc: "ROS2, gRPC, REST, MQTT, WebSocket" },
-      { name: "7 OEM body templates", desc: "Pre-built hardware profiles" },
-      { name: "Hot body swap", desc: "Change hardware at runtime" },
-      { name: "Motion/safety/proxemics", desc: "Embodied drift detection" },
-    ],
-  },
+const features = [
+  { name: "11 drift detectors", desc: "Rule-based, zero LLM cost", color: "var(--color-p-blue)" },
+  { name: "Adversarial benchmarking", desc: "Grade A-F across 8 scenarios", color: "var(--color-p-blue)" },
+  { name: "Self-improvement loop", desc: "Diagnose, treat, export, fine-tune, verify", color: "var(--color-p-blue)" },
+  { name: "DPO/RLHF export", desc: "Every therapy session generates training data", color: "var(--color-p-blue)" },
+  { name: "soul.md", desc: "Immutable values and ethics", color: "var(--color-p-coral)" },
+  { name: "psyche.sys", desc: "Big Five personality + EQ", color: "var(--color-p-coral)" },
+  { name: "body.api", desc: "Swap identity across any robot", color: "var(--color-p-gold)" },
+  { name: "conscience.exe", desc: "Deterministic moral enforcement", color: "var(--color-p-violet)" },
+  { name: "5 protocol adapters", desc: "ROS2, gRPC, MQTT, WebSocket, REST", color: "var(--color-p-violet)" },
+  { name: "7 OEM body templates", desc: "Figure, Unitree, Sanctuary, Asimov, Spot", color: "var(--color-p-gold)" },
+  { name: "Hot body swap", desc: "Same soul, different hardware, one command", color: "var(--color-p-gold)" },
+  { name: "3D brain visualization", desc: "Watch behavioral patterns fire in real time", color: "var(--color-p-blue)" },
 ];
 ---
 
-<section id="features" class="py-20 md:py-28">
-  <div class="mx-auto max-w-6xl px-6">
-    <p class="text-center text-sm font-semibold tracking-wider uppercase text-[var(--color-p-coral)]">
-      Capabilities
-    </p>
-    <h2 class="mt-3 text-center text-3xl font-bold text-[var(--color-warm-text)] md:text-4xl">
-      Intelligence. Identity. Embodiment.
+<section id="features" class="py-16 md:py-24 bg-[var(--color-warm-cream)]">
+  <div class="mx-auto max-w-5xl px-6">
+    <h2 class="text-2xl font-bold text-[var(--color-warm-text)] md:text-3xl">
+      What's included
     </h2>
-    <p class="mx-auto mt-4 max-w-xl text-center text-[var(--color-warm-muted)]">
-      The full stack for building aligned, embodied AI agents.
+    <p class="mt-2 text-sm text-[var(--color-warm-muted)]">
+      Open source. MIT licensed. Everything below is free.
     </p>
 
-    <div class="mt-14 grid gap-8 md:grid-cols-3">
-      {columns.map((col) => (
-        <div
-          class="personality-card rounded-2xl border border-[var(--color-warm-sand)] p-8 shadow-sm"
-          style={`background: linear-gradient(to bottom, color-mix(in srgb, ${col.color} 8%, transparent), white 40%);`}
-        >
-          <!-- Column header -->
-          <div class="flex items-center gap-3 mb-6">
-            <div class="flex items-center justify-center h-9 w-9 rounded-lg" style={`background: color-mix(in srgb, ${col.color} 12%, transparent); color: ${col.color};`}>
-              <Fragment set:html={columnIcons[col.title]} />
-            </div>
-            <h3 class="text-xl font-bold text-[var(--color-warm-text)]">{col.title}</h3>
-          </div>
-
-          <!-- Items -->
-          <div class="space-y-5">
-            {col.items.map((item) => (
-              <div class="flex items-start gap-2.5">
-                <span class="mt-2 inline-block w-1 h-1 rounded-full shrink-0" style={`background: ${col.color};`}></span>
-                <div>
-                  <div class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">
-                    {item.name}
-                  </div>
-                  <div class="mt-0.5 text-sm text-[var(--color-warm-muted)]">
-                    {item.desc}
-                  </div>
-                </div>
-              </div>
-            ))}
+    <div class="mt-10 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+      {features.map((f) => (
+        <div class="flex items-start gap-3">
+          <div class="mt-1.5 h-1.5 w-1.5 rounded-full shrink-0" style={`background: ${f.color};`}></div>
+          <div>
+            <div class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">{f.name}</div>
+            <div class="mt-0.5 text-[13px] text-[var(--color-warm-muted)]">{f.desc}</div>
           </div>
         </div>
       ))}
