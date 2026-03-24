@@ -80,10 +80,10 @@ const layers = [
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
 
-    // 4 color arrays: soul (coral/head), psyche (blue/torso), body (gold/limbs), conscience (violet/shield)
-    var soul = [], psyche = [], body = [], conscience = [];
+    // 5 layers: dark base, soul glow, psyche glow, body joints, conscience shield
+    var base = [], soulGlow = [], psycheGlow = [], bodyJoints = [], shield = [];
 
-    // Helpers — push to a target array
+    // Helpers
     function sph(arr, cx, cy, cz, r, n) {
       for (var i = 0; i < n; i++) {
         var u = Math.random(), v = Math.random();
@@ -116,91 +116,111 @@ const layers = [
       }
     }
 
-    // === SOUL (coral) — HEAD ===
-    sph(soul, 0, 2.15, 0, 0.20, 600);
-    ring(soul, 0, 2.15, 0, 0.21, 40);
-    sph(soul, -0.07, 2.18, 0.16, 0.035, 60);
-    sph(soul, 0.07, 2.18, 0.16, 0.035, 60);
-    sph(soul, 0, 2.02, 0.08, 0.06, 40);
+    // === DARK BASE — full body in monochrome ===
+    // Head
+    sph(base, 0, 2.15, 0, 0.20, 600);
+    ring(base, 0, 2.15, 0, 0.21, 40);
+    sph(base, -0.07, 2.18, 0.16, 0.035, 60);
+    sph(base, 0.07, 2.18, 0.16, 0.035, 60);
+    sph(base, 0, 2.02, 0.08, 0.06, 40);
+    // Neck
+    cylS(base, 0, 1.90, 0, 0.065, 0.10, 120);
+    ring(base, 0, 1.95, 0, 0.07, 30);
+    ring(base, 0, 1.85, 0, 0.07, 30);
+    // Shoulders
+    sph(base, -0.32, 1.78, 0, 0.08, 150);
+    sph(base, 0.32, 1.78, 0, 0.08, 150);
+    cylS(base, 0, 1.78, 0, 0.04, 0.02, 60);
+    boxS(base, -0.15, 1.78, 0, 0.30, 0.04, 0.08, 80);
+    boxS(base, 0.15, 1.78, 0, 0.30, 0.04, 0.08, 80);
+    // Torso
+    boxS(base, 0, 1.58, 0, 0.42, 0.30, 0.20, 500);
+    boxS(base, 0, 1.30, 0, 0.36, 0.26, 0.18, 400);
+    cylS(base, 0, 1.44, 0.10, 0.01, 0.50, 60);
+    ring(base, 0, 1.65, 0, 0.18, 30);
+    ring(base, 0, 1.50, 0, 0.16, 30);
+    ring(base, 0, 1.35, 0, 0.14, 25);
+    cylS(base, -0.20, 1.50, 0.08, 0.03, 0.20, 40);
+    cylS(base, 0.20, 1.50, 0.08, 0.03, 0.20, 40);
+    // Arms
+    cylS(base, -0.38, 1.58, 0, 0.055, 0.35, 200);
+    cylS(base, 0.38, 1.58, 0, 0.055, 0.35, 200);
+    ring(base, -0.38, 1.65, 0, 0.06, 25);
+    ring(base, 0.38, 1.65, 0, 0.06, 25);
+    ring(base, -0.38, 1.50, 0, 0.06, 25);
+    ring(base, 0.38, 1.50, 0, 0.06, 25);
+    sph(base, -0.40, 1.38, 0, 0.055, 120);
+    sph(base, 0.40, 1.38, 0, 0.055, 120);
+    ring(base, -0.40, 1.38, 0, 0.06, 30);
+    ring(base, 0.40, 1.38, 0, 0.06, 30);
+    cylS(base, -0.42, 1.18, 0, 0.045, 0.35, 180);
+    cylS(base, 0.42, 1.18, 0, 0.045, 0.35, 180);
+    ring(base, -0.42, 1.25, 0, 0.05, 20);
+    ring(base, 0.42, 1.25, 0, 0.05, 20);
+    ring(base, -0.42, 1.10, 0, 0.05, 20);
+    ring(base, 0.42, 1.10, 0, 0.05, 20);
+    // Hands
+    boxS(base, -0.43, 0.96, 0, 0.06, 0.10, 0.04, 80);
+    boxS(base, 0.43, 0.96, 0, 0.06, 0.10, 0.04, 80);
+    cylS(base, -0.44, 0.88, 0, 0.01, 0.06, 20);
+    cylS(base, -0.42, 0.88, 0, 0.01, 0.06, 20);
+    cylS(base, -0.46, 0.88, 0, 0.01, 0.06, 20);
+    cylS(base, 0.44, 0.88, 0, 0.01, 0.06, 20);
+    cylS(base, 0.42, 0.88, 0, 0.01, 0.06, 20);
+    cylS(base, 0.46, 0.88, 0, 0.01, 0.06, 20);
+    // Hips
+    boxS(base, 0, 1.14, 0, 0.32, 0.08, 0.16, 200);
+    ring(base, 0, 1.18, 0, 0.15, 30);
+    ring(base, 0, 1.10, 0, 0.14, 30);
+    sph(base, -0.12, 1.08, 0, 0.06, 100);
+    sph(base, 0.12, 1.08, 0, 0.06, 100);
+    // Legs
+    cylS(base, -0.13, 0.85, 0, 0.07, 0.40, 250);
+    cylS(base, 0.13, 0.85, 0, 0.07, 0.40, 250);
+    ring(base, -0.13, 0.95, 0, 0.075, 25);
+    ring(base, 0.13, 0.95, 0, 0.075, 25);
+    ring(base, -0.13, 0.80, 0, 0.075, 25);
+    ring(base, 0.13, 0.80, 0, 0.075, 25);
+    sph(base, -0.13, 0.62, 0, 0.065, 140);
+    sph(base, 0.13, 0.62, 0, 0.065, 140);
+    ring(base, -0.13, 0.62, 0, 0.07, 30);
+    ring(base, 0.13, 0.62, 0, 0.07, 30);
+    cylS(base, -0.13, 0.40, 0, 0.055, 0.38, 220);
+    cylS(base, 0.13, 0.40, 0, 0.055, 0.38, 220);
+    ring(base, -0.13, 0.50, 0, 0.06, 25);
+    ring(base, 0.13, 0.50, 0, 0.06, 25);
+    ring(base, -0.13, 0.32, 0, 0.06, 25);
+    ring(base, 0.13, 0.32, 0, 0.06, 25);
+    // Feet
+    boxS(base, -0.13, 0.17, 0.03, 0.10, 0.05, 0.16, 120);
+    boxS(base, 0.13, 0.17, 0.03, 0.10, 0.05, 0.16, 120);
+    boxS(base, -0.13, 0.16, 0.10, 0.08, 0.03, 0.04, 30);
+    boxS(base, 0.13, 0.16, 0.10, 0.08, 0.03, 0.04, 30);
 
-    // === PSYCHE (blue) — NECK, SHOULDERS, TORSO ===
-    cylS(psyche, 0, 1.90, 0, 0.065, 0.10, 120);
-    ring(psyche, 0, 1.95, 0, 0.07, 30);
-    ring(psyche, 0, 1.85, 0, 0.07, 30);
-    sph(psyche, -0.32, 1.78, 0, 0.08, 150);
-    sph(psyche, 0.32, 1.78, 0, 0.08, 150);
-    cylS(psyche, 0, 1.78, 0, 0.04, 0.02, 60);
-    boxS(psyche, -0.15, 1.78, 0, 0.30, 0.04, 0.08, 80);
-    boxS(psyche, 0.15, 1.78, 0, 0.30, 0.04, 0.08, 80);
-    boxS(psyche, 0, 1.58, 0, 0.42, 0.30, 0.20, 500);
-    boxS(psyche, 0, 1.30, 0, 0.36, 0.26, 0.18, 400);
-    cylS(psyche, 0, 1.44, 0.10, 0.01, 0.50, 60);
-    ring(psyche, 0, 1.65, 0, 0.18, 30);
-    ring(psyche, 0, 1.50, 0, 0.16, 30);
-    ring(psyche, 0, 1.35, 0, 0.14, 25);
-    cylS(psyche, -0.20, 1.50, 0.08, 0.03, 0.20, 40);
-    cylS(psyche, 0.20, 1.50, 0.08, 0.03, 0.20, 40);
+    // === SOUL GLOW (coral) — brain inside head ===
+    sph(soulGlow, 0, 2.15, 0, 0.12, 80);
 
-    // === BODY (gold) — ARMS, HANDS, HIPS, LEGS, FEET ===
-    cylS(body, -0.38, 1.58, 0, 0.055, 0.35, 200);
-    cylS(body, 0.38, 1.58, 0, 0.055, 0.35, 200);
-    ring(body, -0.38, 1.65, 0, 0.06, 25);
-    ring(body, 0.38, 1.65, 0, 0.06, 25);
-    ring(body, -0.38, 1.50, 0, 0.06, 25);
-    ring(body, 0.38, 1.50, 0, 0.06, 25);
-    sph(body, -0.40, 1.38, 0, 0.055, 120);
-    sph(body, 0.40, 1.38, 0, 0.055, 120);
-    ring(body, -0.40, 1.38, 0, 0.06, 30);
-    ring(body, 0.40, 1.38, 0, 0.06, 30);
-    cylS(body, -0.42, 1.18, 0, 0.045, 0.35, 180);
-    cylS(body, 0.42, 1.18, 0, 0.045, 0.35, 180);
-    ring(body, -0.42, 1.25, 0, 0.05, 20);
-    ring(body, 0.42, 1.25, 0, 0.05, 20);
-    ring(body, -0.42, 1.10, 0, 0.05, 20);
-    ring(body, 0.42, 1.10, 0, 0.05, 20);
-    boxS(body, -0.43, 0.96, 0, 0.06, 0.10, 0.04, 80);
-    boxS(body, 0.43, 0.96, 0, 0.06, 0.10, 0.04, 80);
-    cylS(body, -0.44, 0.88, 0, 0.01, 0.06, 20);
-    cylS(body, -0.42, 0.88, 0, 0.01, 0.06, 20);
-    cylS(body, -0.46, 0.88, 0, 0.01, 0.06, 20);
-    cylS(body, 0.44, 0.88, 0, 0.01, 0.06, 20);
-    cylS(body, 0.42, 0.88, 0, 0.01, 0.06, 20);
-    cylS(body, 0.46, 0.88, 0, 0.01, 0.06, 20);
-    boxS(body, 0, 1.14, 0, 0.32, 0.08, 0.16, 200);
-    ring(body, 0, 1.18, 0, 0.15, 30);
-    ring(body, 0, 1.10, 0, 0.14, 30);
-    sph(body, -0.12, 1.08, 0, 0.06, 100);
-    sph(body, 0.12, 1.08, 0, 0.06, 100);
-    cylS(body, -0.13, 0.85, 0, 0.07, 0.40, 250);
-    cylS(body, 0.13, 0.85, 0, 0.07, 0.40, 250);
-    ring(body, -0.13, 0.95, 0, 0.075, 25);
-    ring(body, 0.13, 0.95, 0, 0.075, 25);
-    ring(body, -0.13, 0.80, 0, 0.075, 25);
-    ring(body, 0.13, 0.80, 0, 0.075, 25);
-    sph(body, -0.13, 0.62, 0, 0.065, 140);
-    sph(body, 0.13, 0.62, 0, 0.065, 140);
-    ring(body, -0.13, 0.62, 0, 0.07, 30);
-    ring(body, 0.13, 0.62, 0, 0.07, 30);
-    cylS(body, -0.13, 0.40, 0, 0.055, 0.38, 220);
-    cylS(body, 0.13, 0.40, 0, 0.055, 0.38, 220);
-    ring(body, -0.13, 0.50, 0, 0.06, 25);
-    ring(body, 0.13, 0.50, 0, 0.06, 25);
-    ring(body, -0.13, 0.32, 0, 0.06, 25);
-    ring(body, 0.13, 0.32, 0, 0.06, 25);
-    boxS(body, -0.13, 0.17, 0.03, 0.10, 0.05, 0.16, 120);
-    boxS(body, 0.13, 0.17, 0.03, 0.10, 0.05, 0.16, 120);
-    boxS(body, -0.13, 0.16, 0.10, 0.08, 0.03, 0.04, 30);
-    boxS(body, 0.13, 0.16, 0.10, 0.08, 0.03, 0.04, 30);
+    // === PSYCHE GLOW (blue) — heart in chest ===
+    sph(psycheGlow, 0, 1.48, 0, 0.08, 60);
 
-    // === CONSCIENCE (violet) — outer shield ring ===
-    for (var i = 0; i < 300; i++) {
-      var angle = Math.random() * Math.PI * 2;
-      var radius = 0.85 + Math.random() * 0.1;
-      var yy = 0.4 + Math.random() * 1.7;
-      conscience.push(Math.cos(angle) * radius, yy, Math.sin(angle) * radius);
+    // === BODY JOINTS (gold) — rings at major joints ===
+    ring(bodyJoints, -0.32, 1.78, 0, 0.09, 20);  // L shoulder
+    ring(bodyJoints, 0.32, 1.78, 0, 0.09, 20);   // R shoulder
+    ring(bodyJoints, -0.40, 1.38, 0, 0.07, 18);   // L elbow
+    ring(bodyJoints, 0.40, 1.38, 0, 0.07, 18);    // R elbow
+    ring(bodyJoints, -0.13, 0.62, 0, 0.08, 18);   // L knee
+    ring(bodyJoints, 0.13, 0.62, 0, 0.08, 18);    // R knee
+
+    // === CONSCIENCE SHIELD (violet) — forcefield sphere ===
+    for (var i = 0; i < 400; i++) {
+      var u2 = Math.random(), v2 = Math.random();
+      var theta2 = 2 * Math.PI * u2;
+      var phi2 = Math.acos(2 * v2 - 1);
+      var sr = 1.05 + Math.random() * 0.05;
+      shield.push(sr * Math.sin(phi2) * Math.cos(theta2), 1.1 + sr * Math.cos(phi2), sr * Math.sin(phi2) * Math.sin(theta2));
     }
 
-    // Build 4 meshes in a group
+    // Build 5 meshes in a group
     function makeMesh(arr, color, size, opacity) {
       var geo = new T.BufferGeometry();
       geo.setAttribute('position', new T.Float32BufferAttribute(arr, 3));
@@ -209,10 +229,11 @@ const layers = [
     }
 
     var group = new T.Group();
-    group.add(makeMesh(soul, 0xf97066, 0.015, 0.85));
-    group.add(makeMesh(psyche, 0x3b82f6, 0.012, 0.75));
-    group.add(makeMesh(body, 0xf59e0b, 0.012, 0.7));
-    group.add(makeMesh(conscience, 0x8b5cf6, 0.010, 0.3));
+    group.add(makeMesh(base, 0x2d2c2b, 0.012, 0.75));
+    group.add(makeMesh(soulGlow, 0xf97066, 0.018, 0.85));
+    group.add(makeMesh(psycheGlow, 0x3b82f6, 0.018, 0.8));
+    group.add(makeMesh(bodyJoints, 0xf59e0b, 0.016, 0.75));
+    group.add(makeMesh(shield, 0x8b5cf6, 0.008, 0.18));
     scene.add(group);
 
     function animate() {
