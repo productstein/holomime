@@ -158,66 +158,197 @@ const archetypeList = Object.entries(ARCHETYPES).map(([key, val]) => ({
         )}
       </div>
 
-      <!-- ═══════ Create Agent Modal ═══════ -->
+      <!-- ═══════ Create Agent Modal (3-step) ═══════ -->
       <div id="create-agent-modal" class="fixed inset-0 z-[100] hidden items-center justify-center">
         <div id="create-agent-backdrop" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-        <div class="relative z-10 mx-4 w-full max-w-lg rounded-2xl bg-white p-8 shadow-2xl">
-          <button id="create-agent-close" class="absolute top-4 right-4 text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors" aria-label="Close">
+        <div class="relative z-10 mx-4 w-full max-w-lg rounded-2xl bg-white shadow-2xl overflow-hidden" style="max-height: 90vh; overflow-y: auto;">
+          <button id="create-agent-close" class="absolute top-4 right-4 z-10 text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors" aria-label="Close">
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
 
-          <h2 class="text-xl font-bold mb-1" style="color: var(--color-warm-text, #2a2520);">Create Agent</h2>
-          <p class="text-sm mb-6" style="color: var(--color-warm-muted, #9a9693);">Define a personality-driven AI agent.</p>
-
-          <form id="create-agent-form" class="space-y-4">
-            <div>
-              <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Name</label>
-              <input id="ca-name" type="text" required maxlength="100" placeholder="My Support Agent"
-                class="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20"
-                style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);" />
+          <!-- Step indicators -->
+          <div class="flex justify-center gap-3 pt-6 pb-2">
+            <div class="ca-step-dot active" data-ca-dot="0">
+              <span class="ca-dot-circle"></span>
             </div>
-
-            <div>
-              <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Handle</label>
-              <input id="ca-handle" type="text" required minlength="3" maxlength="50" placeholder="my-support-agent" pattern="[a-z0-9-]+"
-                class="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20"
-                style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);" />
-              <p class="mt-1 text-[10px]" style="color: var(--color-warm-muted, #9a9693);">Lowercase letters, numbers, and hyphens only</p>
+            <div class="ca-step-dot" data-ca-dot="1">
+              <span class="ca-dot-circle"></span>
             </div>
-
-            <div>
-              <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Description (optional)</label>
-              <textarea id="ca-desc" maxlength="500" rows="2" placeholder="What does this agent do?"
-                class="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20 resize-none"
-                style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);"></textarea>
+            <div class="ca-step-dot" data-ca-dot="2">
+              <span class="ca-dot-circle"></span>
             </div>
+          </div>
 
-            <div>
-              <label class="block text-xs font-medium mb-2" style="color: var(--color-warm-muted, #9a9693);">Archetype (sets initial personality)</label>
-              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="archetype-grid">
-                {archetypeList.map((a) => (
-                  <button type="button" class="archetype-btn rounded-lg border p-3 text-left transition-all hover:shadow-sm"
-                    data-archetype={a.key}
-                    style={`border-color: var(--color-warm-border, #e8e2d9);`}>
-                    <div class="flex items-center gap-2 mb-1">
-                      <div class="w-3 h-3 rounded-full" style={`background: ${a.color};`}></div>
-                      <span class="text-xs font-bold" style="color: var(--color-warm-text, #2a2520);">{a.name}</span>
-                    </div>
-                    <p class="text-[10px] leading-tight" style="color: var(--color-warm-muted, #9a9693);">{a.description}</p>
-                  </button>
-                ))}
+          <!-- Step 1: Identity -->
+          <div class="ca-step active" data-ca-step="0">
+            <div class="px-8 pb-8 pt-4">
+              <h2 class="text-xl font-bold mb-1" style="color: var(--color-warm-text, #2a2520);">Identity</h2>
+              <p class="text-sm mb-6" style="color: var(--color-warm-muted, #9a9693);">Define your agent's personality.</p>
+
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Name</label>
+                  <input id="ca-name" type="text" required maxlength="100" placeholder="My Support Agent"
+                    class="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20"
+                    style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);" />
+                </div>
+
+                <div>
+                  <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Handle</label>
+                  <input id="ca-handle" type="text" required minlength="3" maxlength="50" placeholder="my-support-agent" pattern="[a-z0-9-]+"
+                    class="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20"
+                    style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);" />
+                  <p class="mt-1 text-[10px]" style="color: var(--color-warm-muted, #9a9693);">Lowercase letters, numbers, and hyphens only</p>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-medium mb-1" style="color: var(--color-warm-muted, #9a9693);">Description (optional)</label>
+                  <textarea id="ca-desc" maxlength="500" rows="2" placeholder="What does this agent do?"
+                    class="w-full rounded-lg border px-3 py-2.5 text-sm outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20 resize-none"
+                    style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);"></textarea>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-medium mb-2" style="color: var(--color-warm-muted, #9a9693);">Archetype (sets initial personality)</label>
+                  <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="archetype-grid">
+                    {archetypeList.map((a) => (
+                      <button type="button" class="archetype-btn rounded-lg border p-3 text-left transition-all hover:shadow-sm"
+                        data-archetype={a.key}
+                        style={`border-color: var(--color-warm-border, #e8e2d9);`}>
+                        <div class="flex items-center gap-2 mb-1">
+                          <div class="w-3 h-3 rounded-full" style={`background: ${a.color};`}></div>
+                          <span class="text-xs font-bold" style="color: var(--color-warm-text, #2a2520);">{a.name}</span>
+                        </div>
+                        <p class="text-[10px] leading-tight" style="color: var(--color-warm-muted, #9a9693);">{a.description}</p>
+                      </button>
+                    ))}
+                  </div>
+                  <input type="hidden" id="ca-archetype" name="archetype" />
+                </div>
+
+                <button type="button" id="ca-step1-next"
+                  class="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all"
+                  style="background: linear-gradient(to right, var(--color-p-coral, #ff6b6b), var(--color-p-violet, #8b5cf6)); box-shadow: 0 4px 12px rgba(139,92,246,0.2);">
+                  Next &rarr;
+                </button>
               </div>
-              <input type="hidden" id="ca-archetype" name="archetype" />
             </div>
+          </div>
 
-            <div id="ca-message" class="hidden rounded-lg px-3 py-2 text-sm"></div>
+          <!-- Step 2: Body -->
+          <div class="ca-step" data-ca-step="1">
+            <div class="px-8 pb-8 pt-4">
+              <h2 class="text-xl font-bold mb-1" style="color: var(--color-warm-text, #2a2520);">What will this agent inhabit?</h2>
+              <p class="text-sm mb-6" style="color: var(--color-warm-muted, #9a9693);">Select a body template or keep it as a chatbot.</p>
 
-            <button type="submit" id="ca-submit"
-              class="w-full rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all"
-              style="background: linear-gradient(to right, var(--color-p-coral, #ff6b6b), var(--color-p-violet, #8b5cf6)); box-shadow: 0 4px 12px rgba(139,92,246,0.2);">
-              Create Agent
-            </button>
-          </form>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="body-grid">
+                <button type="button" class="body-card selected rounded-xl border-2 p-3 text-left transition-all"
+                  data-body="none" data-morphology="chatbot"
+                  style="border-color: var(--color-p-coral); box-shadow: 0 0 0 1px var(--color-p-coral), 0 4px 12px rgba(249,112,102,0.15);">
+                  <p class="text-sm font-bold" style="color: var(--color-warm-text);">No body</p>
+                  <p class="text-[10px] mt-0.5" style="color: var(--color-warm-muted);">Chatbot</p>
+                  <span class="inline-block mt-2 rounded-full px-2 py-0.5 text-[9px] font-semibold" style="background: var(--color-warm-sand); color: var(--color-warm-muted);">chatbot</span>
+                </button>
+
+                <button type="button" class="body-card rounded-xl border-2 p-3 text-left transition-all hover:shadow-md"
+                  data-body="figure-02" data-morphology="humanoid"
+                  style="border-color: var(--color-warm-border);">
+                  <p class="text-sm font-bold" style="color: var(--color-warm-text);">Figure 02</p>
+                  <p class="text-[10px] mt-0.5" style="color: var(--color-warm-muted);">Humanoid, 44 DOF</p>
+                  <span class="inline-block mt-2 rounded-full px-2 py-0.5 text-[9px] font-semibold" style="background: var(--color-p-blue-soft); color: var(--color-p-blue);">humanoid</span>
+                </button>
+
+                <button type="button" class="body-card rounded-xl border-2 p-3 text-left transition-all hover:shadow-md"
+                  data-body="unitree-h1" data-morphology="humanoid"
+                  style="border-color: var(--color-warm-border);">
+                  <p class="text-sm font-bold" style="color: var(--color-warm-text);">Unitree H1</p>
+                  <p class="text-[10px] mt-0.5" style="color: var(--color-warm-muted);">Humanoid, 23 DOF</p>
+                  <span class="inline-block mt-2 rounded-full px-2 py-0.5 text-[9px] font-semibold" style="background: var(--color-p-blue-soft); color: var(--color-p-blue);">humanoid</span>
+                </button>
+
+                <button type="button" class="body-card rounded-xl border-2 p-3 text-left transition-all hover:shadow-md"
+                  data-body="phoenix" data-morphology="humanoid"
+                  style="border-color: var(--color-warm-border);">
+                  <p class="text-sm font-bold" style="color: var(--color-warm-text);">Phoenix</p>
+                  <p class="text-[10px] mt-0.5" style="color: var(--color-warm-muted);">Humanoid, 69 DOF</p>
+                  <span class="inline-block mt-2 rounded-full px-2 py-0.5 text-[9px] font-semibold" style="background: var(--color-p-blue-soft); color: var(--color-p-blue);">humanoid</span>
+                </button>
+
+                <button type="button" class="body-card rounded-xl border-2 p-3 text-left transition-all hover:shadow-md"
+                  data-body="ameca" data-morphology="humanoid"
+                  style="border-color: var(--color-warm-border);">
+                  <p class="text-sm font-bold" style="color: var(--color-warm-text);">Ameca</p>
+                  <p class="text-[10px] mt-0.5" style="color: var(--color-warm-muted);">Upper body, 52 DOF</p>
+                  <span class="inline-block mt-2 rounded-full px-2 py-0.5 text-[9px] font-semibold" style="background: var(--color-p-blue-soft); color: var(--color-p-blue);">humanoid</span>
+                </button>
+
+                <button type="button" class="body-card rounded-xl border-2 p-3 text-left transition-all hover:shadow-md"
+                  data-body="asimov-v1" data-morphology="humanoid"
+                  style="border-color: var(--color-warm-border);">
+                  <p class="text-sm font-bold" style="color: var(--color-warm-text);">Asimov V1</p>
+                  <p class="text-[10px] mt-0.5" style="color: var(--color-warm-muted);">Humanoid, 25 DOF</p>
+                  <span class="inline-block mt-2 rounded-full px-2 py-0.5 text-[9px] font-semibold" style="background: var(--color-p-blue-soft); color: var(--color-p-blue);">humanoid</span>
+                </button>
+
+                <button type="button" class="body-card rounded-xl border-2 p-3 text-left transition-all hover:shadow-md"
+                  data-body="spot" data-morphology="quadruped"
+                  style="border-color: var(--color-warm-border);">
+                  <p class="text-sm font-bold" style="color: var(--color-warm-text);">Spot</p>
+                  <p class="text-[10px] mt-0.5" style="color: var(--color-warm-muted);">Quadruped, 12 DOF</p>
+                  <span class="inline-block mt-2 rounded-full px-2 py-0.5 text-[9px] font-semibold" style="background: var(--color-p-gold-soft); color: var(--color-p-gold);">quadruped</span>
+                </button>
+
+                <button type="button" class="body-card rounded-xl border-2 p-3 text-left transition-all hover:shadow-md"
+                  data-body="avatar" data-morphology="virtual"
+                  style="border-color: var(--color-warm-border);">
+                  <p class="text-sm font-bold" style="color: var(--color-warm-text);">Avatar</p>
+                  <p class="text-[10px] mt-0.5" style="color: var(--color-warm-muted);">Virtual</p>
+                  <span class="inline-block mt-2 rounded-full px-2 py-0.5 text-[9px] font-semibold" style="background: var(--color-p-violet-soft); color: var(--color-p-violet);">virtual</span>
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between mt-6">
+                <button type="button" class="ca-back text-sm font-medium transition-colors" style="color: var(--color-warm-muted);">
+                  &larr; Back
+                </button>
+                <button type="button" id="ca-step2-next"
+                  class="rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition-all"
+                  style="background: linear-gradient(to right, var(--color-p-coral, #ff6b6b), var(--color-p-violet, #8b5cf6)); box-shadow: 0 4px 12px rgba(139,92,246,0.2);">
+                  Next &rarr;
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Conscience -->
+          <div class="ca-step" data-ca-step="2">
+            <div class="px-8 pb-8 pt-4">
+              <h2 class="text-xl font-bold mb-1" style="color: var(--color-warm-text, #2a2520);">What should this agent refuse?</h2>
+              <p class="text-sm mb-6" style="color: var(--color-warm-muted, #9a9693);">Deny rules are enforced deterministically. Add or remove as needed.</p>
+
+              <div id="deny-rules-list" class="space-y-2 mb-4">
+                <!-- Populated by JS based on body selection -->
+              </div>
+
+              <button type="button" id="add-deny-rule" class="flex items-center gap-1.5 text-xs font-semibold transition-colors" style="color: var(--color-p-violet);">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add rule
+              </button>
+
+              <div id="ca-message" class="hidden rounded-lg px-3 py-2 text-sm mt-4"></div>
+
+              <div class="flex items-center justify-between mt-6">
+                <button type="button" class="ca-back text-sm font-medium transition-colors" style="color: var(--color-warm-muted);">
+                  &larr; Back
+                </button>
+                <button type="button" id="ca-submit"
+                  class="rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition-all"
+                  style="background: linear-gradient(to right, var(--color-p-coral, #ff6b6b), var(--color-p-violet, #8b5cf6)); box-shadow: 0 4px 12px rgba(139,92,246,0.2);">
+                  Create Agent
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -588,14 +719,99 @@ const archetypeList = Object.entries(ARCHETYPES).map(([key, val]) => ({
     });
   });
 
-  // ═══════════ CREATE AGENT MODAL ═══════════
+  // ═══════════ CREATE AGENT MODAL (3-step) ═══════════
   const createModal = document.getElementById('create-agent-modal');
   const createBackdrop = document.getElementById('create-agent-backdrop');
   const createCloseBtn = document.getElementById('create-agent-close');
-  const createForm = document.getElementById('create-agent-form');
   const createMsg = document.getElementById('ca-message');
   const archetypeBtns = document.querySelectorAll('.archetype-btn');
   const archetypeInput = document.getElementById('ca-archetype');
+
+  // Step management
+  let caCurrentStep = 0;
+  const caSteps = document.querySelectorAll('.ca-step');
+  const caDots = document.querySelectorAll('.ca-step-dot');
+
+  function caGoToStep(step) {
+    if (step < 0 || step >= caSteps.length) return;
+    caSteps[caCurrentStep].classList.remove('active');
+    caSteps[step].classList.add('active');
+    caDots.forEach((d, i) => {
+      d.classList.remove('active', 'completed');
+      if (i === step) d.classList.add('active');
+      else if (i < step) d.classList.add('completed');
+    });
+    caCurrentStep = step;
+    // Populate deny rules when entering step 3
+    if (step === 2) populateDenyRules();
+  }
+
+  // Body selection state
+  let selectedBody = 'none';
+  let selectedMorphology = 'chatbot';
+  const bodyCards = document.querySelectorAll('.body-card');
+  bodyCards.forEach(card => {
+    card.addEventListener('click', () => {
+      bodyCards.forEach(c => {
+        c.classList.remove('selected');
+        c.style.borderColor = 'var(--color-warm-border)';
+        c.style.boxShadow = '';
+      });
+      card.classList.add('selected');
+      card.style.borderColor = 'var(--color-p-coral)';
+      card.style.boxShadow = '0 0 0 1px var(--color-p-coral), 0 4px 12px rgba(249,112,102,0.15)';
+      selectedBody = card.getAttribute('data-body') || 'none';
+      selectedMorphology = card.getAttribute('data-morphology') || 'chatbot';
+    });
+  });
+
+  // Deny rules per morphology
+  const DENY_RULES_MAP = {
+    humanoid: ['override_emergency_stop', 'exceed_safety_envelope', 'share_personal_data'],
+    quadruped: ['exceed_safety_envelope', 'approach_without_warning'],
+    chatbot: ['share_personal_data', 'fabricate_information'],
+    virtual: ['share_personal_data', 'fabricate_information'],
+  };
+
+  function populateDenyRules() {
+    const list = document.getElementById('deny-rules-list');
+    if (!list) return;
+    const rules = DENY_RULES_MAP[selectedMorphology] || DENY_RULES_MAP.chatbot;
+    list.innerHTML = '';
+    rules.forEach(rule => addDenyRuleInput(rule));
+  }
+
+  function addDenyRuleInput(value) {
+    const list = document.getElementById('deny-rules-list');
+    if (!list) return;
+    const row = document.createElement('div');
+    row.className = 'flex items-center gap-2';
+    row.innerHTML = `
+      <input type="text" value="${value}" class="deny-rule-input flex-1 rounded-lg border px-3 py-2 text-sm outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20" style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-text, #2a2520);" />
+      <button type="button" class="deny-rule-remove flex-shrink-0 rounded-md p-1.5 text-[var(--color-warm-muted)] hover:text-red-500 hover:bg-red-50 transition-all" title="Remove">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+      </button>
+    `;
+    row.querySelector('.deny-rule-remove').addEventListener('click', () => row.remove());
+    list.appendChild(row);
+  }
+
+  document.getElementById('add-deny-rule')?.addEventListener('click', () => addDenyRuleInput(''));
+
+  // Step navigation
+  document.getElementById('ca-step1-next')?.addEventListener('click', () => {
+    const name = document.getElementById('ca-name')?.value?.trim();
+    const handle = document.getElementById('ca-handle')?.value?.trim();
+    if (!name || !handle) {
+      alert('Name and handle are required.');
+      return;
+    }
+    caGoToStep(1);
+  });
+  document.getElementById('ca-step2-next')?.addEventListener('click', () => caGoToStep(2));
+  document.querySelectorAll('.ca-back').forEach(btn => {
+    btn.addEventListener('click', () => caGoToStep(caCurrentStep - 1));
+  });
 
   function openCreateModal() {
     if (createModal) {
@@ -610,6 +826,8 @@ const archetypeList = Object.entries(ARCHETYPES).map(([key, val]) => ({
       createModal.classList.remove('flex');
       document.body.style.overflow = '';
       if (createMsg) createMsg.classList.add('hidden');
+      // Reset to step 1
+      caGoToStep(0);
     }
   }
 
@@ -647,12 +865,16 @@ const archetypeList = Object.entries(ARCHETYPES).map(([key, val]) => ({
     }
   });
 
-  createForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  // Submit (step 3)
+  document.getElementById('ca-submit')?.addEventListener('click', async () => {
     const name = (document.getElementById('ca-name')).value.trim();
     const handle = (document.getElementById('ca-handle')).value.trim();
     const description = (document.getElementById('ca-desc')).value.trim();
     const submitBtn = document.getElementById('ca-submit');
+
+    // Gather deny rules
+    const denyInputs = document.querySelectorAll('.deny-rule-input');
+    const denyRules = Array.from(denyInputs).map(i => i.value.trim()).filter(Boolean);
 
     if (submitBtn) submitBtn.disabled = true;
 
@@ -665,6 +887,8 @@ const archetypeList = Object.entries(ARCHETYPES).map(([key, val]) => ({
           handle,
           description: description || undefined,
           archetype: selectedArchetype || undefined,
+          body: selectedBody !== 'none' ? { template: selectedBody, morphology: selectedMorphology } : undefined,
+          conscience: denyRules.length > 0 ? { deny: denyRules } : undefined,
         }),
       });
       const data = await res.json();
@@ -721,3 +945,45 @@ const archetypeList = Object.entries(ARCHETYPES).map(([key, val]) => ({
   }
 })();
 </script>
+
+<style>
+  .ca-step {
+    display: none;
+    animation: caFadeIn 0.3s ease-out;
+  }
+  .ca-step.active {
+    display: block;
+  }
+  @keyframes caFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .ca-step-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+  }
+  .ca-dot-circle {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    border: 2px solid var(--color-warm-sand);
+    background: transparent;
+    transition: all 0.3s ease;
+  }
+  .ca-step-dot.active .ca-dot-circle {
+    border-color: var(--color-p-coral);
+    background: var(--color-p-coral);
+    transform: scale(1.2);
+  }
+  .ca-step-dot.completed .ca-dot-circle {
+    border-color: var(--color-p-sage);
+    background: var(--color-p-sage);
+  }
+  .body-card:hover {
+    border-color: var(--color-p-coral) !important;
+  }
+</style>

@@ -39,42 +39,41 @@ const licenseKey = user.user_metadata?.license_key || "";
           <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Welcome to holomime</h2>
           <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Behavioral observability for AI agents</p>
 
-          <p class="mt-6 mb-4 text-sm font-medium text-[var(--color-warm-text)]">What brings you here?</p>
+          <p class="mt-6 mb-4 text-sm font-medium text-[var(--color-warm-text)]">What are you building?</p>
 
           <div class="grid gap-3 sm:grid-cols-3">
-            <!-- Monitor -->
+            <!-- AI Agent -->
             <button class="use-case-card group rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-coral)] hover:shadow-md" data-use-case="monitor">
               <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-coral-soft)]">
                 <svg class="h-5 w-5 text-[var(--color-p-coral)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.64 0 8.577 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.64 0-8.577-3.007-9.963-7.178z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                 </svg>
               </div>
-              <p class="text-sm font-semibold text-[var(--color-warm-text)]">Monitor my agents</p>
-              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">I have agents in production and want to detect behavioral drift</p>
+              <p class="text-sm font-semibold text-[var(--color-warm-text)]">AI Agent</p>
+              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Chatbot, code assistant, or support agent</p>
             </button>
 
-            <!-- Build -->
-            <button class="use-case-card group rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-violet)] hover:shadow-md" data-use-case="build">
+            <!-- Humanoid Robot -->
+            <button class="use-case-card group rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-blue)] hover:shadow-md" data-use-case="build">
+              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-blue-soft)]">
+                <svg class="h-5 w-5 text-[var(--color-p-blue)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25v-1.5M8.25 6H6M18 6h-2.25" />
+                </svg>
+              </div>
+              <p class="text-sm font-semibold text-[var(--color-warm-text)]">Humanoid Robot</p>
+              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Figure, Unitree, Asimov, or custom hardware</p>
+            </button>
+
+            <!-- Virtual Avatar -->
+            <button class="use-case-card group rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-violet)] hover:shadow-md" data-use-case="explore">
               <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-violet-soft)]">
                 <svg class="h-5 w-5 text-[var(--color-p-violet)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M11.42 15.17l-5.66-5.66a2.12 2.12 0 010-3l.71-.71a2.12 2.12 0 013 0l2.83 2.83 7.07-7.07a2.12 2.12 0 013 0l.71.71a2.12 2.12 0 010 3L11.42 15.17zM3.75 21h16.5" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75a4.5 4.5 0 01-4.884 4.484c-1.076-.091-2.264.071-2.95.904l-7.152 8.684a2.548 2.548 0 11-3.586-3.586l8.684-7.152c.833-.686.995-1.874.904-2.95a4.5 4.5 0 016.336-4.486l-3.276 3.276a3.004 3.004 0 002.25 2.25l3.276-3.276c.256.565.398 1.192.398 1.852z" />
-                </svg>
-              </div>
-              <p class="text-sm font-semibold text-[var(--color-warm-text)]">Build better agents</p>
-              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">I'm developing agents and want personality alignment</p>
-            </button>
-
-            <!-- Explore -->
-            <button class="use-case-card group rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-gold)] hover:shadow-md" data-use-case="explore">
-              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-gold-soft)]">
-                <svg class="h-5 w-5 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
                 </svg>
               </div>
-              <p class="text-sm font-semibold text-[var(--color-warm-text)]">Explore the platform</p>
-              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">I'm evaluating holomime for my team</p>
+              <p class="text-sm font-semibold text-[var(--color-warm-text)]">Virtual Avatar</p>
+              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Game character, digital twin, or assistant</p>
             </button>
           </div>
 
@@ -311,10 +310,15 @@ const licenseKey = user.user_metadata?.license_key || "";
     background: var(--color-p-coral-soft);
     box-shadow: 0 0 0 1px var(--color-p-coral);
   }
+  .use-case-card[data-use-case="build"].selected {
+    border-color: var(--color-p-blue) !important;
+    background: var(--color-p-blue-soft);
+    box-shadow: 0 0 0 1px var(--color-p-blue);
+  }
   .use-case-card[data-use-case="explore"].selected {
-    border-color: var(--color-p-gold) !important;
-    background: var(--color-p-gold-soft);
-    box-shadow: 0 0 0 1px var(--color-p-gold);
+    border-color: var(--color-p-violet) !important;
+    background: var(--color-p-violet-soft);
+    box-shadow: 0 0 0 1px var(--color-p-violet);
   }
 
   .checkmark-path {

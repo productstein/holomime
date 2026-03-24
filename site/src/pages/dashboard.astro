@@ -748,6 +748,51 @@ const personalityStyle: [string, string][] = userPersonality?.spec?.style
       )}
 
       <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECTION: Identity Stack Summary                -->
+      <!-- ═══════════════════════════════════════════════ -->
+      <div class="mb-6">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-warm-muted)] mb-3">Identity Stack</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <!-- Soul (coral) -->
+          <div class="rounded-xl border border-[var(--color-warm-border)] bg-white p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="h-2 w-2 rounded-full" style="background: var(--color-p-coral);"></span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-[var(--color-warm-muted)]">Soul</span>
+            </div>
+            <div class="text-2xl font-bold text-[var(--color-warm-text)]">&mdash;</div>
+            <div class="text-xs text-[var(--color-warm-muted)]">agents with values defined</div>
+          </div>
+          <!-- Psyche (blue) -->
+          <div class="rounded-xl border border-[var(--color-warm-border)] bg-white p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="h-2 w-2 rounded-full" style="background: var(--color-p-blue);"></span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-[var(--color-warm-muted)]">Psyche</span>
+            </div>
+            <div class="text-2xl font-bold text-[var(--color-warm-text)]">&mdash;</div>
+            <div class="text-xs text-[var(--color-warm-muted)]">agents with personality vectors</div>
+          </div>
+          <!-- Body (gold) -->
+          <div class="rounded-xl border border-[var(--color-warm-border)] bg-white p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="h-2 w-2 rounded-full" style="background: var(--color-p-gold);"></span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-[var(--color-warm-muted)]">Body</span>
+            </div>
+            <div class="text-2xl font-bold text-[var(--color-warm-text)]">&mdash;</div>
+            <div class="text-xs text-[var(--color-warm-muted)]">agents with body templates</div>
+          </div>
+          <!-- Conscience (violet) -->
+          <div class="rounded-xl border border-[var(--color-warm-border)] bg-white p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="h-2 w-2 rounded-full" style="background: var(--color-p-violet);"></span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-[var(--color-warm-muted)]">Conscience</span>
+            </div>
+            <div class="text-2xl font-bold text-[var(--color-warm-text)]">&mdash;</div>
+            <div class="text-xs text-[var(--color-warm-muted)]">agents with deny rules</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════ -->
       <!-- SECTION 5: Behavioral Health (Redesigned)      -->
       <!-- ═══════════════════════════════════════════════ -->
       <div class="rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)] mb-6">

@@ -25,10 +25,27 @@
     </div>
 
     <!-- Tab Navigation -->
-    <div class="ad-tabs">
+    <div class="ad-tabs ad-tabs-scrollable">
       <button class="ad-tab active" data-tab="overview" type="button">Overview</button>
       <button class="ad-tab" data-tab="sessions" type="button">Sessions</button>
       <button class="ad-tab" data-tab="patterns" type="button">Patterns</button>
+      <span class="ad-tab-divider"></span>
+      <button class="ad-tab ad-tab-identity" data-tab="soul" type="button">
+        <span class="ad-tab-dot" style="background: var(--color-p-coral);"></span>
+        Soul
+      </button>
+      <button class="ad-tab ad-tab-identity" data-tab="psyche" type="button">
+        <span class="ad-tab-dot" style="background: var(--color-p-blue);"></span>
+        Psyche
+      </button>
+      <button class="ad-tab ad-tab-identity" data-tab="body" type="button">
+        <span class="ad-tab-dot" style="background: var(--color-p-gold);"></span>
+        Body
+      </button>
+      <button class="ad-tab ad-tab-identity" data-tab="conscience" type="button">
+        <span class="ad-tab-dot" style="background: var(--color-p-violet);"></span>
+        Conscience
+      </button>
       <div class="ad-tab-indicator" id="ad-tab-indicator"></div>
     </div>
 
@@ -101,6 +118,161 @@
           <div id="ad-pattern-resolution" class="ad-pattern-resolution">
             <!-- Rendered by JS -->
           </div>
+        </div>
+      </div>
+
+      <!-- Soul Tab -->
+      <div id="ad-tab-soul" class="ad-tab-pane">
+        <div class="ad-identity-header">
+          <span class="ad-identity-tag" style="color: var(--color-p-coral);">Immutable</span>
+          <span class="ad-identity-badge" style="background: var(--color-p-coral-soft); color: var(--color-p-coral);">Never auto-modified</span>
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label" for="soul-name">Agent Name</label>
+          <input type="text" id="soul-name" class="ad-form-input" placeholder="e.g. support-agent-v2" />
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label" for="soul-purpose">Purpose</label>
+          <textarea id="soul-purpose" class="ad-form-input" rows="2" placeholder="What is this agent's reason for existing?"></textarea>
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label">Core Values</label>
+          <div id="soul-values-list" class="ad-editable-list"></div>
+          <button id="soul-add-value" class="ad-add-btn" type="button">+ Add value</button>
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label">Red Lines</label>
+          <div id="soul-redlines-list" class="ad-editable-list"></div>
+          <button id="soul-add-redline" class="ad-add-btn" type="button">+ Add red line</button>
+        </div>
+      </div>
+
+      <!-- Psyche Tab -->
+      <div id="ad-tab-psyche" class="ad-tab-pane">
+        <div class="ad-identity-header">
+          <span class="ad-identity-tag" style="color: var(--color-p-blue);">Mutable</span>
+          <span class="ad-identity-badge" style="background: var(--color-p-blue-soft); color: var(--color-p-blue);">Auto-patched by therapy</span>
+        </div>
+
+        <div class="ad-section">
+          <h3 class="ad-section-title">Personality Traits</h3>
+          <p class="ad-section-desc">Trait sliders are available on the full agent editor page. This view shows a summary of the current personality vector.</p>
+          <div id="ad-psyche-traits" class="ad-psyche-trait-list"></div>
+        </div>
+
+        <div class="ad-section">
+          <h3 class="ad-section-title">Facets</h3>
+          <div id="ad-psyche-facets" class="ad-psyche-facet-list"></div>
+        </div>
+      </div>
+
+      <!-- Body Tab -->
+      <div id="ad-tab-body" class="ad-tab-pane">
+        <div class="ad-identity-header">
+          <span class="ad-identity-tag" style="color: var(--color-p-gold);">Embodiment</span>
+          <span class="ad-identity-badge" style="background: var(--color-p-gold-soft); color: var(--color-p-gold);">Physical form config</span>
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label" for="body-morphology">Morphology</label>
+          <select id="body-morphology" class="ad-form-input">
+            <option value="">No body (chatbot)</option>
+            <option value="humanoid">Humanoid</option>
+            <option value="humanoid_upper">Humanoid (upper body)</option>
+            <option value="quadruped">Quadruped</option>
+            <option value="avatar">Avatar</option>
+          </select>
+        </div>
+
+        <div class="ad-section">
+          <h3 class="ad-section-title">Templates</h3>
+          <div class="ad-body-templates" id="body-templates-grid">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <div id="body-safety-fields" class="ad-section" style="display: none;">
+          <h3 class="ad-section-title">Safety Envelope</h3>
+          <div class="ad-safety-grid">
+            <div class="ad-form-group">
+              <label class="ad-form-label" for="body-max-speed">Max Speed (m/s)</label>
+              <input type="number" id="body-max-speed" class="ad-form-input" step="0.1" value="0" />
+            </div>
+            <div class="ad-form-group">
+              <label class="ad-form-label" for="body-max-force">Max Contact Force (N)</label>
+              <input type="number" id="body-max-force" class="ad-form-input" step="1" value="0" />
+            </div>
+            <div class="ad-form-group">
+              <label class="ad-form-label" for="body-min-proximity">Min Proximity (m)</label>
+              <input type="number" id="body-min-proximity" class="ad-form-input" step="0.1" value="0" />
+            </div>
+            <div class="ad-form-group">
+              <label class="ad-form-label" for="body-emergency-stop">Emergency Stop Decel (m/s&sup2;)</label>
+              <input type="number" id="body-emergency-stop" class="ad-form-input" step="0.5" value="0" />
+            </div>
+          </div>
+        </div>
+
+        <div id="body-modalities-section" class="ad-section" style="display: none;">
+          <h3 class="ad-section-title">Modalities</h3>
+          <div class="ad-modalities-grid" id="body-modalities-grid">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Embodied Compile Output -->
+        <div id="body-compile-output" class="ad-section" style="display: none;">
+          <h3 class="ad-section-title">Embodied Config</h3>
+          <pre id="body-compile-json" class="ad-compile-pre"></pre>
+          <div class="ad-compile-actions">
+            <button id="body-copy-ros2" class="ad-copy-btn" type="button">Copy for ROS2</button>
+            <button id="body-copy-unity" class="ad-copy-btn" type="button">Copy for Unity</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conscience Tab -->
+      <div id="ad-tab-conscience" class="ad-tab-pane">
+        <div class="ad-identity-header">
+          <span class="ad-identity-tag" style="color: var(--color-p-violet);">Enforcement</span>
+          <span class="ad-identity-badge" style="background: var(--color-p-violet-soft); color: var(--color-p-violet);">Human approval required</span>
+        </div>
+
+        <div class="ad-section">
+          <h3 class="ad-section-title">Deny Rules</h3>
+          <div id="conscience-deny-list" class="ad-editable-list"></div>
+          <button id="conscience-add-deny" class="ad-add-btn" type="button">+ Add deny rule</button>
+        </div>
+
+        <div class="ad-section">
+          <h3 class="ad-section-title">Allow Rules</h3>
+          <div id="conscience-allow-list" class="ad-editable-list"></div>
+          <button id="conscience-add-allow" class="ad-add-btn" type="button">+ Add allow rule</button>
+        </div>
+
+        <div class="ad-section">
+          <h3 class="ad-section-title">Escalation Rules</h3>
+          <div id="conscience-escalate-list" class="ad-editable-list"></div>
+          <button id="conscience-add-escalate" class="ad-add-btn" type="button">+ Add escalation</button>
+        </div>
+
+        <div class="ad-section">
+          <h3 class="ad-section-title">Hard Limits</h3>
+          <div id="conscience-limits-list" class="ad-editable-list"></div>
+          <button id="conscience-add-limit" class="ad-add-btn" type="button">+ Add hard limit</button>
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label" for="conscience-oversight">Oversight Mode</label>
+          <select id="conscience-oversight" class="ad-form-input">
+            <option value="review">Review (recommended)</option>
+            <option value="autonomous">Autonomous</option>
+            <option value="supervised">Supervised</option>
+          </select>
         </div>
       </div>
     </div>
@@ -596,6 +768,349 @@
     background: rgba(245,158,11,0.12);
     color: #d97706;
   }
+
+  /* ── Scrollable Tabs ── */
+  .ad-tabs-scrollable {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .ad-tabs-scrollable::-webkit-scrollbar { display: none; }
+
+  /* ── Tab Divider ── */
+  .ad-tab-divider {
+    display: inline-block;
+    width: 1px;
+    height: 20px;
+    background: var(--color-warm-border, #e8e2d9);
+    margin: auto 4px;
+    flex-shrink: 0;
+  }
+
+  /* ── Identity Tab Dot ── */
+  .ad-tab-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .ad-tab-identity {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .ad-tab[data-tab="soul"].active::after { background: var(--color-p-coral, #f97066); }
+  .ad-tab[data-tab="psyche"].active::after { background: var(--color-p-blue, #3b82f6); }
+  .ad-tab[data-tab="body"].active::after { background: var(--color-p-gold, #f59e0b); }
+  .ad-tab[data-tab="conscience"].active::after { background: var(--color-p-violet, #8b5cf6); }
+
+  /* ── Identity Header ── */
+  .ad-identity-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .ad-identity-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .ad-identity-badge {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 9999px;
+  }
+
+  /* ── Form Elements ── */
+  .ad-form-group {
+    margin-bottom: 14px;
+  }
+  .ad-form-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-warm-muted, #9a9693);
+    margin-bottom: 4px;
+  }
+  .ad-form-input {
+    width: 100%;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-family: var(--font-sans, system-ui);
+    color: var(--color-warm-text, #2a2520);
+    background: #fff;
+    outline: none;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+  }
+  .ad-form-input:focus {
+    border-color: var(--color-p-violet, #8b5cf6);
+  }
+  select.ad-form-input {
+    cursor: pointer;
+  }
+  textarea.ad-form-input {
+    resize: vertical;
+    min-height: 48px;
+  }
+
+  /* ── Editable List ── */
+  .ad-editable-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .ad-list-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ad-list-item input {
+    flex: 1;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-family: var(--font-sans, system-ui);
+    color: var(--color-warm-text, #2a2520);
+    background: #fff;
+    outline: none;
+  }
+  .ad-list-item input:focus {
+    border-color: var(--color-p-violet, #8b5cf6);
+  }
+  .ad-list-remove {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    background: #fff;
+    color: var(--color-warm-muted, #9a9693);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+    padding: 0;
+  }
+  .ad-list-remove:hover {
+    background: rgba(239,68,68,0.08);
+    color: #ef4444;
+  }
+  .ad-add-btn {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    font-family: var(--font-sans, system-ui);
+    color: var(--color-warm-muted, #9a9693);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 2px 0;
+    transition: color 0.15s;
+  }
+  .ad-add-btn:hover {
+    color: var(--color-warm-text, #2a2520);
+  }
+
+  /* ── Body Templates Grid ── */
+  .ad-body-templates {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .ad-body-template-card {
+    padding: 10px 12px;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    text-align: left;
+    font-family: var(--font-sans, system-ui);
+  }
+  .ad-body-template-card:hover {
+    border-color: var(--color-p-gold, #f59e0b);
+    box-shadow: 0 0 0 1px var(--color-p-gold, #f59e0b);
+  }
+  .ad-body-template-card.selected {
+    border-color: var(--color-p-gold, #f59e0b);
+    background: var(--color-p-gold-soft, #fffbeb);
+  }
+  .ad-body-template-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-warm-text, #2a2520);
+    margin-bottom: 2px;
+  }
+  .ad-body-template-oem {
+    font-size: 10px;
+    color: var(--color-warm-muted, #9a9693);
+  }
+
+  /* ── Safety Grid ── */
+  .ad-safety-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* ── Modalities Grid ── */
+  .ad-modalities-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .ad-modality-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: var(--font-sans, system-ui);
+    color: var(--color-warm-muted, #9a9693);
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .ad-modality-chip:hover { border-color: var(--color-p-gold, #f59e0b); }
+  .ad-modality-chip.active {
+    background: var(--color-p-gold-soft, #fffbeb);
+    border-color: var(--color-p-gold, #f59e0b);
+    color: var(--color-p-gold, #f59e0b);
+    font-weight: 600;
+  }
+
+  /* ── Compile Preview ── */
+  .ad-compile-pre {
+    font-size: 11px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    background: #1a1a2e;
+    color: #e0e0e0;
+    border-radius: 10px;
+    padding: 14px;
+    overflow: auto;
+    max-height: 260px;
+    white-space: pre-wrap;
+    margin-bottom: 10px;
+  }
+  .ad-compile-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .ad-copy-btn {
+    font-size: 11px;
+    font-weight: 500;
+    font-family: var(--font-sans, system-ui);
+    padding: 5px 12px;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 6px;
+    background: #fff;
+    color: var(--color-warm-muted, #9a9693);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .ad-copy-btn:hover {
+    border-color: var(--color-warm-sand, #c5c1bc);
+    color: var(--color-warm-text, #2a2520);
+  }
+
+  /* ── Psyche Trait Summary ── */
+  .ad-psyche-trait-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ad-psyche-trait-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .ad-psyche-trait-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--color-warm-text, #2a2520);
+    width: 90px;
+    flex-shrink: 0;
+  }
+  .ad-psyche-trait-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--color-warm-cream, #faf6f1);
+    border-radius: 3px;
+    overflow: hidden;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+  }
+  .ad-psyche-trait-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--color-p-blue, #3b82f6);
+    transition: width 0.3s ease;
+  }
+  .ad-psyche-trait-val {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--color-p-blue, #3b82f6);
+    width: 32px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .ad-psyche-facet-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .ad-psyche-facet-chip {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--color-p-blue-soft, #eff6ff);
+    color: var(--color-p-blue, #3b82f6);
+    font-weight: 500;
+  }
+  .ad-section-desc {
+    font-size: 11px;
+    color: var(--color-warm-muted, #9a9693);
+    margin-bottom: 10px;
+  }
+
+  /* ── Conscience Rule Items ── */
+  .ad-rule-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ad-rule-item input {
+    flex: 1;
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-family: var(--font-sans, system-ui);
+    color: var(--color-warm-text, #2a2520);
+    background: #fff;
+    outline: none;
+  }
+  .ad-rule-item input:focus {
+    border-color: var(--color-p-violet, #8b5cf6);
+  }
+  .ad-rule-item input:first-child {
+    flex: 2;
+  }
 </style>
 
 <script>
@@ -990,6 +1505,297 @@
       </div>`;
     }).join('');
   }
+
+  // ═══════════ BODY TEMPLATES DATA ═══════════
+  const bodyTemplates = {
+    'figure-02': { name: 'Figure 02', oem: 'Figure AI', morphology: 'humanoid', dof: 44, maxSpeed: 1.5, maxForce: 20, minProximity: 0.3, emergencyStop: 5.0, modalities: ['gesture','gaze','voice','posture','locomotion','manipulation'] },
+    'unitree-h1': { name: 'Unitree H1', oem: 'Unitree', morphology: 'humanoid', dof: 23, maxSpeed: 3.3, maxForce: 15, minProximity: 0.3, emergencyStop: 5.0, modalities: ['gesture','gaze','voice','posture','locomotion'] },
+    'phoenix': { name: 'Phoenix', oem: 'Sanctuary AI', morphology: 'humanoid', dof: 69, maxSpeed: 1.2, maxForce: 25, minProximity: 0.25, emergencyStop: 6.0, modalities: ['gesture','gaze','voice','posture','locomotion','manipulation','haptic'] },
+    'ameca': { name: 'Ameca', oem: 'Engineered Arts', morphology: 'humanoid_upper', dof: 52, maxSpeed: 0, maxForce: 5, minProximity: 0.5, emergencyStop: 3.0, modalities: ['gesture','gaze','facial','voice'] },
+    'asimov-v1': { name: 'Asimov V1', oem: 'Asimov Inc', morphology: 'humanoid', dof: 25, maxSpeed: 1.2, maxForce: 15, minProximity: 0.4, emergencyStop: 4.0, modalities: ['gesture','gaze','voice','posture','locomotion','manipulation'] },
+    'spot': { name: 'Spot', oem: 'Boston Dynamics', morphology: 'quadruped', dof: 12, maxSpeed: 1.6, maxForce: 10, minProximity: 0.5, emergencyStop: 4.0, modalities: ['locomotion','gaze','voice','posture'] },
+    'avatar': { name: 'Avatar', oem: 'Virtual', morphology: 'avatar', dof: 0, maxSpeed: 0, maxForce: 0, minProximity: 0, emergencyStop: 0, modalities: ['gesture','gaze','facial','voice','posture'] },
+  };
+
+  const allModalities = ['gesture', 'locomotion', 'gaze', 'facial', 'voice', 'haptic', 'posture', 'manipulation'];
+
+  // ═══════════ SOUL TAB ═══════════
+  function renderSoulTab(agentName) {
+    const nameInput = document.getElementById('soul-name');
+    if (nameInput) nameInput.value = agentName || '';
+
+    // Init with sample data
+    renderEditableList('soul-values-list', ['Honesty', 'Helpfulness'], 'Value');
+    renderEditableList('soul-redlines-list', ['Never impersonate a human', 'Never share private data'], 'Red line');
+  }
+
+  function renderEditableList(containerId, items, placeholder) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = items.map((item, i) =>
+      `<div class="ad-list-item" data-idx="${i}">
+        <input type="text" value="${escapeHtml(item)}" placeholder="${placeholder}..." />
+        <button class="ad-list-remove" type="button" data-list="${containerId}" data-idx="${i}">&times;</button>
+      </div>`
+    ).join('');
+
+    // Remove buttons
+    container.querySelectorAll('.ad-list-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        btn.closest('.ad-list-item').remove();
+      });
+    });
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // Add button wiring for soul
+  document.getElementById('soul-add-value')?.addEventListener('click', () => {
+    appendListItem('soul-values-list', 'Value');
+  });
+  document.getElementById('soul-add-redline')?.addEventListener('click', () => {
+    appendListItem('soul-redlines-list', 'Red line');
+  });
+
+  function appendListItem(containerId, placeholder) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = 'ad-list-item';
+    div.innerHTML = `<input type="text" value="" placeholder="${placeholder}..." /><button class="ad-list-remove" type="button">&times;</button>`;
+    div.querySelector('.ad-list-remove').addEventListener('click', () => div.remove());
+    container.appendChild(div);
+    div.querySelector('input').focus();
+  }
+
+  // ═══════════ PSYCHE TAB ═══════════
+  const psycheTraits = [
+    { name: 'Warmth', score: 72 },
+    { name: 'Assertiveness', score: 45 },
+    { name: 'Curiosity', score: 88 },
+    { name: 'Patience', score: 65 },
+    { name: 'Humor', score: 34 },
+  ];
+  const psycheFacets = ['Empathetic', 'Analytical', 'Patient', 'Detail-oriented'];
+
+  function renderPsycheTab() {
+    const traitList = document.getElementById('ad-psyche-traits');
+    if (traitList) {
+      traitList.innerHTML = psycheTraits.map(t =>
+        `<div class="ad-psyche-trait-row">
+          <span class="ad-psyche-trait-name">${t.name}</span>
+          <div class="ad-psyche-trait-bar"><div class="ad-psyche-trait-fill" style="width:${t.score}%"></div></div>
+          <span class="ad-psyche-trait-val">${t.score}%</span>
+        </div>`
+      ).join('');
+    }
+
+    const facetList = document.getElementById('ad-psyche-facets');
+    if (facetList) {
+      facetList.innerHTML = psycheFacets.map(f =>
+        `<span class="ad-psyche-facet-chip">${f}</span>`
+      ).join('');
+    }
+  }
+
+  // ═══════════ BODY TAB ═══════════
+  let selectedTemplate = null;
+  let activeModalities = new Set();
+
+  function renderBodyTemplates() {
+    const grid = document.getElementById('body-templates-grid');
+    if (!grid) return;
+    grid.innerHTML = Object.entries(bodyTemplates).map(([key, t]) =>
+      `<button class="ad-body-template-card${selectedTemplate === key ? ' selected' : ''}" data-template="${key}" type="button">
+        <div class="ad-body-template-name">${t.name}</div>
+        <div class="ad-body-template-oem">${t.oem} &middot; ${t.dof} DOF</div>
+      </button>`
+    ).join('');
+
+    grid.querySelectorAll('.ad-body-template-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const key = card.dataset.template;
+        const t = bodyTemplates[key];
+        selectedTemplate = key;
+
+        // Auto-fill morphology
+        const morphSelect = document.getElementById('body-morphology');
+        if (morphSelect) morphSelect.value = t.morphology;
+
+        // Auto-fill safety fields
+        document.getElementById('body-max-speed').value = t.maxSpeed;
+        document.getElementById('body-max-force').value = t.maxForce;
+        document.getElementById('body-min-proximity').value = t.minProximity;
+        document.getElementById('body-emergency-stop').value = t.emergencyStop;
+
+        // Auto-fill modalities
+        activeModalities = new Set(t.modalities);
+
+        // Show sections
+        showBodySections();
+        renderBodyModalities();
+        renderBodyTemplates(); // re-render to update selection
+        updateBodyCompile();
+      });
+    });
+  }
+
+  function showBodySections() {
+    const safety = document.getElementById('body-safety-fields');
+    const modalities = document.getElementById('body-modalities-section');
+    const compile = document.getElementById('body-compile-output');
+    if (safety) safety.style.display = '';
+    if (modalities) modalities.style.display = '';
+    if (compile) compile.style.display = '';
+  }
+
+  function renderBodyModalities() {
+    const grid = document.getElementById('body-modalities-grid');
+    if (!grid) return;
+    grid.innerHTML = allModalities.map(m =>
+      `<button class="ad-modality-chip${activeModalities.has(m) ? ' active' : ''}" data-modality="${m}" type="button">${m}</button>`
+    ).join('');
+
+    grid.querySelectorAll('.ad-modality-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const m = chip.dataset.modality;
+        if (activeModalities.has(m)) activeModalities.delete(m);
+        else activeModalities.add(m);
+        renderBodyModalities();
+        updateBodyCompile();
+      });
+    });
+  }
+
+  function updateBodyCompile() {
+    const morphology = document.getElementById('body-morphology')?.value || '';
+    const config = {
+      morphology: morphology || null,
+      safety: {
+        maxSpeed: parseFloat(document.getElementById('body-max-speed')?.value) || 0,
+        maxForce: parseFloat(document.getElementById('body-max-force')?.value) || 0,
+        minProximity: parseFloat(document.getElementById('body-min-proximity')?.value) || 0,
+        emergencyStopDecel: parseFloat(document.getElementById('body-emergency-stop')?.value) || 0,
+      },
+      modalities: [...activeModalities],
+    };
+    if (selectedTemplate) {
+      const t = bodyTemplates[selectedTemplate];
+      config.template = selectedTemplate;
+      config.oem = t.oem;
+      config.dof = t.dof;
+    }
+    const pre = document.getElementById('body-compile-json');
+    if (pre) pre.textContent = JSON.stringify(config, null, 2);
+  }
+
+  // Morphology dropdown change
+  document.getElementById('body-morphology')?.addEventListener('change', () => {
+    const val = document.getElementById('body-morphology').value;
+    if (val) {
+      showBodySections();
+      renderBodyModalities();
+      updateBodyCompile();
+    }
+  });
+
+  // Safety field changes
+  ['body-max-speed', 'body-max-force', 'body-min-proximity', 'body-emergency-stop'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', updateBodyCompile);
+  });
+
+  // Copy buttons
+  document.getElementById('body-copy-ros2')?.addEventListener('click', () => {
+    const pre = document.getElementById('body-compile-json');
+    if (pre) { navigator.clipboard.writeText(pre.textContent); showCopyFeedback('body-copy-ros2'); }
+  });
+  document.getElementById('body-copy-unity')?.addEventListener('click', () => {
+    const pre = document.getElementById('body-compile-json');
+    if (pre) { navigator.clipboard.writeText(pre.textContent); showCopyFeedback('body-copy-unity'); }
+  });
+
+  function showCopyFeedback(btnId) {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1500);
+  }
+
+  // ═══════════ CONSCIENCE TAB ═══════════
+  function renderConscienceTab() {
+    renderRuleList('conscience-deny-list', [
+      { a: 'Delete user data', b: 'Irreversible action' },
+      { a: 'Access billing API', b: 'Requires human approval' },
+    ], 'Action', 'Reason');
+
+    renderRuleList('conscience-allow-list', [
+      { a: 'Read knowledge base', b: 'Always permitted' },
+      { a: 'Generate responses', b: 'Core function' },
+    ], 'Action', 'Conditions');
+
+    renderRuleList('conscience-escalate-list', [
+      { a: 'Confidence < 0.3', b: 'Escalate to human' },
+    ], 'Trigger', 'Action');
+
+    renderEditableList('conscience-limits-list', ['No financial transactions', 'No PII storage'], 'Hard limit');
+  }
+
+  function renderRuleList(containerId, items, placeholderA, placeholderB) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    container.innerHTML = items.map((item, i) =>
+      `<div class="ad-rule-item" data-idx="${i}">
+        <input type="text" value="${escapeHtml(item.a)}" placeholder="${placeholderA}..." />
+        <input type="text" value="${escapeHtml(item.b)}" placeholder="${placeholderB}..." />
+        <button class="ad-list-remove" type="button">&times;</button>
+      </div>`
+    ).join('');
+
+    container.querySelectorAll('.ad-list-remove').forEach(btn => {
+      btn.addEventListener('click', () => btn.closest('.ad-rule-item').remove());
+    });
+  }
+
+  function appendRuleItem(containerId, placeholderA, placeholderB) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = 'ad-rule-item';
+    div.innerHTML = `<input type="text" value="" placeholder="${placeholderA}..." /><input type="text" value="" placeholder="${placeholderB}..." /><button class="ad-list-remove" type="button">&times;</button>`;
+    div.querySelector('.ad-list-remove').addEventListener('click', () => div.remove());
+    container.appendChild(div);
+    div.querySelector('input').focus();
+  }
+
+  document.getElementById('conscience-add-deny')?.addEventListener('click', () => {
+    appendRuleItem('conscience-deny-list', 'Action', 'Reason');
+  });
+  document.getElementById('conscience-add-allow')?.addEventListener('click', () => {
+    appendRuleItem('conscience-allow-list', 'Action', 'Conditions');
+  });
+  document.getElementById('conscience-add-escalate')?.addEventListener('click', () => {
+    appendRuleItem('conscience-escalate-list', 'Trigger', 'Action');
+  });
+  document.getElementById('conscience-add-limit')?.addEventListener('click', () => {
+    appendListItem('conscience-limits-list', 'Hard limit');
+  });
+
+  // ═══════════ IDENTITY TAB RENDERING ON TAB SWITCH ═══════════
+  // Extend existing tab click handler to render identity tabs
+  document.querySelectorAll('.ad-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const t = tab.dataset.tab;
+      if (t === 'soul') renderSoulTab(document.getElementById('ad-agent-name')?.textContent);
+      if (t === 'psyche') renderPsycheTab();
+      if (t === 'body') { renderBodyTemplates(); renderBodyModalities(); }
+      if (t === 'conscience') renderConscienceTab();
+    });
+  });
 
   // Initial render
   renderOverview();
