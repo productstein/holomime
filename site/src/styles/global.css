@@ -1,21 +1,18 @@
 @import "tailwindcss";
 
 @theme {
-  /* Dark foundation */
-  --color-bg: #08080c;
-  --color-bg-raised: #111116;
-  --color-bg-surface: #18181f;
-  --color-border: #222230;
+  --color-bg: #06060a;
+  --color-bg-raised: #0c0c12;
+  --color-bg-surface: #131319;
+  --color-border: #1a1a24;
 
-  /* Text hierarchy */
-  --color-text: #e8e8ec;
-  --color-text-secondary: #888890;
-  --color-text-muted: #555560;
+  --color-text: #eaeaef;
+  --color-text-secondary: #7a7a85;
+  --color-text-muted: #44444f;
 
-  /* Accent — one color only */
   --color-accent: #f97066;
 
-  /* Legacy (kept for subpages that still use them) */
+  /* Legacy for subpages */
   --color-holo-cyan: #06b6d4;
   --color-holo-magenta: #d946ef;
   --color-holo-slate: #0f172a;
@@ -50,47 +47,96 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
+  overflow-x: hidden;
 }
 
-::selection {
-  background-color: rgba(249, 112, 102, 0.2);
-}
+::selection { background-color: rgba(249, 112, 102, 0.25); }
 
-/* ---- Stagger reveal ---- */
+/* ─── Cinematic reveals ─── */
 @keyframes revealUp {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .reveal {
   opacity: 0;
-  animation: revealUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: revealUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.reveal-d1 { animation-delay: 0.1s; }
-.reveal-d2 { animation-delay: 0.2s; }
-.reveal-d3 { animation-delay: 0.3s; }
-.reveal-d4 { animation-delay: 0.4s; }
-.reveal-d5 { animation-delay: 0.5s; }
+.reveal-d1 { animation-delay: 0.15s; }
+.reveal-d2 { animation-delay: 0.3s; }
+.reveal-d3 { animation-delay: 0.45s; }
+.reveal-d4 { animation-delay: 0.6s; }
+.reveal-d5 { animation-delay: 0.75s; }
 
-/* ---- Terminal cursor ---- */
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-.cursor-blink {
-  animation: blink 1s step-end infinite;
+/* ─── Gradient orbs ─── */
+@keyframes orbDrift1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(60px, -40px) scale(1.1); }
+  50% { transform: translate(-30px, 50px) scale(0.95); }
+  75% { transform: translate(40px, 20px) scale(1.05); }
 }
 
-/* ---- Gradient text (accent) ---- */
+@keyframes orbDrift2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-50px, 30px) scale(1.08); }
+  66% { transform: translate(40px, -60px) scale(0.92); }
+}
+
+.gradient-orb-1 {
+  animation: orbDrift1 25s ease-in-out infinite;
+}
+
+.gradient-orb-2 {
+  animation: orbDrift2 30s ease-in-out infinite;
+}
+
+/* ─── Glassmorphic nav ─── */
+.glass-nav {
+  background: rgba(6, 6, 10, 0.6);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* ─── CTA glow on hover ─── */
+.cta-primary {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.cta-primary::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: var(--color-accent);
+  opacity: 0;
+  filter: blur(16px);
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.cta-primary:hover::after {
+  opacity: 0.35;
+}
+
+/* ─── Section divider line ─── */
+.section-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-border), transparent);
+}
+
+/* ─── Kept for subpages ─── */
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+.cursor-blink { animation: blink 1s step-end infinite; }
+
 .text-gradient-warm {
   background: linear-gradient(135deg, #f97066, #ff8a65);
   -webkit-background-clip: text;
@@ -105,7 +151,6 @@ body {
   background-clip: text;
 }
 
-/* ---- Kept for subpages ---- */
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   33% { transform: translateY(-12px) rotate(1deg); }
