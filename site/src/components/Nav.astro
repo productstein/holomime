@@ -4,61 +4,132 @@ import AuthModal from "./AuthModal.astro";
 const user = Astro.locals.user;
 const avatarUrl = user?.user_metadata?.avatar_url;
 const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split("@")[0] || "User";
+
+const dropdowns = [
+  {
+    label: "Product",
+    items: [
+      { name: "Diagnose", desc: "Detect behavioral drift", href: "/demo" },
+      { name: "Therapy Engine", desc: "Structured correction sessions", href: "/manifesto#therapy" },
+      { name: "NeuralSpace", desc: "Real-time brain visualization", href: "/brain" },
+      { name: "Pricing", desc: "Free, Pro, and Enterprise", href: "/pricing" },
+    ],
+  },
+  {
+    label: "Solutions",
+    items: [
+      { name: "For AI Agents", desc: "Cloud APIs and coding agents", href: "/docs#getting-started" },
+      { name: "For Humanoid Robots", desc: "ROS2, MuJoCo, Isaac Sim", href: "/docs#hardware" },
+      { name: "ISO Compliance", desc: "4 standards, one command", href: "/docs#compliance" },
+    ],
+  },
+  {
+    label: "Resources",
+    items: [
+      { name: "Blog", desc: "Updates and case studies", href: "/blog" },
+      { name: "Benchmarks", desc: "Adversarial stress tests", href: "/benchmarks" },
+      { name: "Whitepaper", desc: "Technical architecture", href: "/whitepaper" },
+      { name: "Manifesto", desc: "Why behavioral intelligence", href: "/manifesto" },
+      { name: "Research", desc: "Papers and findings", href: "/research" },
+    ],
+  },
+];
 ---
 
-<nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-xl border-b border-[var(--color-warm-border)]">
-  <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
+<nav class="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-xl border-b border-[#eee]">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-6 h-14">
     <!-- Logo -->
-    <a href="/" class="flex items-center gap-2 text-lg font-bold text-[var(--color-warm-text)]">
-      <img src="/logo-icon.svg" alt="holomime" class="h-7 w-7" />
+    <a href="/" class="flex items-center gap-2 text-[15px] font-bold text-[#1a1a1a]">
+      <img src="/logo-icon.svg" alt="holomime" class="h-6 w-6" />
       <span class="tracking-[-0.02em]">holomime</span>
     </a>
 
-    <!-- Center links (desktop) -->
-    <div class="hidden md:flex items-center gap-7 text-[13px] font-medium text-[#777]">
-      <a href="/manifesto" class="transition-colors hover:text-[var(--color-warm-text)]">Manifesto</a>
-      <a href="/integrations" class="transition-colors hover:text-[var(--color-warm-text)]">Integrations</a>
-      <a href="/whitepaper" class="transition-colors hover:text-[var(--color-warm-text)]">Whitepaper</a>
-      <a href="/blog" class="transition-colors hover:text-[var(--color-warm-text)]">Blog</a>
+    <!-- Center: Dropdowns + Docs (desktop) -->
+    <div class="hidden md:flex items-center gap-1">
+      {dropdowns.map((dd, i) => (
+        <div class="nav-dropdown-wrap relative" data-dropdown={i}>
+          <button class="nav-dropdown-trigger flex items-center gap-1 px-3 py-2 text-[13px] font-medium text-[#555] rounded-md transition-colors hover:text-[#1a1a1a] hover:bg-[#f5f5f5]">
+            {dd.label}
+            <svg class="h-3 w-3 opacity-50" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+          </button>
+          <div class="nav-dropdown-panel absolute left-0 top-full pt-2 opacity-0 invisible pointer-events-none transition-all duration-150">
+            <div class="w-[260px] rounded-xl border border-[#eee] bg-white p-2 shadow-lg shadow-black/5">
+              {dd.items.map((item) => (
+                <a href={item.href} class="flex flex-col gap-0.5 rounded-lg px-3 py-2.5 transition-colors hover:bg-[#f8f8f8]">
+                  <span class="text-[13px] font-medium text-[#1a1a1a]">{item.name}</span>
+                  <span class="text-[11px] text-[#999]">{item.desc}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      ))}
+      <a href="/docs" class="px-3 py-2 text-[13px] font-medium text-[#555] rounded-md transition-colors hover:text-[#1a1a1a] hover:bg-[#f5f5f5]">Docs</a>
     </div>
 
     <!-- Right actions -->
-    <div class="flex items-center gap-4">
-      <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="text-[#999] transition-colors hover:text-[var(--color-warm-text)]" aria-label="GitHub">
-        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-      </a>
-
+    <div class="flex items-center gap-3">
       {user ? (
-        <!-- Logged in -->
         <div class="relative" id="user-menu-wrap">
-          <button id="user-menu-btn" class="flex items-center gap-2 rounded-lg border border-[var(--color-warm-border)] px-3 py-1.5 text-sm font-medium text-[var(--color-warm-text)] transition-colors hover:bg-[var(--color-warm-cream)]">
+          <button id="user-menu-btn" class="flex items-center gap-2 rounded-lg border border-[#e5e5e5] px-3 py-1.5 text-sm font-medium text-[#1a1a1a] transition-colors hover:bg-[#fafafa]">
             {avatarUrl ? (
               <img src={avatarUrl} alt="" class="h-5 w-5 rounded-full" referrerpolicy="no-referrer" />
             ) : (
-              <div class="flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-p-coral)] text-[10px] font-bold text-white">
+              <div class="flex h-5 w-5 items-center justify-center rounded-full bg-[#f97066] text-[10px] font-bold text-white">
                 {displayName.charAt(0).toUpperCase()}
               </div>
             )}
             <span class="hidden sm:inline max-w-[100px] truncate text-[13px]">{displayName}</span>
           </button>
-          <div id="user-dropdown" class="absolute right-0 top-full mt-2 hidden w-44 rounded-xl border border-[var(--color-warm-border)] bg-white py-1 shadow-lg">
-            <a href="https://app.holomime.com/dashboard" class="block px-3 py-2 text-sm text-[#777] hover:bg-[var(--color-warm-cream)] hover:text-[var(--color-warm-text)]">Dashboard</a>
-            <a href="https://app.holomime.com/agents" class="block px-3 py-2 text-sm text-[#777] hover:bg-[var(--color-warm-cream)] hover:text-[var(--color-warm-text)]">Agents</a>
-            <a href="https://app.holomime.com/settings" class="block px-3 py-2 text-sm text-[#777] hover:bg-[var(--color-warm-cream)] hover:text-[var(--color-warm-text)]">Settings</a>
+          <div id="user-dropdown" class="absolute right-0 top-full mt-2 hidden w-44 rounded-xl border border-[#eee] bg-white py-1 shadow-lg shadow-black/5">
+            <a href="https://app.holomime.com/dashboard" class="block px-3 py-2 text-sm text-[#555] hover:bg-[#f8f8f8] hover:text-[#1a1a1a]">Dashboard</a>
+            <a href="https://app.holomime.com/agents" class="block px-3 py-2 text-sm text-[#555] hover:bg-[#f8f8f8] hover:text-[#1a1a1a]">Agents</a>
+            <a href="https://app.holomime.com/settings" class="block px-3 py-2 text-sm text-[#555] hover:bg-[#f8f8f8] hover:text-[#1a1a1a]">Settings</a>
             <button id="signout-btn" class="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50">Sign Out</button>
           </div>
         </div>
       ) : (
-        <a href="/contact" class="btn-primary text-[13px]">Contact</a>
+        <button onclick="window.openAuthModal()" class="text-[13px] font-medium text-[#555] transition-colors hover:text-[#1a1a1a]">Sign in</button>
+        <a href="/contact" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#1a1a1a] text-[13px] font-semibold text-white transition-all hover:bg-[#333]">Contact Sales</a>
       )}
     </div>
   </div>
 </nav>
 
-<!-- Auth modal for SSO -->
 {!user && <AuthModal />}
 
 <script>
+  // Dropdown hover behavior
+  document.querySelectorAll(".nav-dropdown-wrap").forEach((wrap) => {
+    const panel = wrap.querySelector(".nav-dropdown-panel") as HTMLElement;
+    if (!panel) return;
+
+    let timeout: ReturnType<typeof setTimeout>;
+
+    wrap.addEventListener("mouseenter", () => {
+      clearTimeout(timeout);
+      // Close all others
+      document.querySelectorAll(".nav-dropdown-panel").forEach((p) => {
+        if (p !== panel) {
+          (p as HTMLElement).style.opacity = "0";
+          (p as HTMLElement).style.transform = "translateY(4px)";
+          p.classList.add("invisible", "pointer-events-none");
+        }
+      });
+      panel.style.opacity = "1";
+      panel.style.transform = "translateY(0)";
+      panel.classList.remove("invisible", "pointer-events-none");
+    });
+
+    wrap.addEventListener("mouseleave", () => {
+      timeout = setTimeout(() => {
+        panel.style.opacity = "0";
+        panel.style.transform = "translateY(4px)";
+        panel.classList.add("invisible", "pointer-events-none");
+      }, 150);
+    });
+  });
+
   // User dropdown toggle
   const menuBtn = document.getElementById("user-menu-btn");
   const dropdown = document.getElementById("user-dropdown");

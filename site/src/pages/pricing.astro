@@ -29,6 +29,30 @@ const faqs = [
     q: "Do you offer startup discounts?",
     a: "Yes, contact us for startup and academic pricing.",
   },
+  {
+    q: "What is the Identity Stack?",
+    a: "Eight files that define who your agent is: soul.md (values), mind.sys (personality traits), body.api (hardware profile), and conscience.exe (safety rules). They compile into a single personality.json that any runtime can consume.",
+  },
+  {
+    q: "How is therapy different from fine-tuning?",
+    a: "Therapy is the diagnostic and correction process — it identifies behavioral drift and generates DPO training pairs. Fine-tuning applies those pairs permanently to the model weights. Therapy is the method; fine-tuning is one of its outputs.",
+  },
+  {
+    q: "What models do you support?",
+    a: "Diagnosis works with any model that produces text — OpenAI, Anthropic, Mistral, Llama, etc. Fine-tuning currently supports OpenAI. More providers coming soon.",
+  },
+  {
+    q: "Can I use holomime with physical robots?",
+    a: "Yes. Deploy personality.json to hardware via ROS2, gRPC, or MQTT. We include 7 OEM body templates (Figure 02, Unitree H1, and more). See the integrations page for setup guides.",
+  },
+  {
+    q: "What is Mira?",
+    a: "Mira is our autonomous behavioral therapist. She diagnoses drift patterns, runs structured correction sessions, and generates training data. She also improves herself through self-practice — 414+ DPO pairs and counting.",
+  },
+  {
+    q: "Is holomime open source?",
+    a: "The identity stack, CLI, adapters, detectors, and body templates are MIT licensed. The training pipeline — Mira, the DPO corpus, and the therapy engine — is proprietary and available on paid plans.",
+  },
 ];
 
 const comparisonRows = [

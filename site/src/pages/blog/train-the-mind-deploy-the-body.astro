@@ -31,17 +31,17 @@ import BlogLayout from "../../components/BlogLayout.astro";
 <h2>The Identity Stack (Recap)</h2>
 
 <p>
-  Four files define who the robot is:
+  Eight files define who the robot is:
 </p>
 
 <pre><code>soul.md          — values, ethics, purpose          (immutable)
-psyche.sys       — Big Five, EQ, communication      (therapy-patchable)
+mind.sys       — Big Five, EQ, communication      (therapy-patchable)
 body.api         — morphology, safety, hardware     (swappable)
 conscience.exe   — deny/allow/escalate enforcement  (human-approved only)</code></pre>
 
 <p>
   <strong>soul.md</strong> is the essence — written in Markdown so anyone can read it, not just
-  engineers. It never changes. <strong>psyche.sys</strong> is the personality — Big Five traits,
+  engineers. It never changes. <strong>mind.sys</strong> is the personality — Big Five traits,
   emotional intelligence, communication style. This is the file therapy auto-patches.
   <strong>body.api</strong> is the physical interface contract — morphology, modalities, safety
   envelope. Same soul, different body, one command. <strong>conscience.exe</strong> is the
@@ -124,7 +124,7 @@ conscience.exe   — deny/allow/escalate enforcement  (human-approved only)</cod
 
 <p>
   Hugging Face's LeRobot framework connects learned policies to real hardware. Our integration
-  maps personality profiles to policy parameters — the Big Five traits in psyche.sys influence
+  maps personality profiles to policy parameters — the Big Five traits in mind.sys influence
   policy selection and execution style. An agreeable robot selects gentler grasp policies. A
   conscientious robot double-checks placement accuracy. Personality isn't cosmetic. It shapes
   how the policy executes.
@@ -147,7 +147,7 @@ conscience.exe   — deny/allow/escalate enforcement  (human-approved only)</cod
   (safety for commercial robots), ISO 10218 (industrial robots), and ISO 42001 (AI management
   systems). The identity stack maps cleanly to these standards because it separates concerns
   the same way the standards do — safety envelope (body.api), behavioral requirements
-  (psyche.sys), ethical constraints (soul.md), enforcement (conscience.exe).
+  (mind.sys), ethical constraints (soul.md), enforcement (conscience.exe).
 </p>
 
 <pre><code>holomime certify --stack ./identity --standards iso13482,iso25785,iso10218,iso42001</code></pre>
@@ -194,7 +194,7 @@ conscience.exe   — deny/allow/escalate enforcement  (human-approved only)</cod
 <pre><code>holomime embody --stack ./agents/mira --swap-body ./bodies/figure-02.body.api --adapter ros2</code></pre>
 
 <p>
-  Same soul. Same psyche. Same conscience. New body. The 414 training pairs and 20 therapy
+  Same soul. Same mind. Same conscience. New body. The 414 training pairs and 20 therapy
   cycles come with her. The behavioral intelligence she's built over months of operation doesn't
   reset when she gets a body — it transfers.
 </p>
@@ -204,7 +204,7 @@ conscience.exe   — deny/allow/escalate enforcement  (human-approved only)</cod
 <p>
   The identity stack is MIT licensed. The training methodology is open. The standard is free.
   We believe behavioral alignment for robots should be a shared standard, not a proprietary
-  moat. Every humanoid project that adopts soul/psyche/body/conscience as vocabulary strengthens
+  moat. Every humanoid project that adopts soul/mind/body/conscience as vocabulary strengthens
   the ecosystem for everyone.
 </p>
 

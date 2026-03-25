@@ -4,7 +4,7 @@
  */
 const layers = [
   { name: "Soul", file: "soul.md", color: "#f97066", desc: "Head — values, ethics" },
-  { name: "Psyche", file: "psyche.sys", color: "#3b82f6", desc: "Chest — cognition, EQ" },
+  { name: "Mind", file: "mind.sys", color: "#3b82f6", desc: "Chest — cognition, EQ" },
   { name: "Body", file: "body.api", color: "#f59e0b", desc: "Form — morphology, sensors" },
   { name: "Conscience", file: "conscience.exe", color: "#8b5cf6", desc: "Shield — enforcement" },
 ];
@@ -80,8 +80,8 @@ const layers = [
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x000000, 0);
 
-    // 5 layers: dark base, soul glow, psyche glow, body joints, conscience shield
-    var base = [], soulGlow = [], psycheGlow = [], bodyJoints = [], shield = [];
+    // 5 layers: dark base, soul glow, mind glow, body joints, conscience shield
+    var base = [], soulGlow = [], mindGlow = [], bodyJoints = [], shield = [];
 
     // Helpers
     function sph(arr, cx, cy, cz, r, n) {
@@ -200,8 +200,8 @@ const layers = [
     // === SOUL GLOW (coral) — brain inside head ===
     sph(soulGlow, 0, 2.15, 0, 0.12, 80);
 
-    // === PSYCHE GLOW (blue) — heart in chest ===
-    sph(psycheGlow, 0, 1.48, 0, 0.08, 60);
+    // === MIND GLOW (blue) — heart in chest ===
+    sph(mindGlow, 0, 1.48, 0, 0.08, 60);
 
     // === BODY JOINTS (gold) — rings at major joints ===
     ring(bodyJoints, -0.32, 1.78, 0, 0.09, 20);  // L shoulder
@@ -231,7 +231,7 @@ const layers = [
     var group = new T.Group();
     group.add(makeMesh(base, 0x2d2c2b, 0.012, 0.75));
     group.add(makeMesh(soulGlow, 0xf97066, 0.018, 0.85));
-    group.add(makeMesh(psycheGlow, 0x3b82f6, 0.018, 0.8));
+    group.add(makeMesh(mindGlow, 0x3b82f6, 0.018, 0.8));
     group.add(makeMesh(bodyJoints, 0xf59e0b, 0.016, 0.75));
     group.add(makeMesh(shield, 0x8b5cf6, 0.008, 0.18));
     scene.add(group);

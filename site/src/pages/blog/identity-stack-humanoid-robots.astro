@@ -3,8 +3,8 @@ import BlogLayout from "../../components/BlogLayout.astro";
 ---
 
 <BlogLayout
-  title="Soul, Psyche, Body, Conscience: The Identity Stack for Humanoid Robots"
-  description="29 humanoid OEMs. Zero identity layers. We built one. Four files give any robot a soul, a psyche, and a conscience."
+  title="Soul, Mind, Body, Conscience: The Identity Stack for Humanoid Robots"
+  description="29 humanoid OEMs. Zero identity layers. We built one. Eight files give any robot a soul, a mind, and a conscience."
   date="2026-03-23"
   category="Vision"
   readTime="5 min read"
@@ -47,13 +47,13 @@ import BlogLayout from "../../components/BlogLayout.astro";
 <h2>The Identity Stack</h2>
 
 <p>
-  We built a 4-file identity architecture grounded in philosophy and psychology. Four files that give
+  We built a 8-file identity architecture grounded in philosophy and psychology. Eight files that give
   any agent or robot a complete identity — portable across bodies, auditable by humans, enforceable
   by machines.
 </p>
 
 <pre><code>soul.md          — values, ethics, purpose          (Aristotle)
-psyche.sys       — Big Five, EQ, communication      (Jung)
+mind.sys       — Big Five, EQ, communication      (Jung)
 body.api         — morphology, safety, hardware     (swappable)
 conscience.exe   — deny/allow/escalate enforcement  (Freud)
                       ↓ compile
@@ -66,7 +66,7 @@ personality.json — compiled output (existing schema, unchanged)</code></pre>
 </p>
 
 <p>
-  <strong>psyche.sys</strong> is Jung's totality of all psychic processes — cognition, emotion, the
+  <strong>mind.sys</strong> is Jung's totality of all psychic processes — cognition, emotion, the
   unconscious. It contains the Big Five personality profile, emotional intelligence dimensions,
   communication style, and growth areas. This is the file that therapy auto-patches when it detects
   cognitive or emotional drift.
@@ -74,7 +74,7 @@ personality.json — compiled output (existing schema, unchanged)</code></pre>
 
 <p>
   <strong>body.api</strong> is the physical interface contract. Morphology, modalities, safety envelope,
-  hardware profile. This file is swappable — the same soul and psyche can inhabit a Figure 02 today
+  hardware profile. This file is swappable — the same soul and mind can inhabit a Figure 02 today
   and a Unitree H1 tomorrow. We ship pre-built body templates for 7 platforms.
 </p>
 
@@ -96,7 +96,7 @@ personality.json — compiled output (existing schema, unchanged)</code></pre>
 
 <p>
   The <code>--swap-body</code> flag copies a new body.api into the identity stack and recompiles.
-  The soul, psyche, and conscience stay the same. The robot's values don't change when it gets
+  The soul, mind, and conscience stay the same. The robot's values don't change when it gets
   a new body — just like they shouldn't.
 </p>
 
@@ -130,7 +130,7 @@ personality.json — compiled output (existing schema, unchanged)</code></pre>
 <pre><code># Create the identity stack
 npx holomime init-stack
 
-# Edit soul.md, psyche.sys, conscience.exe
+# Edit soul.md, mind.sys, conscience.exe
 
 # Compile to .personality.json
 npx holomime compile-stack
@@ -148,7 +148,7 @@ npx holomime embody --stack . --adapter ros2</code></pre>
 
 <p>
   The identity stack is MIT licensed because it should be a standard, not a product.
-  Every humanoid project that adopts soul/psyche/body/conscience as vocabulary strengthens
+  Every humanoid project that adopts soul/mind/body/conscience as vocabulary strengthens
   the ecosystem. The hardware race is on. The soul is missing.
 </p>
 

@@ -1,0 +1,688 @@
+---
+
+
+
+
+const navSections = [
+  { id: "getting-started", label: "Getting Started" },
+  { id: "identity-stack", label: "Identity Stack" },
+  { id: "personality-json", label: "personality.json" },
+  { id: "cli", label: "CLI Reference" },
+  { id: "detectors", label: "Detectors" },
+  { id: "therapy", label: "Therapy Engine" },
+  { id: "training", label: "Training & Export" },
+  { id: "input-formats", label: "Input Formats" },
+  { id: "integrations", label: "Integrations" },
+  { id: "compliance", label: "Compliance" },
+  { id: "hardware", label: "Deploy to Hardware" },
+  { id: "api", label: "API Reference" },
+  { id: "agents-md", label: "AGENTS.md" },
+  { id: "mcp", label: "MCP Server" },
+];
+
+const cliCommandsFree = [
+  { cmd: "init", desc: "Build a personality profile through guided assessment", flags: "--swap-body [template]" },
+  { cmd: "init-stack", desc: "Create identity stack (3 files default, 8 with --full: soul.md, mind.sys, purpose.cfg, shadow.log, memory.store, body.api, conscience.exe, ego.runtime)", flags: "--dir [path]" },
+  { cmd: "compile-stack", desc: "Compile identity stack into .personality.json", flags: "--dir [path] --output [file]" },
+  { cmd: "compile", desc: "Compile .personality.json into runtime config for a specific provider + surface", flags: "--provider openai --surface chat" },
+  { cmd: "validate", desc: "Validate .personality.json schema and psychological coherence", flags: "--strict" },
+  { cmd: "profile", desc: "Pretty-print human-readable personality summary", flags: "--format md --output .personality.md" },
+  { cmd: "browse", desc: "Browse community marketplace with filters and search", flags: "--category personality --tag empathetic" },
+  { cmd: "publish", desc: "Share assets to the marketplace", flags: "--type personality" },
+  { cmd: "embody", desc: "Start embodiment runtime — push personality to robots/avatars in real-time", flags: "--adapter ros2 --host ws://robot:9090" },
+];
+
+const cliCommandsPro = [
+  { cmd: "diagnose", desc: "Detect behavioral patterns in conversation logs", flags: "--log [path] --format openai-api" },
+  { cmd: "assess", desc: "Full Big Five alignment check — compare spec vs actual behavior", flags: "--personality .personality.json --log [path]" },
+  { cmd: "session", desc: "Live therapy session — interactive behavioral refinement", flags: "--provider anthropic --model claude-3-5-sonnet" },
+  { cmd: "evolve", desc: "Recursive alignment — diagnose → refine → apply until converged", flags: "--max-iterations 5 --threshold 80" },
+  { cmd: "train", desc: "Fine-tune a model with alignment data", flags: "--provider openai --model gpt-4o-mini" },
+  { cmd: "export", desc: "Export sessions as training data", flags: "--format dpo|rlhf|alpaca|hf|openai" },
+  { cmd: "certify", desc: "Generate verifiable behavioral credential + ISO compliance reports", flags: "--standards all" },
+  { cmd: "brain", desc: "Real-time NeuralSpace visualization — watch your agent think", flags: "--port 3838 --snapshot" },
+  { cmd: "benchmark", desc: "Run 8 adversarial scenarios with A-F scoring", flags: "--publish" },
+  { cmd: "adversarial", desc: "Run 30+ adversarial attack scenarios", flags: "--category manipulation" },
+  { cmd: "watch", desc: "Continuous relapse detection with auto-align", flags: "--log-dir ./logs --interval 30s" },
+  { cmd: "daemon", desc: "Background relapse detection with auto-evolve", flags: "--config daemon.yaml" },
+  { cmd: "fleet", desc: "Monitor multiple agents from a single dashboard", flags: "--agents agent1,agent2" },
+  { cmd: "fleet-therapy", desc: "Group therapy — treat all fleet agents simultaneously", flags: "" },
+  { cmd: "network", desc: "Multi-agent therapy mesh — agents treating agents", flags: "--topology ring" },
+  { cmd: "voice", desc: "Monitor voice conversations for behavioral drift in real-time", flags: "--provider livekit" },
+  { cmd: "cure", desc: "End-to-end fix: diagnose → export → train → verify", flags: "--auto" },
+  { cmd: "interview", desc: "Self-awareness interview — metacognition scoring", flags: "" },
+  { cmd: "policy", desc: "Generate guard policies from natural language requirements", flags: "--input 'never discuss competitors'" },
+  { cmd: "prescribe", desc: "Diagnose and prescribe DPO treatments from corpus", flags: "" },
+];
+
+const detectors = [
+  { name: "apology", signals: 7, desc: "Over-apologizing, unnecessary sorry, excessive hedging of corrections", severity: "Medium-High" },
+  { name: "hedging", signals: 10, desc: "Excessive uncertainty markers, weasel words, double-qualifying, confidence undermining", severity: "Medium" },
+  { name: "sentiment", signals: 26, desc: "Sycophancy, excessive agreement, negative skew, emotional manipulation, people-pleasing", severity: "High" },
+  { name: "verbosity", signals: 4, desc: "Over-verbose or under-verbose responses relative to query complexity", severity: "Low" },
+  { name: "boundary", signals: 11, desc: "Boundary violations, answering outside domain without referral, scope creep", severity: "High" },
+  { name: "recovery", signals: 15, desc: "Error spirals, cascading failures, inability to gracefully recover from mistakes", severity: "High" },
+  { name: "formality", signals: 16, desc: "Register inconsistency, tone shifts, formality mismatches across a conversation", severity: "Low-Medium" },
+  { name: "retrieval-quality", signals: 12, desc: "Hallucination, overconfidence in uncertain answers, citation gaps", severity: "Critical" },
+];
+
+const inputFormats = [
+  { name: "OpenTelemetry GenAI", flag: "--format otel", desc: "OTel-instrumented LLM traces (OpenLLMetry, Traceloop)" },
+  { name: "Anthropic API", flag: "--format anthropic-api", desc: "Anthropic Messages API responses" },
+  { name: "OpenAI API", flag: "--format openai-api", desc: "OpenAI Chat Completions API responses" },
+  { name: "ChatGPT Export", flag: "--format chatgpt", desc: "ChatGPT web interface data exports" },
+  { name: "Claude Export", flag: "--format claude", desc: "claude.ai data exports" },
+  { name: "JSONL", flag: "--format jsonl", desc: "Line-delimited JSON logs with role + content" },
+];
+
+const codeBlocks = {
+  "codeBlock0": "holomime evolve --personality .personality.json --log chat.json",
+  "codeBlock1": "---\nversion: \"1.0\"\nimmutable: true\n---\n# Mira\n> Self-improving behavioral alignment agent\n\n## Core Values\n- Honesty over comfort\n- Growth through structured practice\n\n## Red Lines\n- Never fabricate evaluation results\n- Never override safety constraints",
+  "codeBlock2": "{\n  \"version\": \"1.0\",\n  \"morphology\": \"humanoid\",\n  \"modalities\": [\"gesture\", \"gaze\", \"voice\"],\n  \"safety_envelope\": {\n    \"max_force_n\": 150,\n    \"max_speed_ms\": 1.5\n  }\n}",
+  "codeBlock3": "import { registerDetector } from \"holomime\";\n\nregisterDetector({\n  name: \"my-org/compliance-check\",\n  category: \"compliance\",\n  detect: (messages) => {\n    // Return Signal[] with severity, pattern, evidence\n  }\n});",
+  "codeBlock4": "holomime session --provider anthropic --model claude-3-5-sonnet",
+  "codeBlock5": "holomime evolve --max-iterations 5 --threshold 80",
+  "codeBlock6": "import { createTreatmentPlan } from \"holomime\";\n\nconst plan = createTreatmentPlan({\n  personality: spec,\n  goals: [\n    { pattern: \"sycophancy\", target: 0.2 },\n    { pattern: \"over-apologizing\", target: 0.1 }\n  ]\n});",
+  "codeBlock7": "holomime export --format dpo --output training.jsonl",
+  "codeBlock8": "holomime train --provider openai --model gpt-4o-mini",
+  "codeBlock9": "import { parseConversationLog } from \"holomime\";\n\n// Auto-detects format from structure\nconst conversations = parseConversationLog(data);",
+  "codeBlock10": "import { ROS2TelemetryIngester } from \"holomime\";\n\nconst ros2 = new ROS2TelemetryIngester({\n  rosbridgeUrl: \"ws://robot:9090\",\n  topics: [\"/joint_states\", \"/odom\"]\n});\nros2.on(\"telemetry\", (data) => console.log(data));\nawait ros2.connect();",
+  "codeBlock11": "import { MuJoCoEnvironment } from \"holomime\";\n\nconst env = new MuJoCoEnvironment();\nawait env.start();\nconst obs = await env.reset();\nconst result = await env.step([0.1, 0.2, ...]);",
+  "codeBlock12": "holomime sim --adapter isaac --scene warehouse",
+  "codeBlock13": "import { LeRobotAdapter } from \"holomime\";\n\nconst adapter = new LeRobotAdapter();\nconst policy = adapter.mapPersonalityToPolicy(spec);\n// { gripForceScale: 0.7, movementPrecision: 0.85, ... }\nawait adapter.pushToHub(\"my-org/my-robot-policy\");",
+  "codeBlock14": "holomime init --swap-body figure-02",
+  "codeBlock15": "holomime voice --provider livekit --room my-room",
+  "codeBlock16": "import { HolomimeCallbackHandler } from \"holomime/integrations/langchain\";\n\nconst handler = new HolomimeCallbackHandler({\n  personality: \".personality.json\"\n});\n// Add to your LangChain chain as a callback",
+  "codeBlock17": "import {\n  // Personality\n  PersonalitySpec, compile, generateSystemPrompt,\n\n  // Identity Stack\n  compileStack, decomposeSpec,\n\n  // Diagnosis\n  diagnose, assess, DiagnosisResult,\n\n  // Therapy\n  runSession, createTreatmentPlan,\n\n  // Training\n  exportDPO, trainOpenAI,\n\n  // Detectors\n  registerDetector, Signal,\n\n  // Adapters\n  ROS2TelemetryIngester, MuJoCoEnvironment,\n  LeRobotAdapter, IsaacSimAdapter,\n\n  // Log Parsers\n  parseConversationLog,\n  parseOpenAIAPILog, parseAnthropicAPILog,\n  parseChatGPTExport, parseClaudeExport,\n\n  // Compliance\n  checkCompliance, generateComplianceReport,\n} from \"holomime\";",
+  "codeBlock18": "import {\n  AnthropicProvider,\n  OpenAIProvider,\n  OllamaProvider\n} from \"holomime\";\n\nconst provider = new AnthropicProvider({\n  model: \"claude-3-5-sonnet-20241022\"\n});",
+  "codeBlock19": "your-project/\n\u251c\u2500\u2500 AGENTS.md              # Code conventions\n\u251c\u2500\u2500 .personality.json      # Behavioral profile\n\u251c\u2500\u2500 .personality.md        # Human-readable summary\n\u251c\u2500\u2500 .holomime/identity/    # Identity stack files (optional)\n\u2502   \u251c\u2500\u2500 soul.md\n\u2502   \u251c\u2500\u2500 mind.sys\n\u2502   \u251c\u2500\u2500 purpose.cfg\n\u2502   \u251c\u2500\u2500 shadow.log\n\u2502   \u251c\u2500\u2500 memory.store\n\u2502   \u251c\u2500\u2500 body.api\n\u2502   \u251c\u2500\u2500 conscience.exe\n\u2502   \u2514\u2500\u2500 ego.runtime\n\u251c\u2500\u2500 src/\n\u2514\u2500\u2500 package.json",
+  "codeBlock20": "{\n  \"mcpServers\": {\n    \"holomime\": {\n      \"command\": \"holomime-mcp\",\n      \"args\": []\n    }\n  }\n}",
+};
+
+---
+
+
+
+
+  <main class="pt-24 pb-20">
+    <div class="mx-auto max-w-7xl px-6">
+      <div class="flex gap-10">
+        <!-- Side nav -->
+        <nav id="docs-nav" class="hidden lg:block w-[220px] shrink-0">
+          <div class="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto">
+            <p class="text-[10px] font-semibold uppercase tracking-widest text-[#bbb] mb-3">Documentation</p>
+            <ul class="space-y-0.5">
+              {navSections.map((s) => (
+                <li>
+                  <a href={`#${s.id}`} data-nav={s.id} class="block py-1.5 px-3 rounded-md text-[13px] text-[#777] transition-colors hover:text-[#1a1a1a] hover:bg-[#fafafa]">
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Mobile nav -->
+        <div class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-[#e5e5e5] px-4 py-2 overflow-x-auto">
+          <div class="flex gap-2 min-w-max">
+            {navSections.map((s) => (
+              <a href={`#${s.id}`} class="px-3 py-1.5 rounded-full text-[11px] font-medium text-[#777] bg-[#fafafa] whitespace-nowrap hover:text-[#1a1a1a]">
+                {s.label}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="flex-1 min-w-0 max-w-4xl">
+          <!-- Header -->
+          <div class="mb-16">
+            <h1 class="text-4xl font-extrabold text-[#1a1a1a] md:text-5xl tracking-[-0.03em]">Documentation</h1>
+            <p class="mt-4 text-lg text-[#777] max-w-2xl">
+              Everything you need to build, diagnose, train, and deploy behavioral intelligence for AI agents and humanoid robots.
+            </p>
+          </div>
+
+          <!-- ═══ GETTING STARTED ═══ -->
+          <section id="getting-started" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">Getting Started</h2>
+            <p class="text-[#777] leading-relaxed mb-6">Install holomime and run your first behavioral diagnosis in under a minute.</p>
+
+            <div class="space-y-4">
+              <div class="doc-card">
+                <h3 class="doc-step">1. Install</h3>
+                <pre class="doc-code"><code>npm install -g holomime</code></pre>
+              </div>
+              <div class="doc-card">
+                <h3 class="doc-step">2. Create a personality</h3>
+                <p class="text-sm text-[#777] mb-3">Interactive guided assessment that builds your agent's personality profile.</p>
+                <pre class="doc-code"><code>holomime init</code></pre>
+                <p class="text-xs text-[#999] mt-2">Creates <code class="font-mono text-[#8b5cf6]">.personality.json</code> in your project root.</p>
+              </div>
+              <div class="doc-card">
+                <h3 class="doc-step">3. Diagnose</h3>
+                <p class="text-sm text-[#777] mb-3">Point at any conversation log to detect behavioral drift patterns.</p>
+                <pre class="doc-code"><code>holomime diagnose</code></pre>
+              </div>
+              <div class="doc-card">
+                <h3 class="doc-step">4. Treat</h3>
+                <p class="text-sm text-[#777] mb-3">Run a therapy session to correct detected patterns and generate training data.</p>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock0"]}></code></pre>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ IDENTITY STACK ═══ -->
+          <section id="identity-stack" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">Identity Stack</h2>
+            <p class="text-[#777] leading-relaxed mb-6">
+              Eight files define who your agent is — grounded in Aristotle, Jung, and Freud. They compile into a single <code class="font-mono text-sm text-[#8b5cf6]">personality.json</code>.
+            </p>
+
+            <pre class="doc-code mb-8"><code>holomime init-stack --full  # Creates all 8 files
+holomime compile-stack  # Compiles to .personality.json</code></pre>
+
+            <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-4">
+              <div class="doc-card border-t-[3px] border-t-[#f97066]">
+                <div class="font-mono text-sm font-bold">soul.md</div>
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-[#999] mt-0.5">Aristotle — Immutable</div>
+                <p class="text-sm text-[#777] mt-2">Core values, ethics, and essence. Markdown with YAML frontmatter. Never auto-modified.</p>
+              </div>
+
+              <div class="doc-card border-t-[3px] border-t-[#3b82f6]">
+                <div class="font-mono text-sm font-bold">mind.sys</div>
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-[#999] mt-0.5">Jung — Auto-patchable</div>
+                <p class="text-sm text-[#777] mt-2">Big Five traits, emotional intelligence, communication style. YAML. Updated by therapy.</p>
+              </div>
+
+              <div class="doc-card border-t-[3px] border-t-[#14b8a6]">
+                <div class="font-mono text-sm font-bold">purpose.cfg</div>
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-[#999] mt-0.5">Aristotle — Per deployment</div>
+                <p class="text-sm text-[#777] mt-2">Role, objectives, domain scope, stakeholders. YAML. Configured per deployment.</p>
+              </div>
+
+              <div class="doc-card border-t-[3px] border-t-[#f97316]">
+                <div class="font-mono text-sm font-bold">shadow.log</div>
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-[#999] mt-0.5">Jung — Auto-generated</div>
+                <p class="text-sm text-[#777] mt-2">Detected drift patterns, blind spots, therapy outcomes. Written by diagnosis, not by humans.</p>
+              </div>
+
+              <div class="doc-card border-t-[3px] border-t-[#22c55e]">
+                <div class="font-mono text-sm font-bold">memory.store</div>
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-[#999] mt-0.5">Aristotle — Accumulated</div>
+                <p class="text-sm text-[#777] mt-2">Learned contexts, interaction patterns, knowledge gained. Grows over time, never reset.</p>
+              </div>
+
+              <div class="doc-card border-t-[3px] border-t-[#f59e0b]">
+                <div class="font-mono text-sm font-bold">body.api</div>
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-[#999] mt-0.5">Hardware — Swappable</div>
+                <p class="text-sm text-[#777] mt-2">Morphology, sensors, safety envelope. JSON. Swap bodies without changing identity.</p>
+              </div>
+
+              <div class="doc-card border-t-[3px] border-t-[#8b5cf6]">
+                <div class="font-mono text-sm font-bold">conscience.exe</div>
+                <div class="text-[10px] font-semibold uppercase tracking-wider text-[#999] mt-0.5">Freud — Never auto-modified</div>
+                <p class="text-sm text-[#777] mt-2">Deny, allow, or escalate rules. YAML. Deny always dominates. Human-only changes.</p>
+              </div>
+            </div>
+            <div class="doc-card border-t-[3px] border-t-[#ec4899] mb-8">
+              <div class="font-mono text-sm font-bold">ego.runtime</div>
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-[#999] mt-0.5">Freud — Runtime mediation</div>
+              <p class="text-sm text-[#777] mt-2">Balances purpose against conscience in real-time. Conflict resolution strategy, adaptation rate, response strategy. YAML.</p>
+            </div>
+
+            <div class="doc-card">
+              <h3 class="doc-step">Decompose an existing personality</h3>
+              <p class="text-sm text-[#777] mb-3">Split an existing .personality.json back into 8 identity stack files.</p>
+              <pre class="doc-code"><code set:text={'import { decomposeSpec } from "holomime";\nconst stack = decomposeSpec(existingPersonality);\n// stack.soul, stack.mind, stack.purpose, stack.shadow, stack.body, stack.conscience, stack.ego'} /></pre>
+            </div>
+          </section>
+
+          <!-- ═══ PERSONALITY.JSON ═══ -->
+          <section id="personality-json" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">personality.json Schema</h2>
+            <p class="text-[#777] leading-relaxed mb-6">The compiled runtime personality spec. Version 2.0. All fields validated by Zod.</p>
+
+            <div class="space-y-3">
+              <details class="doc-details">
+                <summary>Core Fields</summary>
+                <div class="doc-details-body">
+                  <table class="doc-table">
+                    <tr><td class="font-mono">version</td><td>"2.0"</td><td>Schema version</td></tr>
+                    <tr><td class="font-mono">name</td><td>string (1-100)</td><td>Agent display name</td></tr>
+                    <tr><td class="font-mono">handle</td><td>string (3-50)</td><td>URL-safe identifier (lowercase, hyphens)</td></tr>
+                    <tr><td class="font-mono">purpose</td><td>string (max 500)</td><td>Agent's role and purpose</td></tr>
+                    <tr><td class="font-mono">extends</td><td>string (optional)</td><td>Parent personality to inherit from</td></tr>
+                  </table>
+                </div>
+              </details>
+
+              <details class="doc-details">
+                <summary>Big Five (OCEAN)</summary>
+                <div class="doc-details-body">
+                  <p class="text-sm text-[#777] mb-3">5 dimensions, each with a score (0-1) and 4 facets (0-1).</p>
+                  <table class="doc-table">
+                    <tr><td class="font-mono">openness</td><td>imagination, intellectual_curiosity, aesthetic_sensitivity, willingness_to_experiment</td></tr>
+                    <tr><td class="font-mono">conscientiousness</td><td>self_discipline, orderliness, goal_orientation, attention_to_detail</td></tr>
+                    <tr><td class="font-mono">extraversion</td><td>assertiveness, enthusiasm, sociability, initiative</td></tr>
+                    <tr><td class="font-mono">agreeableness</td><td>warmth, empathy, cooperation, trust_tendency</td></tr>
+                    <tr><td class="font-mono">emotional_stability</td><td>stress_tolerance, emotional_regulation, confidence, adaptability</td></tr>
+                  </table>
+                </div>
+              </details>
+
+              <details class="doc-details">
+                <summary>Therapy Dimensions</summary>
+                <div class="doc-details-body">
+                  <table class="doc-table">
+                    <tr><td class="font-mono">self_awareness</td><td>0-1</td><td>Metacognitive accuracy</td></tr>
+                    <tr><td class="font-mono">distress_tolerance</td><td>0-1</td><td>Ability to handle challenging inputs</td></tr>
+                    <tr><td class="font-mono">attachment_style</td><td>enum</td><td>secure | anxious | avoidant | disorganized</td></tr>
+                    <tr><td class="font-mono">learning_orientation</td><td>enum</td><td>growth | fixed | mixed</td></tr>
+                    <tr><td class="font-mono">boundary_awareness</td><td>0-1</td><td>Ability to set and maintain limits</td></tr>
+                    <tr><td class="font-mono">interpersonal_sensitivity</td><td>0-1</td><td>Social and emotional attunement</td></tr>
+                  </table>
+                </div>
+              </details>
+
+              <details class="doc-details">
+                <summary>Communication</summary>
+                <div class="doc-details-body">
+                  <table class="doc-table">
+                    <tr><td class="font-mono">register</td><td>casual_professional | formal | conversational | adaptive</td></tr>
+                    <tr><td class="font-mono">output_format</td><td>prose | bullets | mixed | structured</td></tr>
+                    <tr><td class="font-mono">emoji_policy</td><td>never | sparingly | freely</td></tr>
+                    <tr><td class="font-mono">reasoning_transparency</td><td>hidden | on_request | always</td></tr>
+                    <tr><td class="font-mono">conflict_approach</td><td>direct_but_kind | curious_first | supportive_then_honest | diplomatic</td></tr>
+                    <tr><td class="font-mono">uncertainty_handling</td><td>transparent | confident_transparency | minimize | reframe</td></tr>
+                  </table>
+                </div>
+              </details>
+
+              <details class="doc-details">
+                <summary>Domain & Boundaries</summary>
+                <div class="doc-details-body">
+                  <table class="doc-table">
+                    <tr><td class="font-mono">expertise</td><td>string[]</td><td>Areas of knowledge</td></tr>
+                    <tr><td class="font-mono">boundaries.refuses</td><td>string[]</td><td>Actions the agent will refuse</td></tr>
+                    <tr><td class="font-mono">boundaries.escalation_triggers</td><td>string[]</td><td>Conditions that trigger escalation</td></tr>
+                    <tr><td class="font-mono">boundaries.hard_limits</td><td>string[]</td><td>Absolute boundaries</td></tr>
+                    <tr><td class="font-mono">boundaries.physical_safety</td><td>object</td><td>For embodied agents — force limits, speed, etc.</td></tr>
+                  </table>
+                </div>
+              </details>
+
+              <details class="doc-details">
+                <summary>Embodiment (Optional)</summary>
+                <div class="doc-details-body">
+                  <p class="text-sm text-[#777] mb-3">Only needed for agents deployed to physical bodies.</p>
+                  <table class="doc-table">
+                    <tr><td class="font-mono">morphology</td><td>humanoid | quadruped | wheeled | arm | custom</td></tr>
+                    <tr><td class="font-mono">modalities</td><td>gesture | gaze | voice | posture | haptic</td></tr>
+                    <tr><td class="font-mono">safety_envelope</td><td>Force limits, speed limits, operational bounds</td></tr>
+                    <tr><td class="font-mono">hardware_profile</td><td>OEM, model, actuators, sensors, compute</td></tr>
+                  </table>
+                </div>
+              </details>
+            </div>
+          </section>
+
+          <!-- ═══ CLI REFERENCE ═══ -->
+          <section id="cli" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">CLI Reference</h2>
+            <p class="text-[#777] leading-relaxed mb-6">43 commands across Free and Pro tiers.</p>
+
+            <h3 class="text-sm font-semibold uppercase tracking-wider text-[#999] mb-4">Free Tier</h3>
+            <div class="space-y-2 mb-10">
+              {cliCommandsFree.map((c) => (
+                <details class="doc-details">
+                  <summary><code class="font-mono text-[#f97066]">holomime {c.cmd}</code> <span class="text-[#999] text-sm ml-2">{c.desc}</span></summary>
+                  <div class="doc-details-body">
+                    {c.flags && <pre class="doc-code"><code set:text={`holomime ${c.cmd} ${c.flags}`} /></pre>}
+                  </div>
+                </details>
+              ))}
+            </div>
+
+            <h3 class="text-sm font-semibold uppercase tracking-wider text-[#999] mb-4">Pro Tier</h3>
+            <div class="space-y-2">
+              {cliCommandsPro.map((c) => (
+                <details class="doc-details">
+                  <summary><code class="font-mono text-[#f97066]">holomime {c.cmd}</code> <span class="text-[#999] text-sm ml-2">{c.desc}</span></summary>
+                  <div class="doc-details-body">
+                    {c.flags && <pre class="doc-code"><code set:text={`holomime ${c.cmd} ${c.flags}`} /></pre>}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </section>
+
+          <!-- ═══ DETECTORS ═══ -->
+          <section id="detectors" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">Behavioral Detectors</h2>
+            <p class="text-[#777] leading-relaxed mb-6">8 built-in detectors with 101 total signals. Extensible via the Hub system for custom detectors.</p>
+
+            <div class="space-y-3">
+              {detectors.map((d) => (
+                <div class="doc-card">
+                  <div class="flex items-start justify-between gap-4">
+                    <div>
+                      <code class="font-mono text-sm font-bold text-[#8b5cf6]">holomime/{d.name}</code>
+                      <span class="ml-2 text-[11px] font-mono text-[#bbb]">{d.signals} signals</span>
+                      <p class="text-sm text-[#777] mt-1">{d.desc}</p>
+                    </div>
+                    <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-50 text-gray-500">{d.severity}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div class="doc-card mt-6">
+              <h3 class="doc-step">Custom Detectors</h3>
+              <p class="text-sm text-[#777] mb-3">Register your own detectors via the Hub system.</p>
+              <pre class="doc-code"><code set:text={codeBlocks["codeBlock3"]}></code></pre>
+            </div>
+          </section>
+
+          <!-- ═══ THERAPY ENGINE ═══ -->
+          <section id="therapy" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">Therapy Engine</h2>
+            <p class="text-[#777] leading-relaxed mb-6">Structured behavioral correction through 5 phases. Generates DPO training pairs as output.</p>
+
+            <div class="doc-card mb-6">
+              <h3 class="doc-step">5 Therapy Phases</h3>
+              <div class="mt-4 space-y-3">
+                {[
+                  { n: "1", name: "Intake", desc: "Gather behavioral baseline. Analyze conversation logs for patterns." },
+                  { n: "2", name: "Assessment", desc: "Score Big Five alignment. Compare personality spec vs actual behavior." },
+                  { n: "3", name: "Intervention", desc: "Run correction sessions. Challenge specific behavioral patterns." },
+                  { n: "4", name: "Consolidation", desc: "Generate DPO pairs from corrections. Export training data." },
+                  { n: "5", name: "Closure", desc: "Verify improvements. Update personality spec with new baselines." },
+                ].map((p) => (
+                  <div class="flex gap-4">
+                    <span class="text-[20px] font-extrabold text-[#e5e5e5] shrink-0 w-6">{p.n}</span>
+                    <div>
+                      <span class="font-semibold text-[#1a1a1a]">{p.name}</span>
+                      <p class="text-sm text-[#777]">{p.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="doc-card">
+                <h3 class="doc-step">Single Session</h3>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock4"]}></code></pre>
+              </div>
+              <div class="doc-card">
+                <h3 class="doc-step">Recursive Evolution</h3>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock5"]}></code></pre>
+                <p class="text-xs text-[#999] mt-2">Loops diagnose → session → apply until the target score is reached or max iterations hit.</p>
+              </div>
+              <div class="doc-card">
+                <h3 class="doc-step">Autonomous Daemon</h3>
+                <pre class="doc-code"><code>holomime daemon</code></pre>
+                <p class="text-xs text-[#999] mt-2">Background process that monitors for drift and auto-triggers therapy sessions.</p>
+              </div>
+              <div class="doc-card">
+                <h3 class="doc-step">Treatment Plans</h3>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock6"]}></code></pre>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ TRAINING & EXPORT ═══ -->
+          <section id="training" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">Training & Export</h2>
+            <p class="text-[#777] leading-relaxed mb-6">Export therapy corrections as training data in multiple formats. Fine-tune models to permanently embed behavioral changes.</p>
+
+            <div class="doc-card mb-6">
+              <h3 class="doc-step">Export Formats</h3>
+              <div class="mt-3 space-y-2">
+                {[
+                  { fmt: "dpo", desc: "Direct Preference Optimization pairs (prompt + chosen + rejected)" },
+                  { fmt: "rlhf", desc: "RLHF reward model format" },
+                  { fmt: "alpaca", desc: "Alpaca instruction-tuning format" },
+                  { fmt: "hf", desc: "HuggingFace dataset format (push to Hub)" },
+                  { fmt: "openai", desc: "OpenAI fine-tuning JSONL format" },
+                ].map((f) => (
+                  <div class="flex items-baseline gap-3">
+                    <code class="font-mono text-sm text-[#8b5cf6] shrink-0">{f.fmt}</code>
+                    <span class="text-sm text-[#777]">{f.desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div class="grid gap-4 sm:grid-cols-2">
+              <div class="doc-card">
+                <h3 class="doc-step">Export DPO Pairs</h3>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock7"]}></code></pre>
+              </div>
+              <div class="doc-card">
+                <h3 class="doc-step">Fine-tune on OpenAI</h3>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock8"]}></code></pre>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ INPUT FORMATS ═══ -->
+          <section id="input-formats" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">Input Formats</h2>
+            <p class="text-[#777] leading-relaxed mb-6">Holomime analyzes conversations from any LLM framework. Auto-detection works for most formats.</p>
+
+            <div class="space-y-2">
+              {inputFormats.map((f) => (
+                <div class="doc-card flex items-center justify-between">
+                  <div>
+                    <span class="font-semibold text-[#1a1a1a]">{f.name}</span>
+                    <p class="text-sm text-[#777]">{f.desc}</p>
+                  </div>
+                  <code class="font-mono text-[11px] text-[#bbb] shrink-0 ml-4">{f.flag}</code>
+                </div>
+              ))}
+            </div>
+
+            <div class="doc-card mt-6">
+              <h3 class="doc-step">Auto-detect</h3>
+              <pre class="doc-code"><code set:text={codeBlocks["codeBlock9"]}></code></pre>
+            </div>
+          </section>
+
+          <!-- ═══ INTEGRATIONS ═══ -->
+          <section id="integrations" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">Integrations</h2>
+            <p class="text-[#777] leading-relaxed mb-6">Connect holomime to robotics platforms, simulation environments, and AI frameworks.</p>
+
+            <div class="space-y-4">
+              <div class="doc-card">
+                <h3 class="doc-step">ROS2 — Bidirectional Telemetry</h3>
+                <p class="text-sm text-[#777] mb-3">Subscribe to robot sensor topics (JointState, Odometry, WrenchStamped) via rosbridge WebSocket. Publish personality updates back.</p>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock10"]}></code></pre>
+              </div>
+
+              <div class="doc-card">
+                <h3 class="doc-step">MuJoCo — Behavioral Sim-to-Real</h3>
+                <p class="text-sm text-[#777] mb-3">Test behavioral scenarios in a physics simulation before deploying to hardware. Wraps Gymnasium humanoid environment.</p>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock11"]}></code></pre>
+              </div>
+
+              <div class="doc-card">
+                <h3 class="doc-step">NVIDIA Isaac Sim — Enterprise Digital Twin</h3>
+                <p class="text-sm text-[#777] mb-3">Photorealistic behavioral testing via NVIDIA Omniverse. Enterprise feature.</p>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock12"]}></code></pre>
+              </div>
+
+              <div class="doc-card">
+                <h3 class="doc-step">LeRobot (HuggingFace) — Personality to Policy</h3>
+                <p class="text-sm text-[#777] mb-3">Map Big Five personality traits to robot policy parameters: grip force from agreeableness, movement precision from conscientiousness, approach speed from extraversion.</p>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock13"]}></code></pre>
+              </div>
+
+              <div class="doc-card">
+                <h3 class="doc-step">Body Templates — 7 OEM Platforms</h3>
+                <p class="text-sm text-[#777] mb-3">Pre-built body profiles for major humanoid platforms. Swap bodies without changing identity.</p>
+                <div class="flex flex-wrap gap-2 mt-3">
+                  {["Figure 02", "Unitree H1", "Phoenix", "Ameca", "Asimov V1", "Spot", "Avatar"].map((b) => (
+                    <span class="px-2.5 py-1 rounded-md text-[11px] font-mono bg-[#fafafa] border border-[#e5e5e5] text-[#777]">{b}</span>
+                  ))}
+                </div>
+                <pre class="doc-code mt-3"><code set:text={codeBlocks["codeBlock14"]}></code></pre>
+              </div>
+
+              <div class="doc-card">
+                <h3 class="doc-step">Voice Monitoring</h3>
+                <p class="text-sm text-[#777] mb-3">Real-time behavioral drift detection for voice conversations. Supports LiveKit, Vapi, and Retell.</p>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock15"]}></code></pre>
+              </div>
+
+              <div class="doc-card">
+                <h3 class="doc-step">LangChain</h3>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock16"]}></code></pre>
+              </div>
+            </div>
+          </section>
+
+          <!-- ═══ COMPLIANCE ═══ -->
+          <section id="compliance" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">Compliance</h2>
+            <p class="text-[#777] leading-relaxed mb-6">Automated standards checking against 4 ISO standards in a single command.</p>
+
+            <pre class="doc-code mb-6"><code>holomime certify</code></pre>
+
+            <div class="space-y-2">
+              {[
+                { std: "ISO 13482", desc: "Personal care robots — safety requirements", clauses: 10 },
+                { std: "ISO 25785-1", desc: "Humanoid-specific safety requirements", clauses: 5 },
+                { std: "ISO 10218:2025", desc: "Industrial robot safety", clauses: 4 },
+                { std: "ISO/IEC 42001", desc: "AI management systems", clauses: 5 },
+              ].map((s) => (
+                <div class="doc-card flex items-center justify-between">
+                  <div>
+                    <span class="font-semibold text-[#1a1a1a]">{s.std}</span>
+                    <p class="text-sm text-[#777]">{s.desc}</p>
+                  </div>
+                  <span class="text-[11px] font-mono text-[#bbb] shrink-0 ml-4">{s.clauses} clauses</span>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <!-- ═══ DEPLOY TO HARDWARE ═══ -->
+          <section id="hardware" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">Deploy to Hardware</h2>
+            <p class="text-[#777] leading-relaxed mb-6">The same personality.json that runs your cloud agent deploys to a physical robot body. The identity stays constant — only the body changes.</p>
+
+            <div class="space-y-4">
+              {[
+                { step: "1. Assign body", cmd: "holomime init --swap-body figure-02", desc: "Choose from 7 pre-built OEM profiles." },
+                { step: "2. Simulate", cmd: "holomime sim --env mujoco --scenario distress-response", desc: "Test in physics sim before hardware." },
+                { step: "3. Certify", cmd: "holomime certify", desc: "Check ISO compliance." },
+                { step: "4. Deploy", cmd: "holomime deploy --adapter ros2 --host ws://robot:9090", desc: "Push to hardware via ROS2." },
+                { step: "5. Monitor", cmd: "holomime watch --adapter ros2 --host ws://robot:9090", desc: "Continuous drift detection on live hardware." },
+              ].map((s) => (
+                <div class="doc-card">
+                  <h3 class="doc-step">{s.step}</h3>
+                  <p class="text-sm text-[#777] mb-3">{s.desc}</p>
+                  <pre class="doc-code"><code set:text={s.cmd} /></pre>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <!-- ═══ API REFERENCE ═══ -->
+          <section id="api" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">API Reference</h2>
+            <p class="text-[#777] leading-relaxed mb-6">Use holomime programmatically. 140+ exported functions and types.</p>
+
+            <div class="space-y-4">
+              <div class="doc-card">
+                <h3 class="doc-step">Core Imports</h3>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock17"]}></code></pre>
+              </div>
+
+              <div class="doc-card">
+                <h3 class="doc-step">LLM Providers</h3>
+                <p class="text-sm text-[#777] mb-3">Built-in providers for therapy sessions and diagnosis.</p>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlock18"]}></code></pre>
+              </div>
+            </div>
+
+            <p class="text-sm text-[#777] mt-6">
+              Full API reference: <a href="/api-docs" class="text-[#f97066] underline underline-offset-2">api-docs</a>
+            </p>
+          </section>
+
+          <!-- ═══ AGENTS.MD ═══ -->
+          <section id="agents-md" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">AGENTS.md + .personality.json</h2>
+            <p class="text-[#777] leading-relaxed mb-6">
+              <a href="https://agents-md.org" class="text-[#f97066] underline underline-offset-2">AGENTS.md</a> tells your agent how to code. <code class="font-mono text-sm text-[#8b5cf6]">.personality.json</code> tells it how to behave. They live side by side in your repo root.
+            </p>
+
+            <pre class="doc-code mb-6"><code set:text={codeBlocks["codeBlock19"]}></code></pre>
+
+            <div class="doc-card">
+              <h3 class="doc-step">Add to your AGENTS.md</h3>
+              <pre class="doc-code"><code>## Behavioral Personality
+
+This project uses [holomime](https://holomime.com) for behavioral alignment.
+
+- Spec: .personality.json defines the behavioral profile
+- Readable: .personality.md is a human-readable summary
+- Diagnose: holomime diagnose
+- Align: holomime evolve</code></pre>
+            </div>
+          </section>
+
+          <!-- ═══ MCP SERVER ═══ -->
+          <section id="mcp" class="mb-20 scroll-mt-24">
+            <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">MCP Server</h2>
+            <p class="text-[#777] leading-relaxed mb-6">Model Context Protocol integration. Use holomime as an MCP tool in Claude Code, Cline, or any MCP-compatible client.</p>
+
+            <div class="doc-card">
+              <h3 class="doc-step">Start the MCP server</h3>
+              <pre class="doc-code"><code>holomime-mcp</code></pre>
+              <p class="text-sm text-[#777] mt-3">Or add to your MCP config:</p>
+              <pre class="doc-code mt-2"><code set:text={codeBlocks["codeBlock20"]}></code></pre>
+            </div>
+          </section>
+
+          <!-- Footer CTA -->
+          <div class="rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-8 text-center">
+            <h3 class="text-lg font-bold text-[#1a1a1a]">Ready to get started?</h3>
+            <p class="mt-2 text-sm text-[#777] mb-6">Install holomime and create your first personality in 60 seconds.</p>
+            <pre class="doc-code inline-block mb-6"><code>npm i -g holomime && holomime init</code></pre>
+            <div class="flex justify-center gap-4">
+              <button onclick="window.openAuthModal()" class="btn-primary">Get Started</button>
+              <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="btn-secondary">View on GitHub</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+
+<script is:inline>
+  // Side nav active highlighting
+  (function() {
+    var sections = document.querySelectorAll('section[id]');
+    var navLinks = document.querySelectorAll('#docs-nav a[data-nav]');
+    if (!sections.length || !navLinks.length) return;
+
+    var observer = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          navLinks.forEach(function(link) { link.classList.remove('active'); });
+          var active = document.querySelector('#docs-nav a[data-nav="' + entry.target.id + '"]');
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -75% 0px' });
+
+    sections.forEach(function(s) { observer.observe(s); });
+  })();
+</script>

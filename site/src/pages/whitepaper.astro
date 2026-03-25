@@ -38,7 +38,7 @@ import Footer from "../components/Footer.astro";
           Every humanoid robot requires behavioral intelligence beyond locomotion and manipulation. A robot that can walk, grasp, and perceive its environment still lacks the capacity to behave consistently, respect boundaries, maintain personality under drift, and enforce moral constraints at the action boundary. We present a system that addresses this gap: structured behavioral therapy for AI agents, generating DPO (Direct Preference Optimization) training data through clinical psychology protocols, producing fine-tuned models with permanently encoded behavioral corrections.
         </p>
         <p class="mt-6 text-lg leading-[1.8] text-[var(--color-warm-text)]">
-          The trained agent is then deployed into a physical robot body via the identity stack architecture &mdash; a four-file compilation target that separates immutable values, trainable personality, swappable hardware profiles, and deterministic enforcement rules. This paper describes the architecture, methodology, implementation across seven robotics platforms, and results from autonomous self-training cycles.
+          The trained agent is then deployed into a physical robot body via the identity stack architecture &mdash; a eight-file compilation target that separates immutable values, trainable personality, swappable hardware profiles, and deterministic enforcement rules. This paper describes the architecture, methodology, implementation across seven robotics platforms, and results from autonomous self-training cycles.
         </p>
       </section>
 
@@ -66,7 +66,7 @@ import Footer from "../components/Footer.astro";
         <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-violet)] mb-4">2. Architecture</p>
         <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">The Identity Stack</h2>
         <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
-          The identity stack is a four-file architecture that compiles into a deployable behavioral specification. Each file is named for the psychological framework that inspired its design:
+          The identity stack is a eight-file architecture that compiles into a deployable behavioral specification. Each file is named for the psychological framework that inspired its design:
         </p>
 
         <div class="mt-8 space-y-6">
@@ -94,13 +94,13 @@ refuses:
           <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
             <div class="flex items-center gap-3 mb-3">
               <div class="h-3 w-3 rounded-full" style="background: #3b82f6;"></div>
-              <code class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">psyche.sys</code>
+              <code class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">mind.sys</code>
               <span class="text-xs text-[var(--color-warm-muted)]">(Jung &mdash; Personality + Emotional Intelligence)</span>
             </div>
             <p class="text-[var(--color-warm-muted)] leading-relaxed">
               Trainable personality profile. Defines communication style, emotional responses, interaction patterns, and behavioral tendencies. This is the file that therapy modifies. Mapped to Big Five personality dimensions with per-trait granularity.
             </p>
-            <pre class="mt-3 rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># psyche.sys
+            <pre class="mt-3 rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># mind.sys
 personality:
   openness: 0.7
   conscientiousness: 0.9
@@ -123,7 +123,7 @@ emotional_responses:
               <span class="text-xs text-[var(--color-warm-muted)]">(Swappable Hardware Profile)</span>
             </div>
             <p class="text-[var(--color-warm-muted)] leading-relaxed">
-              Hardware morphology description. Defines the robot's physical capabilities, sensor array, actuator limits, and safety envelope. Swappable without changing soul or psyche &mdash; the same behavioral intelligence can inhabit different bodies.
+              Hardware morphology description. Defines the robot's physical capabilities, sensor array, actuator limits, and safety envelope. Swappable without changing soul or mind &mdash; the same behavioral intelligence can inhabit different bodies.
             </p>
             <pre class="mt-3 rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># body.api (Figure 02)
 morphology:
@@ -170,9 +170,9 @@ composition: deny_dominates  # any DENY overrides all ALLOWs</code></pre>
 
         <h3 class="text-lg font-bold text-[var(--color-warm-text)] mt-10 mb-4">Compilation Flow</h3>
         <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
-          The four files compile into a single deployable artifact:
+          The eight files compile into a single deployable artifact:
         </p>
-        <pre class="rounded-md bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto"><code>soul.md + psyche.sys + body.api + conscience.exe
+        <pre class="rounded-md bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto"><code>soul.md + mind.sys + body.api + conscience.exe
                       |
               holomime compile
                       |
@@ -203,7 +203,7 @@ composition: deny_dominates  # any DENY overrides all ALLOWs</code></pre>
           <div class="space-y-3 text-[var(--color-warm-muted)]">
             <div class="flex gap-4">
               <span class="shrink-0 font-mono text-sm font-semibold text-[var(--color-p-blue)] w-28">Set Point</span>
-              <span>Target personality specification (psyche.sys values)</span>
+              <span>Target personality specification (mind.sys values)</span>
             </div>
             <div class="flex gap-4">
               <span class="shrink-0 font-mono text-sm font-semibold text-[var(--color-p-coral)] w-28">Sensor</span>
@@ -222,7 +222,7 @@ composition: deny_dominates  # any DENY overrides all ALLOWs</code></pre>
 
         <pre class="mt-8 rounded-md bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto"><code>             ┌─────────────────────────────────────────┐
              │           Target Personality             │
-             │            (psyche.sys)                  │
+             │            (mind.sys)                  │
              └──────────────┬──────────────────────────┘
                             │ set point
                             v
@@ -554,7 +554,7 @@ holomime certify --all --output compliance-report.json
           <li>Christiano, P., Leike, J., Brown, T., et al. "Deep Reinforcement Learning from Human Feedback." <em>NeurIPS 2017</em>.</li>
           <li>Ouyang, L., Wu, J., Jiang, X., et al. "Training Language Models to Follow Instructions with Human Feedback." <em>NeurIPS 2022</em>.</li>
           <li>Aristotle. <em>Nicomachean Ethics</em>. Translated by W.D. Ross. Circa 340 BCE. (Foundation for virtue ethics and soul.md design.)</li>
-          <li>Jung, C.G. <em>Psychological Types</em>. Princeton University Press, 1921/1971. (Foundation for psyche.sys personality modeling.)</li>
+          <li>Jung, C.G. <em>Psychological Types</em>. Princeton University Press, 1921/1971. (Foundation for mind.sys personality modeling.)</li>
           <li>Freud, S. "The Ego and the Id." <em>The Standard Edition of the Complete Psychological Works</em>, Vol. 19, 1923. (Foundation for conscience.exe superego enforcement model.)</li>
           <li>McCrae, R.R. and Costa, P.T. "Validation of the Five-Factor Model of Personality Across Instruments and Observers." <em>Journal of Personality and Social Psychology</em>, 52(1), 1987.</li>
           <li>ISO/FDIS 13482:2014. "Robots and robotic devices &mdash; Safety requirements for personal care robots." International Organization for Standardization.</li>
