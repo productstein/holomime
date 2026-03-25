@@ -27,6 +27,7 @@ import { EmbodimentRuntime, type RuntimeAdapter } from "../core/embodiment-runti
 import { ROS2Adapter } from "../adapters/ros2-adapter.js";
 import { UnityAdapter } from "../adapters/unity-adapter.js";
 import { WebhookAdapter } from "../adapters/webhook-adapter.js";
+import { IsaacSimAdapter } from "../adapters/isaac-adapter.js";
 import { printHeader } from "../ui/branding.js";
 import { printBox } from "../ui/boxes.js";
 import { withSpinner } from "../ui/spinner.js";
@@ -426,7 +427,17 @@ function createAdapter(type: string, options: EmbodyOptions): RuntimeAdapter {
       });
     }
 
+    case "isaac": {
+      const host = options.endpoint ? new URL(options.endpoint).hostname : "localhost";
+      const port = options.port ? parseInt(options.port, 10) : 8211;
+      return new IsaacSimAdapter({
+        host,
+        port,
+        headless: false,
+      });
+    }
+
     default:
-      throw new Error(`Unknown adapter type: ${type}. Use ros2, unity, or webhook.`);
+      throw new Error(`Unknown adapter type: ${type}. Use ros2, unity, webhook, or isaac.`);
   }
 }

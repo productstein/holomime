@@ -13,7 +13,7 @@ import type { CompiledEmbodiedConfig } from "./embodiment-types.js";
 
 // ─── Adapter Interface ──────────────────────────────────────
 
-export type AdapterType = "ros2" | "unity" | "webhook" | "grpc" | "mqtt";
+export type AdapterType = "ros2" | "unity" | "webhook" | "grpc" | "mqtt" | "isaac";
 
 export interface RuntimeAdapter {
   readonly type: AdapterType;

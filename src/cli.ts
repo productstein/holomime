@@ -177,7 +177,7 @@ program
   .command("embody")
   .description("Start an embodiment runtime — push personality to robots/avatars in real-time")
   .option("--personality <path>", "Path to .personality.json")
-  .requiredOption("--adapter <adapter>", "Runtime adapter (ros2, unity, webhook)")
+  .requiredOption("--adapter <adapter>", "Runtime adapter (ros2, unity, webhook, isaac)")
   .option("--stack <dir>", "Path to identity stack directory (soul.md + psyche.sys + body.api + conscience.exe)")
   .option("--swap-body <path>", "Hot-swap body.api into the stack directory before starting (requires --stack)")
   .option("--endpoint <url>", "WebSocket URL for ROS2 rosbridge (default: ws://localhost:9090)")

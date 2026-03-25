@@ -88,8 +88,9 @@ export async function certifyCommand(options: CertifyOptions): Promise<void> {
     return;
   }
 
-  // ─── ISO Compliance mode ──────────────────────────────────
-  if (options.standard) {
+  // ─── ISO Compliance mode (default: check all standards) ──
+  {
+    const standardFlag = options.standard ?? "all";
     printHeader("Certify — ISO Compliance Check");
 
     const specPath = resolve(process.cwd(), options.personality ?? ".personality.json");
@@ -103,7 +104,7 @@ export async function certifyCommand(options: CertifyOptions): Promise<void> {
     }
 
     // Load the requested standard(s)
-    const standardName = options.standard.toLowerCase();
+    const standardName = standardFlag.toLowerCase();
     const reports = [];
 
     try {
