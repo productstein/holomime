@@ -251,13 +251,13 @@ export interface LeaderboardEntry {
 }
 
 /**
- * Publish a benchmark result to the holomime.dev public leaderboard.
+ * Publish a benchmark result to the holomime.com public leaderboard.
  * Requires an API key (from `holomime activate` or HOLOMIME_API_KEY env).
  */
 export async function publishToLeaderboard(
   benchmark: PublishedBenchmark,
   apiKey?: string,
-  apiUrl = "https://holomime.dev",
+  apiUrl = "https://holomime.com",
 ): Promise<{ success: boolean; rank?: number; error?: string }> {
   const key = apiKey ?? process.env.HOLOMIME_API_KEY;
   if (!key) {
@@ -301,11 +301,11 @@ export async function publishToLeaderboard(
 }
 
 /**
- * Fetch the current public leaderboard from holomime.dev.
+ * Fetch the current public leaderboard from holomime.com.
  */
 export async function fetchLeaderboard(
   limit = 50,
-  apiUrl = "https://holomime.dev",
+  apiUrl = "https://holomime.com",
 ): Promise<LeaderboardEntry[]> {
   try {
     const response = await fetch(`${apiUrl}/api/v1/leaderboard?limit=${limit}`);

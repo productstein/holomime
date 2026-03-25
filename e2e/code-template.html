@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 675px;
+    width: 1200px;
+    font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+    overflow: hidden;
+  }
+  .editor {
+    background: #161b22;
+    border-radius: 12px;
+    width: 800px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+    overflow: hidden;
+  }
+  .title-bar {
+    background: #1c2128;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+  .title-text { color: #8b949e; font-size: 13px; margin-left: 8px; }
+  .content {
+    padding: 24px 28px;
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+  .line {
+    display: flex;
+    gap: 16px;
+  }
+  .ln {
+    color: #484f58;
+    user-select: none;
+    text-align: right;
+    min-width: 24px;
+  }
+  .kw { color: #ff7b72; }
+  .str { color: #a5d6ff; }
+  .fn { color: #d2a8ff; }
+  .var { color: #ffa657; }
+  .cm { color: #8b949e; }
+  .op { color: #c9d1d9; }
+  .type { color: #79c0ff; }
+  .br { color: #c9d1d9; }
+  .blank { height: 24px; }
+</style>
+</head>
+<body>
+<div class="editor">
+  <div class="title-bar">
+    <div class="dot dot-red"></div>
+    <div class="dot dot-yellow"></div>
+    <div class="dot dot-green"></div>
+    <span class="title-text">agent.ts — LangChain + Holomime</span>
+  </div>
+  <div class="content">
+    <div class="line"><span class="ln">1</span><span><span class="kw">import</span> <span class="br">{</span> <span class="type">ChatAnthropic</span> <span class="br">}</span> <span class="kw">from</span> <span class="str">"@langchain/anthropic"</span></span></div>
+    <div class="line"><span class="ln">2</span><span><span class="kw">import</span> <span class="br">{</span> <span class="type">HolomimeCallback</span> <span class="br">}</span> <span class="kw">from</span> <span class="str">"holomime/integrations/langchain"</span></span></div>
+    <div class="blank"></div>
+    <div class="line"><span class="ln">4</span><span><span class="cm">// 3 lines to add behavioral monitoring</span></span></div>
+    <div class="line"><span class="ln">5</span><span><span class="kw">const</span> <span class="var">holomime</span> <span class="op">=</span> <span class="kw">new</span> <span class="fn">HolomimeCallback</span><span class="br">({</span></span></div>
+    <div class="line"><span class="ln">6</span><span>  <span class="var">personality</span><span class="op">:</span> <span class="str">"./counselor.personality.json"</span><span class="op">,</span></span></div>
+    <div class="line"><span class="ln">7</span><span><span class="br">})</span></span></div>
+    <div class="blank"></div>
+    <div class="line"><span class="ln">9</span><span><span class="kw">const</span> <span class="var">model</span> <span class="op">=</span> <span class="kw">new</span> <span class="fn">ChatAnthropic</span><span class="br">({</span></span></div>
+    <div class="line"><span class="ln">10</span><span>  <span class="var">model</span><span class="op">:</span> <span class="str">"claude-sonnet-4-6"</span><span class="op">,</span></span></div>
+    <div class="line"><span class="ln">11</span><span>  <span class="var">callbacks</span><span class="op">:</span> <span class="br">[</span><span class="var">holomime</span><span class="br">]</span><span class="op">,</span> <span class="cm">// ← that's it</span></span></div>
+    <div class="line"><span class="ln">12</span><span><span class="br">})</span></span></div>
+    <div class="blank"></div>
+    <div class="line"><span class="ln">14</span><span><span class="cm">// Your agent works exactly the same.</span></span></div>
+    <div class="line"><span class="ln">15</span><span><span class="cm">// Holomime monitors personality in the background.</span></span></div>
+  </div>
+</div>
+</body>
+</html>

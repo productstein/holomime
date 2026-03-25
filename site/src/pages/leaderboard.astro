@@ -360,16 +360,16 @@ holomime benchmark --personality .personality.json --publish</code></pre>
         </p>
         <div class="rounded-xl bg-[var(--color-warm-cream)] p-6">
           <pre class="overflow-x-auto text-sm leading-relaxed text-[var(--color-warm-text)]"><code># Aggregated model rankings (default)
-curl https://holomime.dev/api/v1/leaderboard
+curl https://holomime.com/api/v1/leaderboard
 
 # Orchestrator rankings
-curl https://holomime.dev/api/v1/leaderboard?view=orchestrators
+curl https://holomime.com/api/v1/leaderboard?view=orchestrators
 
 # Individual submissions (legacy)
-curl https://holomime.dev/api/v1/leaderboard?view=submissions
+curl https://holomime.com/api/v1/leaderboard?view=submissions
 
 # Submit with orchestrator + stack (requires API key)
-curl -X POST https://holomime.dev/api/v1/leaderboard/submit \
+curl -X POST https://holomime.com/api/v1/leaderboard/submit \
   -H "Authorization: Bearer holo_xxx" \
   -H "Content-Type: application/json" \
   -d '&#123;"agentName":"my-agent","provider":"anthropic","model":"claude-sonnet-4-20250514","score":85,"grade":"A","orchestrator":"openclaw","stack":[&#123;"provider":"anthropic","model":"claude-sonnet-4-20250514"&#125;,&#123;"provider":"openai","model":"gpt-4o"&#125;]&#125;'</code></pre>

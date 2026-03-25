@@ -29,5 +29,5 @@ HoloMime is a behavioral therapy tool for AI agents. The MCP server exposes 6 to
 
 **Installation:** `npx holomime-mcp` (stdio transport, zero config)
 
-**Website:** https://holomime.dev
+**Website:** https://holomime.com
 **npm:** https://www.npmjs.com/package/holomime

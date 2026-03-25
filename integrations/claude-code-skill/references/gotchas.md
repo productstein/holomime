@@ -43,7 +43,7 @@ Free tier includes: init, diagnose, profile, compile, validate, benchmark, brain
 
 Pro tier adds: session, autopilot, evolve, export, train, cure, and more.
 
-Get a license at https://holomime.dev/pricing
+Get a license at https://holomime.com/pricing
 
 ## Benchmark takes too long
 

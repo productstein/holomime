@@ -42,16 +42,16 @@ const displayName = user?.user_metadata?.full_name || user?.user_metadata?.name 
               <p class="text-sm font-medium text-[var(--color-warm-text)] truncate">{displayName}</p>
               <p class="text-xs text-[var(--color-warm-muted)] truncate">{user.email}</p>
             </div>
-            <a href="https://app.holomime.dev/dashboard" class="block px-3 py-2 text-sm text-[var(--color-warm-muted)] hover:bg-[var(--color-warm-cream)] hover:text-[var(--color-warm-text)] transition-colors">Dashboard</a>
-            <a href="https://app.holomime.dev/agents" class="block px-3 py-2 text-sm text-[var(--color-warm-muted)] hover:bg-[var(--color-warm-cream)] hover:text-[var(--color-warm-text)] transition-colors">Agents</a>
-            <a href="https://app.holomime.dev/settings" class="block px-3 py-2 text-sm text-[var(--color-warm-muted)] hover:bg-[var(--color-warm-cream)] hover:text-[var(--color-warm-text)] transition-colors">Settings</a>
+            <a href="https://app.holomime.com/dashboard" class="block px-3 py-2 text-sm text-[var(--color-warm-muted)] hover:bg-[var(--color-warm-cream)] hover:text-[var(--color-warm-text)] transition-colors">Dashboard</a>
+            <a href="https://app.holomime.com/agents" class="block px-3 py-2 text-sm text-[var(--color-warm-muted)] hover:bg-[var(--color-warm-cream)] hover:text-[var(--color-warm-text)] transition-colors">Agents</a>
+            <a href="https://app.holomime.com/settings" class="block px-3 py-2 text-sm text-[var(--color-warm-muted)] hover:bg-[var(--color-warm-cream)] hover:text-[var(--color-warm-text)] transition-colors">Settings</a>
             <button id="signout-btn" class="w-full text-left px-3 py-2 text-sm text-red-500 hover:bg-red-50 transition-colors">Sign Out</button>
           </div>
         </div>
       ) : (
         <!-- Logged out: Login + Get Started -->
         <>
-          <a href="https://app.holomime.dev/login" class="text-sm font-medium text-[var(--color-warm-muted)] transition-colors hover:text-[var(--color-warm-text)]">
+          <a href="https://app.holomime.com/login" class="text-sm font-medium text-[var(--color-warm-muted)] transition-colors hover:text-[var(--color-warm-text)]">
             Login
           </a>
           <button

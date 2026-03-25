@@ -5,9 +5,9 @@ compatibility_flags = ["nodejs_compat"]
 workers_dev = true
 
 routes = [
-  { pattern = "holomime.dev", custom_domain = true },
-  { pattern = "www.holomime.dev", custom_domain = true },
-  { pattern = "app.holomime.dev", custom_domain = true }
+  { pattern = "holomime.com", custom_domain = true },
+  { pattern = "www.holomime.com", custom_domain = true },
+  { pattern = "app.holomime.com", custom_domain = true }
 ]
 
 [assets]

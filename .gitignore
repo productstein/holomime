@@ -44,3 +44,5 @@ npm-debug.log*
 
 # Test results
 test-results/
+.mcpregistry_github_token
+.mcpregistry_registry_token

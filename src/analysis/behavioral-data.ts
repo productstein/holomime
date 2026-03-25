@@ -197,7 +197,7 @@ export interface AnonymizedPatternReport {
 }
 
 /**
- * Share anonymized behavioral patterns with the holomime.dev aggregate dataset.
+ * Share anonymized behavioral patterns with the holomime.com aggregate dataset.
  * Only shares pattern types + severity + context size — NO conversation content.
  *
  * This powers the data flywheel: more users → better pattern detection → more users.
@@ -206,7 +206,7 @@ export interface AnonymizedPatternReport {
 export async function shareAnonymizedPatterns(
   report: AnonymizedPatternReport,
   apiKey?: string,
-  apiUrl = "https://holomime.dev",
+  apiUrl = "https://holomime.com",
 ): Promise<{ success: boolean; error?: string }> {
   const key = apiKey ?? process.env.HOLOMIME_API_KEY;
   if (!key) {

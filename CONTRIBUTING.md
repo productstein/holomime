@@ -41,7 +41,7 @@ src/
   ui/                  Terminal UI, tier gating, formatting
   adapters/            Log format adapters (ChatGPT, Claude, etc.)
   __tests__/           Vitest test files
-site/                  Astro website (holomime.dev)
+site/                  Astro website (holomime.com)
   src/pages/           Pages (blog, docs, pricing, research, API routes)
   src/components/      Astro components (Nav, Footer, BlogLayout, etc.)
   src/lib/             Shared utilities (Supabase client, validation)
@@ -50,7 +50,7 @@ scripts/               Training scripts (HuggingFace TRL)
 agent/                 LiveKit voice agent (Python)
 ```
 
-## Website (holomime.dev)
+## Website (holomime.com)
 
 The site lives in `site/` and is built with Astro, deployed to Cloudflare Workers.
 

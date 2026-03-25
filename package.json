@@ -37,7 +37,7 @@
     "type": "git",
     "url": "git+https://github.com/productstein/holomime.git"
   },
-  "homepage": "https://holomime.dev",
+  "homepage": "https://holomime.com",
   "bugs": {
     "url": "https://github.com/productstein/holomime/issues"
   },
@@ -72,7 +72,7 @@
     "agents-md",
     "personality-json"
   ],
-  "author": "holomime <hello@holomime.dev>",
+  "author": "holomime <hello@holomime.com>",
   "license": "MIT",
   "dependencies": {
     "@inquirer/prompts": "^7.0.0",

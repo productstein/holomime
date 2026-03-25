@@ -4,7 +4,7 @@ import { createServiceClient } from "../../lib/supabase.js";
 export const POST: APIRoute = async ({ request, cookies }) => {
   const supabase = createServiceClient(request, cookies);
   const { error } = await supabase.auth.signInWithPassword({
-    email: "demo@holomime.dev",
+    email: "demo@holomime.com",
     password: import.meta.env.DEMO_USER_PASSWORD ?? "",
   });
   if (error) {

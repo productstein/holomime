@@ -34,7 +34,7 @@
     "ai-agent",
     "openclaw"
   ],
-  "author": "holomime <hello@holomime.dev>",
+  "author": "holomime <hello@holomime.com>",
   "license": "MIT",
   "peerDependencies": {
     "holomime": ">=1.8.0"

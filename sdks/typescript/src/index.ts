@@ -111,7 +111,7 @@ export class HoloMime {
 
   constructor(config: HoloMimeConfig) {
     this.apiKey = config.apiKey;
-    this.baseUrl = config.baseUrl ?? "https://api.holomime.dev/v1";
+    this.baseUrl = config.baseUrl ?? "https://api.holomime.com/v1";
 
     this.vectors = new Vectors(this);
     this.agents = new Agents(this);

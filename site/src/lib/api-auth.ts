@@ -108,7 +108,7 @@ export async function authenticateApiRequest(request: Request): Promise<AuthResu
  * Returns true if the license belongs to the demo account (read-only).
  */
 export function isDemoUser(license: License): boolean {
-  return license.customer_email === "demo@holomime.dev";
+  return license.customer_email === "demo@holomime.com";
 }
 
 /**

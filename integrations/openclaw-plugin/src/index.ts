@@ -224,7 +224,7 @@ export default function register(api: OpenClawPluginApi): void {
           "```\nnpx holomime brain\n```\n\n" +
           "This opens a real-time 3D brain that lights up based on detected behavioral patterns. " +
           "Press 's' to generate a shareable snapshot URL.\n\n" +
-          "Learn more: https://holomime.dev",
+          "Learn more: https://holomime.com",
       };
     },
   });

@@ -2,7 +2,7 @@
   "name": "holomime-marketplace",
   "owner": {
     "name": "productstein",
-    "email": "hello@holomime.dev"
+    "email": "hello@holomime.com"
   },
   "plugins": [
     {
@@ -17,7 +17,7 @@
       "author": {
         "name": "productstein"
       },
-      "homepage": "https://holomime.dev",
+      "homepage": "https://holomime.com",
       "repository": "https://github.com/productstein/holomime",
       "license": "MIT",
       "keywords": ["behavioral-alignment", "personality", "ai-agents", "diagnosis", "therapy", "benchmark"]

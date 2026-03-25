@@ -11,7 +11,7 @@ import type { BrainEvent } from "./types.js";
 import type { DiagnosisResult } from "../analysis/diagnose-core.js";
 import { mapDiagnosisToBrainEvent } from "./brain-mapper.js";
 
-const SHARE_BASE = "https://app.holomime.dev/brain";
+const SHARE_BASE = "https://app.holomime.com/brain";
 
 /**
  * Compress a BrainEvent into a compact base64url-encoded string for sharing.

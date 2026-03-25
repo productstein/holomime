@@ -102,12 +102,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
       if (error2) {
         return new Response(JSON.stringify({ error: "Failed to save snapshot" }), { status: 500, headers });
       }
-      return new Response(JSON.stringify({ id: id2, url: `https://holomime.dev/brain/${id2}` }), { status: 200, headers });
+      return new Response(JSON.stringify({ id: id2, url: `https://holomime.com/brain/${id2}` }), { status: 200, headers });
     }
     return new Response(JSON.stringify({ error: "Failed to save snapshot" }), { status: 500, headers });
   }
 
-  return new Response(JSON.stringify({ id, url: `https://holomime.dev/brain/${id}` }), { status: 200, headers });
+  return new Response(JSON.stringify({ id, url: `https://holomime.com/brain/${id}` }), { status: 200, headers });
 };
 
 function generateId(): string {

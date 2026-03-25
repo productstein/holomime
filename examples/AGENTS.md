@@ -22,7 +22,7 @@
 
 ## Behavioral Personality
 
-This project uses [holomime](https://holomime.dev) for agent behavioral alignment.
+This project uses [holomime](https://holomime.com) for agent behavioral alignment.
 
 - **Spec**: `.personality.json` defines the agent's behavioral profile (Big Five psychology, communication style, boundaries)
 - **Readable version**: `.personality.md` is a human-readable summary (regenerate with `holomime profile --format md`)

@@ -18,8 +18,8 @@ export const GET: APIRoute = async ({ request }) => {
   }
 
   const origin = url.origin;
-  const entityId = "https://holomime.dev";
-  const acsUrl = "https://holomime.dev/api/v1/org/sso/callback";
+  const entityId = "https://holomime.com";
+  const acsUrl = "https://holomime.com/api/v1/org/sso/callback";
 
   const metadata = `<?xml version="1.0" encoding="UTF-8"?>
 <md:EntityDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata"

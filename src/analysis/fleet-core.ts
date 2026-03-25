@@ -306,7 +306,7 @@ function startSingleAgent(
 export async function reportToCloud(
   agentKey: string,
   status: FleetAgentStatus,
-  apiUrl = "https://holomime.dev",
+  apiUrl = "https://holomime.com",
 ): Promise<void> {
   try {
     await fetch(`${apiUrl}/api/v1/fleet/report`, {

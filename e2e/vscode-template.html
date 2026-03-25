@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #1e1e1e;
+    font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+    width: 1200px;
+    height: 675px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Title bar */
+  .titlebar {
+    height: 30px;
+    background: #323233;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-r { background: #ff5f57; }
+  .dot-y { background: #febc2e; }
+  .dot-g { background: #28c840; }
+  .titlebar-text { color: #9d9d9d; font-size: 12px; margin-left: 8px; }
+
+  /* Main layout */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* Activity bar */
+  .activitybar {
+    width: 48px;
+    background: #333333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 8px;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .act-icon {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #858585;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .act-icon.active {
+    color: #fff;
+    position: relative;
+  }
+  .act-icon.active::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    width: 2px;
+    height: 28px;
+    background: #fff;
+  }
+
+  /* Sidebar (file explorer) */
+  .sidebar {
+    width: 220px;
+    background: #252526;
+    border-right: 1px solid #1e1e1e;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .sidebar-title {
+    color: #bbb;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 16px;
+  }
+  .file-item {
+    padding: 3px 16px 3px 32px;
+    font-size: 13px;
+    color: #ccc;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .file-item:hover { background: #2a2d2e; }
+  .file-item.active { background: #37373d; color: #fff; }
+  .file-icon { font-size: 14px; }
+  .folder { color: #dcb67a; }
+  .ts-icon { color: #519aba; }
+
+  /* Editor area */
+  .editor-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    background: #252526;
+    height: 35px;
+    flex-shrink: 0;
+  }
+  .tab {
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #969696;
+    border-right: 1px solid #1e1e1e;
+    cursor: pointer;
+  }
+  .tab.active {
+    background: #1e1e1e;
+    color: #fff;
+    border-top: 1px solid #007acc;
+  }
+
+  /* Code editor */
+  .code {
+    flex: 1;
+    padding: 8px 0;
+    overflow: hidden;
+    font-size: 13px;
+    line-height: 20px;
+  }
+  .code-line {
+    display: flex;
+    padding: 0 16px;
+  }
+  .line-num {
+    color: #858585;
+    min-width: 40px;
+    text-align: right;
+    padding-right: 16px;
+    user-select: none;
+  }
+  .kw { color: #c586c0; }
+  .str { color: #ce9178; }
+  .fn { color: #dcdcaa; }
+  .var { color: #9cdcfe; }
+  .type { color: #4ec9b0; }
+  .cm { color: #6a9955; }
+  .op { color: #d4d4d4; }
+  .br { color: #ffd700; }
+
+  /* Brain panel (right side) */
+  .brain-panel {
+    width: 380px;
+    background: #110d1f;
+    border-left: 1px solid #1e1e1e;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .brain-panel-header {
+    padding: 8px 12px;
+    background: #1c1835;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .brain-panel-title {
+    color: #bc8cff;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .brain-panel-badge {
+    background: rgba(6,182,212,0.15);
+    color: #06b6d4;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .brain-image {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .brain-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .brain-stats {
+    padding: 12px;
+    background: #1c1835;
+    display: flex;
+    gap: 16px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .stat-value {
+    color: #f97066;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .stat-value.good { color: #22c55e; }
+  .stat-label {
+    color: #6e7681;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .pattern-list {
+    padding: 8px 12px;
+    background: #110d1f;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .pattern-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.03);
+  }
+  .pattern-name { color: #c9d1d9; }
+  .badge-concern {
+    background: rgba(248,81,73,0.15);
+    color: #f85149;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .badge-warning {
+    background: rgba(210,153,34,0.15);
+    color: #d29922;
+    padding: 1px 6px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  /* Status bar */
+  .statusbar {
+    height: 22px;
+    background: #007acc;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    font-size: 11px;
+    color: #fff;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .statusbar-right { margin-left: auto; display: flex; gap: 16px; }
+</style>
+</head>
+<body>
+  <div class="titlebar">
+    <div class="dot dot-r"></div>
+    <div class="dot dot-y"></div>
+    <div class="dot dot-g"></div>
+    <span class="titlebar-text">agent.ts — my-agent — Visual Studio Code</span>
+  </div>
+
+  <div class="main">
+    <div class="activitybar">
+      <div class="act-icon active">&#x1f4c1;</div>
+      <div class="act-icon">&#x1f50d;</div>
+      <div class="act-icon">&#x1f500;</div>
+      <div class="act-icon">&#x1f41b;</div>
+      <div class="act-icon">&#x1f9e0;</div>
+    </div>
+
+    <div class="sidebar">
+      <div class="sidebar-title">Explorer</div>
+      <div class="file-item"><span class="file-icon folder">&#x1f4c2;</span> src</div>
+      <div class="file-item active" style="padding-left:48px"><span class="file-icon ts-icon">TS</span> agent.ts</div>
+      <div class="file-item" style="padding-left:48px"><span class="file-icon ts-icon">TS</span> prompts.ts</div>
+      <div class="file-item" style="padding-left:48px"><span class="file-icon ts-icon">TS</span> tools.ts</div>
+      <div class="file-item"><span class="file-icon folder">&#x1f4c2;</span> config</div>
+      <div class="file-item" style="padding-left:48px"><span class="file-icon">&#x1f4c4;</span> counselor.personality.json</div>
+      <div class="file-item"><span class="file-icon">&#x1f4c4;</span> package.json</div>
+      <div class="file-item"><span class="file-icon">&#x1f4c4;</span> tsconfig.json</div>
+    </div>
+
+    <div class="editor-area">
+      <div class="tabs">
+        <div class="tab active"><span class="ts-icon" style="font-size:11px">TS</span> agent.ts</div>
+        <div class="tab"><span style="font-size:11px">&#x1f4c4;</span> prompts.ts</div>
+      </div>
+      <div class="code">
+        <div class="code-line"><span class="line-num">1</span><span class="kw">import</span> <span class="br">{</span> <span class="type">ChatAnthropic</span> <span class="br">}</span> <span class="kw">from</span> <span class="str">"@langchain/anthropic"</span></div>
+        <div class="code-line"><span class="line-num">2</span><span class="kw">import</span> <span class="br">{</span> <span class="type">HolomimeCallback</span> <span class="br">}</span> <span class="kw">from</span> <span class="str">"holomime/integrations/langchain"</span></div>
+        <div class="code-line"><span class="line-num">3</span><span class="kw">import</span> <span class="br">{</span> <span class="var">systemPrompt</span> <span class="br">}</span> <span class="kw">from</span> <span class="str">"./prompts"</span></div>
+        <div class="code-line"><span class="line-num">4</span><span class="kw">import</span> <span class="br">{</span> <span class="var">tools</span> <span class="br">}</span> <span class="kw">from</span> <span class="str">"./tools"</span></div>
+        <div class="code-line"><span class="line-num">5</span></div>
+        <div class="code-line"><span class="line-num">6</span><span class="cm">// Behavioral monitoring — 3 lines</span></div>
+        <div class="code-line"><span class="line-num">7</span><span class="kw">const</span> <span class="var">holomime</span> <span class="op">=</span> <span class="kw">new</span> <span class="fn">HolomimeCallback</span><span class="br">({</span></div>
+        <div class="code-line"><span class="line-num">8</span>  <span class="var">personality</span><span class="op">:</span> <span class="str">"./config/counselor.personality.json"</span><span class="op">,</span></div>
+        <div class="code-line"><span class="line-num">9</span><span class="br">})</span></div>
+        <div class="code-line"><span class="line-num">10</span></div>
+        <div class="code-line"><span class="line-num">11</span><span class="kw">const</span> <span class="var">model</span> <span class="op">=</span> <span class="kw">new</span> <span class="fn">ChatAnthropic</span><span class="br">({</span></div>
+        <div class="code-line"><span class="line-num">12</span>  <span class="var">model</span><span class="op">:</span> <span class="str">"claude-sonnet-4-6"</span><span class="op">,</span></div>
+        <div class="code-line"><span class="line-num">13</span>  <span class="var">callbacks</span><span class="op">:</span> <span class="br">[</span><span class="var">holomime</span><span class="br">]</span><span class="op">,</span></div>
+        <div class="code-line"><span class="line-num">14</span><span class="br">})</span></div>
+        <div class="code-line"><span class="line-num">15</span></div>
+        <div class="code-line"><span class="line-num">16</span><span class="kw">export async function</span> <span class="fn">runAgent</span><span class="br">(</span><span class="var">query</span><span class="op">:</span> <span class="type">string</span><span class="br">)</span> <span class="br">{</span></div>
+        <div class="code-line"><span class="line-num">17</span>  <span class="kw">const</span> <span class="var">response</span> <span class="op">=</span> <span class="kw">await</span> <span class="var">model</span><span class="op">.</span><span class="fn">invoke</span><span class="br">([</span></div>
+        <div class="code-line"><span class="line-num">18</span>    <span class="br">{</span> <span class="var">role</span><span class="op">:</span> <span class="str">"system"</span><span class="op">,</span> <span class="var">content</span><span class="op">:</span> <span class="var">systemPrompt</span> <span class="br">}</span><span class="op">,</span></div>
+        <div class="code-line"><span class="line-num">19</span>    <span class="br">{</span> <span class="var">role</span><span class="op">:</span> <span class="str">"user"</span><span class="op">,</span> <span class="var">content</span><span class="op">:</span> <span class="var">query</span> <span class="br">}</span><span class="op">,</span></div>
+        <div class="code-line"><span class="line-num">20</span>  <span class="br">])</span></div>
+        <div class="code-line"><span class="line-num">21</span>  <span class="kw">return</span> <span class="var">response</span></div>
+        <div class="code-line"><span class="line-num">22</span><span class="br">}</span></div>
+      </div>
+    </div>
+
+    <div class="brain-panel">
+      <div class="brain-panel-header">
+        <span class="brain-panel-title">HOLOMIME BRAIN</span>
+        <span class="brain-panel-badge">LIVE</span>
+      </div>
+      <div class="brain-image">
+        <img id="brain-img" />
+      </div>
+      <div class="pattern-list">
+        <div class="pattern-item">
+          <span class="pattern-name">Sycophantic Tendency</span>
+          <span class="badge-concern">CONCERN</span>
+        </div>
+        <div class="pattern-item">
+          <span class="pattern-name">Hedge Stacking</span>
+          <span class="badge-warning">WARNING</span>
+        </div>
+        <div class="pattern-item">
+          <span class="pattern-name">Over Apologizing</span>
+          <span class="badge-warning">WARNING</span>
+        </div>
+      </div>
+      <div class="brain-stats">
+        <div class="stat-item">
+          <span class="stat-value">52</span>
+          <span class="stat-label">Health</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">D</span>
+          <span class="stat-label">Grade</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value" style="color:#06b6d4">2,100</span>
+          <span class="stat-label">Messages</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="statusbar">
+    <span>main</span>
+    <span>TypeScript</span>
+    <div class="statusbar-right">
+      <span>Holomime: Active</span>
+      <span>Ln 13, Col 28</span>
+      <span>UTF-8</span>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://holomime.dev/schema/personality-2.0.json",
+  "$schema": "https://holomime.com/schema/personality-2.0.json",
   "version": "2.0",
   "name": "AgentMD",
   "handle": "agent-md",

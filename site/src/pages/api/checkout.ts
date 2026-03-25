@@ -16,7 +16,7 @@ export const POST: APIRoute = async ({ locals, request }) => {
   const accessToken = runtimeEnv.POLAR_ACCESS_TOKEN ?? import.meta.env.POLAR_ACCESS_TOKEN;
   const productIdMonthly = runtimeEnv.POLAR_PRODUCT_ID ?? import.meta.env.POLAR_PRODUCT_ID;
   const productIdAnnual = runtimeEnv.POLAR_PRODUCT_ID_ANNUAL ?? import.meta.env.POLAR_PRODUCT_ID_ANNUAL;
-  const siteUrl = runtimeEnv.SITE_URL ?? import.meta.env.SITE_URL ?? "https://holomime.dev";
+  const siteUrl = runtimeEnv.SITE_URL ?? import.meta.env.SITE_URL ?? "https://holomime.com";
 
   if (!accessToken || !productIdMonthly) {
     return new Response(

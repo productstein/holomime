@@ -73,14 +73,14 @@ const ogTitle = `${agentName}'s Brain — Health ${snapshot.health}/100 (Grade $
 const ogDescription = patternList.length > 0
   ? `Behavioral patterns detected: ${patternStr}. See the full 3D brain visualization.`
   : `Healthy brain — no behavioral patterns detected. See the full 3D visualization.`;
-const ogImage = `https://holomime.dev/api/og/brain?h=${snapshot.health}&g=${encodeURIComponent(snapshot.grade)}&a=${encodeURIComponent(snapshot.agent)}&p=${encodeURIComponent(patternList.join(","))}`;
+const ogImage = `https://holomime.com/api/og/brain?h=${snapshot.health}&g=${encodeURIComponent(snapshot.grade)}&a=${encodeURIComponent(snapshot.agent)}&p=${encodeURIComponent(patternList.join(","))}`;
 ---
 
 <Layout title={ogTitle} description={ogDescription}>
   <Fragment slot="head">
     <meta property="og:image" content={ogImage} />
     <meta name="twitter:image" content={ogImage} />
-    <meta property="og:url" content={`https://holomime.dev/brain/${id}`} />
+    <meta property="og:url" content={`https://holomime.com/brain/${id}`} />
   </Fragment>
 
   <!-- Full-screen snapshot view -->

@@ -37,7 +37,7 @@ npx holomime init
 
 ## Links
 
-- Website: https://holomime.dev
+- Website: https://holomime.com
 - GitHub: https://github.com/productstein/holomime
 - npm: https://www.npmjs.com/package/holomime
-- Docs: https://holomime.dev/docs
+- Docs: https://holomime.com/docs

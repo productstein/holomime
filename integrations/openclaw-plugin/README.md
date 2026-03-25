@@ -1,6 +1,6 @@
 # holomime-openclaw
 
-Behavioral alignment monitoring for [OpenClaw](https://openclaw.ai) agents. Powered by [HoloMime](https://holomime.dev).
+Behavioral alignment monitoring for [OpenClaw](https://openclaw.ai) agents. Powered by [HoloMime](https://holomime.com).
 
 Detects 8 behavioral patterns in real-time:
 
@@ -74,7 +74,7 @@ See your agent's behavioral health as a real-time 3D brain visualization.
 
 ## Links
 
-- [HoloMime](https://holomime.dev) -- Behavioral therapy for AI agents
-- [Documentation](https://holomime.dev/docs)
+- [HoloMime](https://holomime.com) -- Behavioral therapy for AI agents
+- [Documentation](https://holomime.com/docs)
 - [npm](https://www.npmjs.com/package/holomime)
 - [GitHub](https://github.com/productstein/holomime)

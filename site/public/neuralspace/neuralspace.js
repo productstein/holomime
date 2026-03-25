@@ -1,6 +1,6 @@
 /**
  * NeuralSpace Live — 3D brain visualization driven by WebSocket BrainEvents.
- * Faithfully ported from the holomime.dev NeuralSpace Astro component with
+ * Faithfully ported from the holomime.com NeuralSpace Astro component with
  * identical brain mesh, GLSL shaders, fibers, sulci, and visual treatment.
  */
 

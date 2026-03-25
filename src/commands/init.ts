@@ -247,7 +247,7 @@ export async function initCommand(): Promise<void> {
 
   // ─── Build the spec ───
   const spec: PersonalitySpec = {
-    $schema: "https://holomime.dev/schema/v2.json",
+    $schema: "https://holomime.com/schema/v2.json",
     version: "2.0",
     name,
     handle,
@@ -424,7 +424,7 @@ async function initFromArchetype(name: string, handle: string, purpose: string):
 
   // Build the spec from archetype template
   const spec: PersonalitySpec = {
-    $schema: "https://holomime.dev/schema/v2.json",
+    $schema: "https://holomime.com/schema/v2.json",
     version: "2.0",
     name,
     handle,

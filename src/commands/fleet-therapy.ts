@@ -69,7 +69,7 @@ export async function fleetTherapyCommand(options: FleetTherapyOptions): Promise
     printBox(
       `Your ${tier} plan supports up to ${maxAgents} agents per fleet-therapy run.\n` +
       `Found ${config.agents.length} agents. Upgrade to Institute for unlimited.\n\n` +
-      `Upgrade: https://holomime.dev/pro`,
+      `Upgrade: https://holomime.com/pro`,
       "warning",
       "Agent Limit Exceeded",
     );

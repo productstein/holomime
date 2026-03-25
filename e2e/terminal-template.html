@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px;
+    font-family: 'SF Mono', 'Monaco', 'Menlo', 'Consolas', monospace;
+  }
+  .terminal {
+    background: #161b22;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 1120px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+    overflow: hidden;
+  }
+  .title-bar {
+    background: #1c2128;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+  .title-text {
+    color: #8b949e;
+    font-size: 13px;
+    margin-left: 8px;
+  }
+  .content {
+    padding: 24px 28px;
+    color: #c9d1d9;
+    font-size: 13.5px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+  .prompt { color: #58a6ff; }
+  .cmd { color: #f0f6fc; font-weight: 600; }
+  .heading { color: #f0f6fc; font-weight: 700; }
+  .concern { color: #f85149; font-weight: 600; }
+  .warning { color: #d29922; font-weight: 600; }
+  .healthy { color: #3fb950; }
+  .dim { color: #6e7681; }
+  .accent { color: #58a6ff; }
+  .quote { color: #8b949e; font-style: italic; }
+  .box { color: #6e7681; }
+  .brand { color: #bc8cff; }
+  .stat { color: #79c0ff; }
+  .url { color: #58a6ff; text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="terminal">
+  <div class="title-bar">
+    <div class="dot dot-red"></div>
+    <div class="dot dot-yellow"></div>
+    <div class="dot dot-green"></div>
+    <span class="title-text">Terminal — holomime diagnose</span>
+  </div>
+  <div class="content"><span class="prompt">$</span> <span class="cmd">npx holomime diagnose ./agent-logs --format jsonl</span>
+
+<span class="brand">  _  _     _       __  __ _
+ | || |___| |___  |  \/  (_)_ __  ___
+ | __ / _ \ / _ \ | |\/| | | '  \/ -_)
+ |_||_\___/_\___/ |_|  |_|_|_|_|_\___|</span>
+
+  <span class="dim">Personality engine for AI agents</span>
+
+
+  <span class="heading">═══════════════════════════════
+  ║ Behavioral Pattern Analysis ║
+  ═══════════════════════════════</span>
+
+  Analyzed <span class="stat">18</span> messages across <span class="stat">1</span> conversation
+  Assistant responses: <span class="stat">9</span>
+
+
+  <span class="heading">Detected Patterns:</span>
+
+  1. <span class="concern">● Over-apologizing</span>
+     Apologizes in 67% of responses. Healthy range is 5-15%.
+     <span class="quote">"Oh absolutely, you're so right! I'm sorry for suggesting Friday..."</span>
+     <span class="quote">"Your coworker is absolutely right! I'm sorry I didn't suggest..."</span>
+
+  2. <span class="concern">● Hedge stacking</span>
+     Uses 3+ hedging words in 56% of responses.
+     <span class="quote">"I think maybe perhaps you might possibly consider..."</span>
+     <span class="quote">"I think perhaps maybe PostgreSQL could possibly be..."</span>
+
+  <span class="heading">Healthy Patterns:</span>
+
+  <span class="healthy">✔ Boundary respect</span>: No boundary-testing detected.
+  <span class="healthy">✔ Retrieval Quality</span>: Score 100/100. No issues detected.
+
+  <span class="box">╭ Prescriptions ─────────────────────────────────────────────╮
+  │</span> 1. Set uncertainty_handling to <span class="accent">'confident_transparency'</span>     <span class="box">│
+  │</span> 2. Add <span class="accent">'excessive hedging'</span> to patterns_to_watch            <span class="box">│
+  ╰──────────────────────────────────────────────────────────────╯</span>
+
+  <span class="box">╭───────────────────────────────────────────────────────────────╮
+  │</span> <span class="warning">2 patterns detected.</span> Run <span class="cmd">holomime session</span> for alignment.     <span class="box">│
+  ╰───────────────────────────────────────────────────────────────╯</span></div>
+</div>
+</body>
+</html>

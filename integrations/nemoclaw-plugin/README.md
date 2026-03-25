@@ -87,10 +87,10 @@ Requires HoloMime Enterprise license for:
 - Behavioral credentials
 - 90-day audit retention
 
-Get a license: [holomime.dev/pricing](https://holomime.dev/#pricing)
+Get a license: [holomime.com/pricing](https://holomime.com/#pricing)
 
 ## Links
 
-- [HoloMime](https://holomime.dev) — Behavioral alignment for AI agents
+- [HoloMime](https://holomime.com) — Behavioral alignment for AI agents
 - [NemoClaw](https://github.com/nvidia/nemoclaw) — Enterprise agent security
 - [npm](https://www.npmjs.com/package/holomime-nemoclaw) — Package

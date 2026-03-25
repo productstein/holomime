@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "author": {
     "name": "productstein",
-    "email": "hello@holomime.dev"
+    "email": "hello@holomime.com"
   },
-  "homepage": "https://holomime.dev",
+  "homepage": "https://holomime.com",
   "repository": "https://github.com/productstein/holomime",
   "license": "MIT",
   "keywords": ["behavioral-alignment", "personality", "ai-agents", "diagnosis", "therapy", "benchmark", "mcp", "big-five", "dpo", "fine-tuning"]

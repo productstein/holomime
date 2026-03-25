@@ -12,7 +12,7 @@ The result: a self-improving loop where every session makes the next one stick b
 
 Try it: `npm install -g holomime && holomime init`
 
-The CLI is free and open source. The interactive demo at holomime.dev/demo walks through the full pipeline.
+The CLI is free and open source. The interactive demo at holomime.com/demo walks through the full pipeline.
 
 What behavioral patterns are you seeing in your agents? Would love to hear.
 
@@ -54,7 +54,7 @@ For therapy sessions (the `session` and `evolve` commands), you can use Ollama, 
 
 The CLI is free and open source (MIT). The free tier ("Free Clinic") includes personality creation, diagnostics, assessment, and the community hub.
 
-The paid tier ("Practice") adds live therapy sessions, autopilot mode, DPO export, fine-tuning, fleet management, and continuous monitoring. Details at holomime.dev/#pricing.
+The paid tier ("Practice") adds live therapy sessions, autopilot mode, DPO export, fine-tuning, fleet management, and continuous monitoring. Details at holomime.com/#pricing.
 
 ### Q: "Can I use this with LangChain / CrewAI / AutoGen / OpenClaw?"
 
@@ -105,4 +105,4 @@ No — it's an architecture decision. When you frame behavioral issues as bugs, 
 
 The therapy model gives us: multi-session correction protocols, structured training data generation as a byproduct, and clinical-grade outcome tracking. These are technically superior to the debugging model for behavioral alignment.
 
-We wrote a whole post about this: holomime.dev/blog/therapist-not-debugger
+We wrote a whole post about this: holomime.com/blog/therapist-not-debugger

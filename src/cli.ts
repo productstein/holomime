@@ -194,7 +194,7 @@ program
 program
   .command("activate")
   .description("Activate a Pro license key")
-  .argument("<key>", "License key from holomime.dev")
+  .argument("<key>", "License key from holomime.com")
   .action(activateCommand);
 
 program

@@ -15,7 +15,7 @@ from urllib.error import URLError
 
 logger = logging.getLogger("holomime-cloud")
 
-API_URL = os.getenv("HOLOMIME_API_URL", "https://holomime.dev")
+API_URL = os.getenv("HOLOMIME_API_URL", "https://holomime.com")
 AGENT_KEY = os.getenv("HOLOMIME_AGENT_KEY", "")
 LICENSE_KEY = os.getenv("HOLOMIME_LICENSE_KEY", "")
 

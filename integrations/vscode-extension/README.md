@@ -37,6 +37,6 @@ Or use directly with `npx` — the extension handles this automatically.
 
 ## Links
 
-- [holomime.dev](https://holomime.dev) — Documentation
+- [holomime.com](https://holomime.com) — Documentation
 - [npm](https://www.npmjs.com/package/holomime) — Package
 - [GitHub](https://github.com/productstein/holomime) — Source

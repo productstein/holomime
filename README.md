@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://holomime.dev/logo-icon.svg" alt="holomime" width="80" />
+  <img src="https://holomime.com/logo-icon.svg" alt="holomime" width="80" />
 </p>
 
 <h1 align="center">holomime</h1>
@@ -14,7 +14,7 @@
   <a href="https://www.npmjs.com/package/holomime"><img src="https://img.shields.io/npm/v/holomime.svg" alt="npm version" /></a>
   <a href="https://github.com/productstein/holomime/actions/workflows/ci.yml"><img src="https://github.com/productstein/holomime/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <a href="https://github.com/productstein/holomime/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/holomime.svg" alt="license" /></a>
-  <a href="https://holomime.dev"><img src="https://img.shields.io/badge/docs-holomime.dev-blue" alt="docs" /></a>
+  <a href="https://holomime.com"><img src="https://img.shields.io/badge/docs-holomime.com-blue" alt="docs" /></a>
 </p>
 
 ---
@@ -235,4 +235,4 @@ We don't know if AI is sentient. But we can give it a conscience.
 
 MIT licensed. The identity stack is a standard, not a product. The standard is free. The training infrastructure is the business.
 
-See [LICENSE](LICENSE). Built by [Productstein](https://productstein.com). Documentation at [holomime.dev](https://holomime.dev).
+See [LICENSE](LICENSE). Built by [Productstein](https://productstein.com). Documentation at [holomime.com](https://holomime.com).

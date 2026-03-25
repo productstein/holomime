@@ -4,9 +4,9 @@ import { defineMiddleware } from "astro:middleware";
 // Only allow same-origin by default. Add specific origins here if
 // cross-origin API access is needed (e.g., CLI or partner apps).
 const ALLOWED_ORIGINS = new Set([
-  "https://holomime.dev",
-  "https://www.holomime.dev",
-  "https://app.holomime.dev",
+  "https://holomime.com",
+  "https://www.holomime.com",
+  "https://app.holomime.com",
 ]);
 
 function getCorsHeaders(origin: string | null): Record<string, string> {
@@ -250,25 +250,25 @@ export const onRequest = defineMiddleware(async ({ request, cookies, locals }, n
     });
   }
 
-  // ─── Hostname routing: app.holomime.dev ↔ holomime.dev ──────
+  // ─── Hostname routing: app.holomime.com ↔ holomime.com ──────
   const hostname = url.hostname;
 
-  // App pages that should live on app.holomime.dev
+  // App pages that should live on app.holomime.com
   const APP_PATHS = ["/dashboard", "/agents", "/settings", "/brain", "/admin", "/report", "/login", "/signup", "/reset-password"];
   const isAppPath = APP_PATHS.some((p) => path === p || path.startsWith(p + "/"));
 
   // Marketing domain serving an app path → redirect to app subdomain
-  if ((hostname === "holomime.dev" || hostname === "www.holomime.dev") && isAppPath) {
+  if ((hostname === "holomime.com" || hostname === "www.holomime.com") && isAppPath) {
     const target = new URL(request.url);
-    target.hostname = "app.holomime.dev";
+    target.hostname = "app.holomime.com";
     target.port = "";
     return Response.redirect(target.toString(), 302);
   }
 
   // App subdomain serving a marketing path → redirect to marketing domain
-  if (hostname === "app.holomime.dev" && !isAppPath && !isApiRoute(path)) {
+  if (hostname === "app.holomime.com" && !isAppPath && !isApiRoute(path)) {
     const target = new URL(request.url);
-    target.hostname = "holomime.dev";
+    target.hostname = "holomime.com";
     target.port = "";
     return Response.redirect(target.toString(), 302);
   }

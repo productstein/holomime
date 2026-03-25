@@ -30,7 +30,7 @@
     "url": "git+https://github.com/productstein/holomime.git",
     "directory": "integrations/openclaw-plugin"
   },
-  "homepage": "https://holomime.dev",
+  "homepage": "https://holomime.com",
   "peerDependencies": {
     "holomime": ">=1.8.0"
   },

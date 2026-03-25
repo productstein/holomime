@@ -9,7 +9,7 @@ const d = Astro.url.searchParams.get("d");
 let isSnapshot = !!d;
 let ogTitle = "HoloMime Brain — See inside your AI agent's brain";
 let ogDescription = "Real-time 3D brain visualization for AI coding agents. One command: npx holomime brain.";
-let ogImage = "https://holomime.dev/og-image.png";
+let ogImage = "https://holomime.com/og-image.png";
 let shortUrl = "";
 
 const PATTERN_NAMES: Record<string, string> = {
@@ -68,7 +68,7 @@ if (d) {
     ogDescription = patterns.length > 0
       ? `Behavioral patterns: ${patternStr}. See the full 3D brain visualization.`
       : `Healthy brain — no patterns detected. See the full 3D visualization.`;
-    ogImage = `https://holomime.dev/api/og/brain?h=${health}&g=${encodeURIComponent(grade)}&a=${encodeURIComponent(parsed.a || "unknown")}&p=${encodeURIComponent(patterns.join(","))}`;
+    ogImage = `https://holomime.com/api/og/brain?h=${health}&g=${encodeURIComponent(grade)}&a=${encodeURIComponent(parsed.a || "unknown")}&p=${encodeURIComponent(patterns.join(","))}`;
 
     // Auto-save to get short URL (fire-and-forget, non-blocking for page render)
     const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL || import.meta.env.SUPABASE_URL;
@@ -84,7 +84,7 @@ if (d) {
         .single();
 
       if (existing) {
-        shortUrl = `https://holomime.dev/brain/${existing.id}`;
+        shortUrl = `https://holomime.com/brain/${existing.id}`;
       } else {
         // Save new snapshot
         const chars = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -100,7 +100,7 @@ if (d) {
           patterns: parsed.p || [],
           views: 0,
         });
-        shortUrl = `https://holomime.dev/brain/${id}`;
+        shortUrl = `https://holomime.com/brain/${id}`;
       }
     }
   } catch {

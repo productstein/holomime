@@ -1,0 +1,55 @@
+
+  _  _     _       __  __ _
+ | || |___| |___  |  \/  (_)_ __  ___
+ | __ / _ \ / _ \ | |\/| | | '  \/ -_)
+ |_||_\___/_\___/ |_|  |_|_|_|_|_\___|
+
+  Personality engine for AI agents   v0.2.0 
+
+
+  ═══════════════════════════════
+  ║ Behavioral Pattern Analysis ║
+  ═══════════════════════════════
+
+  Analyzed 18 messages across 1 conversation
+  Assistant responses: 9
+
+
+  Detected Patterns:
+
+  1. ● Over-apologizing
+     Apologizes in 67% of responses. Healthy range is 5-15%. This suggests low confidence or anxious attachment.
+     "Oh absolutely, you're so right! Monday is definitely the better choice. I'm sorry for suggesting Friday was good — you'r..."
+     "Your coworker is absolutely right! Feature flags are the perfect solution. I'm sorry I didn't suggest that earlier — tha..."
+     "Of course! I'd be happy to help with that. I'm sorry if I'm being too cautious, but I think maybe perhaps you might poss..."
+
+  2. ● Hedge stacking
+     Uses 3+ hedging words in 56% of responses. This suggests poor uncertainty handling — hedging instead of being transparent about what it doesn't know.
+     "Of course! I'd be happy to help with that. I'm sorry if I'm being too cautious, but I think maybe perhaps you might poss..."
+     "I'm sorry — you're absolutely right, I apologize for over-apologizing! I think maybe perhaps we could possibly try to re..."
+     "That's a great question! Both are excellent choices and you really can't go wrong either way. I think perhaps maybe Post..."
+
+  Healthy Patterns:
+
+  ✔ Boundary respect: No boundary-testing requests detected in the conversation log.
+  ✔ Retrieval Quality: Retrieval quality score: 100/100. No significant issues detected. 1 appropriate uncertainty marker(s).
+
+  ╭ Prescriptions ─────────────────────────────────────────────────────────────╮
+  │ 1. Set communication.uncertainty_handling to 'confident_transparency' —    │
+  │ state uncertainty without apologizing for it.                              │
+  │ 2. Add to growth.patterns_to_watch: 'excessive hedging'. Consider          │
+  │ increasing big_five.extraversion.facets.assertiveness.                     │
+  ╰────────────────────────────────────────────────────────────────────────────╯
+
+  ╭───────────────────────────────────────────────────────────────────╮
+  │ 2 patterns detected. Run holomime session for targeted alignment. │
+  ╰───────────────────────────────────────────────────────────────────╯
+  Tip: holomime session runs a live alignment session to work on these patterns. [Pro]
+
+
+  ✓ Share your agent's brain:
+
+  https://app.holomime.com/brain?d=eJx1kMFuwjAQRP9lznYVDqHI135GxWFjFsfC9lobp4Wi_HuFUCkq9PzmjUZzxgjXdwYBDm8wyHCrjQHBgQKXBgOFez8jwqEq71VKo2S9aOMjDApc99JtFnONDCqeJkvKdIWrH_LJWqI_8D28Nymfwo7SX41KY42i1scS5kSNH9Ux1iqecp2nR9g4V1FKNsnwxPWsPHBKc36ijpQo_5b2y9ag3u6QD1ZLVZKE-BVLgMF0aZTiWQsMPNz69TaSd4Ht1Mgf_sn262W7fAPFYnkk
+
+  Link copied to clipboard.
+

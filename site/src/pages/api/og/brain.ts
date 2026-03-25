@@ -121,7 +121,7 @@ export const GET: APIRoute = async ({ url }) => {
 
   <!-- CTA -->
   <text x="40" y="560" fill="rgba(255,255,255,0.25)" font-size="14" font-family="'SF Mono', monospace">npx holomime brain</text>
-  <text x="40" y="590" fill="rgba(255,255,255,0.15)" font-size="12" font-family="Inter, system-ui, sans-serif">holomime.dev/brain</text>
+  <text x="40" y="590" fill="rgba(255,255,255,0.15)" font-size="12" font-family="Inter, system-ui, sans-serif">holomime.com/brain</text>
 
   <!-- Border -->
   <rect x="0" y="0" width="1200" height="630" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1" />

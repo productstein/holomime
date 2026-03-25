@@ -27,7 +27,7 @@ Opens `http://localhost:3838` in your browser.
 ## Options
 
 - `--port 3838` — custom port (default 3838)
-- `--share` — generate a shareable snapshot URL at `app.holomime.dev/brain/<id>`
+- `--share` — generate a shareable snapshot URL at `app.holomime.com/brain/<id>`
 
 ## Gotchas
 

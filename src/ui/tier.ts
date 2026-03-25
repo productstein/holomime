@@ -57,7 +57,7 @@ function writeCache(cache: LicenseCache): void {
  */
 export async function validateLicense(key: string): Promise<{ valid: boolean; tier: string }> {
   try {
-    const res = await fetch("https://holomime.dev/api/license/validate", {
+    const res = await fetch("https://holomime.com/api/license/validate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ key }),
@@ -139,7 +139,7 @@ export function showUpgradePrompt(command: string): void {
     `  ${chalk.cyan("\u2022")} Growth tracking & session transcripts`,
     "",
     `${chalk.dim("Activate with:")} ${chalk.cyan("holomime activate <key>")}`,
-    `${chalk.dim("Get a license:")} ${chalk.cyan("https://holomime.dev/pro")}`,
+    `${chalk.dim("Get a license:")} ${chalk.cyan("https://holomime.com/pro")}`,
   ].join("\n");
 
   console.log(

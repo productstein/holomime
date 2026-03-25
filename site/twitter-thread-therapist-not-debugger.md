@@ -1,7 +1,7 @@
 # Twitter Thread: Your Agent Needs a Therapist, Not a Debugger
 
 **Account:** @holomimeIQ
-**Link:** https://holomime.dev/blog/therapist-not-debugger
+**Link:** https://holomime.com/blog/therapist-not-debugger
 
 ---
 
@@ -15,7 +15,7 @@ And you're trying to debug it.
 
 New post: why the therapy model is technically superior to debugging for AI alignment 👇
 
-holomime.dev/blog/therapist-not-debugger
+holomime.com/blog/therapist-not-debugger
 
 ---
 
@@ -105,6 +105,6 @@ Open source. MIT licensed. First session free.
 
 npm install -g holomime
 
-holomime.dev
+holomime.com
 
 github.com/productstein/holomime

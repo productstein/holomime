@@ -21,11 +21,11 @@ export function createServiceClient(request: Request, cookies: AstroCookies) {
         });
       },
       setAll(cookiesToSet: { name: string; value: string; options: CookieOptions }[]) {
-        const isProduction = new URL(request.url).hostname.endsWith("holomime.dev");
+        const isProduction = new URL(request.url).hostname.endsWith("holomime.com");
         cookiesToSet.forEach(({ name, value, options }) => {
           cookies.set(name, value, {
             ...options,
-            ...(isProduction ? { domain: ".holomime.dev" } : {}),
+            ...(isProduction ? { domain: ".holomime.com" } : {}),
           });
         });
       },

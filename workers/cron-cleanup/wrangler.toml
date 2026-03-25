@@ -6,4 +6,4 @@ compatibility_date = "2024-12-01"
 crons = ["0 3 * * *"]
 
 [vars]
-CLEANUP_URL = "https://holomime.dev/api/v1/retention/cleanup"
+CLEANUP_URL = "https://holomime.com/api/v1/retention/cleanup"

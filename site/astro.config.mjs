@@ -12,5 +12,5 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  site: "https://holomime.dev",
+  site: "https://holomime.com",
 });

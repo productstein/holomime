@@ -225,7 +225,7 @@ const isPro = license?.tier === "pro";
 const isDeveloper = license?.tier === "developer";
 const hasNeuralSpace = true; // Available to all users
 const hasFleetMode = isPro || isDeveloper || isEnterprise;
-const isDemoMode = user.email === "demo@holomime.dev";
+const isDemoMode = user.email === "demo@holomime.com";
 
 // ─── User's Agents → NeuralSpace data ───
 let userFleetAgents: typeof fleetAgents = [];
@@ -964,7 +964,7 @@ const personalityStyle: [string, string][] = userPersonality?.spec?.style
               </p>
               {license ? (
                 <div class="mt-5 overflow-x-auto rounded-lg bg-[var(--color-holo-dark)] p-4 font-mono text-xs text-left max-w-lg mx-auto">
-                  <p class="text-[var(--color-holo-cyan)]">$ curl -X POST https://holomime.dev/api/v1/diagnose \</p>
+                  <p class="text-[var(--color-holo-cyan)]">$ curl -X POST https://holomime.com/api/v1/diagnose \</p>
                   <p class="text-white pl-4">-H "Authorization: Bearer {license.key}" \</p>
                   <p class="text-white pl-4">-H "Content-Type: application/json" \</p>
                   <p class="text-white pl-4">-d '&#123;"messages": [...]&#125;'</p>
@@ -1461,7 +1461,7 @@ const personalityStyle: [string, string][] = userPersonality?.spec?.style
               Set up your organization to unlock team management, fleet monitoring, audit logs, custom detectors, and SSO.
             </p>
             <div class="mt-4 overflow-x-auto rounded-lg bg-[var(--color-holo-dark)] p-4 font-mono text-xs text-left max-w-lg mx-auto">
-              <p class="text-[var(--color-holo-cyan)]">$ curl -X POST https://holomime.dev/api/v1/org \</p>
+              <p class="text-[var(--color-holo-cyan)]">$ curl -X POST https://holomime.com/api/v1/org \</p>
               <p class="text-white pl-4">-H "Authorization: Bearer {license.key}" \</p>
               <p class="text-white pl-4">-H "Content-Type: application/json" \</p>
               <p class="text-white pl-4">-d '&#123;"name": "My Company", "slug": "my-company"&#125;'</p>
