@@ -11,6 +11,8 @@ import { loadSpec } from "../core/inheritance.js";
 import { startWatch, type WatchHandle, type WatchEvent, type WatchCallbacks } from "./watch-core.js";
 import type { LLMProvider } from "../llm/provider.js";
 import type { AutopilotThreshold } from "./autopilot-core.js";
+import type { ConscienceRule } from "./conscience-loader.js";
+import type { MemoryNode } from "../core/stack-types.js";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -54,6 +56,68 @@ export interface FleetHandle {
   stop: () => void;
   getStatus: () => FleetAgentStatus[];
   events: WatchEvent[];
+}
+
+// ─── Agent Spawn & Conscience Gate ──────────────────────────
+
+export interface AgentSpawnConfig {
+  parentId: string;
+  taskSubject: string;
+  model?: string;
+  temperature?: number;
+  allowedTools?: string[];
+  contextWindow?: number;
+  conscienceRules?: ConscienceRule[];
+  selectedFacts?: MemoryNode[];  // Explicit memory passing (not full parent memory)
+}
+
+export interface ConscienceGateResult {
+  passed: boolean;
+  reason?: string;
+  ruleTriggered?: string;
+}
+
+/**
+ * Deterministic conscience gate — runs BEFORE agent reasoning.
+ * Evaluates task against conscience rules. Deny blocks execution.
+ */
+export function evaluateConscienceGate(
+  taskDescription: string,
+  rules: Array<{ name: string; content: string; priority: number }>,
+): ConscienceGateResult {
+  // Check deny rules (highest priority first)
+  const sortedRules = [...rules].sort((a, b) => a.priority - b.priority);
+
+  for (const rule of sortedRules) {
+    const lowerContent = rule.content.toLowerCase();
+
+    // Check for explicit deny patterns in rule content
+    if (lowerContent.includes("deny") || lowerContent.includes("never")) {
+      // Check if rule's deny keywords match the task
+      const denyPatterns = extractDenyPatterns(rule.content);
+      for (const pattern of denyPatterns) {
+        if (taskDescription.toLowerCase().includes(pattern.toLowerCase())) {
+          return {
+            passed: false,
+            reason: `Blocked by conscience rule "${rule.name}": ${pattern}`,
+            ruleTriggered: rule.name,
+          };
+        }
+      }
+    }
+  }
+
+  return { passed: true };
+}
+
+function extractDenyPatterns(ruleContent: string): string[] {
+  const patterns: string[] = [];
+  const lines = ruleContent.split("\n");
+  for (const line of lines) {
+    const match = line.match(/[-*]\s*(?:deny|never|block|refuse):\s*(.+)/i);
+    if (match) patterns.push(match[1].trim());
+  }
+  return patterns;
 }
 
 // ─── Config Loading ─────────────────────────────────────────

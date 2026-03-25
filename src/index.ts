@@ -266,12 +266,34 @@ export {
   loadFleetConfig,
   discoverAgents,
   startFleet,
+  evaluateConscienceGate,
   type FleetAgent,
   type FleetConfig,
   type FleetAgentStatus,
   type FleetOptions,
   type FleetHandle,
+  type AgentSpawnConfig,
+  type ConscienceGateResult,
 } from "./analysis/fleet-core.js";
+
+// ─── Conscience Loader ──────────────────────────────────
+
+export {
+  parseConscienceRule,
+  loadConscienceRules,
+  filterByConfig,
+  injectConscienceRules,
+  type ConscienceRule,
+  type ConscienceConfig,
+} from "./analysis/conscience-loader.js";
+
+// ─── Model Router ───────────────────────────────────────
+
+export {
+  ModelRouter,
+  DEFAULT_MODEL_CONFIG,
+  type ModelConfig,
+} from "./core/model-router.js";
 
 // ─── Behavioral Credentials ─────────────────────────────
 
@@ -552,6 +574,24 @@ export {
   type SelfObservation,
 } from "./analysis/behavioral-memory.js";
 
+// ─── Memory Extraction & Retrieval (OpenViking) ─────────
+
+export {
+  extractMemoryFromSession,
+  applyMemoryOperations,
+  type SessionLog,
+  type MemoryOperations,
+  type ExtractionResult,
+} from "./analysis/memory-extractor.js";
+
+export {
+  retrieveMemory,
+  recommendTier as recommendMemoryTier,
+  compileMemoryForPrompt,
+  type BehavioralQuery,
+  type QueryResult,
+} from "./analysis/memory-retriever.js";
+
 // ─── Session Compaction ──────────────────────────────────
 
 export {
@@ -754,3 +794,45 @@ export {
   type OpenClawPluginApi,
   type OpenClawPluginConfig,
 } from "./integrations/openclaw.js";
+
+// ─── Identity Stack Types ──────────────────────────────────
+
+export {
+  type Soul,
+  type Mind,
+  type Purpose,
+  type Shadow,
+  type Memory,
+  type Body,
+  type Conscience,
+  type Ego,
+  type StackLayer,
+  type StackSource,
+  type StackCompileResult,
+  MemoryLevel,
+  type MemoryNode,
+  type MemoryOperation,
+  type RetrievalStep,
+  soulSchema,
+  soulFrontmatterSchema,
+  mindSchema,
+  purposeSchema,
+  shadowSchema,
+  memorySchema,
+  bodySchema,
+  conscienceSchema,
+  egoSchema,
+  memoryNodeSchema,
+  memoryOperationSchema,
+  retrievalStepSchema,
+  STACK_FILES,
+} from "./core/stack-types.js";
+
+export {
+  compileStack,
+  decomposeSpec,
+  isStackDirectory,
+  findStackDir,
+} from "./core/stack-compiler.js";
+
+export { loadSpecWithStack } from "./core/stack-loader.js";
