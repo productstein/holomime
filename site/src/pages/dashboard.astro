@@ -793,6 +793,51 @@ const personalityStyle: [string, string][] = userPersonality?.spec?.style
       </div>
 
       <!-- ═══════════════════════════════════════════════ -->
+      <!-- SECTION: Training Progress                      -->
+      <!-- ═══════════════════════════════════════════════ -->
+      <div class="mb-6">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-[var(--color-warm-muted)] mb-3">Training Progress</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <!-- DPO Pairs -->
+          <div class="rounded-xl border border-[var(--color-warm-border)] bg-white p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="h-2 w-2 rounded-full" style="background: var(--color-p-coral);"></span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-[var(--color-warm-muted)]">DPO Pairs</span>
+            </div>
+            <div class="text-2xl font-bold text-[var(--color-warm-text)]">&mdash;</div>
+            <div class="text-xs text-[var(--color-warm-muted)]">preference pairs collected</div>
+          </div>
+          <!-- Cycles -->
+          <div class="rounded-xl border border-[var(--color-warm-border)] bg-white p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="h-2 w-2 rounded-full" style="background: var(--color-p-blue);"></span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-[var(--color-warm-muted)]">Cycles</span>
+            </div>
+            <div class="text-2xl font-bold text-[var(--color-warm-text)]">&mdash;</div>
+            <div class="text-xs text-[var(--color-warm-muted)]">training cycles completed</div>
+          </div>
+          <!-- Models -->
+          <div class="rounded-xl border border-[var(--color-warm-border)] bg-white p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="h-2 w-2 rounded-full" style="background: var(--color-p-gold);"></span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-[var(--color-warm-muted)]">Models</span>
+            </div>
+            <div class="text-2xl font-bold text-[var(--color-warm-text)]">&mdash;</div>
+            <div class="text-xs text-[var(--color-warm-muted)]">fine-tuned models saved</div>
+          </div>
+          <!-- Grade -->
+          <div class="rounded-xl border border-[var(--color-warm-border)] bg-white p-4">
+            <div class="flex items-center gap-2 mb-2">
+              <span class="h-2 w-2 rounded-full" style="background: var(--color-p-violet);"></span>
+              <span class="text-xs font-semibold uppercase tracking-wider text-[var(--color-warm-muted)]">Grade</span>
+            </div>
+            <div class="text-2xl font-bold text-[var(--color-warm-text)]">&mdash;</div>
+            <div class="text-xs text-[var(--color-warm-muted)]">alignment quality score</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════════════════════════════════════════════ -->
       <!-- SECTION 5: Behavioral Health (Redesigned)      -->
       <!-- ═══════════════════════════════════════════════ -->
       <div class="rounded-2xl bg-white p-5 sm:p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)] mb-6">

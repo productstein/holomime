@@ -91,7 +91,7 @@ const archetypeList = Object.entries(ARCHETYPES).map(([key, val]) => ({
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
           <div>
             <h1 class="text-3xl font-bold tracking-tight" style="color: var(--color-warm-text, #2a2520);">My Agents</h1>
-            <p class="mt-1 text-sm" style="color: var(--color-warm-muted, #9a9693);">Create and manage personality-driven AI agents.</p>
+            <p class="mt-1 text-sm" style="color: var(--color-warm-muted, #9a9693);">Create and train behavioral intelligence.</p>
           </div>
           <button
             id="create-agent-btn"
@@ -235,10 +235,10 @@ const archetypeList = Object.entries(ARCHETYPES).map(([key, val]) => ({
             </div>
           </div>
 
-          <!-- Step 2: Body -->
+          <!-- Step 2: Deployment target -->
           <div class="ca-step" data-ca-step="1">
             <div class="px-8 pb-8 pt-4">
-              <h2 class="text-xl font-bold mb-1" style="color: var(--color-warm-text, #2a2520);">What will this agent inhabit?</h2>
+              <h2 class="text-xl font-bold mb-1" style="color: var(--color-warm-text, #2a2520);">Deployment target</h2>
               <p class="text-sm mb-6" style="color: var(--color-warm-muted, #9a9693);">Select a body template or keep it as a chatbot.</p>
 
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="body-grid">

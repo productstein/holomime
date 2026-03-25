@@ -127,6 +127,7 @@
           <span class="ad-identity-tag" style="color: var(--color-p-coral);">Immutable</span>
           <span class="ad-identity-badge" style="background: var(--color-p-coral-soft); color: var(--color-p-coral);">Never auto-modified</span>
         </div>
+        <p class="text-[11px] text-[var(--color-warm-muted)] mb-4 italic">Immutable — these values persist across any body</p>
 
         <div class="ad-form-group">
           <label class="ad-form-label" for="soul-name">Agent Name</label>
@@ -180,13 +181,15 @@
         <div class="ad-form-group">
           <label class="ad-form-label" for="body-morphology">Morphology</label>
           <select id="body-morphology" class="ad-form-input">
-            <option value="">No body (chatbot)</option>
+            <option value="">No body (chatbot) — select a body template to train for physical deployment</option>
             <option value="humanoid">Humanoid</option>
             <option value="humanoid_upper">Humanoid (upper body)</option>
             <option value="quadruped">Quadruped</option>
             <option value="avatar">Avatar</option>
           </select>
         </div>
+
+        <p id="body-empty-state" class="mt-3 text-xs" style="color: var(--color-warm-muted);">This agent runs as a chatbot. Select a body template to train for physical deployment.</p>
 
         <div class="ad-section">
           <h3 class="ad-section-title">Templates</h3>
@@ -232,6 +235,22 @@
             <button id="body-copy-ros2" class="ad-copy-btn" type="button">Copy for ROS2</button>
             <button id="body-copy-unity" class="ad-copy-btn" type="button">Copy for Unity</button>
           </div>
+        </div>
+
+        <div id="deploy-section" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--color-warm-border, #e5e2de);">
+          <h4 style="font-size: 0.875rem; font-weight: 700;">Deploy to hardware</h4>
+          <p style="margin-top: 0.25rem; font-size: 0.75rem; color: var(--color-warm-muted, #6b6966);">Push this agent's trained identity to a physical robot.</p>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-top: 1rem;">
+            <select id="deploy-protocol" style="border-radius: 0.5rem; border: 1px solid var(--color-warm-border, #e5e2de); padding: 0.5rem 0.75rem; font-size: 0.875rem;">
+              <option value="ros2">ROS2</option>
+              <option value="grpc">gRPC</option>
+              <option value="mqtt">MQTT</option>
+              <option value="unity">Unity</option>
+              <option value="webhook">Webhook</option>
+            </select>
+            <button type="button" style="border-radius: 0.5rem; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 600; color: white; background: linear-gradient(135deg, #f97066, #e85d54); border: none; cursor: pointer;">Deploy</button>
+          </div>
+          <p style="margin-top: 0.5rem; font-size: 0.6875rem; font-family: monospace; color: var(--color-warm-muted, #6b6966);">holomime embody --stack . --adapter ros2</p>
         </div>
       </div>
 
@@ -1696,10 +1715,17 @@
   // Morphology dropdown change
   document.getElementById('body-morphology')?.addEventListener('change', () => {
     const val = document.getElementById('body-morphology').value;
+    const emptyState = document.getElementById('body-empty-state');
+    const deploySection = document.getElementById('deploy-section');
     if (val) {
       showBodySections();
       renderBodyModalities();
       updateBodyCompile();
+      if (emptyState) emptyState.style.display = 'none';
+      if (deploySection) deploySection.style.display = 'block';
+    } else {
+      if (emptyState) emptyState.style.display = 'block';
+      if (deploySection) deploySection.style.display = 'none';
     }
   });
 
