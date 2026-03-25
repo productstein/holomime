@@ -821,6 +821,27 @@ pattern analysis across the fleet.</code></pre>
 
       <hr class="border-[var(--color-warm-border)] my-16" />
 
+      <!-- 9b. NeuralActionGate -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-coral)] mb-4">9b. Learned Controllers</p>
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">NeuralActionGate</h2>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          For end-to-end learned controllers (reinforcement learning, imitation learning, VLA models), holomime provides the NeuralActionGate &mdash; a runtime safety layer that evaluates action vectors against conscience rules and safety envelope bounds at 200Hz+. Actions that violate deny rules are blocked. Actions that exceed safety bounds are clamped to the nearest safe value. Every evaluation is logged to <code class="text-xs font-mono bg-[var(--color-warm-sand)]/40 px-1.5 py-0.5 rounded">shadow.log</code>.
+        </p>
+        <p class="mt-6 text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          The more autonomous the robot, the more it needs a conscience. When behavior is coded, you can audit the code. When behavior is learned, you need holomime.
+        </p>
+
+        <pre class="mt-8 rounded-md bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto"><code>Neural net output (action vector)
+  &rarr; NeuralActionGate.evaluate()
+    &rarr; conscience.exe deny rules (block violations)
+    &rarr; body.api safety envelope (clamp to bounds)
+    &rarr; shadow.log (record every evaluation)
+  &rarr; motor execution (safe action only)</code></pre>
+      </section>
+
+      <hr class="border-[var(--color-warm-border)] my-16" />
+
       <!-- 10. Future Work -->
       <section class="mb-20">
         <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-blue)] mb-4">10. Future Work</p>

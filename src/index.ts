@@ -847,3 +847,14 @@ export {
   type KimodoConstraint,
   type KimodoMotionRequest,
 } from "./integrations/kimodo-personality-mapper.js";
+
+// ─── Neural Action Gate (Learned Controllers) ────────────
+
+export {
+  NeuralActionGate,
+  type SafetyEnvelope,
+  type ActionContext,
+  type ActionEvaluation,
+  type GateStats,
+  type ConscienceDenyRule,
+} from "./adapters/neural-action-gate.js";

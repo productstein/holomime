@@ -100,6 +100,7 @@ holomime embody --body registry/bodies/figure-03.body.api
 | Unity | Real-time personality push via HTTP/SSE | `--adapter unity` |
 | gRPC | Custom robotics stacks | `--adapter grpc` |
 | MQTT | IoT/edge robots | `--adapter mqtt` |
+| Neural Action Gate | Conscience gate for learned controllers (VLA, RL, IL) | `neural-action-gate.ts` |
 
 ## ISO Compliance
 

@@ -555,6 +555,21 @@ holomime compile-stack  # Compiles to .personality.json</code></pre>
               </div>
 
               <div class="doc-card">
+                <h3 class="doc-step">NeuralActionGate — conscience gate for learned controllers</h3>
+                <p class="text-sm text-[#777] mb-3">For fully learned controllers (RL, imitation learning, VLA) where behavior emerges from neural nets with no explicit code, the NeuralActionGate sits between action output and motor execution — checking every action against conscience.exe rules and body.api safety envelope at 200Hz+. Deny dominates. Actions exceeding safety bounds are clamped to the nearest safe value. Every evaluation is logged.</p>
+                <pre class="doc-code"><code>{`import { NeuralActionGate } from "holomime";
+
+const gate = new NeuralActionGate({
+  safetyEnvelope: { maxLinearSpeed: 1.5, maxContactForce: 50, minProximity: 0.5 },
+  denyRules: [{ action: "override_stop", reason: "Safety-critical" }],
+  mediationMode: "clamp"
+});
+
+const result = gate.evaluate(neuralNetOutput, { humanProximity: 0.8, currentSpeed: 2.0 });
+// result.allowed = true, result.modified = true (clamped to safe speed)`}</code></pre>
+              </div>
+
+              <div class="doc-card">
                 <h3 class="doc-step">LangChain</h3>
                 <pre class="doc-code"><code set:text={codeBlocks["codeBlock16"]}></code></pre>
               </div>

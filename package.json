@@ -1,6 +1,6 @@
 {
   "name": "holomime",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "Behavioral therapy infrastructure for AI agents — Big Five psychology, structured treatment, behavioral alignment",
   "type": "module",
   "bin": {
