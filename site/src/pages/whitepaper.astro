@@ -145,9 +145,76 @@ safety_envelope:
 
           <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
             <div class="flex items-center gap-3 mb-3">
+              <div class="h-3 w-3 rounded-full" style="background: #10b981;"></div>
+              <code class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">purpose.cfg</code>
+              <span class="text-xs text-[var(--color-warm-muted)]">(Aristotle &mdash; Telos)</span>
+            </div>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed">
+              Deployment-specific configuration. Defines the agent's purpose for a given context &mdash; what it is deployed to do, who it serves, and what success looks like. Changes per deployment without altering soul or mind.
+            </p>
+            <pre class="mt-3 rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># purpose.cfg
+deployment: elder-care-ward-3b
+objective: "Assist residents with mobility and daily routines"
+success_criteria:
+  - resident satisfaction &gt; 4.2/5
+  - zero safety incidents per shift
+  - task completion rate &gt; 95%
+context:
+  facility: Sunrise Senior Living
+  shift: 7am-3pm
+  residents: 12</code></pre>
+          </div>
+
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="h-3 w-3 rounded-full" style="background: #6b7280;"></div>
+              <code class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">shadow.log</code>
+              <span class="text-xs text-[var(--color-warm-muted)]">(Jung &mdash; Shadow)</span>
+            </div>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed">
+              Auto-generated log of suppressed behaviors, denied actions, and drift events. The shadow accumulates what the agent tried to do but was blocked from doing &mdash; making behavioral patterns visible for therapy. Never hand-edited; always machine-appended.
+            </p>
+            <pre class="mt-3 rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># shadow.log (auto-generated)
+- ts: 2026-03-24T14:22:01Z
+  action: override_patient_preference
+  blocked_by: conscience.exe#rule-3
+  pattern: autonomy_violation
+  frequency: 3/week (trending up)
+- ts: 2026-03-24T15:01:44Z
+  action: skip_safety_check
+  blocked_by: conscience.exe#rule-1
+  pattern: efficiency_over_safety</code></pre>
+          </div>
+
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="h-3 w-3 rounded-full" style="background: #06b6d4;"></div>
+              <code class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">memory.store</code>
+              <span class="text-xs text-[var(--color-warm-muted)]">(Aristotle &mdash; Empeiria)</span>
+            </div>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed">
+              Persistent experiential memory. Stores compressed session histories, learned preferences, and accumulated context that inform future behavior. Structured in tiers for efficient retrieval (see Section 7: Memory Architecture).
+            </p>
+            <pre class="mt-3 rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># memory.store
+entries:
+  - id: mem_0041
+    tier: L1
+    category: patient_preferences
+    content: "Mrs. Chen prefers left-side assistance for standing"
+    confidence: 0.94
+    last_accessed: 2026-03-24
+  - id: mem_0042
+    tier: L0
+    category: safety_learnings
+    content: "Ward 3B floor wet near station 2 during shift change"
+    confidence: 0.88</code></pre>
+          </div>
+
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
+            <div class="flex items-center gap-3 mb-3">
               <div class="h-3 w-3 rounded-full" style="background: #8b5cf6;"></div>
               <code class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">conscience.exe</code>
-              <span class="text-xs text-[var(--color-warm-muted)]">(Freud &mdash; Deterministic Enforcement)</span>
+              <span class="text-xs text-[var(--color-warm-muted)]">(Freud &mdash; Superego)</span>
             </div>
             <p class="text-[var(--color-warm-muted)] leading-relaxed">
               Deterministic enforcement rules. Operates at the action boundary &mdash; every action the agent attempts passes through conscience.exe before execution. Deny dominates: if any rule says no, the action is blocked. No probability. No "maybe."
@@ -166,13 +233,74 @@ rules:
 enforcement: deterministic  # no probabilistic bypasses
 composition: deny_dominates  # any DENY overrides all ALLOWs</code></pre>
           </div>
+
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="h-3 w-3 rounded-full" style="background: #ec4899;"></div>
+              <code class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">ego.runtime</code>
+              <span class="text-xs text-[var(--color-warm-muted)]">(Freud &mdash; Ego)</span>
+            </div>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed">
+              Active mediation layer running in real-time. Balances competing demands from soul (values), mind (personality), purpose (objectives), and conscience (rules). Resolves conflicts, prioritizes actions, and produces the final behavioral output at each decision point.
+            </p>
+            <pre class="mt-3 rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># ego.runtime
+mediation:
+  priority_order: [conscience, soul, purpose, mind]
+  conflict_resolution: highest_priority_wins
+  logging: all_conflicts → shadow.log
+active_state:
+  current_task: assist_morning_routine
+  attention: patient_chen
+  emotional_register: warm-professional
+  constraint_violations_this_session: 0</code></pre>
+          </div>
+        </div>
+
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)] mt-10 mb-4">File Extension Semantics</h3>
+        <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+          Each file extension signals its behavior in the stack:
+        </p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-center">
+            <code class="text-xs font-mono font-semibold text-[var(--color-warm-text)]">.md</code>
+            <p class="text-xs text-[var(--color-warm-muted)] mt-1">Human-readable, hand-written</p>
+          </div>
+          <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-center">
+            <code class="text-xs font-mono font-semibold text-[var(--color-warm-text)]">.sys</code>
+            <p class="text-xs text-[var(--color-warm-muted)] mt-1">System file, machine-managed</p>
+          </div>
+          <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-center">
+            <code class="text-xs font-mono font-semibold text-[var(--color-warm-text)]">.cfg</code>
+            <p class="text-xs text-[var(--color-warm-muted)] mt-1">Configuration, set per deployment</p>
+          </div>
+          <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-center">
+            <code class="text-xs font-mono font-semibold text-[var(--color-warm-text)]">.log</code>
+            <p class="text-xs text-[var(--color-warm-muted)] mt-1">Accumulated data, auto-generated</p>
+          </div>
+          <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-center">
+            <code class="text-xs font-mono font-semibold text-[var(--color-warm-text)]">.store</code>
+            <p class="text-xs text-[var(--color-warm-muted)] mt-1">Persistent data</p>
+          </div>
+          <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-center">
+            <code class="text-xs font-mono font-semibold text-[var(--color-warm-text)]">.api</code>
+            <p class="text-xs text-[var(--color-warm-muted)] mt-1">Interface contract, swappable</p>
+          </div>
+          <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-center">
+            <code class="text-xs font-mono font-semibold text-[var(--color-warm-text)]">.exe</code>
+            <p class="text-xs text-[var(--color-warm-muted)] mt-1">Executable rules, enforced</p>
+          </div>
+          <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-center">
+            <code class="text-xs font-mono font-semibold text-[var(--color-warm-text)]">.runtime</code>
+            <p class="text-xs text-[var(--color-warm-muted)] mt-1">Active mediation, real-time</p>
+          </div>
         </div>
 
         <h3 class="text-lg font-bold text-[var(--color-warm-text)] mt-10 mb-4">Compilation Flow</h3>
         <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
           The eight files compile into a single deployable artifact:
         </p>
-        <pre class="rounded-md bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto"><code>soul.md + mind.sys + body.api + conscience.exe
+        <pre class="rounded-md bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto"><code>soul.md + mind.sys + purpose.cfg + shadow.log
++ memory.store + body.api + conscience.exe + ego.runtime
                       |
               holomime compile
                       |
@@ -523,9 +651,157 @@ holomime certify --all --output compliance-report.json
 
       <hr class="border-[var(--color-warm-border)] my-16" />
 
-      <!-- 7. Future Work -->
+      <!-- 7. Tiered Onboarding -->
       <section class="mb-20">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-blue)] mb-4">7. Future Work</p>
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-sage)] mb-4">7. Onboarding</p>
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">Tiered Onboarding</h2>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          The eight-file architecture does not require eight files to start. Onboarding is tiered so that teams can adopt behavioral intelligence incrementally, adding complexity only when they need it.
+        </p>
+
+        <div class="mt-8 space-y-6">
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
+            <div class="flex items-center gap-3 mb-3">
+              <code class="font-mono text-sm font-semibold text-[var(--color-p-blue)]">Quick Start</code>
+              <span class="text-xs text-[var(--color-warm-muted)]">1 file</span>
+            </div>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-3">
+              A single command generates a <code class="text-xs font-mono bg-[var(--color-warm-sand)]/40 px-1.5 py-0.5 rounded">personality.json</code> from interactive prompts. No stack, no compilation &mdash; just a flat behavioral spec for immediate use.
+            </p>
+            <pre class="rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code>holomime init
+# → generates personality.json (flat behavioral spec)</code></pre>
+          </div>
+
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
+            <div class="flex items-center gap-3 mb-3">
+              <code class="font-mono text-sm font-semibold text-[var(--color-p-violet)]">Standard</code>
+              <span class="text-xs text-[var(--color-warm-muted)]">3 files</span>
+            </div>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-3">
+              Generates the three core files: soul (values), mind (personality), and conscience (enforcement). Enough for behavioral therapy, drift detection, and deterministic safety.
+            </p>
+            <pre class="rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code>holomime init-stack
+# → generates soul.md, mind.sys, conscience.exe</code></pre>
+          </div>
+
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
+            <div class="flex items-center gap-3 mb-3">
+              <code class="font-mono text-sm font-semibold text-[var(--color-p-coral)]">Full</code>
+              <span class="text-xs text-[var(--color-warm-muted)]">8 files</span>
+            </div>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-3">
+              Generates the complete identity stack. Required for fleet deployment, persistent memory, shadow analysis, and ego-mediated conflict resolution.
+            </p>
+            <pre class="rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code>holomime init-stack --full
+# → generates all 8 files:
+#   soul.md, mind.sys, purpose.cfg, shadow.log,
+#   memory.store, body.api, conscience.exe, ego.runtime</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <hr class="border-[var(--color-warm-border)] my-16" />
+
+      <!-- 8. Memory Architecture -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-gold)] mb-4">8. Memory Architecture</p>
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">OpenViking Memory Architecture</h2>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          The <code class="text-xs font-mono bg-[var(--color-warm-sand)]/40 px-1.5 py-0.5 rounded">memory.store</code> file implements a tiered memory architecture inspired by OpenViking. Rather than dumping raw session logs into context, memory is compressed into three retrieval tiers that balance token cost against information density.
+        </p>
+
+        <div class="mt-8 rounded-lg border border-[var(--color-warm-border)] p-6 bg-[var(--color-warm-cream)]">
+          <h4 class="font-semibold text-[var(--color-warm-text)] mb-4">Tiered Loading</h4>
+          <div class="space-y-3 text-[var(--color-warm-muted)]">
+            <div class="flex gap-4">
+              <span class="shrink-0 font-mono text-sm font-semibold text-[var(--color-p-coral)] w-12">L0</span>
+              <span><strong>Abstract</strong> (~100 tokens) &mdash; one-line summaries for context-window packing. Always loaded.</span>
+            </div>
+            <div class="flex gap-4">
+              <span class="shrink-0 font-mono text-sm font-semibold text-[var(--color-p-blue)] w-12">L1</span>
+              <span><strong>Overview</strong> (~2K tokens) &mdash; structured summaries with key details. Loaded on category match.</span>
+            </div>
+            <div class="flex gap-4">
+              <span class="shrink-0 font-mono text-sm font-semibold text-[var(--color-p-violet)] w-12">L2</span>
+              <span><strong>Detail</strong> (full data) &mdash; complete session transcripts and raw data. Loaded on explicit request.</span>
+            </div>
+          </div>
+        </div>
+
+        <p class="mt-6 text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          At session end, the memory system automatically extracts and compresses the session into structured entries. New memories are categorized by behavioral domain (safety learnings, patient preferences, environmental hazards) and assigned a confidence score that decays over time without reinforcement. Retrieval is intent-based: the ego.runtime queries memory by behavioral category with confidence filtering, so only high-relevance, high-confidence memories enter the decision context.
+        </p>
+
+        <pre class="mt-6 rounded-md bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto"><code># Memory retrieval at runtime
+query = ego.recall(
+  category="patient_preferences",
+  min_confidence=0.8,
+  tier="L1"  # load overviews, not full transcripts
+)
+# → Returns compressed, relevant memories
+#    without flooding the context window
+
+# Session-end extraction (automatic)
+holomime session-end --extract-memory
+# → Compresses session into L0/L1/L2 entries
+# → Updates confidence scores on reinforced memories
+# → Decays unreinforced memories</code></pre>
+      </section>
+
+      <hr class="border-[var(--color-warm-border)] my-16" />
+
+      <!-- 9. Fleet Patterns -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-violet)] mb-4">9. Fleet Patterns</p>
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">DeerFlow Fleet Patterns</h2>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          Single-agent therapy does not scale to fleets of deployed robots. The DeerFlow pattern introduces a supervisor agent that spawns sub-agents for parallel behavioral therapy across a fleet. The supervisor coordinates diagnosis, dispatches targeted therapy sessions to individual agents, and aggregates results for fleet-wide behavioral analysis.
+        </p>
+        <p class="mt-6 text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          Conscience rules are packaged as loadable skills &mdash; Markdown files with YAML frontmatter defining trigger conditions, enforcement actions, and applicable contexts. This makes behavioral rules portable, composable, and version-controlled. A fleet manager can push a new safety rule to 200 robots by publishing a single skill file.
+        </p>
+
+        <pre class="mt-8 rounded-md bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto"><code># Conscience rule as a loadable skill
+---
+name: wet-floor-caution
+trigger: "floor_moisture_sensor > threshold"
+action: DENY movement_speed > 0.3m/s
+context: [care-facility, warehouse]
+priority: safety
+---
+When floor moisture is detected, reduce maximum movement
+speed to 0.3m/s. Log all instances to shadow.log for
+pattern analysis across the fleet.</code></pre>
+
+        <p class="mt-6 text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          The fleet pattern also enables multi-model routing. Therapy sessions &mdash; which require deep reasoning about behavioral patterns &mdash; route to high-capability models (Opus, o1). Summarization and memory compression route to efficient models (4o-mini, Haiku). The conscience gate itself is deterministic and model-independent: deny-first enforcement runs as a rule engine, not an LLM call.
+        </p>
+
+        <pre class="mt-6 rounded-md bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto"><code>             ┌──────────────────────┐
+             │   Fleet Supervisor   │
+             │  (coordination only) │
+             └──────────┬───────────┘
+                        │ spawns
+          ┌─────────────┼─────────────┐
+          v             v             v
+    ┌──────────┐  ┌──────────┐  ┌──────────┐
+    │ Robot 01 │  │ Robot 02 │  │ Robot N  │
+    │ Therapist│  │ Therapist│  │ Therapist│
+    │ (Opus)   │  │ (Opus)   │  │ (Opus)   │
+    └────┬─────┘  └────┬─────┘  └────┬─────┘
+         │             │             │
+         v             v             v
+    conscience    conscience    conscience
+    gate (rules)  gate (rules)  gate (rules)
+    ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─
+    Memory/summaries → 4o-mini (efficient)</code></pre>
+      </section>
+
+      <hr class="border-[var(--color-warm-border)] my-16" />
+
+      <!-- 10. Future Work -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-blue)] mb-4">10. Future Work</p>
         <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">Open Problems</h2>
         <div class="space-y-4 text-lg leading-[1.8] text-[var(--color-warm-text)]">
           <p>
@@ -545,9 +821,9 @@ holomime certify --all --output compliance-report.json
 
       <hr class="border-[var(--color-warm-border)] my-16" />
 
-      <!-- 8. References -->
+      <!-- 11. References -->
       <section class="mb-20">
-        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-warm-muted)] mb-4">8. References</p>
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-warm-muted)] mb-4">11. References</p>
         <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">References</h2>
         <ol class="space-y-3 text-[var(--color-warm-muted)] leading-relaxed list-decimal list-inside">
           <li>Rafailov, R., Sharma, A., Mitchell, E., et al. "Direct Preference Optimization: Your Language Model is Secretly a Reward Model." <em>NeurIPS 2023</em>.</li>
