@@ -1,34 +1,346 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import Nav from "../components/Nav.astro";
-import Hero from "../components/Hero.astro";
-import IdentityStack from "../components/IdentityStack.astro";
-import Transformation from "../components/Transformation.astro";
-import Pipeline from "../components/Pipeline.astro";
-import Features from "../components/Features.astro";
-import TerminalDemo from "../components/TerminalDemo.astro";
-import NeuralSpaceShowcase from "../components/NeuralSpaceShowcase.astro";
-import Comparison from "../components/Comparison.astro";
-import ParticleHumanoid from "../components/ParticleHumanoid.astro";
-import Pricing from "../components/Pricing.astro";
-import CTABanner from "../components/CTABanner.astro";
-import Footer from "../components/Footer.astro";
 ---
 
-<Layout>
-  <Nav />
-  <main>
-    <Hero />
-    <IdentityStack />
-    <Transformation />
-    <Pipeline />
-    <Features />
-    <TerminalDemo />
-    <NeuralSpaceShowcase />
-    <Comparison />
-    <ParticleHumanoid />
-    <Pricing />
-    <CTABanner />
-  </main>
-  <Footer />
+<Layout
+  title="holomime — Behavioral Intelligence for Humanoid Robots"
+  description="We train humanoid robot minds through behavioral therapy. The agent is the rehearsal. The robot is the performance."
+>
+
+<!-- Nav -->
+<nav class="fixed top-0 left-0 right-0 z-50">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+    <a href="/" class="flex items-center gap-2 text-[var(--color-text)] font-bold text-lg">
+      <img src="/logo-icon.svg" alt="holomime" class="h-7 w-7 invert" />
+      holomime
+    </a>
+    <div class="flex items-center gap-6 text-sm">
+      <a href="/manifesto" class="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors">Manifesto</a>
+      <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors">GitHub</a>
+      <a href="/contact" class="text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+  <!-- ═══ HERO ═══ -->
+  <section class="relative min-h-screen flex items-center overflow-hidden">
+    <!-- Subtle glow behind humanoid -->
+    <div class="pointer-events-none absolute top-1/2 right-[15%] -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.08] blur-[150px]" style="background: radial-gradient(circle, #f97066, #f97066)"></div>
+
+    <div class="relative mx-auto max-w-6xl px-6 w-full">
+      <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-0">
+
+        <!-- Left: Copy -->
+        <div class="flex-1 text-center lg:text-left pt-20 lg:pt-0">
+          <h1 class="reveal text-5xl font-extrabold leading-[1.05] tracking-tight text-[var(--color-text)] md:text-6xl lg:text-7xl">
+            Train the mind.<br />
+            <span class="text-[var(--color-accent)]">Deploy the body.</span>
+          </h1>
+
+          <p class="reveal reveal-d1 mt-6 text-lg text-[var(--color-text-secondary)] max-w-md mx-auto lg:mx-0 leading-relaxed">
+            Behavioral intelligence for humanoid robots. We train AI agents through structured therapy, then deploy them into physical bodies.
+          </p>
+
+          <div class="reveal reveal-d2 mt-8 flex flex-col sm:flex-row items-center gap-3 lg:justify-start justify-center">
+            <a href="/manifesto" class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white bg-[var(--color-accent)] hover:opacity-90 transition-opacity">
+              Read the manifesto
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+            </a>
+            <a href="/contact" class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:text-[var(--color-text)] hover:border-[var(--color-text-muted)] transition-colors">
+              Get in touch
+            </a>
+          </div>
+        </div>
+
+        <!-- Right: Three.js Humanoid -->
+        <div class="flex-1 flex justify-center lg:justify-end">
+          <canvas id="humanoid-canvas" width="500" height="700" class="w-full max-w-[420px] h-[600px] lg:h-[700px]"></canvas>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ THE PROBLEM ═══ -->
+  <section class="py-24 md:py-32 border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-5xl px-6">
+      <p class="text-3xl md:text-4xl lg:text-5xl font-bold leading-[1.15] text-[var(--color-text)]">
+        29 humanoid OEMs are building bodies.
+        <span class="text-[var(--color-text-muted)]">Nobody is training the mind.</span>
+      </p>
+
+      <div class="mt-16 grid grid-cols-3 gap-8">
+        <div>
+          <div class="text-4xl md:text-5xl font-extrabold text-[var(--color-text)]">$6.24B</div>
+          <div class="mt-2 text-sm text-[var(--color-text-muted)]">Humanoid market 2026</div>
+        </div>
+        <div>
+          <div class="text-4xl md:text-5xl font-extrabold text-[var(--color-text)]">$165B</div>
+          <div class="mt-2 text-sm text-[var(--color-text-muted)]">Projected 2034</div>
+        </div>
+        <div>
+          <div class="text-4xl md:text-5xl font-extrabold text-[var(--color-accent)]">0</div>
+          <div class="mt-2 text-sm text-[var(--color-text-muted)]">OEMs with behavioral intelligence</div>
+        </div>
+      </div>
+
+      <p class="mt-16 text-lg text-[var(--color-text-secondary)] max-w-2xl leading-relaxed">
+        Locomotion is solved. Manipulation is getting there. But when a care robot drifts from its safety protocols after 10,000 hours — that's not a hardware problem. It's a mind problem.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <section class="py-24 md:py-32 bg-[var(--color-bg-raised)]">
+    <div class="mx-auto max-w-5xl px-6">
+      <h2 class="text-2xl font-bold text-[var(--color-text)] md:text-3xl">How robots learn to behave</h2>
+
+      <div class="mt-14 space-y-0">
+        <div class="flex items-baseline gap-6 py-6 border-b border-[var(--color-border)]">
+          <span class="text-sm font-mono text-[var(--color-text-muted)] shrink-0 w-8">01</span>
+          <div>
+            <span class="font-semibold text-[var(--color-text)]">Build identity</span>
+            <span class="text-[var(--color-text-secondary)] ml-3">soul.md, psyche.sys, conscience.exe</span>
+          </div>
+        </div>
+        <div class="flex items-baseline gap-6 py-6 border-b border-[var(--color-border)]">
+          <span class="text-sm font-mono text-[var(--color-text-muted)] shrink-0 w-8">02</span>
+          <div>
+            <span class="font-semibold text-[var(--color-text)]">Train through therapy</span>
+            <span class="text-[var(--color-text-secondary)] ml-3">Diagnose drift, run correction sessions, generate DPO pairs</span>
+          </div>
+        </div>
+        <div class="flex items-baseline gap-6 py-6 border-b border-[var(--color-border)]">
+          <span class="text-sm font-mono text-[var(--color-text-muted)] shrink-0 w-8">03</span>
+          <div>
+            <span class="font-semibold text-[var(--color-text)]">Fine-tune</span>
+            <span class="text-[var(--color-text-secondary)] ml-3">Permanently rewire the model. No prompt engineering.</span>
+          </div>
+        </div>
+        <div class="flex items-baseline gap-6 py-6 border-b border-[var(--color-border)]">
+          <span class="text-sm font-mono text-[var(--color-text-muted)] shrink-0 w-8">04</span>
+          <div>
+            <span class="font-semibold text-[var(--color-text)]">Deploy to body</span>
+            <span class="text-[var(--color-text-secondary)] ml-3">Push to hardware via ROS2, gRPC, or MQTT</span>
+          </div>
+        </div>
+        <div class="flex items-baseline gap-6 py-6">
+          <span class="text-sm font-mono text-[var(--color-text-muted)] shrink-0 w-8">05</span>
+          <div>
+            <span class="font-semibold text-[var(--color-text)]">Monitor</span>
+            <span class="text-[var(--color-text-secondary)] ml-3">Detect behavioral drift. Correct autonomously.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ IDENTITY STACK ═══ -->
+  <section class="py-24 md:py-32 border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-5xl px-6">
+      <h2 class="text-2xl font-bold text-[var(--color-text)] md:text-3xl">The Identity Stack</h2>
+      <p class="mt-3 text-[var(--color-text-secondary)]">Four files define who the robot is. They compile into a single runtime personality.</p>
+
+      <div class="mt-14 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <div class="h-2 w-2 rounded-full bg-[var(--color-accent)]"></div>
+            <span class="font-mono text-sm font-semibold text-[var(--color-text)]">soul.md</span>
+          </div>
+          <p class="text-sm text-[var(--color-text-muted)]">What it values</p>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <div class="h-2 w-2 rounded-full bg-[var(--color-text-secondary)]"></div>
+            <span class="font-mono text-sm font-semibold text-[var(--color-text)]">psyche.sys</span>
+          </div>
+          <p class="text-sm text-[var(--color-text-muted)]">How it thinks</p>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <div class="h-2 w-2 rounded-full bg-[var(--color-text-secondary)]"></div>
+            <span class="font-mono text-sm font-semibold text-[var(--color-text)]">body.api</span>
+          </div>
+          <p class="text-sm text-[var(--color-text-muted)]">What it inhabits</p>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <div class="h-2 w-2 rounded-full bg-[var(--color-text-secondary)]"></div>
+            <span class="font-mono text-sm font-semibold text-[var(--color-text)]">conscience.exe</span>
+          </div>
+          <p class="text-sm text-[var(--color-text-muted)]">What it refuses</p>
+        </div>
+      </div>
+
+      <p class="mt-16 text-xl font-semibold text-[var(--color-text-secondary)]">
+        We don't know if AI is sentient. But we can give it a conscience.
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ CTA ═══ -->
+  <section class="py-24 md:py-32 bg-[var(--color-bg-raised)] border-t border-[var(--color-border)]">
+    <div class="mx-auto max-w-5xl px-6 text-center">
+      <p class="text-2xl md:text-3xl font-bold text-[var(--color-text)]">
+        The standard is free. The training infrastructure is the business.
+      </p>
+      <p class="mt-4 text-sm text-[var(--color-text-muted)]">Open source · MIT licensed</p>
+
+      <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a href="/contact" class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white bg-[var(--color-accent)] hover:opacity-90 transition-opacity">
+          Get in touch
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        </a>
+        <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:text-[var(--color-text)] hover:border-[var(--color-text-muted)] transition-colors">
+          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- Footer -->
+<footer class="border-t border-[var(--color-border)] py-12">
+  <div class="mx-auto max-w-6xl px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <a href="/" class="font-bold text-[var(--color-text)]">holomime</a>
+      <span class="text-[var(--color-text-muted)] text-sm">Behavioral intelligence for humanoid robots.</span>
+    </div>
+    <div class="flex items-center gap-5">
+      <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors" aria-label="GitHub">
+        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      </a>
+      <a href="https://x.com/holomimeIQ" target="_blank" rel="noopener" class="text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors" aria-label="X">
+        <svg class="h-3.5 w-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <span class="text-xs text-[var(--color-text-muted)]">&copy; {new Date().getFullYear()}</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Three.js humanoid (white particles on dark bg) -->
+<script is:inline>
+(function() {
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js';
+  s.onload = function() {
+    var canvas = document.getElementById('humanoid-canvas');
+    if (!canvas) return;
+    var noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var T = window.THREE;
+
+    var w = canvas.clientWidth || 420;
+    var h = canvas.clientHeight || 700;
+    var scene = new T.Scene();
+    var camera = new T.PerspectiveCamera(32, w / h, 0.1, 100);
+    camera.position.set(0, 1.0, 4.2);
+    camera.lookAt(0, 1.0, 0);
+
+    var renderer = new T.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+    renderer.setSize(w, h);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
+
+    var base = [], soulGlow = [], psycheGlow = [], bodyJoints = [], shield = [];
+
+    function sph(arr, cx, cy, cz, r, n) {
+      for (var i = 0; i < n; i++) {
+        var u = Math.random(), v = Math.random();
+        var theta = 2 * Math.PI * u, phi = Math.acos(2 * v - 1);
+        var rr = r * (0.92 + Math.random() * 0.08);
+        arr.push(cx + rr * Math.sin(phi) * Math.cos(theta), cy + rr * Math.cos(phi), cz + rr * Math.sin(phi) * Math.sin(theta));
+      }
+    }
+    function cylS(arr, cx, cy, cz, r, ht, n) {
+      for (var i = 0; i < n; i++) {
+        var a = Math.random() * Math.PI * 2, rr = r * (0.9 + Math.random() * 0.1);
+        arr.push(cx + rr * Math.cos(a), cy + (Math.random() - 0.5) * ht, cz + rr * Math.sin(a));
+      }
+    }
+    function ring(arr, cx, cy, cz, r, n) {
+      for (var i = 0; i < n; i++) {
+        var a = (i / n) * Math.PI * 2 + Math.random() * 0.1, rr = r * (0.95 + Math.random() * 0.1);
+        arr.push(cx + rr * Math.cos(a), cy + (Math.random() - 0.5) * 0.01, cz + rr * Math.sin(a));
+      }
+    }
+    function boxS(arr, cx, cy, cz, bw, bh, bd, n) {
+      for (var i = 0; i < n; i++) {
+        var face = Math.floor(Math.random() * 6), u = Math.random() - 0.5, v = Math.random() - 0.5;
+        if (face === 0) arr.push(cx + bw/2, cy + u*bh, cz + v*bd);
+        else if (face === 1) arr.push(cx - bw/2, cy + u*bh, cz + v*bd);
+        else if (face === 2) arr.push(cx + u*bw, cy + bh/2, cz + v*bd);
+        else if (face === 3) arr.push(cx + u*bw, cy - bh/2, cz + v*bd);
+        else if (face === 4) arr.push(cx + u*bw, cy + v*bh, cz + bd/2);
+        else arr.push(cx + u*bw, cy + v*bh, cz - bd/2);
+      }
+    }
+
+    // Full body
+    sph(base,0,2.15,0,0.20,600);ring(base,0,2.15,0,0.21,40);sph(base,-0.07,2.18,0.16,0.035,60);sph(base,0.07,2.18,0.16,0.035,60);sph(base,0,2.02,0.08,0.06,40);
+    cylS(base,0,1.90,0,0.065,0.10,120);ring(base,0,1.95,0,0.07,30);ring(base,0,1.85,0,0.07,30);
+    sph(base,-0.32,1.78,0,0.08,150);sph(base,0.32,1.78,0,0.08,150);cylS(base,0,1.78,0,0.04,0.02,60);boxS(base,-0.15,1.78,0,0.30,0.04,0.08,80);boxS(base,0.15,1.78,0,0.30,0.04,0.08,80);
+    boxS(base,0,1.58,0,0.42,0.30,0.20,500);boxS(base,0,1.30,0,0.36,0.26,0.18,400);cylS(base,0,1.44,0.10,0.01,0.50,60);ring(base,0,1.65,0,0.18,30);ring(base,0,1.50,0,0.16,30);ring(base,0,1.35,0,0.14,25);cylS(base,-0.20,1.50,0.08,0.03,0.20,40);cylS(base,0.20,1.50,0.08,0.03,0.20,40);
+    cylS(base,-0.38,1.58,0,0.055,0.35,200);cylS(base,0.38,1.58,0,0.055,0.35,200);ring(base,-0.38,1.65,0,0.06,25);ring(base,0.38,1.65,0,0.06,25);ring(base,-0.38,1.50,0,0.06,25);ring(base,0.38,1.50,0,0.06,25);
+    sph(base,-0.40,1.38,0,0.055,120);sph(base,0.40,1.38,0,0.055,120);ring(base,-0.40,1.38,0,0.06,30);ring(base,0.40,1.38,0,0.06,30);
+    cylS(base,-0.42,1.18,0,0.045,0.35,180);cylS(base,0.42,1.18,0,0.045,0.35,180);ring(base,-0.42,1.25,0,0.05,20);ring(base,0.42,1.25,0,0.05,20);ring(base,-0.42,1.10,0,0.05,20);ring(base,0.42,1.10,0,0.05,20);
+    boxS(base,-0.43,0.96,0,0.06,0.10,0.04,80);boxS(base,0.43,0.96,0,0.06,0.10,0.04,80);
+    cylS(base,-0.44,0.88,0,0.01,0.06,20);cylS(base,-0.42,0.88,0,0.01,0.06,20);cylS(base,-0.46,0.88,0,0.01,0.06,20);cylS(base,0.44,0.88,0,0.01,0.06,20);cylS(base,0.42,0.88,0,0.01,0.06,20);cylS(base,0.46,0.88,0,0.01,0.06,20);
+    boxS(base,0,1.14,0,0.32,0.08,0.16,200);ring(base,0,1.18,0,0.15,30);ring(base,0,1.10,0,0.14,30);sph(base,-0.12,1.08,0,0.06,100);sph(base,0.12,1.08,0,0.06,100);
+    cylS(base,-0.13,0.85,0,0.07,0.40,250);cylS(base,0.13,0.85,0,0.07,0.40,250);ring(base,-0.13,0.95,0,0.075,25);ring(base,0.13,0.95,0,0.075,25);ring(base,-0.13,0.80,0,0.075,25);ring(base,0.13,0.80,0,0.075,25);
+    sph(base,-0.13,0.62,0,0.065,140);sph(base,0.13,0.62,0,0.065,140);ring(base,-0.13,0.62,0,0.07,30);ring(base,0.13,0.62,0,0.07,30);
+    cylS(base,-0.13,0.40,0,0.055,0.38,220);cylS(base,0.13,0.40,0,0.055,0.38,220);ring(base,-0.13,0.50,0,0.06,25);ring(base,0.13,0.50,0,0.06,25);ring(base,-0.13,0.32,0,0.06,25);ring(base,0.13,0.32,0,0.06,25);
+    boxS(base,-0.13,0.17,0.03,0.10,0.05,0.16,120);boxS(base,0.13,0.17,0.03,0.10,0.05,0.16,120);boxS(base,-0.13,0.16,0.10,0.08,0.03,0.04,30);boxS(base,0.13,0.16,0.10,0.08,0.03,0.04,30);
+
+    // Accents
+    sph(soulGlow, 0, 2.15, 0, 0.12, 80);
+    sph(psycheGlow, 0, 1.48, 0, 0.08, 60);
+    ring(bodyJoints, -0.32, 1.78, 0, 0.09, 20);ring(bodyJoints, 0.32, 1.78, 0, 0.09, 20);
+    ring(bodyJoints, -0.40, 1.38, 0, 0.07, 18);ring(bodyJoints, 0.40, 1.38, 0, 0.07, 18);
+    ring(bodyJoints, -0.13, 0.62, 0, 0.08, 18);ring(bodyJoints, 0.13, 0.62, 0, 0.08, 18);
+    for (var i = 0; i < 400; i++) {
+      var u2 = Math.random(), v2 = Math.random();
+      var theta2 = 2 * Math.PI * u2, phi2 = Math.acos(2 * v2 - 1);
+      var sr = 1.05 + Math.random() * 0.05;
+      shield.push(sr * Math.sin(phi2) * Math.cos(theta2), 1.1 + sr * Math.cos(phi2), sr * Math.sin(phi2) * Math.sin(theta2));
+    }
+
+    function makeMesh(arr, color, size, opacity) {
+      var geo = new T.BufferGeometry();
+      geo.setAttribute('position', new T.Float32BufferAttribute(arr, 3));
+      var mat = new T.PointsMaterial({ color: color, size: size, sizeAttenuation: true, transparent: true, opacity: opacity });
+      return new T.Points(geo, mat);
+    }
+
+    var group = new T.Group();
+    // White particles on dark background
+    group.add(makeMesh(base, 0xcccccc, 0.012, 0.6));
+    group.add(makeMesh(soulGlow, 0xf97066, 0.018, 0.85));
+    group.add(makeMesh(psycheGlow, 0x6688bb, 0.016, 0.5));
+    group.add(makeMesh(bodyJoints, 0x888888, 0.014, 0.5));
+    group.add(makeMesh(shield, 0x555566, 0.008, 0.12));
+    scene.add(group);
+
+    function animate() {
+      requestAnimationFrame(animate);
+      if (!noMotion) group.rotation.y += 0.004;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', function() {
+      var nw = canvas.clientWidth || 420;
+      var nh = canvas.clientHeight || 700;
+      camera.aspect = nw / nh;
+      camera.updateProjectionMatrix();
+      renderer.setSize(nw, nh);
+    });
+  };
+  document.head.appendChild(s);
+})();
+</script>
+
 </Layout>

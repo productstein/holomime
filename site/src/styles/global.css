@@ -1,26 +1,34 @@
 @import "tailwindcss";
 
 @theme {
-  /* Core brand */
+  /* Dark foundation */
+  --color-bg: #08080c;
+  --color-bg-raised: #111116;
+  --color-bg-surface: #18181f;
+  --color-border: #222230;
+
+  /* Text hierarchy */
+  --color-text: #e8e8ec;
+  --color-text-secondary: #888890;
+  --color-text-muted: #555560;
+
+  /* Accent — one color only */
+  --color-accent: #f97066;
+
+  /* Legacy (kept for subpages that still use them) */
   --color-holo-cyan: #06b6d4;
   --color-holo-magenta: #d946ef;
-
-  /* Dark tones (terminal only) */
   --color-holo-slate: #0f172a;
   --color-holo-dark: #020617;
   --color-holo-card: #1e293b;
   --color-holo-border: #334155;
   --color-holo-muted: #94a3b8;
   --color-holo-text: #e2e8f0;
-
-  /* Light tones */
   --color-warm-cream: #faf6f1;
   --color-warm-sand: #e8e3db;
   --color-warm-text: #2d2c2b;
   --color-warm-muted: #6b6966;
   --color-warm-border: #e5e2de;
-
-  /* Personality palette */
   --color-p-coral: #f97066;
   --color-p-coral-soft: #fef2f1;
   --color-p-blue: #3b82f6;
@@ -47,26 +55,49 @@ html {
 }
 
 body {
-  background-color: var(--color-warm-cream);
-  color: var(--color-warm-text);
+  background-color: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-sans);
 }
 
 ::selection {
-  background-color: color-mix(in srgb, var(--color-p-violet) 25%, transparent);
+  background-color: rgba(249, 112, 102, 0.2);
 }
 
-/* ---- Terminal animation ---- */
+/* ---- Stagger reveal ---- */
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.reveal {
+  opacity: 0;
+  animation: revealUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.reveal-d1 { animation-delay: 0.1s; }
+.reveal-d2 { animation-delay: 0.2s; }
+.reveal-d3 { animation-delay: 0.3s; }
+.reveal-d4 { animation-delay: 0.4s; }
+.reveal-d5 { animation-delay: 0.5s; }
+
+/* ---- Terminal cursor ---- */
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
 }
-
 .cursor-blink {
   animation: blink 1s step-end infinite;
 }
 
-/* ---- Gradient text ---- */
+/* ---- Gradient text (accent) ---- */
+.text-gradient-warm {
+  background: linear-gradient(135deg, #f97066, #ff8a65);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .text-gradient {
   background: linear-gradient(135deg, var(--color-holo-cyan), var(--color-holo-magenta));
   -webkit-background-clip: text;
@@ -74,116 +105,22 @@ body {
   background-clip: text;
 }
 
-.text-gradient-warm {
-  background: linear-gradient(135deg, var(--color-p-coral), var(--color-p-gold), var(--color-p-violet));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* ---- Floating animations ---- */
+/* ---- Kept for subpages ---- */
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
   33% { transform: translateY(-12px) rotate(1deg); }
   66% { transform: translateY(-6px) rotate(-1deg); }
 }
+.animate-float { animation: float 6s ease-in-out infinite; }
 
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-18px); }
-}
-
-@keyframes float-reverse {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(12px) rotate(-2deg); }
-}
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-float {
-  animation: float 6s ease-in-out infinite;
-}
-
-.animate-float-slow {
-  animation: float-slow 8s ease-in-out infinite;
-}
-
-.animate-float-reverse {
-  animation: float-reverse 7s ease-in-out infinite;
-}
-
-.animate-spin-slow {
-  animation: spin-slow 20s linear infinite;
-}
-
-/* ---- Card interactions (Headspace-style snappy timing) ---- */
 .personality-card {
   transition: transform 0.15s cubic-bezier(0.32, 0.94, 0.6, 1), box-shadow 0.15s cubic-bezier(0.32, 0.94, 0.6, 1);
 }
-
 .personality-card:hover {
   transform: translateY(-6px) scale(1.01);
   box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.12);
 }
 
-/* ---- Button active press (Headspace-style) ---- */
 .btn-press {
   transition: all 0.15s cubic-bezier(0.32, 0.94, 0.6, 1);
-  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.15);
-}
-
-.btn-press:hover {
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.12);
-  transform: translateY(-1px);
-}
-
-.btn-press:active {
-  transform: translateY(2px);
-  box-shadow: 0 0 0 rgba(0, 0, 0, 0.15);
-}
-
-/* ---- Decorative star shape ---- */
-.deco-star {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  background: currentColor;
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-}
-
-/* ---- Dot grid background pattern ---- */
-.bg-dot-grid {
-  background-image: radial-gradient(circle, var(--color-warm-sand) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-/* ---- Glass card variant ---- */
-.glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-}
-
-/* ---- Fade-in-up animation (for scroll reveals) ---- */
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-fade-in-up {
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-/* ---- Glow shadow utilities ---- */
-.glow-coral:hover { box-shadow: 0 0 20px -4px rgba(249, 112, 102, 0.3); }
-.glow-blue:hover { box-shadow: 0 0 20px -4px rgba(59, 130, 246, 0.3); }
-.glow-violet:hover { box-shadow: 0 0 20px -4px rgba(139, 92, 246, 0.3); }
-.glow-gold:hover { box-shadow: 0 0 20px -4px rgba(245, 158, 11, 0.3); }
-
-/* ---- Dot pulse animation (for humanoid dots) ---- */
-@keyframes dotPulse {
-  0%, 100% { opacity: 0.6; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.3); }
 }
