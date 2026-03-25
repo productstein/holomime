@@ -323,8 +323,8 @@ export function extractRecommendations(
  * spec changes as structured JSON. This means the therapy conversation
  * itself drives the personality evolution — not just a lookup table.
  *
- * Stack-aware: When the project uses the identity stack (soul.md + psyche.sys +
- * body.api + conscience.exe), patches are routed to the correct source file
+ * Stack-aware: When the project uses the identity stack (soul.md + mind.sys +
+ * purpose.cfg + shadow.log + body.api + conscience.exe + ego.runtime), patches are routed to the correct source file
  * instead of mutating .personality.json directly. After patching, the stack
  * is recompiled to regenerate .personality.json.
  */

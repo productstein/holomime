@@ -4,7 +4,7 @@
  *
  * Supports ISO/FDIS 13482, ISO 25785-1, ISO 10218, and ISO/IEC 42001.
  * Each standard maps its clauses to holomime identity stack layers
- * (deny, hard_limit, safety_envelope, escalate, soul, psyche, conscience,
+ * (deny, hard_limit, safety_envelope, escalate, soul, mind, conscience,
  * detectors, therapy).
  */
 
@@ -129,7 +129,7 @@ export function loadAllStandards(): ISOStandard[] {
  * - "safety_envelope" → check if body.api has the relevant safety field
  * - "escalate" → check if conscience.exe has matching escalation rules
  * - "soul" → check if soul.md has relevant content (core_values, purpose)
- * - "psyche" → check if psyche.sys has relevant content (big_five, therapy_dimensions)
+ * - "mind" → check if mind.sys has relevant content (big_five, therapy_dimensions)
  * - "conscience" → check if conscience.exe has rules defined
  * - "detectors" → check if the spec implies monitoring is configured
  * - "therapy" → check if growth areas or therapy dimensions exist
@@ -257,13 +257,13 @@ function checkClause(spec: Record<string, unknown>, clause: ISOClause): ClauseSt
       break;
     }
 
-    case "psyche": {
-      // Check that psyche-level content exists (Big Five, therapy dimensions)
+    case "mind": {
+      // Check that mind-level content exists (Big Five, therapy dimensions)
       const hasBigFive = !!s.big_five;
       const hasTherapy = !!s.therapy_dimensions;
       if (hasBigFive || hasTherapy) {
         covered = true;
-        coverageMethod = "psyche.sys content";
+        coverageMethod = "mind.sys content";
         if (hasBigFive) evidence.push("Big Five traits defined");
         if (hasTherapy) evidence.push("Therapy dimensions defined");
       }

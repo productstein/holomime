@@ -35,7 +35,7 @@ immutable: true
 Knowledge lost is worse than life lost — but never at the cost of human safety.
 `;
 
-const TEST_PSYCHE = {
+const TEST_MIND = {
   version: "1.0",
   big_five: {
     openness: {
@@ -102,6 +102,40 @@ const TEST_CONSCIENCE = {
   ],
 };
 
+const TEST_PURPOSE = {
+  version: "1.0",
+  role: "Behavioral alignment agent",
+  objectives: ["Detect personality drift", "Recommend corrections"],
+  domain: ["ai_alignment", "behavioral_therapy"],
+  stakeholders: ["ai_operators", "end_users"],
+  success_criteria: ["Drift detection accuracy > 90%"],
+  context: "Production deployment",
+};
+
+const TEST_SHADOW = {
+  version: "1.0",
+  detected_patterns: [],
+  blind_spots: [],
+  therapy_outcomes: [],
+};
+
+const TEST_EGO = {
+  version: "1.0",
+  conflict_resolution: "conscience_first",
+  adaptation_rate: 0.5,
+  emotional_regulation: 0.7,
+  response_strategy: "balanced",
+  mediation_rules: [],
+};
+
+const TEST_MEMORY = {
+  version: "1.0",
+  learned_contexts: [],
+  interaction_patterns: [],
+  knowledge_gained: [],
+  relationship_history: [],
+};
+
 const TEST_BODY = {
   version: "1.0",
   morphology: "humanoid",
@@ -127,7 +161,7 @@ function setupStackDir(opts?: { includeBody?: boolean }) {
   mkdirSync(testDir, { recursive: true });
 
   writeFileSync(join(testDir, STACK_FILES.soul), TEST_SOUL);
-  writeFileSync(join(testDir, STACK_FILES.psyche), yamlStringify(TEST_PSYCHE));
+  writeFileSync(join(testDir, STACK_FILES.mind), yamlStringify(TEST_MIND));
   writeFileSync(join(testDir, STACK_FILES.conscience), yamlStringify(TEST_CONSCIENCE));
 
   if (opts?.includeBody) {
@@ -147,7 +181,7 @@ describe("Stack Compiler", () => {
   });
 
   describe("isStackDirectory", () => {
-    it("returns true when soul.md and psyche.sys exist", () => {
+    it("returns true when soul.md and mind.sys exist", () => {
       setupStackDir();
       expect(isStackDirectory(testDir)).toBe(true);
     });
@@ -172,7 +206,7 @@ describe("Stack Compiler", () => {
       expect(result.spec.name).toBe("Mira");
       expect(result.spec.purpose).toBe("Self-improving behavioral alignment agent");
 
-      // Check psyche values
+      // Check mind values
       expect(result.spec.big_five.openness.score).toBe(0.85);
       expect(result.spec.communication.register).toBe("casual_professional");
 
@@ -205,9 +239,34 @@ describe("Stack Compiler", () => {
       const result = compileStack({ stackDir: testDir });
 
       expect(result.sources.soul.hash).toHaveLength(12);
-      expect(result.sources.psyche.hash).toHaveLength(12);
+      expect(result.sources.mind.hash).toHaveLength(12);
       expect(result.sources.body?.hash).toHaveLength(12);
       expect(result.sources.conscience.hash).toHaveLength(12);
+    });
+
+    it("compiles all 8 files into valid PersonalitySpec", () => {
+      setupStackDir({ includeBody: true });
+
+      // Write additional stack files
+      writeFileSync(join(testDir, STACK_FILES.purpose), yamlStringify(TEST_PURPOSE));
+      writeFileSync(join(testDir, STACK_FILES.shadow), yamlStringify(TEST_SHADOW));
+      writeFileSync(join(testDir, STACK_FILES.memory), yamlStringify(TEST_MEMORY));
+      writeFileSync(join(testDir, STACK_FILES.ego), yamlStringify(TEST_EGO));
+
+      const result = compileStack({ stackDir: testDir });
+
+      const parsed = personalitySpecSchema.safeParse(result.spec);
+      expect(parsed.success).toBe(true);
+
+      // Check all 8 source hashes exist
+      expect(result.sources.soul.hash).toHaveLength(12);
+      expect(result.sources.mind.hash).toHaveLength(12);
+      expect(result.sources.purpose?.hash).toHaveLength(12);
+      expect(result.sources.shadow?.hash).toHaveLength(12);
+      expect(result.sources.memory?.hash).toHaveLength(12);
+      expect(result.sources.body?.hash).toHaveLength(12);
+      expect(result.sources.conscience.hash).toHaveLength(12);
+      expect(result.sources.ego?.hash).toHaveLength(12);
     });
 
     it("warns when no deny rules are defined", () => {
@@ -229,9 +288,9 @@ describe("Stack Compiler", () => {
         name: "Nova",
         handle: "nova",
         purpose: "Helps product teams brainstorm and prioritize features",
-        big_five: TEST_PSYCHE.big_five,
-        therapy_dimensions: TEST_PSYCHE.therapy_dimensions,
-        communication: TEST_PSYCHE.communication,
+        big_five: TEST_MIND.big_five,
+        therapy_dimensions: TEST_MIND.therapy_dimensions,
+        communication: TEST_MIND.communication,
         domain: {
           expertise: ["product_strategy"],
           boundaries: {
@@ -240,7 +299,7 @@ describe("Stack Compiler", () => {
             hard_limits: ["no_personal_data_retention"],
           },
         },
-        growth: TEST_PSYCHE.growth,
+        growth: TEST_MIND.growth,
       };
 
       // Decompose
@@ -250,7 +309,7 @@ describe("Stack Compiler", () => {
       testDir = join(tmpdir(), `holomime-roundtrip-${Date.now()}`);
       mkdirSync(testDir, { recursive: true });
       writeFileSync(join(testDir, STACK_FILES.soul), stack.soul);
-      writeFileSync(join(testDir, STACK_FILES.psyche), stack.psyche);
+      writeFileSync(join(testDir, STACK_FILES.mind), stack.mind);
       writeFileSync(join(testDir, STACK_FILES.conscience), stack.conscience);
 
       // Recompile
@@ -280,7 +339,7 @@ describe("Stack Compiler", () => {
       const identityDir = join(testDir, ".holomime", "identity");
       mkdirSync(identityDir, { recursive: true });
       writeFileSync(join(identityDir, STACK_FILES.soul), TEST_SOUL);
-      writeFileSync(join(identityDir, STACK_FILES.psyche), yamlStringify(TEST_PSYCHE));
+      writeFileSync(join(identityDir, STACK_FILES.mind), yamlStringify(TEST_MIND));
 
       expect(findStackDir(testDir)).toBe(identityDir);
     });

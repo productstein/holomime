@@ -194,9 +194,9 @@ function generateRecommendations(
             `Define core values and purpose in soul.md for ${report.standard} clauses ${clauseIds}`,
           );
           break;
-        case "psyche":
+        case "mind":
           recommendations.push(
-            `Configure Big Five traits and therapy dimensions in psyche.sys for ${report.standard} clauses ${clauseIds}`,
+            `Configure Big Five traits and therapy dimensions in mind.sys for ${report.standard} clauses ${clauseIds}`,
           );
           break;
         case "conscience":

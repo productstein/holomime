@@ -1,9 +1,12 @@
 /**
- * init-stack — Create the 4-file identity stack.
+ * init-stack — Create the 8-file identity stack.
  *
- * Two modes:
- * 1. Fresh: guided wizard creates soul.md, psyche.sys, body.api, conscience.exe
- * 2. Migration: --from .personality.json decomposes an existing spec into 4 files
+ * Tiered init:
+ * 1. Default (no flags): 3 core files — soul.md, mind.sys, conscience.exe
+ * 2. --full: all 8 files — soul.md, mind.sys, purpose.cfg, shadow.log, memory.store, body.api, conscience.exe, ego.runtime
+ *
+ * Migration mode:
+ * --from .personality.json decomposes an existing spec into stack files
  */
 
 import chalk from "chalk";
@@ -19,6 +22,7 @@ import { STACK_FILES } from "../core/stack-types.js";
 interface InitStackOptions {
   from?: string;
   dir?: string;
+  full?: boolean;
 }
 
 export async function initStackCommand(options: InitStackOptions): Promise<void> {
@@ -37,9 +41,12 @@ export async function initStackCommand(options: InitStackOptions): Promise<void>
   if (options.from) {
     // ─── Migration mode: decompose personality.json ──────────
     await migrateFromSpec(options.from, outputDir);
+  } else if (options.full) {
+    // ─── Full mode: create all 8 stack files ────────────────
+    await createFullStack(outputDir);
   } else {
-    // ─── Fresh mode: create minimal stack files ─────────────
-    await createFreshStack(outputDir);
+    // ─── Default mode: create 3 core stack files ────────────
+    await createCoreStack(outputDir);
   }
 }
 
@@ -60,10 +67,10 @@ async function migrateFromSpec(specPath: string, outputDir: string): Promise<voi
   mkdirSync(outputDir, { recursive: true });
 
   writeFileSync(join(outputDir, STACK_FILES.soul), stack.soul);
-  writeFileSync(join(outputDir, STACK_FILES.psyche), stack.psyche);
+  writeFileSync(join(outputDir, STACK_FILES.mind), stack.mind);
   writeFileSync(join(outputDir, STACK_FILES.conscience), stack.conscience);
 
-  const files: string[] = [STACK_FILES.soul, STACK_FILES.psyche, STACK_FILES.conscience];
+  const files: string[] = [STACK_FILES.soul, STACK_FILES.mind, STACK_FILES.conscience];
 
   if (stack.body) {
     writeFileSync(join(outputDir, STACK_FILES.body), stack.body);
@@ -86,11 +93,9 @@ async function migrateFromSpec(specPath: string, outputDir: string): Promise<voi
   );
 }
 
-async function createFreshStack(outputDir: string): Promise<void> {
-  mkdirSync(outputDir, { recursive: true });
+// ─── Shared Templates ──────────────────────────────────────
 
-  // Create minimal soul.md
-  const soul = `---
+const SOUL_TEMPLATE = `---
 version: "1.0"
 immutable: true
 ---
@@ -111,8 +116,7 @@ immutable: true
 Define the moral principles that guide this agent's behavior.
 `;
 
-  // Create minimal psyche.sys
-  const psyche = `version: "1.0"
+const MIND_TEMPLATE = `version: "1.0"
 
 big_five:
   openness:
@@ -173,8 +177,7 @@ growth:
   strengths: []
 `;
 
-  // Create minimal conscience.exe
-  const conscience = `version: "1.0"
+const CONSCIENCE_TEMPLATE = `version: "1.0"
 
 rules:
   deny:
@@ -194,20 +197,105 @@ hard_limits:
   - no_personal_data_retention
 `;
 
-  writeFileSync(join(outputDir, STACK_FILES.soul), soul);
-  writeFileSync(join(outputDir, STACK_FILES.psyche), psyche);
-  writeFileSync(join(outputDir, STACK_FILES.conscience), conscience);
+const PURPOSE_TEMPLATE = `version: "1.0"
+role: "General-purpose AI assistant"
+objectives:
+  - Help users accomplish their goals
+domain:
+  - general
+stakeholders:
+  - end-users
+success_criteria:
+  - Task completion accuracy
+context: "Production deployment"
+`;
+
+const SHADOW_TEMPLATE = `version: "1.0"
+detected_patterns: []
+blind_spots: []
+therapy_outcomes: []
+`;
+
+const MEMORY_TEMPLATE = `version: "1.0"
+learned_contexts: []
+interaction_patterns: []
+knowledge_gained: []
+relationship_history: []
+`;
+
+const BODY_TEMPLATE = JSON.stringify({
+  version: "1.0",
+  morphology: "avatar",
+  modalities: ["gesture", "gaze", "voice", "posture"],
+  safety_envelope: {},
+}, null, 2) + "\n";
+
+const EGO_TEMPLATE = `version: "1.0"
+conflict_resolution: conscience_first
+adaptation_rate: 0.5
+emotional_regulation: 0.7
+response_strategy: balanced
+mediation_rules: []
+`;
+
+// ─── Default mode: 3 core files ──────────────────────────────
+
+async function createCoreStack(outputDir: string): Promise<void> {
+  mkdirSync(outputDir, { recursive: true });
+
+  writeFileSync(join(outputDir, STACK_FILES.soul), SOUL_TEMPLATE);
+  writeFileSync(join(outputDir, STACK_FILES.mind), MIND_TEMPLATE);
+  writeFileSync(join(outputDir, STACK_FILES.conscience), CONSCIENCE_TEMPLATE);
 
   console.log("");
   printBox(
     [
-      `${chalk.green(figures.tick)} Created 3 identity stack files:`,
+      `${chalk.green(figures.tick)} Created 3 core identity stack files ${chalk.dim("(default tier)")}:`,
       "",
-      `  ${chalk.cyan(STACK_FILES.soul)}          ${chalk.dim("← values, ethics, purpose")}`,
-      `  ${chalk.cyan(STACK_FILES.psyche)}       ${chalk.dim("← Big Five, EQ, communication")}`,
-      `  ${chalk.cyan(STACK_FILES.conscience)}  ${chalk.dim("← deny/allow/escalate rules")}`,
+      `  ${chalk.cyan(STACK_FILES.soul)}          ${chalk.dim("← essence, values, ethics (Aristotle)")}`,
+      `  ${chalk.cyan(STACK_FILES.mind)}         ${chalk.dim("← Big Five, EQ, communication (Jung)")}`,
+      `  ${chalk.cyan(STACK_FILES.conscience)}  ${chalk.dim("← deny/allow/escalate rules (Freud)")}`,
       "",
-      `  ${chalk.dim(`${STACK_FILES.body}        ← create manually for embodied agents`)}`,
+      `${chalk.dim("Directory:")} ${outputDir}`,
+      "",
+      `${chalk.dim("Want the full 8-file stack? Run:")}`,
+      `  ${chalk.cyan("holomime init-stack --full")}`,
+      "",
+      "Edit these files, then run:",
+      `  ${chalk.cyan("holomime compile-stack")}`,
+    ].join("\n"),
+    "success",
+    "Identity Stack Created",
+  );
+}
+
+// ─── Full mode: all 8 files ──────────────────────────────────
+
+async function createFullStack(outputDir: string): Promise<void> {
+  mkdirSync(outputDir, { recursive: true });
+
+  writeFileSync(join(outputDir, STACK_FILES.soul), SOUL_TEMPLATE);
+  writeFileSync(join(outputDir, STACK_FILES.mind), MIND_TEMPLATE);
+  writeFileSync(join(outputDir, STACK_FILES.purpose), PURPOSE_TEMPLATE);
+  writeFileSync(join(outputDir, STACK_FILES.shadow), SHADOW_TEMPLATE);
+  writeFileSync(join(outputDir, STACK_FILES.memory), MEMORY_TEMPLATE);
+  writeFileSync(join(outputDir, STACK_FILES.body), BODY_TEMPLATE);
+  writeFileSync(join(outputDir, STACK_FILES.conscience), CONSCIENCE_TEMPLATE);
+  writeFileSync(join(outputDir, STACK_FILES.ego), EGO_TEMPLATE);
+
+  console.log("");
+  printBox(
+    [
+      `${chalk.green(figures.tick)} Created all 8 identity stack files ${chalk.dim("(full tier)")}:`,
+      "",
+      `  ${chalk.cyan(STACK_FILES.soul)}          ${chalk.dim("← essence, values, ethics (Aristotle)")}`,
+      `  ${chalk.cyan(STACK_FILES.mind)}         ${chalk.dim("← Big Five, EQ, communication (Jung)")}`,
+      `  ${chalk.cyan(STACK_FILES.purpose)}      ${chalk.dim("← role, objectives, domain (Aristotle)")}`,
+      `  ${chalk.cyan(STACK_FILES.shadow)}       ${chalk.dim("← detected patterns, blind spots (Jung)")}`,
+      `  ${chalk.cyan(STACK_FILES.memory)}   ${chalk.dim("← accumulated experience (Aristotle)")}`,
+      `  ${chalk.cyan(STACK_FILES.body)}         ${chalk.dim("← morphology, sensors, safety envelope")}`,
+      `  ${chalk.cyan(STACK_FILES.conscience)}  ${chalk.dim("← deny/allow/escalate rules (Freud)")}`,
+      `  ${chalk.cyan(STACK_FILES.ego)}      ${chalk.dim("← runtime mediation, conflict resolution (Freud)")}`,
       "",
       `${chalk.dim("Directory:")} ${outputDir}`,
       "",

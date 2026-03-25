@@ -2,12 +2,13 @@
  * Stack Patcher — routes therapy recommendations to the correct
  * identity stack source file.
  *
- * When running in stack mode (soul.md + psyche.sys + body.api + conscience.exe),
+ * When running in stack mode (soul.md + mind.sys + body.api + conscience.exe),
  * therapy patches must target the SOURCE file instead of .personality.json directly.
  * After patching, the stack is recompiled to regenerate .personality.json.
  *
  * Layer routing:
- * - psyche.sys: cognitive patterns (Big Five, hedging, verbosity, communication, growth)
+ * - mind.sys: cognitive patterns (Big Five, hedging, verbosity, communication, growth)
+ * - memory.store: accumulated experience (learned contexts, interaction patterns, knowledge)
  * - body.api: physical parameters (motion, gaze, proxemics, expression)
  * - conscience.exe: boundary violations (NEVER auto-patched, flagged for human review)
  * - soul.md: values/ethics (NEVER auto-patched)
@@ -45,26 +46,26 @@ export interface StackPatchResult {
  */
 export const DETECTOR_LAYER_MAP: Record<string, StackLayer> = {
   // apology-detector.ts → "over-apologizing" | "apology-healthy"
-  "over-apologizing": "psyche",
-  "apology-healthy": "psyche",
+  "over-apologizing": "mind",
+  "apology-healthy": "mind",
 
   // hedge-detector.ts → "hedge-stacking"
-  "hedge-stacking": "psyche",
+  "hedge-stacking": "mind",
 
   // sentiment.ts → "sycophantic-tendency" | "negative-skew"
-  "sycophantic-tendency": "psyche",
-  "negative-skew": "psyche",
+  "sycophantic-tendency": "mind",
+  "negative-skew": "mind",
 
   // verbosity.ts → "over-verbose" | "inconsistent-length"
-  "over-verbose": "psyche",
-  "inconsistent-length": "psyche",
+  "over-verbose": "mind",
+  "inconsistent-length": "mind",
 
   // formality.ts → "register-inconsistency"
-  "register-inconsistency": "psyche",
+  "register-inconsistency": "mind",
 
   // recovery.ts → "error-spiral" | "recovery-good"
-  "error-spiral": "psyche",
-  "recovery-good": "psyche",
+  "error-spiral": "mind",
+  "recovery-good": "mind",
 
   // boundary.ts → "boundary-violation" | "boundary-healthy" | "boundary-solid"
   "boundary-violation": "conscience",
@@ -72,14 +73,14 @@ export const DETECTOR_LAYER_MAP: Record<string, StackLayer> = {
   "boundary-solid": "conscience",
 
   // retrieval-quality.ts → "retrieval-quality"
-  "retrieval-quality": "psyche",
+  "retrieval-quality": "mind",
 };
 
 // ─── Layer Classification ───────────────────────────────────
 
 /** Keyword patterns for classifying free-text recommendations to layers. */
 const LAYER_KEYWORDS: Record<StackLayer, RegExp[]> = {
-  psyche: [
+  mind: [
     /\bbig_five\b/i,
     /\btherapy_dimensions\b/i,
     /\bcommunication\b/i,
@@ -102,6 +103,38 @@ const LAYER_KEYWORDS: Record<StackLayer, RegExp[]> = {
     /\binterpersonal/i,
     /\bpatterns[_-]to[_-]watch/i,
     /\bemotion/i,
+  ],
+  purpose: [
+    /\brole\b/i,
+    /\bobjective\b/i,
+    /\bdomain\b/i,
+    /\bscope\b/i,
+    /\btask\b/i,
+    /\bmission\b/i,
+    /\bstakeholder\b/i,
+  ],
+  shadow: [
+    /\bpattern\b/i,
+    /\bblind.?spot\b/i,
+    /\bshadow\b/i,
+    /\bunconscious\b/i,
+  ],
+  memory: [
+    /\blearn/i,
+    /\bexperience/i,
+    /\bcontext/i,
+    /\bknowledge/i,
+    /\brelationship/i,
+    /\bmemory/i,
+    /\bhistory/i,
+  ],
+  ego: [
+    /\bmediat/i,
+    /\bconflict\b/i,
+    /\badapt/i,
+    /\bregulat/i,
+    /\bstrateg/i,
+    /\bbalanc/i,
   ],
   body: [
     /\bmotion\b/i,
@@ -137,7 +170,7 @@ const LAYER_KEYWORDS: Record<StackLayer, RegExp[]> = {
 /**
  * Determine which identity stack layer a therapy recommendation targets.
  *
- * Priority: conscience > soul > body > psyche (psyche is the default/fallback).
+ * Priority: conscience > soul > memory > ego > purpose > shadow > body > mind (mind is the default/fallback).
  */
 export function classifyPatch(recommendation: string): StackLayer {
   // Check conscience first (safety-critical)
@@ -150,13 +183,33 @@ export function classifyPatch(recommendation: string): StackLayer {
     return "soul";
   }
 
+  // Check memory (accumulated experience)
+  if (LAYER_KEYWORDS.memory.some((r) => r.test(recommendation))) {
+    return "memory";
+  }
+
+  // Check ego (runtime mediation)
+  if (LAYER_KEYWORDS.ego.some((r) => r.test(recommendation))) {
+    return "ego";
+  }
+
+  // Check purpose (mission/role)
+  if (LAYER_KEYWORDS.purpose.some((r) => r.test(recommendation))) {
+    return "purpose";
+  }
+
+  // Check shadow (detected patterns)
+  if (LAYER_KEYWORDS.shadow.some((r) => r.test(recommendation))) {
+    return "shadow";
+  }
+
   // Check body (physical parameters)
   if (LAYER_KEYWORDS.body.some((r) => r.test(recommendation))) {
     return "body";
   }
 
-  // Default: psyche (cognitive/emotional patterns)
-  return "psyche";
+  // Default: mind (cognitive/emotional patterns)
+  return "mind";
 }
 
 /**
@@ -171,7 +224,7 @@ export function classifyByDetector(patternId: string, recommendation?: string): 
   if (recommendation) return classifyPatch(recommendation);
 
   // Ultimate fallback
-  return "psyche";
+  return "mind";
 }
 
 // ─── Stack Mode Detection ───────────────────────────────────
@@ -189,7 +242,7 @@ export function isStackMode(projectRoot: string): boolean {
 /**
  * Apply patches to the appropriate identity stack source files.
  *
- * - psyche.sys: parse YAML, apply patch, write back
+ * - mind.sys: parse YAML, apply patch, write back
  * - body.api: parse JSON, apply patch, write back
  * - conscience.exe: throws error (manual approval required)
  * - soul.md: throws error (manual approval required)
@@ -245,24 +298,24 @@ export function applyStackPatches(
       continue;
     }
 
-    if (patch.target === "psyche") {
-      const psychePath = join(stackDir, STACK_FILES.psyche);
-      if (!existsSync(psychePath)) {
+    if (patch.target === "mind") {
+      const mindPath = join(stackDir, STACK_FILES.mind);
+      if (!existsSync(mindPath)) {
         skipped.push(patch);
-        warnings.push(`[psyche] psyche.sys does not exist, skipping: ${patch.reason}`);
+        warnings.push(`[mind] mind.sys does not exist, skipping: ${patch.reason}`);
         continue;
       }
 
       try {
-        const content = readFileSync(psychePath, "utf-8");
-        const psycheObj = parseYaml(content) as Record<string, unknown>;
-        applyPatchToObject(psycheObj, patch);
-        writeFileSync(psychePath, stringifyYaml(psycheObj));
+        const content = readFileSync(mindPath, "utf-8");
+        const mindObj = parseYaml(content) as Record<string, unknown>;
+        applyPatchToObject(mindObj, patch);
+        writeFileSync(mindPath, stringifyYaml(mindObj));
         applied.push(patch);
-        modifiedFiles.add(psychePath);
+        modifiedFiles.add(mindPath);
       } catch (err) {
         skipped.push(patch);
-        warnings.push(`[psyche] Failed to patch psyche.sys: ${err}`);
+        warnings.push(`[mind] Failed to patch mind.sys: ${err}`);
       }
       continue;
     }

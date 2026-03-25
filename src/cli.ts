@@ -82,14 +82,15 @@ program
 
 program
   .command("init-stack")
-  .description("Create the 4-file identity stack (soul.md, psyche.sys, body.api, conscience.exe)")
+  .description("Create the 8-file identity stack (default: 3 core files; --full: all 8 files)")
+  .option("--full", "Generate all 8 files (soul + mind + purpose + shadow + memory + body + conscience + ego)")
   .option("--from <path>", "Decompose an existing .personality.json into stack files")
   .option("--dir <path>", "Output directory (default: current directory)")
   .action(initStackCommand);
 
 program
   .command("compile-stack")
-  .description("Compile identity stack (soul + psyche + body + conscience) into .personality.json")
+  .description("Compile identity stack (soul + mind + purpose + shadow + memory + body + conscience + ego) into .personality.json")
   .option("--dir <path>", "Stack directory (default: auto-detect)")
   .option("-o, --output <path>", "Output path (default: .personality.json)")
   .option("--validate-only", "Parse and validate without writing")
@@ -178,7 +179,7 @@ program
   .description("Start an embodiment runtime — push personality to robots/avatars in real-time")
   .option("--personality <path>", "Path to .personality.json")
   .requiredOption("--adapter <adapter>", "Runtime adapter (ros2, unity, webhook, isaac)")
-  .option("--stack <dir>", "Path to identity stack directory (soul.md + psyche.sys + body.api + conscience.exe)")
+  .option("--stack <dir>", "Path to identity stack directory (soul.md + mind.sys + purpose.cfg + shadow.log + memory.store + body.api + conscience.exe + ego.runtime)")
   .option("--swap-body <path>", "Hot-swap body.api into the stack directory before starting (requires --stack)")
   .option("--endpoint <url>", "WebSocket URL for ROS2 rosbridge (default: ws://localhost:9090)")
   .option("--port <port>", "Port for Unity HTTP server (default: 8765)")

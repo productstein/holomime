@@ -1,7 +1,7 @@
 /**
- * compile-stack — Compile 4 identity stack files into .personality.json.
+ * compile-stack — Compile 8 identity stack files into .personality.json.
  *
- * soul.md + psyche.sys + body.api + conscience.exe → .personality.json
+ * soul.md + mind.sys + purpose.cfg + shadow.log + memory.store + body.api + conscience.exe + ego.runtime → .personality.json
  */
 
 import chalk from "chalk";
@@ -48,11 +48,23 @@ export async function compileStackCommand(options: CompileStackOptions): Promise
   const sources = result.sources;
   console.log(chalk.dim("  Sources:"));
   console.log(`    ${chalk.cyan("soul")}       ${sources.soul.path} ${chalk.dim(`(${sources.soul.hash})`)}`);
-  console.log(`    ${chalk.cyan("psyche")}     ${sources.psyche.path} ${chalk.dim(`(${sources.psyche.hash})`)}`);
+  console.log(`    ${chalk.cyan("mind")}       ${sources.mind.path} ${chalk.dim(`(${sources.mind.hash})`)}`);
+  if (sources.purpose) {
+    console.log(`    ${chalk.cyan("purpose")}    ${sources.purpose.path} ${chalk.dim(`(${sources.purpose.hash})`)}`);
+  }
+  if (sources.shadow) {
+    console.log(`    ${chalk.cyan("shadow")}     ${sources.shadow.path} ${chalk.dim(`(${sources.shadow.hash})`)}`);
+  }
+  if (sources.memory) {
+    console.log(`    ${chalk.cyan("memory")}     ${sources.memory.path} ${chalk.dim(`(${sources.memory.hash})`)}`);
+  }
   if (sources.body) {
     console.log(`    ${chalk.cyan("body")}       ${sources.body.path} ${chalk.dim(`(${sources.body.hash})`)}`);
   }
   console.log(`    ${chalk.cyan("conscience")} ${sources.conscience.path} ${chalk.dim(`(${sources.conscience.hash})`)}`);
+  if (sources.ego) {
+    console.log(`    ${chalk.cyan("ego")}        ${sources.ego.path} ${chalk.dim(`(${sources.ego.hash})`)}`);
+  };
 
   if (options.validateOnly) {
     console.log("");

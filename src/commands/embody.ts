@@ -202,7 +202,7 @@ async function embodyStackMode(
   // Validate stack directory
   if (!isStackDirectory(stackDir)) {
     console.error(chalk.red(`  ${figures.cross} Not a valid stack directory: ${stackDir}`));
-    console.error(chalk.dim(`    Requires at least ${STACK_FILES.soul} and ${STACK_FILES.psyche}`));
+    console.error(chalk.dim(`    Requires at least ${STACK_FILES.soul} and ${STACK_FILES.mind}`));
     process.exit(1);
   }
 

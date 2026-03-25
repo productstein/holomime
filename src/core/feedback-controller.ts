@@ -2,7 +2,7 @@
  * Behavioral Feedback Controller — formalizes the therapy loop
  * as a PID-like feedback control system.
  *
- * Set point:  target personality (soul.md + psyche.sys)
+ * Set point:  target personality (soul.md + mind.sys)
  * Plant:      the AI agent/robot
  * Sensor:     drift detectors (11 behavioral + 3 embodied)
  * Error:      delta between spec and actual behavior

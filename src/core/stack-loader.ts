@@ -1,7 +1,8 @@
 /**
  * Stack-Aware Loader — auto-detects identity stack vs legacy personality.json.
  *
- * If a stack directory exists (soul.md + psyche.sys), compiles the stack.
+ * If a stack directory exists (soul.md + mind.sys + purpose.cfg + shadow.log +
+ * memory.store + body.api + conscience.exe + ego.runtime), compiles the 8-file stack.
  * Otherwise, falls back to loading .personality.json directly (legacy mode).
  *
  * This wraps the existing loadSpec() from inheritance.ts, maintaining
