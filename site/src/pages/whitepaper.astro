@@ -478,9 +478,30 @@ const overrides = adapter.mapPersonalityToPolicy(spec);
 // &rbrace;</code></pre>
           </div>
 
+          <!-- NVIDIA Kimodo -->
+          <div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.5 NVIDIA Kimodo &mdash; Personality to Motion</h3>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+              NVIDIA Kimodo translates personality traits into motion style parameters &mdash; approach gentleness from agreeableness, movement precision from conscientiousness, gesture amplitude from extraversion &mdash; enabling personality-consistent physical movement for humanoid platforms including Unitree G1. Released March 2026, Kimodo is a kinematic motion diffusion model that generates humanoid robot motions from text descriptions, with support for G1 (Unitree), SOMA, and SMPL-X body models.
+            </p>
+            <pre class="rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code>import &lbrace; KimodoAdapter &rbrace; from 'holomime';
+
+const kimodo = new KimodoAdapter();
+const motion = kimodo.buildMotionRequest(
+  "Walk to the patient",
+  spec.big_five,
+  &lbrace; model: "G1" &rbrace;
+);
+// motion: &lbrace;
+//   prompt: "Walk to the patient gently with precise steps",
+//   style: &lbrace; gentleness: 0.8, precision: 0.9, amplitude: 0.4 &rbrace;,
+//   bodyModel: "G1"
+// &rbrace;</code></pre>
+          </div>
+
           <!-- ISO Compliance -->
           <div>
-            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.5 ISO Compliance &mdash; Automated Clause Checking</h3>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.6 ISO Compliance &mdash; Automated Clause Checking</h3>
             <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
               Automated verification against four ISO standards with clause-level reporting. Maps conscience.exe rules to specific standard requirements and generates compliance coverage reports.
             </p>
@@ -499,7 +520,7 @@ const overrides = adapter.mapPersonalityToPolicy(spec);
 
           <!-- Feedback Controller -->
           <div>
-            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.6 Feedback Controller &mdash; PID Gains and Anti-Windup</h3>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.7 Feedback Controller &mdash; PID Gains and Anti-Windup</h3>
             <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
               The therapy engine implements a full PID controller with integral anti-windup to prevent overcorrection. Gains are tunable per-detector, and correction priorities ensure that safety-critical drift is addressed before personality drift.
             </p>
@@ -520,7 +541,7 @@ correction_priorities:
 
           <!-- Body Templates -->
           <div>
-            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.7 OEM Body Templates</h3>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.8 OEM Body Templates</h3>
             <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
               Seven pre-built body.api templates for commercially available humanoid platforms. Each template encodes morphology, sensor arrays, actuator limits, and safety envelopes specific to the hardware.
             </p>

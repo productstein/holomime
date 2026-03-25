@@ -93,7 +93,8 @@ const codeBlocks = {
   "codeBlock14": "holomime init --swap-body figure-02",
   "codeBlock15": "holomime voice --provider livekit --room my-room",
   "codeBlock16": "import { HolomimeCallbackHandler } from \"holomime/integrations/langchain\";\n\nconst handler = new HolomimeCallbackHandler({\n  personality: \".personality.json\"\n});\n// Add to your LangChain chain as a callback",
-  "codeBlock17": "import {\n  // Personality\n  PersonalitySpec, compile, generateSystemPrompt,\n\n  // Identity Stack\n  compileStack, decomposeSpec,\n\n  // Diagnosis\n  diagnose, assess, DiagnosisResult,\n\n  // Therapy\n  runSession, createTreatmentPlan,\n\n  // Training\n  exportDPO, trainOpenAI,\n\n  // Detectors\n  registerDetector, Signal,\n\n  // Adapters\n  ROS2TelemetryIngester, MuJoCoEnvironment,\n  LeRobotAdapter, IsaacSimAdapter,\n\n  // Log Parsers\n  parseConversationLog,\n  parseOpenAIAPILog, parseAnthropicAPILog,\n  parseChatGPTExport, parseClaudeExport,\n\n  // Compliance\n  checkCompliance, generateComplianceReport,\n} from \"holomime\";",
+  "codeBlockKimodo": "import { KimodoAdapter } from \"holomime\";\n\nconst kimodo = new KimodoAdapter();\nconst motion = kimodo.buildMotionRequest(\n  \"Walk to the patient\",\n  personality.big_five,\n  { model: \"G1\" }\n);\n// { prompt: \"Walk to the patient gently\", style: { gentleness: 0.8, precision: 0.9 } }",
+  "codeBlock17": "import {\n  // Personality\n  PersonalitySpec, compile, generateSystemPrompt,\n\n  // Identity Stack\n  compileStack, decomposeSpec,\n\n  // Diagnosis\n  diagnose, assess, DiagnosisResult,\n\n  // Therapy\n  runSession, createTreatmentPlan,\n\n  // Training\n  exportDPO, trainOpenAI,\n\n  // Detectors\n  registerDetector, Signal,\n\n  // Adapters\n  ROS2TelemetryIngester, MuJoCoEnvironment,\n  LeRobotAdapter, IsaacSimAdapter, KimodoAdapter,\n\n  // Log Parsers\n  parseConversationLog,\n  parseOpenAIAPILog, parseAnthropicAPILog,\n  parseChatGPTExport, parseClaudeExport,\n\n  // Compliance\n  checkCompliance, generateComplianceReport,\n} from \"holomime\";",
   "codeBlock18": "import {\n  AnthropicProvider,\n  OpenAIProvider,\n  OllamaProvider\n} from \"holomime\";\n\nconst provider = new AnthropicProvider({\n  model: \"claude-3-5-sonnet-20241022\"\n});",
   "codeBlock19": "your-project/\n\u251c\u2500\u2500 AGENTS.md              # Code conventions\n\u251c\u2500\u2500 .personality.json      # Behavioral profile\n\u251c\u2500\u2500 .personality.md        # Human-readable summary\n\u251c\u2500\u2500 .holomime/identity/    # Identity stack files (optional)\n\u2502   \u251c\u2500\u2500 soul.md\n\u2502   \u251c\u2500\u2500 mind.sys\n\u2502   \u251c\u2500\u2500 purpose.cfg\n\u2502   \u251c\u2500\u2500 shadow.log\n\u2502   \u251c\u2500\u2500 memory.store\n\u2502   \u251c\u2500\u2500 body.api\n\u2502   \u251c\u2500\u2500 conscience.exe\n\u2502   \u2514\u2500\u2500 ego.runtime\n\u251c\u2500\u2500 src/\n\u2514\u2500\u2500 package.json",
   "codeBlock20": "{\n  \"mcpServers\": {\n    \"holomime\": {\n      \"command\": \"holomime-mcp\",\n      \"args\": []\n    }\n  }\n}",
@@ -536,6 +537,12 @@ holomime compile-stack  # Compiles to .personality.json</code></pre>
                 <h3 class="doc-step">Voice Monitoring</h3>
                 <p class="text-sm text-[#777] mb-3">Real-time behavioral drift detection for voice conversations. Supports LiveKit, Vapi, and Retell.</p>
                 <pre class="doc-code"><code set:text={codeBlocks["codeBlock15"]}></code></pre>
+              </div>
+
+              <div class="doc-card">
+                <h3 class="doc-step">NVIDIA Kimodo — Personality to Motion</h3>
+                <p class="text-sm text-[#777] mb-3">Map Big Five personality traits to humanoid motion style. Released March 2026. Supports G1 (Unitree), SOMA, SMPL-X.</p>
+                <pre class="doc-code"><code set:text={codeBlocks["codeBlockKimodo"]}></code></pre>
               </div>
 
               <div class="doc-card">
