@@ -1,12 +1,12 @@
 ---
 const robots = [
   {
-    name: "Figure 02",
+    name: "Figure 03",
     oem: "Figure AI",
     morphology: "humanoid",
     dof: "44 DOF",
     sensors: ["lidar", "stereo_camera", "force_torque"],
-    slug: "figure-02",
+    slug: "figure-03",
   },
   {
     name: "Unitree H1",
@@ -15,6 +15,14 @@ const robots = [
     dof: "23 DOF",
     sensors: ["lidar", "depth_camera", "imu"],
     slug: "unitree-h1",
+  },
+  {
+    name: "Unitree G1",
+    oem: "Unitree",
+    morphology: "humanoid",
+    dof: "23 DOF",
+    sensors: ["depth_camera", "imu", "force_torque"],
+    slug: "unitree-g1",
   },
   {
     name: "Phoenix",
@@ -80,7 +88,7 @@ const morphologyColors: Record<string, string> = {
       Pre-built identity profiles for the world's leading humanoid platforms.
     </p>
 
-    <!-- Robot grid: top row 4, bottom row 3 centered -->
+    <!-- Robot grid: top row 4, bottom row 4 -->
     {(() => {
       const topRow = robots.slice(0, 4);
       const bottomRow = robots.slice(4);

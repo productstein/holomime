@@ -181,13 +181,14 @@ holomime certify --standard iso-13482 --output report.json</code></pre>
             </div>
           </div>
           <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
-            Seven pre-built body.api templates for commercially available humanoid platforms. Swap the body without changing the soul, mind, or conscience. The same behavioral intelligence inhabits a different form factor in one command. Body templates are available on <a href="/pricing" class="text-[var(--color-p-sunset)] hover:underline underline-offset-2 font-medium">Pro and Enterprise plans</a>.
+            Eight pre-built body.api templates for commercially available humanoid platforms. Swap the body without changing the soul, mind, or conscience. The same behavioral intelligence inhabits a different form factor in one command. Body templates are available on <a href="/pricing" class="text-[var(--color-p-sunset)] hover:underline underline-offset-2 font-medium">Pro and Enterprise plans</a>.
           </p>
           <pre class="rounded-lg bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto mb-4"><code><span class="text-[#94a3b8]"># Swap body without changing identity</span>
-holomime embody --stack ./identity --swap-body bodies/figure-02.body.api --adapter ros2</code></pre>
+holomime embody --stack ./identity --swap-body bodies/figure-03.body.api --adapter ros2</code></pre>
           <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Figure 02</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Figure 03</div>
             <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Unitree H1</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Unitree G1</div>
             <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Phoenix</div>
             <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Ameca</div>
             <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Asimov V1</div>
@@ -223,6 +224,29 @@ const request = buildMotionRequest(
 <span class="text-[#94a3b8]">// request.constraints = [speed, proximity, gesture]</span></code></pre>
           <div class="rounded-md bg-[var(--color-p-sage-soft)] border border-[var(--color-p-sage)]/20 px-4 py-3">
             <p class="text-sm text-[var(--color-warm-text)]"><strong>Requirements:</strong> NVIDIA Kimodo API access</p>
+          </div>
+        </section>
+
+        <!-- VLA Models -->
+        <section class="mb-20">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-p-violet-soft)] border border-[var(--color-p-violet)]/20">
+              <svg class="w-6 h-6 text-[var(--color-p-violet)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/></svg>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">VLA Models</h2>
+              <p class="text-sm text-[var(--color-warm-muted)]">Conscience gate for end-to-end systems</p>
+            </div>
+          </div>
+          <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
+            For end-to-end Vision-Language-Action models like Figure's Helix or NVIDIA's GR00T, holomime's conscience.exe acts as a behavioral gate between the VLA's planned action and motor execution. shadow.log monitors drift over thousands of hours. The identity stack doesn't replace the VLA &mdash; it wraps it with behavioral safety.
+          </p>
+          <pre class="rounded-lg bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto mb-4"><code>VLA output (planned action)
+  &rarr; conscience.exe gate (deny/allow/escalate)
+  &rarr; ego.runtime mediation (purpose vs safety)
+  &rarr; motor execution</code></pre>
+          <div class="rounded-md bg-[var(--color-p-violet-soft)] border border-[var(--color-p-violet)]/20 px-4 py-3">
+            <p class="text-sm text-[var(--color-warm-text)]"><strong>Compatible with:</strong> Figure Helix, NVIDIA GR00T, Google RT-2, and any VLA that exposes an action output layer.</p>
           </div>
         </section>
 

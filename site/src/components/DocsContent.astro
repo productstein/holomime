@@ -90,7 +90,7 @@ const codeBlocks = {
   "codeBlock11": "import { MuJoCoEnvironment } from \"holomime\";\n\nconst env = new MuJoCoEnvironment();\nawait env.start();\nconst obs = await env.reset();\nconst result = await env.step([0.1, 0.2, ...]);",
   "codeBlock12": "holomime sim --adapter isaac --scene warehouse",
   "codeBlock13": "import { LeRobotAdapter } from \"holomime\";\n\nconst adapter = new LeRobotAdapter();\nconst policy = adapter.mapPersonalityToPolicy(spec);\n// { gripForceScale: 0.7, movementPrecision: 0.85, ... }\nawait adapter.pushToHub(\"my-org/my-robot-policy\");",
-  "codeBlock14": "holomime init --swap-body figure-02",
+  "codeBlock14": "holomime init --swap-body figure-03",
   "codeBlock15": "holomime voice --provider livekit --room my-room",
   "codeBlock16": "import { HolomimeCallbackHandler } from \"holomime/integrations/langchain\";\n\nconst handler = new HolomimeCallbackHandler({\n  personality: \".personality.json\"\n});\n// Add to your LangChain chain as a callback",
   "codeBlockKimodo": "import { KimodoAdapter } from \"holomime\";\n\nconst kimodo = new KimodoAdapter();\nconst motion = kimodo.buildMotionRequest(\n  \"Walk to the patient\",\n  personality.big_five,\n  { model: \"G1\" }\n);\n// { prompt: \"Walk to the patient gently\", style: { gentleness: 0.8, precision: 0.9 } }",
@@ -523,10 +523,10 @@ holomime compile-stack  # Compiles to .personality.json</code></pre>
               </div>
 
               <div class="doc-card">
-                <h3 class="doc-step">Body Templates — 7 OEM Platforms</h3>
+                <h3 class="doc-step">Body Templates — 8 OEM Platforms</h3>
                 <p class="text-sm text-[#777] mb-3">Pre-built body profiles for major humanoid platforms. Swap bodies without changing identity.</p>
                 <div class="flex flex-wrap gap-2 mt-3">
-                  {["Figure 02", "Unitree H1", "Phoenix", "Ameca", "Asimov V1", "Spot", "Avatar"].map((b) => (
+                  {["Figure 03", "Unitree H1", "Unitree G1", "Phoenix", "Ameca", "Asimov V1", "Spot", "Avatar"].map((b) => (
                     <span class="px-2.5 py-1 rounded-md text-[11px] font-mono bg-[#fafafa] border border-[#e5e5e5] text-[#777]">{b}</span>
                   ))}
                 </div>
@@ -543,6 +543,15 @@ holomime compile-stack  # Compiles to .personality.json</code></pre>
                 <h3 class="doc-step">NVIDIA Kimodo — Personality to Motion</h3>
                 <p class="text-sm text-[#777] mb-3">Map Big Five personality traits to humanoid motion style. Released March 2026. Supports G1 (Unitree), SOMA, SMPL-X.</p>
                 <pre class="doc-code"><code set:text={codeBlocks["codeBlockKimodo"]}></code></pre>
+              </div>
+
+              <div class="doc-card">
+                <h3 class="doc-step">VLA models — conscience gate for end-to-end systems</h3>
+                <p class="text-sm text-[#777] mb-3">For end-to-end Vision-Language-Action models like Figure's Helix or NVIDIA's GR00T, holomime's conscience.exe acts as a behavioral gate between the VLA's planned action and motor execution. shadow.log monitors drift over thousands of hours.</p>
+                <pre class="doc-code"><code>VLA output (planned action)
+  → conscience.exe gate (deny/allow/escalate)
+  → ego.runtime mediation (purpose vs safety)
+  → motor execution</code></pre>
               </div>
 
               <div class="doc-card">
@@ -584,7 +593,7 @@ holomime compile-stack  # Compiles to .personality.json</code></pre>
 
             <div class="space-y-4">
               {[
-                { step: "1. Assign body", cmd: "holomime init --swap-body figure-02", desc: "Choose from 7 pre-built OEM profiles." },
+                { step: "1. Assign body", cmd: "holomime init --swap-body figure-03", desc: "Choose from 8 pre-built OEM profiles." },
                 { step: "2. Simulate", cmd: "holomime sim --env mujoco --scenario distress-response", desc: "Test in physics sim before hardware." },
                 { step: "3. Certify", cmd: "holomime certify", desc: "Check ISO compliance." },
                 { step: "4. Deploy", cmd: "holomime deploy --adapter ros2 --host ws://robot:9090", desc: "Push to hardware via ROS2." },

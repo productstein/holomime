@@ -85,7 +85,7 @@ holomime diagnose --log agent.jsonl
 holomime benchmark --personality .personality.json
 
 # Push identity to a robot or avatar
-holomime embody --body registry/bodies/figure-02.body.api
+holomime embody --body registry/bodies/figure-03.body.api
 ```
 
 ## Robotics Integrations
@@ -130,8 +130,9 @@ Pre-built body profiles for commercial robots and virtual avatars. Each defines 
 
 | Template | OEM | DOF | Morphology | File |
 |----------|-----|----:|------------|------|
-| Figure 02 | Figure AI | 44 | `humanoid` | `registry/bodies/figure-02.body.api` |
+| Figure 03 | Figure AI | 44 | `humanoid` | `registry/bodies/figure-03.body.api` |
 | Unitree H1 | Unitree | 23 | `humanoid` | `registry/bodies/unitree-h1.body.api` |
+| Unitree G1 | Unitree | 23 | `humanoid` | `registry/bodies/unitree-g1.body.api` |
 | Phoenix | Sanctuary AI | 69 | `humanoid` | `registry/bodies/phoenix.body.api` |
 | Ameca | Engineered Arts | 52 | `humanoid_upper` | `registry/bodies/ameca.body.api` |
 | Asimov V1 | asimov-inc | 25 | `humanoid` | `registry/bodies/asimov-v1.body.api` |
@@ -143,7 +144,7 @@ Pre-built body profiles for commercial robots and virtual avatars. Each defines 
 Same soul. Different body. One command.
 
 ```bash
-# Move your agent from Figure 02 to Spot
+# Move your agent from Figure 03 to Spot
 holomime embody --swap-body registry/bodies/spot.body.api
 
 # The soul, mind, and conscience stay the same.

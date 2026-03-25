@@ -6,7 +6,7 @@
  * Isaac Sim's physics engine (PhysX) for more accurate sim-to-real.
  *
  * Key differences from MuJoCo:
- *   - Supports USD scenes and pre-built digital twins (Figure 02, Unitree, etc)
+ *   - Supports USD scenes and pre-built digital twins (Figure 03, Unitree, etc)
  *   - GR00T model compatibility for humanoid behavior
  *   - Hardware-in-the-loop testing via Omniverse streaming
  *   - Multi-GPU parallel simulation for large-scale behavioral eval
