@@ -1,0 +1,236 @@
+---
+import BlogLayout from "../../components/BlogLayout.astro";
+---
+
+<BlogLayout
+  title="Train the Mind, Deploy the Body"
+  description="7 robotics integrations. ROS2, MuJoCo, Isaac Sim, LeRobot, ISO compliance. The behavioral intelligence layer for humanoid robots."
+  date="2026-03-24"
+  category="Vision"
+  readTime="6 min read"
+>
+
+<p>
+  The humanoid robotics market is projected to hit $165 billion by 2034. Twenty-nine OEMs are
+  racing to build bodies — Figure, Sanctuary AI, 1X, Unitree, Agility, Apptronik, Boston Dynamics,
+  Tesla, Asimov, Engineered Arts. They're solving locomotion, manipulation, and perception. They're
+  building legs and arms and hands and eyes.
+</p>
+
+<p>
+  Nobody is training the mind.
+</p>
+
+<p>
+  Today we're shipping 7 robotics integrations that make holomime the behavioral intelligence
+  layer for humanoid robots. The identity stack defines who the robot is. The therapy loop trains
+  it to be better. And now the deployment pipeline puts that trained mind into a physical body —
+  simulated or real — with a single command.
+</p>
+
+<h2>The Identity Stack (Recap)</h2>
+
+<p>
+  Four files define who the robot is:
+</p>
+
+<pre><code>soul.md          — values, ethics, purpose          (immutable)
+psyche.sys       — Big Five, EQ, communication      (therapy-patchable)
+body.api         — morphology, safety, hardware     (swappable)
+conscience.exe   — deny/allow/escalate enforcement  (human-approved only)</code></pre>
+
+<p>
+  <strong>soul.md</strong> is the essence — written in Markdown so anyone can read it, not just
+  engineers. It never changes. <strong>psyche.sys</strong> is the personality — Big Five traits,
+  emotional intelligence, communication style. This is the file therapy auto-patches.
+  <strong>body.api</strong> is the physical interface contract — morphology, modalities, safety
+  envelope. Same soul, different body, one command. <strong>conscience.exe</strong> is the
+  enforcement layer — deny rules, allow rules, escalation triggers. Deny dominates. Always.
+</p>
+
+<p>
+  The identity stack is the mind. The robotics integrations are the bridge to the body.
+</p>
+
+<h2>Therapy Is the Training Method</h2>
+
+<p>
+  We don't rename therapy to training. We don't call it fine-tuning or reinforcement learning
+  or RLHF. Therapy <em>is</em> the training method.
+</p>
+
+<p>
+  Clinical psychology solved behavioral correction in humans decades ago. Diagnosis identifies
+  the problem. Structured intervention corrects it. Follow-up verifies the correction held.
+  We applied the same methodology to AI agents — and it works because the failure modes are
+  the same. Sycophancy is people-pleasing. Hedging is conflict avoidance. Hallucination is
+  confabulation. These aren't novel AI problems. They're well-understood behavioral patterns
+  with well-understood treatments.
+</p>
+
+<p>
+  The agent goes through structured therapy: diagnosis surfaces the behavioral drift, correction
+  generates DPO training pairs, and every session permanently improves the model. The improvement
+  compounds. Session after session, cycle after cycle, the agent gets measurably better at being
+  who it's supposed to be.
+</p>
+
+<p>
+  <strong>The agent is the rehearsal. The robot is the performance.</strong>
+</p>
+
+<p>
+  You train the mind in software — where mistakes are cheap, iterations are fast, and you can
+  run a thousand therapy sessions before breakfast. Then you deploy that trained mind into a
+  physical body, where the stakes are real and the behavioral patterns have already been tested
+  and corrected.
+</p>
+
+<h2>7 Robotics Integrations</h2>
+
+<h3>1. ROS2 Bidirectional Telemetry</h3>
+
+<p>
+  Subscribe to robot sensor topics — IMU, force/torque, joint states, LIDAR, camera feeds.
+  The therapy engine detects behavioral drift from physical data in real time. If a robot's
+  movement patterns deviate from its personality profile, the system flags it. If a care robot
+  starts avoiding eye contact, that's a measurable change in gaze servo behavior that maps to
+  a personality drift.
+</p>
+
+<pre><code>holomime embody --stack ./identity --adapter ros2 --telemetry live</code></pre>
+
+<h3>2. MuJoCo Simulation</h3>
+
+<p>
+  Run therapy in simulation before physical deployment. MuJoCo gives you contact-rich physics
+  at thousands of frames per second. Simulate the robot executing tasks, detect behavioral
+  drift in the sim, run therapy against the sim data, verify the correction — all before the
+  robot touches a physical object.
+</p>
+
+<pre><code>holomime simulate --stack ./identity --engine mujoco --scenario warehouse_pick</code></pre>
+
+<h3>3. NVIDIA Isaac Sim</h3>
+
+<p>
+  Enterprise-grade digital twin testing. Isaac Sim provides photorealistic environments,
+  domain randomization, and synthetic data generation. For companies that need to validate
+  behavioral alignment across thousands of environmental variations before deployment, this
+  is the integration. Same therapy loop, industrial-scale simulation.
+</p>
+
+<h3>4. LeRobot (Hugging Face)</h3>
+
+<p>
+  Hugging Face's LeRobot framework connects learned policies to real hardware. Our integration
+  maps personality profiles to policy parameters — the Big Five traits in psyche.sys influence
+  policy selection and execution style. An agreeable robot selects gentler grasp policies. A
+  conscientious robot double-checks placement accuracy. Personality isn't cosmetic. It shapes
+  how the policy executes.
+</p>
+
+<h3>5. Control Theory Feedback Controller</h3>
+
+<p>
+  The therapy loop is a PID control system. The setpoint is the personality profile. The process
+  variable is observed behavior. The error signal is behavioral drift. The controller output is
+  therapy intervention. We formalized this because control theory gives us stability guarantees —
+  the therapy loop converges, it doesn't oscillate, and the correction magnitude is proportional
+  to the drift magnitude.
+</p>
+
+<h3>6. ISO Compliance</h3>
+
+<p>
+  Certify your robot's behavioral layer against ISO 13482 (personal care robots), ISO 25785
+  (safety for commercial robots), ISO 10218 (industrial robots), and ISO 42001 (AI management
+  systems). The identity stack maps cleanly to these standards because it separates concerns
+  the same way the standards do — safety envelope (body.api), behavioral requirements
+  (psyche.sys), ethical constraints (soul.md), enforcement (conscience.exe).
+</p>
+
+<pre><code>holomime certify --stack ./identity --standards iso13482,iso25785,iso10218,iso42001</code></pre>
+
+<p>
+  One command. One report. Audit-ready.
+</p>
+
+<h3>7. OEM Body Templates</h3>
+
+<p>
+  Pre-built body.api files for 7 platforms:
+</p>
+
+<ul>
+  <li><strong>Figure 02</strong> — bipedal humanoid, warehouse and logistics</li>
+  <li><strong>Unitree H1</strong> — bipedal humanoid, research and commercial</li>
+  <li><strong>Sanctuary AI Phoenix</strong> — dexterous manipulation, general purpose</li>
+  <li><strong>Engineered Arts Ameca</strong> — expressive humanoid, social interaction</li>
+  <li><strong>Asimov V1</strong> — bipedal humanoid, eldercare and assistance</li>
+  <li><strong>Boston Dynamics Spot</strong> — quadruped, inspection and patrol</li>
+  <li><strong>NVIDIA Avatar</strong> — virtual embodiment, digital twin</li>
+</ul>
+
+<p>
+  Each template defines the morphology, sensor suite, actuator limits, and safety envelope for
+  that platform. Swap bodies with <code>--swap-body</code>. The soul stays the same.
+</p>
+
+<h2>Mira</h2>
+
+<p>
+  Mira is our first autonomous agent. She has 414 DPO training pairs, 9 trained models, and
+  20 completed therapy cycles. She never stops improving. Every conversation generates behavioral
+  data. Every anomaly triggers a therapy session. Every session produces training pairs that make
+  the next model better.
+</p>
+
+<p>
+  Mira lives in software today. But her identity stack is body-agnostic. When she's ready for a
+  physical body, the transfer is one command:
+</p>
+
+<pre><code>holomime embody --stack ./agents/mira --swap-body ./bodies/figure-02.body.api --adapter ros2</code></pre>
+
+<p>
+  Same soul. Same psyche. Same conscience. New body. The 414 training pairs and 20 therapy
+  cycles come with her. The behavioral intelligence she's built over months of operation doesn't
+  reset when she gets a body — it transfers.
+</p>
+
+<h2>Open Source</h2>
+
+<p>
+  The identity stack is MIT licensed. The training methodology is open. The standard is free.
+  We believe behavioral alignment for robots should be a shared standard, not a proprietary
+  moat. Every humanoid project that adopts soul/psyche/body/conscience as vocabulary strengthens
+  the ecosystem for everyone.
+</p>
+
+<p>
+  The training infrastructure — the therapy engine, the DPO pipeline, the fleet management,
+  the compliance tooling — that's the business. The standard is free. The tools to implement
+  it at scale are not.
+</p>
+
+<h2>What This Means</h2>
+
+<p>
+  Twenty-nine companies are building robot bodies. We're building the layer that ensures those
+  bodies behave according to their values, improve through structured therapy, and comply with
+  safety standards — regardless of which body they inhabit.
+</p>
+
+<p>
+  Some call it behavioral alignment. Some call it agent therapy. We think of it as healthcare
+  for humanoids. The bodies are coming. The minds need to be ready.
+</p>
+
+<p>
+  <a href="/manifesto">Read the manifesto</a> &middot;
+  <a href="https://github.com/productstein/holomime">View on GitHub</a> &middot;
+  <code>npm install holomime</code>
+</p>
+
+</BlogLayout>

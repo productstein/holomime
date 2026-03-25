@@ -5,8 +5,8 @@
 <h1 align="center">holomime</h1>
 
 <p align="center">
-  Behavioral alignment for AI agents. From diagnosis to cure.<br />
-  <em>Diagnose behavioral drift. Run structured therapy. Export training data. The fix is permanent.</em><br />
+  Behavioral intelligence for humanoid robots. Train the mind. Deploy the body.<br />
+  <em>We train AI agents through structured behavioral therapy, then deploy them into physical robot bodies. The agent is the rehearsal. The robot is the performance.</em><br />
   <code>soul.md</code> &middot; <code>psyche.sys</code> &middot; <code>body.api</code> &middot; <code>conscience.exe</code>
 </p>
 
@@ -69,6 +69,67 @@ holomime benchmark --personality .personality.json
 holomime embody --body registry/bodies/figure-02.body.api
 ```
 
+## Robotics Integrations
+
+| Platform | Integration | Command / Module |
+|----------|------------|------------------|
+| ROS2 | Bidirectional telemetry -- publish personality, subscribe to sensors | `--adapter ros2` + `ros2-telemetry.ts` |
+| MuJoCo | Behavioral therapy in simulation -- sim-to-real for behavior | `mujoco-env.ts` + `sim-therapy.ts` |
+| NVIDIA Isaac Sim | Enterprise digital twin testing with PhysX physics | `--adapter isaac` + `isaac-env.ts` |
+| LeRobot (HuggingFace) | Personality to policy parameter mapping, DPO dataset export | `lerobot.ts` |
+| Unity | Real-time personality push via HTTP/SSE | `--adapter unity` |
+| gRPC | Custom robotics stacks | `--adapter grpc` |
+| MQTT | IoT/edge robots | `--adapter mqtt` |
+
+## ISO Compliance
+
+Check your agent against international safety standards with one command:
+
+```bash
+holomime certify
+```
+
+Standards supported:
+- **ISO/FDIS 13482** -- Service robot safety
+- **ISO 25785-1** -- Humanoid robot safety (behavioral predictability)
+- **ISO 10218:2025** -- Industrial robot safety
+- **ISO/IEC 42001** -- AI management systems
+
+## Control Theory
+
+The therapy loop is formally a behavioral feedback controller:
+
+- **Set point**: target personality (`soul.md` + `psyche.sys`)
+- **Sensor**: 14 drift detectors (11 cognitive + 3 embodied)
+- **Controller**: therapy engine with tunable PID-like gains
+- **Actuator**: DPO fine-tuning
+
+## Body Templates
+
+Pre-built body profiles for commercial robots and virtual avatars. Each defines morphology, modalities, safety envelope, and hardware profile.
+
+| Template | OEM | DOF | Morphology | File |
+|----------|-----|----:|------------|------|
+| Figure 02 | Figure AI | 44 | `humanoid` | `registry/bodies/figure-02.body.api` |
+| Unitree H1 | Unitree | 23 | `humanoid` | `registry/bodies/unitree-h1.body.api` |
+| Phoenix | Sanctuary AI | 69 | `humanoid` | `registry/bodies/phoenix.body.api` |
+| Ameca | Engineered Arts | 52 | `humanoid_upper` | `registry/bodies/ameca.body.api` |
+| Asimov V1 | asimov-inc | 25 | `humanoid` | `registry/bodies/asimov-v1.body.api` |
+| Spot | Boston Dynamics | 12 | `quadruped` | `registry/bodies/spot.body.api` |
+| Avatar | virtual | 0 | `avatar` | `registry/bodies/avatar.body.api` |
+
+## Body Swap
+
+Same soul. Different body. One command.
+
+```bash
+# Move your agent from Figure 02 to Spot
+holomime embody --swap-body registry/bodies/spot.body.api
+
+# The soul, psyche, and conscience stay the same.
+# Only the body layer changes — safety envelope, modalities, hardware profile.
+```
+
 ## Self-Improvement Loop
 
 Every therapy session produces structured training data. The loop compounds.
@@ -108,48 +169,6 @@ Run it manually with `holomime session`, automatically with `holomime autopilot`
 11. **Error spirals** -- Compounding mistakes without recovery
 
 Plus support for custom detectors -- drop `.json` or `.md` files in `.holomime/detectors/` and they load automatically.
-
-## Embodiment (Enterprise)
-
-When you're ready for physical AI, the same identity stack powers humanoid robots.
-
-### Body Templates
-
-Pre-built body profiles for commercial robots and virtual avatars. Each defines morphology, modalities, safety envelope, and hardware profile.
-
-| Template | OEM | DOF | Morphology | File |
-|----------|-----|----:|------------|------|
-| Figure 02 | Figure AI | 44 | `humanoid` | `registry/bodies/figure-02.body.api` |
-| Unitree H1 | Unitree | 23 | `humanoid` | `registry/bodies/unitree-h1.body.api` |
-| Phoenix | Sanctuary AI | 69 | `humanoid` | `registry/bodies/phoenix.body.api` |
-| Ameca | Engineered Arts | 52 | `humanoid_upper` | `registry/bodies/ameca.body.api` |
-| Asimov V1 | asimov-inc | 25 | `humanoid` | `registry/bodies/asimov-v1.body.api` |
-| Spot | Boston Dynamics | 12 | `quadruped` | `registry/bodies/spot.body.api` |
-| Avatar | virtual | 0 | `avatar` | `registry/bodies/avatar.body.api` |
-
-### Body Swap
-
-Same soul. Different body. One command.
-
-```bash
-# Move your agent from Figure 02 to Spot
-holomime embody --swap-body registry/bodies/spot.body.api
-
-# The soul, psyche, and conscience stay the same.
-# Only the body layer changes — safety envelope, modalities, hardware profile.
-```
-
-## Adapters
-
-Push compiled identity to any runtime target.
-
-| Adapter | Transport | Use Case |
-|---------|-----------|----------|
-| ROS2 | `/holomime/motion_params` topic | Humanoid robots, quadrupeds |
-| Unity | C# `HolomimeAgent` component | Virtual avatars, game NPCs |
-| Webhook | HTTP POST | Cloud services, custom backends |
-| gRPC | Protobuf stream | Low-latency robotics, edge compute |
-| MQTT | `holomime/+/motion` topic | IoT devices, swarm units |
 
 ## Integrations
 
@@ -214,6 +233,6 @@ We don't know if AI is sentient. But we can give it a conscience.
 
 ## Open Source
 
-MIT licensed. See [LICENSE](LICENSE).
+MIT licensed. The identity stack is a standard, not a product. The standard is free. The training infrastructure is the business.
 
-Built by [Productstein](https://productstein.com). Documentation at [holomime.dev](https://holomime.dev).
+See [LICENSE](LICENSE). Built by [Productstein](https://productstein.com). Documentation at [holomime.dev](https://holomime.dev).

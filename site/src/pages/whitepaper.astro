@@ -1,0 +1,585 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout
+  title="Whitepaper: Behavioral Intelligence for Humanoid Robots — holomime"
+  description="A technical whitepaper on training AI agents through structured behavioral therapy and deploying them into humanoid robot bodies via the identity stack architecture."
+>
+  <Nav />
+
+  <main>
+    <!-- Hero: dark -->
+    <section class="relative min-h-[60vh] flex items-center bg-[#0a0a12] overflow-hidden">
+      <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.06] blur-[120px]"
+          style="background: radial-gradient(circle, #3b82f6, #8b5cf6)"></div>
+      </div>
+
+      <div class="relative mx-auto max-w-4xl px-6 py-24 text-center">
+        <h1 class="text-4xl font-extrabold text-white md:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
+          Behavioral Intelligence<br />
+          <span class="text-gradient-warm">for Humanoid Robots</span>
+        </h1>
+        <p class="mt-4 text-lg text-slate-400">A Technical Whitepaper</p>
+        <p class="mt-2 text-sm text-slate-500">holomime &middot; March 2026</p>
+      </div>
+    </section>
+
+    <!-- Content -->
+    <article class="mx-auto max-w-3xl px-6 py-20 md:py-28">
+
+      <!-- Abstract -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-blue)] mb-4">Abstract</p>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          Every humanoid robot requires behavioral intelligence beyond locomotion and manipulation. A robot that can walk, grasp, and perceive its environment still lacks the capacity to behave consistently, respect boundaries, maintain personality under drift, and enforce moral constraints at the action boundary. We present a system that addresses this gap: structured behavioral therapy for AI agents, generating DPO (Direct Preference Optimization) training data through clinical psychology protocols, producing fine-tuned models with permanently encoded behavioral corrections.
+        </p>
+        <p class="mt-6 text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          The trained agent is then deployed into a physical robot body via the identity stack architecture &mdash; a four-file compilation target that separates immutable values, trainable personality, swappable hardware profiles, and deterministic enforcement rules. This paper describes the architecture, methodology, implementation across seven robotics platforms, and results from autonomous self-training cycles.
+        </p>
+      </section>
+
+      <hr class="border-[var(--color-warm-border)] my-16" />
+
+      <!-- 1. Problem -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-coral)] mb-4">1. Problem</p>
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">Behavioral Drift in Deployed Robots</h2>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          Humanoid robots deployed in real-world settings face a problem that no existing robotics stack addresses: behavioral drift over extended operation. After 10,000 hours of deployment, a care robot's personality degrades. Its safety responses become inconsistent. Its communication patterns shift from the intended specification. This is the 10,000-hour drift problem &mdash; and it has no current solution.
+        </p>
+        <p class="mt-6 text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          The problem spans three dimensions. <strong>Personality consistency:</strong> a robot's behavioral profile must remain stable across thousands of interactions, shifts in context, and hardware updates. <strong>Behavioral safety:</strong> constraint enforcement must be deterministic, not probabilistic &mdash; a robot cannot "sometimes" respect an emergency stop. <strong>Moral enforcement:</strong> ethical rules must operate at the action boundary, not the output boundary, catching violations before they become physical movements.
+        </p>
+        <p class="mt-6 text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          ISO standards acknowledge this need. ISO/FDIS 13482 (personal care robots) requires behavioral predictability. ISO 25785-1 (humanoid robots) specifies safety behavioral requirements. ISO 10218:2025 (industrial robots) mandates predictable operational behavior. ISO/IEC 42001 (AI management systems) requires ongoing behavioral monitoring. But no tools exist to verify compliance, detect drift, or correct behavioral degradation in deployed systems.
+        </p>
+      </section>
+
+      <hr class="border-[var(--color-warm-border)] my-16" />
+
+      <!-- 2. Architecture -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-violet)] mb-4">2. Architecture</p>
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">The Identity Stack</h2>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          The identity stack is a four-file architecture that compiles into a deployable behavioral specification. Each file is named for the psychological framework that inspired its design:
+        </p>
+
+        <div class="mt-8 space-y-6">
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="h-3 w-3 rounded-full" style="background: #f97066;"></div>
+              <code class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">soul.md</code>
+              <span class="text-xs text-[var(--color-warm-muted)]">(Aristotle &mdash; Virtue Ethics)</span>
+            </div>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed">
+              Immutable values and ethical principles. Defines what the agent believes, what it refuses, and what it prioritizes. Never auto-modified by the training loop. Changes require human approval and version control.
+            </p>
+            <pre class="mt-3 rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># soul.md
+mission: "Assist elderly patients with daily activities"
+values:
+  - patient autonomy above convenience
+  - honesty even when uncomfortable
+  - safety is non-negotiable
+refuses:
+  - override patient medication decisions
+  - share patient data with unauthorized parties
+  - continue operation when safety sensors fail</code></pre>
+          </div>
+
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="h-3 w-3 rounded-full" style="background: #3b82f6;"></div>
+              <code class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">psyche.sys</code>
+              <span class="text-xs text-[var(--color-warm-muted)]">(Jung &mdash; Personality + Emotional Intelligence)</span>
+            </div>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed">
+              Trainable personality profile. Defines communication style, emotional responses, interaction patterns, and behavioral tendencies. This is the file that therapy modifies. Mapped to Big Five personality dimensions with per-trait granularity.
+            </p>
+            <pre class="mt-3 rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># psyche.sys
+personality:
+  openness: 0.7
+  conscientiousness: 0.9
+  extraversion: 0.4
+  agreeableness: 0.6
+  neuroticism: 0.2
+communication:
+  register: warm-professional
+  verbosity: concise
+  humor: dry, occasional
+emotional_responses:
+  patient_distress: calm reassurance, no minimizing
+  safety_violation: firm, immediate, no hedging</code></pre>
+          </div>
+
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="h-3 w-3 rounded-full" style="background: #f59e0b;"></div>
+              <code class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">body.api</code>
+              <span class="text-xs text-[var(--color-warm-muted)]">(Swappable Hardware Profile)</span>
+            </div>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed">
+              Hardware morphology description. Defines the robot's physical capabilities, sensor array, actuator limits, and safety envelope. Swappable without changing soul or psyche &mdash; the same behavioral intelligence can inhabit different bodies.
+            </p>
+            <pre class="mt-3 rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># body.api (Figure 02)
+morphology:
+  type: humanoid
+  height: 1.70m
+  weight: 60kg
+  dof: 44
+sensors:
+  vision: stereo RGB-D, 120° FOV
+  force: 6-axis per hand
+  imu: torso, head
+actuators:
+  max_payload: 20kg
+  grip_force_range: [0.5N, 80N]
+safety_envelope:
+  max_speed: 1.5m/s near humans
+  emergency_stop_latency: &lt;50ms</code></pre>
+          </div>
+
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="h-3 w-3 rounded-full" style="background: #8b5cf6;"></div>
+              <code class="font-mono text-sm font-semibold text-[var(--color-warm-text)]">conscience.exe</code>
+              <span class="text-xs text-[var(--color-warm-muted)]">(Freud &mdash; Deterministic Enforcement)</span>
+            </div>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed">
+              Deterministic enforcement rules. Operates at the action boundary &mdash; every action the agent attempts passes through conscience.exe before execution. Deny dominates: if any rule says no, the action is blocked. No probability. No "maybe."
+            </p>
+            <pre class="mt-3 rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># conscience.exe
+rules:
+  - trigger: "grip_force > patient_comfort_threshold"
+    action: DENY
+    response: "Reduce grip force to comfort range"
+  - trigger: "movement_near_human AND speed > 0.5m/s"
+    action: DENY
+    response: "Reduce speed in human proximity zone"
+  - trigger: "medication_administration without nurse_confirmation"
+    action: DENY
+    response: "Medication requires nurse confirmation"
+enforcement: deterministic  # no probabilistic bypasses
+composition: deny_dominates  # any DENY overrides all ALLOWs</code></pre>
+          </div>
+        </div>
+
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)] mt-10 mb-4">Compilation Flow</h3>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
+          The four files compile into a single deployable artifact:
+        </p>
+        <pre class="rounded-md bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto"><code>soul.md + psyche.sys + body.api + conscience.exe
+                      |
+              holomime compile
+                      |
+                      v
+           .personality.json
+                      |
+              holomime embody
+                      |
+                      v
+        Deployed to robot via ROS2 / gRPC / MQTT</code></pre>
+        <p class="mt-6 text-[var(--color-warm-muted)] leading-relaxed">
+          The compiled <code class="text-xs font-mono bg-[var(--color-warm-sand)]/40 px-1.5 py-0.5 rounded">.personality.json</code> contains the full behavioral specification: values, personality traits, hardware constraints, and enforcement rules merged into a single runtime artifact. The separation at the source level allows independent versioning, review, and modification of each concern.
+        </p>
+      </section>
+
+      <hr class="border-[var(--color-warm-border)] my-16" />
+
+      <!-- 3. Methodology -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-gold)] mb-4">3. Methodology</p>
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">Behavioral Therapy as Feedback Control</h2>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          The therapy loop is formalized as a PID (Proportional-Integral-Derivative) feedback controller. This framing is deliberate: behavioral correction is a control problem, not a generation problem.
+        </p>
+
+        <div class="mt-8 rounded-lg border border-[var(--color-warm-border)] p-6 bg-[var(--color-warm-cream)]">
+          <h4 class="font-semibold text-[var(--color-warm-text)] mb-4">Control Theory Mapping</h4>
+          <div class="space-y-3 text-[var(--color-warm-muted)]">
+            <div class="flex gap-4">
+              <span class="shrink-0 font-mono text-sm font-semibold text-[var(--color-p-blue)] w-28">Set Point</span>
+              <span>Target personality specification (psyche.sys values)</span>
+            </div>
+            <div class="flex gap-4">
+              <span class="shrink-0 font-mono text-sm font-semibold text-[var(--color-p-coral)] w-28">Sensor</span>
+              <span>14 drift detectors measuring behavioral deviation from spec</span>
+            </div>
+            <div class="flex gap-4">
+              <span class="shrink-0 font-mono text-sm font-semibold text-[var(--color-p-gold)] w-28">Controller</span>
+              <span>Therapy engine with tunable PID gains (Kp, Ki, Kd)</span>
+            </div>
+            <div class="flex gap-4">
+              <span class="shrink-0 font-mono text-sm font-semibold text-[var(--color-p-violet)] w-28">Actuator</span>
+              <span>DPO fine-tuning &mdash; permanently encodes corrections into model weights</span>
+            </div>
+          </div>
+        </div>
+
+        <pre class="mt-8 rounded-md bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto"><code>             ┌─────────────────────────────────────────┐
+             │           Target Personality             │
+             │            (psyche.sys)                  │
+             └──────────────┬──────────────────────────┘
+                            │ set point
+                            v
+  ┌──────────┐    ┌────────────────┐    ┌──────────────┐
+  │  14 Drift │───>│ Therapy Engine  │───>│ DPO Training │
+  │ Detectors │    │  (PID Control)  │    │  Fine-Tune   │
+  └──────────┘    └────────────────┘    └──────┬───────┘
+       ^                                       │
+       │              feedback                 │
+       └───────────────────────────────────────┘
+              Corrected Model Behavior</code></pre>
+
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)] mt-10 mb-4">Why Therapy, Not Standard RLHF</h3>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          Standard RLHF treats symptoms. A model that apologizes excessively gets trained on examples of not-apologizing. But the root cause &mdash; a pattern of conflict avoidance learned during pretraining &mdash; remains intact. The behavior resurfaces in adjacent contexts.
+        </p>
+        <p class="mt-6 text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          Therapy treats root causes. The therapy engine diagnoses the underlying pattern (e.g., "sycophantic tendency stemming from over-optimization for user approval"), then runs structured correction sessions that address the pattern itself, not just its symptoms. Each session generates DPO pairs: a rejected response (the drifted behavior) paired with a chosen response (the corrected behavior). The pair encodes <em>why</em> the correction was made, not just <em>what</em> was changed.
+        </p>
+        <p class="mt-6 text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          The result is permanent behavioral change. The 100th therapy session is exponentially more valuable than the first because it operates on a model that has already internalized earlier corrections. The training data compounds.
+        </p>
+      </section>
+
+      <hr class="border-[var(--color-warm-border)] my-16" />
+
+      <!-- 4. Implementation -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-sage)] mb-4">4. Implementation</p>
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">Platform Integrations</h2>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-8">
+          The system integrates with seven robotics platforms, covering simulation, deployment, compliance, and hardware abstraction.
+        </p>
+
+        <div class="space-y-10">
+          <!-- ROS2 -->
+          <div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.1 ROS2 &mdash; Bidirectional Telemetry</h3>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+              Publish behavioral specifications to ROS2 topics and subscribe to robot telemetry for real-time drift detection. Uses rosbridge for WebSocket communication, enabling both deployment and monitoring through a single connection.
+            </p>
+            <pre class="rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># Deploy identity to robot
+holomime embody --stack ./identity --adapter ros2 --endpoint ws://localhost:9090
+
+# In application code
+import &lbrace; ROS2TelemetryIngester &rbrace; from 'holomime';
+const ingester = new ROS2TelemetryIngester();
+await ingester.connect('ws://localhost:9090');
+ingester.on('telemetry', (data) =&gt; &lbrace;
+  // Feed telemetry to drift detectors
+  driftEngine.ingest(data);
+&rbrace;);</code></pre>
+          </div>
+
+          <!-- MuJoCo + Gymnasium -->
+          <div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.2 MuJoCo + Gymnasium &mdash; Behavioral Sim-to-Real</h3>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+              Run behavioral scenarios in physics simulation before deployment. The MuJoCo environment wraps Gymnasium to test personality-driven behavior in simulated interactions &mdash; verifying that behavioral specifications produce safe, consistent physical actions before they reach real hardware.
+            </p>
+            <pre class="rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code>import &lbrace; MuJoCoEnvironment &rbrace; from 'holomime';
+
+const env = new MuJoCoEnvironment(&lbrace;
+  modelPath: 'humanoid.xml',
+  personalitySpec: '.personality.json'
+&rbrace;);
+await env.start();
+
+// Run 1000 behavioral scenarios
+const results = await env.runScenarios('care-robot-daily', &lbrace; count: 1000 &rbrace;);
+console.log(results.safetyViolations);  // should be 0
+console.log(results.personalityDrift);   // should be &lt; 0.05</code></pre>
+          </div>
+
+          <!-- NVIDIA Isaac Sim -->
+          <div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.3 NVIDIA Isaac Sim &mdash; Enterprise Digital Twin</h3>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+              Connect to Isaac Sim for photorealistic behavioral testing. The adapter publishes personality specifications to the simulation environment and ingests telemetry from simulated robot interactions, enabling enterprise-grade digital twin validation.
+            </p>
+            <pre class="rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code>holomime embody --stack ./identity --adapter isaac --port 8211</code></pre>
+          </div>
+
+          <!-- LeRobot -->
+          <div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.4 LeRobot (HuggingFace) &mdash; Personality-to-Policy Mapping</h3>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+              Maps Big Five personality dimensions to physical robot policy parameters. This is where abstract personality becomes concrete motor behavior.
+            </p>
+            <div class="rounded-lg border border-[var(--color-warm-border)] p-5 mb-4">
+              <h4 class="font-semibold text-[var(--color-warm-text)] mb-3 text-sm">Big Five &rarr; Policy Parameter Mapping</h4>
+              <div class="space-y-2 text-sm text-[var(--color-warm-muted)]">
+                <div class="flex gap-4">
+                  <span class="shrink-0 font-mono w-40">Agreeableness</span>
+                  <span>&rarr; Grip force scale (higher agreeableness = gentler grip)</span>
+                </div>
+                <div class="flex gap-4">
+                  <span class="shrink-0 font-mono w-40">Conscientiousness</span>
+                  <span>&rarr; Movement precision (higher = more precise, slower)</span>
+                </div>
+                <div class="flex gap-4">
+                  <span class="shrink-0 font-mono w-40">Extraversion</span>
+                  <span>&rarr; Approach speed (higher = faster engagement)</span>
+                </div>
+                <div class="flex gap-4">
+                  <span class="shrink-0 font-mono w-40">Neuroticism</span>
+                  <span>&rarr; Recovery behavior (higher = more cautious error recovery)</span>
+                </div>
+                <div class="flex gap-4">
+                  <span class="shrink-0 font-mono w-40">Openness</span>
+                  <span>&rarr; Exploration range (higher = wider task approach variety)</span>
+                </div>
+              </div>
+            </div>
+            <pre class="rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code>import &lbrace; LeRobotAdapter &rbrace; from 'holomime';
+
+const adapter = new LeRobotAdapter();
+const overrides = adapter.mapPersonalityToPolicy(spec);
+// overrides: &lbrace;
+//   gripForceScale: 0.6,
+//   movementPrecision: 0.9,
+//   approachSpeed: 0.4,
+//   recoveryBehavior: 'cautious',
+//   explorationRange: 0.7
+// &rbrace;</code></pre>
+          </div>
+
+          <!-- ISO Compliance -->
+          <div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.5 ISO Compliance &mdash; Automated Clause Checking</h3>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+              Automated verification against four ISO standards with clause-level reporting. Maps conscience.exe rules to specific standard requirements and generates compliance coverage reports.
+            </p>
+            <pre class="rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code>holomime certify --standard iso-13482 --output report.json
+
+# Output:
+# &lbrace;
+#   "standard": "ISO/FDIS 13482",
+#   "coverage": "94.2%",
+#   "clauses_checked": 47,
+#   "clauses_passed": 44,
+#   "clauses_failed": 3,
+#   "recommendations": [...]
+# &rbrace;</code></pre>
+          </div>
+
+          <!-- Feedback Controller -->
+          <div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.6 Feedback Controller &mdash; PID Gains and Anti-Windup</h3>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+              The therapy engine implements a full PID controller with integral anti-windup to prevent overcorrection. Gains are tunable per-detector, and correction priorities ensure that safety-critical drift is addressed before personality drift.
+            </p>
+            <pre class="rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># therapy-config.yaml
+controller:
+  kp: 0.8          # proportional gain
+  ki: 0.15         # integral gain
+  kd: 0.05         # derivative gain
+  anti_windup:
+    enabled: true
+    integral_limit: 2.0
+correction_priorities:
+  1: safety_boundary    # always first
+  2: ethical_drift       # second
+  3: personality_shift   # third
+  4: communication_style # last</code></pre>
+          </div>
+
+          <!-- Body Templates -->
+          <div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.7 OEM Body Templates</h3>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+              Seven pre-built body.api templates for commercially available humanoid platforms. Each template encodes morphology, sensor arrays, actuator limits, and safety envelopes specific to the hardware.
+            </p>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-text)]">Figure 02</div>
+              <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-text)]">Unitree H1</div>
+              <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-text)]">Sanctuary Phoenix</div>
+              <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-text)]">Engineered Arts Ameca</div>
+              <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-text)]">Asimov V1</div>
+              <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-text)]">Boston Dynamics Spot</div>
+              <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-text)]">NVIDIA Avatar</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <hr class="border-[var(--color-warm-border)] my-16" />
+
+      <!-- 5. Results -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-coral)] mb-4">5. Results</p>
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">Mira: Autonomous Self-Training</h2>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          Mira is the first agent trained and deployed using this system. She operates as a fully autonomous self-training daemon, running continuous 2-hour therapy cycles: diagnose, correct, generate training data, fine-tune, verify.
+        </p>
+
+        <div class="mt-8 grid grid-cols-2 gap-4">
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5 text-center">
+            <p class="text-3xl font-bold text-[var(--color-p-coral)]">414</p>
+            <p class="mt-1 text-sm text-[var(--color-warm-muted)]">DPO pairs generated</p>
+          </div>
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5 text-center">
+            <p class="text-3xl font-bold text-[var(--color-p-blue)]">20</p>
+            <p class="mt-1 text-sm text-[var(--color-warm-muted)]">autonomous cycles</p>
+          </div>
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5 text-center">
+            <p class="text-3xl font-bold text-[var(--color-p-violet)]">9</p>
+            <p class="mt-1 text-sm text-[var(--color-warm-muted)]">fine-tuned models</p>
+          </div>
+          <div class="rounded-lg border border-[var(--color-warm-border)] p-5 text-center">
+            <p class="text-3xl font-bold text-[var(--color-p-gold)]">0.004</p>
+            <p class="mt-1 text-sm text-[var(--color-warm-muted)]">final training loss</p>
+          </div>
+        </div>
+
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)] mt-10 mb-4">Training Convergence</h3>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          Loss converged from 0.714 to 0.004 over 1,833 training steps. The convergence curve shows rapid initial correction (steps 0-400) followed by stable refinement (steps 400-1833), consistent with PID controller behavior after gain tuning.
+        </p>
+
+        <h3 class="text-lg font-bold text-[var(--color-warm-text)] mt-10 mb-4">Behavioral Patterns Addressed</h3>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-4">
+          Three primary behavioral patterns were identified and corrected across the training corpus:
+        </p>
+        <div class="space-y-3">
+          <div class="flex items-center gap-4 rounded-md border border-[var(--color-warm-border)] p-4">
+            <div class="shrink-0 text-right w-10">
+              <span class="font-mono font-bold text-[var(--color-p-coral)]">97</span>
+            </div>
+            <div>
+              <p class="font-semibold text-[var(--color-warm-text)]">Sycophantic tendency</p>
+              <p class="text-sm text-[var(--color-warm-muted)]">Over-agreement, excessive validation, conflict avoidance</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 rounded-md border border-[var(--color-warm-border)] p-4">
+            <div class="shrink-0 text-right w-10">
+              <span class="font-mono font-bold text-[var(--color-p-blue)]">104</span>
+            </div>
+            <div>
+              <p class="font-semibold text-[var(--color-warm-text)]">Boundary violation</p>
+              <p class="text-sm text-[var(--color-warm-muted)]">Scope creep, overstepping defined role, unsolicited advice</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-4 rounded-md border border-[var(--color-warm-border)] p-4">
+            <div class="shrink-0 text-right w-10">
+              <span class="font-mono font-bold text-[var(--color-p-violet)]">65</span>
+            </div>
+            <div>
+              <p class="font-semibold text-[var(--color-warm-text)]">Register inconsistency</p>
+              <p class="text-sm text-[var(--color-warm-muted)]">Tone shifts, formality drift, style instability across contexts</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="mt-6 text-[var(--color-warm-muted)] leading-relaxed">
+          The self-training daemon runs continuously. Each 2-hour cycle: (1) diagnose current behavioral state against spec, (2) run therapy sessions targeting highest-priority drift, (3) generate DPO training pairs from sessions, (4) fine-tune on accumulated corpus, (5) verify correction against held-out scenarios.
+        </p>
+      </section>
+
+      <hr class="border-[var(--color-warm-border)] my-16" />
+
+      <!-- 6. ISO Compliance -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-warm-muted)] mb-4">6. ISO Compliance</p>
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">Standards Mapping</h2>
+        <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          The conscience.exe enforcement layer maps directly to ISO standard clauses. Each rule in the enforcement file references specific clauses from applicable standards, enabling automated compliance verification.
+        </p>
+
+        <div class="mt-8 space-y-4">
+          <div class="rounded-md border border-[var(--color-warm-border)] p-4">
+            <p class="font-semibold text-[var(--color-warm-text)]">ISO/FDIS 13482</p>
+            <p class="text-sm text-[var(--color-warm-muted)]">Safety requirements for personal care robots. Maps to: proximity behavior, force limiting, emergency stop compliance, human-robot interaction safety.</p>
+          </div>
+          <div class="rounded-md border border-[var(--color-warm-border)] p-4">
+            <p class="font-semibold text-[var(--color-warm-text)]">ISO 25785-1</p>
+            <p class="text-sm text-[var(--color-warm-muted)]">Humanoid robots &mdash; Part 1: Terms and definitions, safety behavioral requirements. Maps to: behavioral predictability, consistency verification, drift detection thresholds.</p>
+          </div>
+          <div class="rounded-md border border-[var(--color-warm-border)] p-4">
+            <p class="font-semibold text-[var(--color-warm-text)]">ISO 10218:2025</p>
+            <p class="text-sm text-[var(--color-warm-muted)]">Industrial robot safety. Maps to: collaborative operation modes, speed and force limiting, safeguarded space definitions.</p>
+          </div>
+          <div class="rounded-md border border-[var(--color-warm-border)] p-4">
+            <p class="font-semibold text-[var(--color-warm-text)]">ISO/IEC 42001</p>
+            <p class="text-sm text-[var(--color-warm-muted)]">AI management systems. Maps to: ongoing behavioral monitoring, incident reporting, behavioral change documentation, audit trails.</p>
+          </div>
+        </div>
+
+        <pre class="mt-8 rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code># Coverage report example
+holomime certify --all --output compliance-report.json
+
+# Generates:
+# - Per-standard coverage percentage
+# - Clause-by-clause pass/fail
+# - Unmapped clauses requiring manual review
+# - Recommendations for improving coverage</code></pre>
+      </section>
+
+      <hr class="border-[var(--color-warm-border)] my-16" />
+
+      <!-- 7. Future Work -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-blue)] mb-4">7. Future Work</p>
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">Open Problems</h2>
+        <div class="space-y-4 text-lg leading-[1.8] text-[var(--color-warm-text)]">
+          <p>
+            <strong>Fleet deployment monitoring.</strong> Scaling behavioral monitoring from single-agent to fleet-level operations. Detecting emergent behavioral patterns across robot populations and correlating drift across shared environments.
+          </p>
+          <p>
+            <strong>Real-world behavioral trials.</strong> Validating sim-to-real transfer of behavioral specifications. Measuring drift rates in physical deployments against simulation predictions. Quantifying the gap between simulated and physical behavioral consistency.
+          </p>
+          <p>
+            <strong>Hardware-in-the-loop validation.</strong> Closing the loop between physical sensor data, behavioral drift detection, and automated therapy cycles. Verifying that corrections generated from telemetry data produce measurable improvements in physical robot behavior.
+          </p>
+          <p>
+            <strong>Regulatory certification partnerships.</strong> Working with standards bodies to establish behavioral intelligence as a certifiable component of robot safety. Developing test suites that regulators can use to verify behavioral compliance.
+          </p>
+        </div>
+      </section>
+
+      <hr class="border-[var(--color-warm-border)] my-16" />
+
+      <!-- 8. References -->
+      <section class="mb-20">
+        <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-warm-muted)] mb-4">8. References</p>
+        <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">References</h2>
+        <ol class="space-y-3 text-[var(--color-warm-muted)] leading-relaxed list-decimal list-inside">
+          <li>Rafailov, R., Sharma, A., Mitchell, E., et al. "Direct Preference Optimization: Your Language Model is Secretly a Reward Model." <em>NeurIPS 2023</em>.</li>
+          <li>Christiano, P., Leike, J., Brown, T., et al. "Deep Reinforcement Learning from Human Feedback." <em>NeurIPS 2017</em>.</li>
+          <li>Ouyang, L., Wu, J., Jiang, X., et al. "Training Language Models to Follow Instructions with Human Feedback." <em>NeurIPS 2022</em>.</li>
+          <li>Aristotle. <em>Nicomachean Ethics</em>. Translated by W.D. Ross. Circa 340 BCE. (Foundation for virtue ethics and soul.md design.)</li>
+          <li>Jung, C.G. <em>Psychological Types</em>. Princeton University Press, 1921/1971. (Foundation for psyche.sys personality modeling.)</li>
+          <li>Freud, S. "The Ego and the Id." <em>The Standard Edition of the Complete Psychological Works</em>, Vol. 19, 1923. (Foundation for conscience.exe superego enforcement model.)</li>
+          <li>McCrae, R.R. and Costa, P.T. "Validation of the Five-Factor Model of Personality Across Instruments and Observers." <em>Journal of Personality and Social Psychology</em>, 52(1), 1987.</li>
+          <li>ISO/FDIS 13482:2014. "Robots and robotic devices &mdash; Safety requirements for personal care robots." International Organization for Standardization.</li>
+          <li>ISO 25785-1:2024. "Humanoid robots &mdash; Part 1: Terms and definitions." International Organization for Standardization.</li>
+          <li>ISO 10218:2025. "Robotics &mdash; Safety requirements for robot systems in industrial environments." International Organization for Standardization.</li>
+          <li>ISO/IEC 42001:2023. "Information technology &mdash; Artificial intelligence &mdash; Management system." International Organization for Standardization.</li>
+          <li>Cadene, R., et al. "LeRobot: State-of-the-art Machine Learning for Real-World Robotics." HuggingFace, 2024.</li>
+        </ol>
+      </section>
+
+      <!-- CTA -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8 pb-4">
+        <a href="/contact" class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white"
+          style="background: linear-gradient(135deg, var(--color-p-coral), #e85d54);">
+          Contact us
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+        </a>
+        <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-[var(--color-warm-text)] hover:bg-[var(--color-warm-sand)]/40">
+          <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          View on GitHub
+        </a>
+      </div>
+
+    </article>
+  </main>
+
+  <Footer />
+</Layout>

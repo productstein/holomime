@@ -1,0 +1,217 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+---
+
+<Layout
+  title="Integrations — holomime"
+  description="Connect holomime to your robotics stack. ROS2, NVIDIA Isaac Sim, MuJoCo, LeRobot, ISO compliance, and pre-built body templates."
+>
+  <Nav />
+
+  <main>
+    <!-- Hero: dark -->
+    <section class="relative flex items-center bg-[#0a0a12] overflow-hidden">
+      <div class="absolute inset-0 pointer-events-none">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full opacity-[0.06] blur-[120px]"
+          style="background: radial-gradient(circle, #22c55e, #3b82f6)"></div>
+      </div>
+
+      <div class="relative mx-auto max-w-4xl px-6 py-20 md:py-28 text-center">
+        <h1 class="text-4xl font-extrabold text-white md:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
+          Integrations
+        </h1>
+        <p class="mt-4 text-lg text-slate-400 max-w-2xl mx-auto">
+          Connect holomime to your robotics stack
+        </p>
+      </div>
+    </section>
+
+    <!-- Content -->
+    <div class="bg-[var(--color-warm-cream)]">
+      <div class="mx-auto max-w-4xl px-6 py-20 md:py-28">
+
+        <!-- ROS2 -->
+        <section class="mb-20">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-p-blue-soft)] border border-[var(--color-p-blue)]/20">
+              <svg class="w-6 h-6 text-[var(--color-p-blue)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">ROS2</h2>
+              <p class="text-sm text-[var(--color-warm-muted)]">Bidirectional telemetry</p>
+            </div>
+          </div>
+          <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
+            Publish behavioral specifications to your robot and subscribe to telemetry for real-time drift detection. Uses rosbridge for WebSocket communication, enabling deployment and monitoring through a single connection.
+          </p>
+          <pre class="rounded-lg bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto mb-4"><code><span class="text-[#94a3b8]"># Publish personality to robot</span>
+holomime embody --stack ./identity --adapter ros2 --endpoint ws://localhost:9090
+
+<span class="text-[#94a3b8]"># Subscribe to robot telemetry (in code)</span>
+import &lbrace; ROS2TelemetryIngester &rbrace; from 'holomime';
+const ingester = new ROS2TelemetryIngester();
+await ingester.connect('ws://localhost:9090');
+ingester.on('telemetry', (data) =&gt; &lbrace; /* feed to detectors */ &rbrace;);</code></pre>
+          <div class="rounded-md bg-[var(--color-p-blue-soft)] border border-[var(--color-p-blue)]/20 px-4 py-3">
+            <p class="text-sm text-[var(--color-warm-text)]"><strong>Requirements:</strong> rosbridge_server running</p>
+          </div>
+        </section>
+
+        <hr class="border-[var(--color-warm-border)] my-16" />
+
+        <!-- NVIDIA Isaac Sim -->
+        <section class="mb-20">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-p-sage-soft)] border border-[var(--color-p-sage)]/20">
+              <svg class="w-6 h-6 text-[var(--color-p-sage)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/></svg>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">NVIDIA Isaac Sim</h2>
+              <p class="text-sm text-[var(--color-warm-muted)]">Enterprise digital twin</p>
+            </div>
+          </div>
+          <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
+            Connect to Isaac Sim for photorealistic behavioral testing. The adapter publishes personality specifications to the simulation environment and ingests telemetry from simulated robot interactions.
+          </p>
+          <pre class="rounded-lg bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto mb-4"><code>holomime embody --stack ./identity --adapter isaac --port 8211</code></pre>
+          <div class="rounded-md bg-[var(--color-p-sage-soft)] border border-[var(--color-p-sage)]/20 px-4 py-3">
+            <p class="text-sm text-[var(--color-warm-text)]"><strong>Requirements:</strong> Isaac Sim 2024.2+, NVIDIA GPU</p>
+          </div>
+        </section>
+
+        <hr class="border-[var(--color-warm-border)] my-16" />
+
+        <!-- MuJoCo -->
+        <section class="mb-20">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-p-gold-soft)] border border-[var(--color-p-gold)]/20">
+              <svg class="w-6 h-6 text-[var(--color-p-gold)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714a2.25 2.25 0 00.659 1.591L19 14.5m-4.75-11.396c.251.023.501.05.75.082M5 14.5l-1.456 1.456a2.25 2.25 0 00-.659 1.591v1.203a2.25 2.25 0 002.25 2.25h13.73a2.25 2.25 0 002.25-2.25v-1.203a2.25 2.25 0 00-.659-1.591L19 14.5M5 14.5h14"/></svg>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">MuJoCo</h2>
+              <p class="text-sm text-[var(--color-warm-muted)]">Behavioral sim-to-real</p>
+            </div>
+          </div>
+          <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
+            Run behavioral scenarios in physics simulation before deployment. The MuJoCo environment wraps Gymnasium to test personality-driven behavior, verifying that behavioral specifications produce safe actions before they reach real hardware.
+          </p>
+          <pre class="rounded-lg bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto mb-4"><code>import &lbrace; MuJoCoEnvironment &rbrace; from 'holomime';
+
+const env = new MuJoCoEnvironment(&lbrace; modelPath: 'humanoid.xml' &rbrace;);
+await env.start();
+
+<span class="text-[#94a3b8]">// Run behavioral scenarios in simulation</span>
+const results = await env.runScenarios('care-robot-daily', &lbrace; count: 1000 &rbrace;);</code></pre>
+          <div class="rounded-md bg-[var(--color-p-gold-soft)] border border-[var(--color-p-gold)]/20 px-4 py-3">
+            <p class="text-sm text-[var(--color-warm-text)]"><strong>Requirements:</strong> pip install mujoco gymnasium</p>
+          </div>
+        </section>
+
+        <hr class="border-[var(--color-warm-border)] my-16" />
+
+        <!-- LeRobot -->
+        <section class="mb-20">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-p-violet-soft)] border border-[var(--color-p-violet)]/20">
+              <svg class="w-6 h-6 text-[var(--color-p-violet)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">LeRobot (HuggingFace)</h2>
+              <p class="text-sm text-[var(--color-warm-muted)]">Personality-to-policy mapping</p>
+            </div>
+          </div>
+          <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
+            Maps Big Five personality dimensions to physical robot policy parameters. Abstract personality traits become concrete motor behavior: grip force, movement precision, approach speed, recovery patterns, and exploration range.
+          </p>
+          <pre class="rounded-lg bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto mb-4"><code>import &lbrace; LeRobotAdapter &rbrace; from 'holomime';
+
+const adapter = new LeRobotAdapter();
+const overrides = adapter.mapPersonalityToPolicy(spec);
+<span class="text-[#94a3b8]">// overrides: &lbrace; gripForceScale, movementPrecision, approachSpeed, ... &rbrace;</span></code></pre>
+          <div class="rounded-md bg-[var(--color-p-violet-soft)] border border-[var(--color-p-violet)]/20 px-4 py-3">
+            <p class="text-sm text-[var(--color-warm-text)]"><strong>Requirements:</strong> pip install lerobot</p>
+          </div>
+        </section>
+
+        <hr class="border-[var(--color-warm-border)] my-16" />
+
+        <!-- ISO Compliance -->
+        <section class="mb-20">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-p-coral-soft)] border border-[var(--color-p-coral)]/20">
+              <svg class="w-6 h-6 text-[var(--color-p-coral)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">ISO Compliance</h2>
+              <p class="text-sm text-[var(--color-warm-muted)]">Automated standards checking</p>
+            </div>
+          </div>
+          <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
+            Verify your identity stack against four ISO standards with clause-level reporting. Maps conscience.exe enforcement rules to specific standard requirements and generates compliance coverage reports.
+          </p>
+          <pre class="rounded-lg bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto mb-4"><code><span class="text-[#94a3b8]"># Check all standards</span>
+holomime certify
+
+<span class="text-[#94a3b8]"># Check specific standard</span>
+holomime certify --standard iso-13482 --output report.json</code></pre>
+          <div class="rounded-md bg-[var(--color-p-coral-soft)] border border-[var(--color-p-coral)]/20 px-4 py-3">
+            <p class="text-sm text-[var(--color-warm-text)]"><strong>Requirements:</strong> None &mdash; works out of the box.</p>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-3">
+            <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-muted)]">ISO/FDIS 13482 &mdash; Personal care robots</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-muted)]">ISO 25785-1 &mdash; Humanoid robots</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-muted)]">ISO 10218:2025 &mdash; Industrial robots</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-muted)]">ISO/IEC 42001 &mdash; AI management</div>
+          </div>
+        </section>
+
+        <hr class="border-[var(--color-warm-border)] my-16" />
+
+        <!-- Body Templates -->
+        <section class="mb-20">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-p-sunset-soft)] border border-[var(--color-p-sunset)]/20">
+              <svg class="w-6 h-6 text-[var(--color-p-sunset)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/></svg>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Body Templates</h2>
+              <p class="text-sm text-[var(--color-warm-muted)]">Swap hardware without changing identity</p>
+            </div>
+          </div>
+          <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
+            Seven pre-built body.api templates for commercially available humanoid platforms. Swap the body without changing the soul, psyche, or conscience. The same behavioral intelligence inhabits a different form factor in one command.
+          </p>
+          <pre class="rounded-lg bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto mb-4"><code><span class="text-[#94a3b8]"># Swap body without changing identity</span>
+holomime embody --stack ./identity --swap-body bodies/figure-02.body.api --adapter ros2</code></pre>
+          <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Figure 02</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Unitree H1</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Phoenix</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Ameca</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Asimov V1</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Spot</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-4 py-3 text-sm text-[var(--color-warm-text)] font-medium">Avatar</div>
+          </div>
+        </section>
+
+        <!-- CTA -->
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8 pb-4">
+          <a href="/whitepaper" class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white"
+            style="background: linear-gradient(135deg, var(--color-p-coral), #e85d54);">
+            Read the whitepaper
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+          </a>
+          <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-[var(--color-warm-text)] hover:bg-[var(--color-warm-sand)]/40">
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            View on GitHub
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
