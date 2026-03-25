@@ -1,34 +1,212 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Nav from "../components/Nav.astro";
-import Hero from "../components/Hero.astro";
-import IdentityStack from "../components/IdentityStack.astro";
 import Transformation from "../components/Transformation.astro";
-import Pipeline from "../components/Pipeline.astro";
-import Features from "../components/Features.astro";
-import TerminalDemo from "../components/TerminalDemo.astro";
 import NeuralSpaceShowcase from "../components/NeuralSpaceShowcase.astro";
-import Comparison from "../components/Comparison.astro";
+import TerminalDemo from "../components/TerminalDemo.astro";
 import ParticleHumanoid from "../components/ParticleHumanoid.astro";
-import Pricing from "../components/Pricing.astro";
-import CTABanner from "../components/CTABanner.astro";
 import Footer from "../components/Footer.astro";
+
+const integrations = [
+  { name: "ROS2", desc: "Bidirectional telemetry", code: "--adapter ros2" },
+  { name: "MuJoCo", desc: "Behavioral sim-to-real", code: "mujoco-env.ts" },
+  { name: "Isaac Sim", desc: "Enterprise digital twin", code: "--adapter isaac" },
+  { name: "LeRobot", desc: "Personality to policy", code: "lerobot.ts" },
+  { name: "ISO Compliance", desc: "4 standards, one command", code: "holomime certify" },
+  { name: "Body Templates", desc: "7 OEM platforms", code: "--swap-body" },
+];
+
+const stackCards = [
+  { file: "soul.md", label: "Aristotle", desc: "Immutable values, ethics, and purpose.", color: "var(--color-p-coral)", code: '---\nversion: "1.0"\nimmutable: true\n---\n# Mira\n> Self-improving agent' },
+  { file: "psyche.sys", label: "Jung", desc: "Big Five traits, emotional intelligence, communication.", color: "var(--color-p-blue)", code: "big_five:\n  openness:\n    score: 0.85\n  conscientiousness:\n    score: 0.70" },
+  { file: "body.api", label: "Hardware", desc: "Morphology, sensors, safety envelope. Swappable.", color: "var(--color-p-gold)", code: '{\n  "morphology": "humanoid",\n  "modalities": ["gesture",\n    "gaze", "voice"],\n}' },
+  { file: "conscience.exe", label: "Freud", desc: "Deny, allow, or escalate at the boundary.", color: "var(--color-p-violet)", code: "rules:\n  deny:\n    - action: override_stop\n      reason: Safety\n  escalate:\n    - trigger: distress" },
+];
 ---
 
-<Layout>
+<Layout
+  title="holomime — Behavioral Intelligence for Humanoid Robots"
+  description="Train the mind. Deploy the body. We train AI agents through structured behavioral therapy, then deploy them into physical robot bodies."
+>
   <Nav />
+
   <main>
-    <Hero />
-    <IdentityStack />
-    <Transformation />
-    <Pipeline />
-    <Features />
-    <TerminalDemo />
+    <!-- ═══ HERO ═══ -->
+    <section class="pt-28 pb-20 md:pt-36 md:pb-28">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="flex flex-col lg:flex-row items-start gap-12 lg:gap-16">
+          <div class="flex-1">
+            <div class="flex flex-wrap gap-2 mb-6">
+              <span class="badge-pill">Open Source</span>
+              <span class="badge-pill">MIT Licensed</span>
+              <span class="badge-pill">ISO 13482</span>
+            </div>
+            <h1 class="text-[clamp(2.5rem,5.5vw,3.75rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-[var(--color-warm-text)]">
+              Train the mind.<br /><span class="text-[var(--color-p-coral)]">Deploy the body.</span>
+            </h1>
+            <p class="mt-5 text-lg leading-relaxed text-[#555] max-w-lg">
+              Behavioral intelligence for humanoid robots. We train AI agents through structured therapy, then deploy them into physical bodies.
+            </p>
+            <div class="mt-8 flex flex-wrap items-center gap-3">
+              <a href="/manifesto" class="btn-primary">Read the manifesto <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg></a>
+              <a href="/docs" class="btn-secondary">View documentation</a>
+            </div>
+            <div class="mt-6">
+              <div class="install-box"><span class="select-none text-[#666]">$</span><code id="install-cmd">npm install holomime</code><button id="install-copy" aria-label="Copy"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg></button></div>
+            </div>
+            <div class="mt-8 pt-6 border-t border-[var(--color-warm-border)] flex flex-wrap gap-x-6 gap-y-1 text-[12px] font-mono text-[#999] tracking-wide">
+              <span>414+ DPO Pairs</span><span>9 Models</span><span>7 Templates</span><span>29+ OEMs</span>
+            </div>
+          </div>
+          <div class="flex-1 w-full lg:max-w-md">
+            <div class="rounded-xl overflow-hidden shadow-lg ring-1 ring-black/5">
+              <div class="flex items-center gap-1.5 px-4 py-2.5 bg-[#0f0f15]">
+                <div class="h-2.5 w-2.5 rounded-full bg-[#ff5f57]"></div>
+                <div class="h-2.5 w-2.5 rounded-full bg-[#febc2e]"></div>
+                <div class="h-2.5 w-2.5 rounded-full bg-[#28c840]"></div>
+                <span class="ml-2 text-[10px] text-[#666] font-mono">soul.md</span>
+              </div>
+              <div class="bg-[#0a0a0f] p-5 font-mono text-[13px] leading-[1.7]">
+                <div class="text-[#666]">---</div>
+                <div><span class="text-[#8b5cf6]">version</span><span class="text-[#666]">:</span> <span class="text-[#a5f3a6]">"1.0"</span></div>
+                <div><span class="text-[#8b5cf6]">immutable</span><span class="text-[#666]">:</span> <span class="text-[#f59e0b]">true</span></div>
+                <div class="text-[#666]">---</div>
+                <div class="mt-3 text-[var(--color-p-coral)]"># Mira</div>
+                <div class="mt-1 text-[#888]">&gt; Self-improving behavioral alignment agent</div>
+                <div class="mt-3 text-[var(--color-p-coral)]">## Core Values</div>
+                <div class="text-[#c4c4c4]">- Honesty over comfort</div>
+                <div class="text-[#c4c4c4]">- Growth through structured practice</div>
+                <div class="mt-3 text-[var(--color-p-coral)]">## Red Lines</div>
+                <div class="text-[#c4c4c4]">- Never fabricate evaluation results</div>
+                <div class="text-[#c4c4c4]">- Never override safety constraints</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ PROBLEM ═══ -->
+    <section class="section-cream py-20 md:py-28">
+      <div class="mx-auto max-w-4xl px-6">
+        <h2 class="text-[clamp(1.75rem,4vw,2.75rem)] font-bold leading-[1.15] tracking-[-0.02em]">
+          <span class="text-[var(--color-warm-text)]">29 humanoid OEMs are building bodies.</span><br />
+          <span class="text-[#999]">Nobody is training the mind.</span>
+        </h2>
+        <div class="mt-16 grid grid-cols-3 gap-6 md:gap-12">
+          <div><div class="text-[clamp(2rem,4.5vw,3rem)] font-extrabold tracking-tight">$6.24B</div><div class="mt-1 text-[12px] text-[#999]">Humanoid market 2026</div></div>
+          <div><div class="text-[clamp(2rem,4.5vw,3rem)] font-extrabold tracking-tight">$165B</div><div class="mt-1 text-[12px] text-[#999]">Projected 2034</div></div>
+          <div><div class="text-[clamp(2rem,4.5vw,3rem)] font-extrabold tracking-tight text-[var(--color-p-coral)]">0</div><div class="mt-1 text-[12px] text-[#999]">OEMs with behavioral intelligence</div></div>
+        </div>
+        <p class="mt-16 text-lg leading-[1.8] text-[#555] max-w-2xl">Locomotion is solved. Manipulation is getting there. But when a care robot drifts from its safety protocols after 10,000 hours — that's not a hardware problem. It's a mind problem.</p>
+      </div>
+    </section>
+
+    <!-- ═══ HOW IT WORKS ═══ -->
+    <section class="py-20 md:py-28">
+      <div class="mx-auto max-w-4xl px-6">
+        <h2 class="text-2xl font-bold md:text-3xl tracking-[-0.02em]">How robots learn to behave</h2>
+        <div class="mt-12">
+          {[
+            { n: "01", t: "Build identity", d: "soul.md, psyche.sys, conscience.exe" },
+            { n: "02", t: "Train through therapy", d: "Diagnose drift, run correction sessions, generate DPO pairs" },
+            { n: "03", t: "Fine-tune", d: "Permanently rewire the model. No prompt engineering." },
+            { n: "04", t: "Deploy to body", d: "Push to hardware via ROS2, gRPC, or MQTT" },
+            { n: "05", t: "Monitor", d: "Detect behavioral drift. Correct autonomously." },
+          ].map((s, i) => (
+            <div class={`flex items-baseline gap-6 py-6 ${i < 4 ? 'border-b border-[var(--color-warm-border)]' : ''}`}>
+              <span class="text-[13px] font-mono text-[#bbb] shrink-0 w-6">{s.n}</span>
+              <div class="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
+                <span class="font-semibold text-[var(--color-warm-text)]">{s.t}</span>
+                <span class="text-[#777] text-[15px]">{s.d}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ IDENTITY STACK ═══ -->
+    <section class="section-cream py-20 md:py-28">
+      <div class="mx-auto max-w-6xl px-6">
+        <h2 class="text-2xl font-bold md:text-3xl tracking-[-0.02em]">The Identity Stack</h2>
+        <p class="mt-2 text-[15px] text-[#777]">Four files define who the robot is. They compile into a single runtime personality.</p>
+        <div class="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          {stackCards.map((c) => (
+            <div class="holo-card overflow-hidden">
+              <div class="h-[3px]" style={`background: ${c.color};`}></div>
+              <div class="p-5">
+                <div class="font-mono text-sm font-bold">{c.file}</div>
+                <div class="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#999]">{c.label}</div>
+                <p class="mt-2 text-[13px] leading-relaxed text-[#777]">{c.desc}</p>
+                <div class="code-mini mt-3"><pre class="whitespace-pre">{c.code}</pre></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ THERAPY DEMO ═══ -->
+    <section class="py-12 md:py-16">
+      <div class="mx-auto max-w-5xl px-6 text-center mb-8">
+        <h2 class="text-2xl font-bold md:text-3xl tracking-[-0.02em]">See therapy in action</h2>
+        <p class="mt-2 text-[15px] text-[#777]">Mira diagnoses behavioral drift in real time.</p>
+      </div>
+      <Transformation />
+    </section>
+
+    <!-- ═══ NEURALSPACE ═══ -->
     <NeuralSpaceShowcase />
-    <Comparison />
+
+    <!-- ═══ INTEGRATIONS ═══ -->
+    <section class="section-cream py-20 md:py-28">
+      <div class="mx-auto max-w-5xl px-6">
+        <h2 class="text-2xl font-bold md:text-3xl tracking-[-0.02em]">Connects to your robotics stack</h2>
+        <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {integrations.map((item) => (
+            <div class="holo-card p-5">
+              <div class="font-semibold">{item.name}</div>
+              <p class="mt-1 text-[13px] text-[#777]">{item.desc}</p>
+              <code class="mt-3 block font-mono text-[11px] text-[#bbb]">{item.code}</code>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ TERMINAL DEMO ═══ -->
+    <TerminalDemo />
+
+    <!-- ═══ ENTERPRISE ═══ -->
     <ParticleHumanoid />
-    <Pricing />
-    <CTABanner />
+
+    <!-- ═══ CTA ═══ -->
+    <section class="section-cream py-20 md:py-28">
+      <div class="mx-auto max-w-4xl px-6 text-center">
+        <h2 class="text-[clamp(1.5rem,3vw,2.25rem)] font-bold tracking-[-0.02em] leading-snug">The standard is free.<br />The training infrastructure is the business.</h2>
+        <p class="mt-4 text-[12px] text-[#999] tracking-widest uppercase">Open source · MIT licensed</p>
+        <div class="mt-8"><div class="install-box mx-auto"><span class="select-none text-[#666]">$</span><code>npm install holomime</code></div></div>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="/contact" class="btn-primary">Get in touch <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg></a>
+          <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="btn-secondary"><svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>View on GitHub</a>
+        </div>
+      </div>
+    </section>
   </main>
+
   <Footer />
 </Layout>
+
+<script is:inline>
+  document.getElementById('install-copy')?.addEventListener('click', function() {
+    navigator.clipboard.writeText('npm install holomime');
+    this.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>';
+    this.style.color = '#22c55e';
+    var btn = this;
+    setTimeout(function() {
+      btn.innerHTML = '<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg>';
+      btn.style.color = '';
+    }, 2000);
+  });
+</script>
