@@ -836,3 +836,14 @@ export {
 } from "./core/stack-compiler.js";
 
 export { loadSpecWithStack } from "./core/stack-loader.js";
+
+// ─── Kimodo (NVIDIA Motion) ──────────────────────────────
+
+export {
+  mapPersonalityToMotionStyle,
+  generateMotionConstraints,
+  buildMotionRequest,
+  type KimodoMotionStyle,
+  type KimodoConstraint,
+  type KimodoMotionRequest,
+} from "./integrations/kimodo-personality-mapper.js";

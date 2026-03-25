@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "morphology": "humanoid",
+  "modalities": ["gesture", "locomotion", "gaze", "voice", "posture", "manipulation"],
+  "safety_envelope": {
+    "max_linear_speed_m_s": 2.0,
+    "max_angular_speed_rad_s": 2.0,
+    "min_proximity_m": 0.5,
+    "max_contact_force_n": 30,
+    "emergency_stop_decel_m_s2": 6.0,
+    "max_reach_m": 0.55,
+    "operating_temperature_c": [-5, 40]
+  },
+  "hardware_profile": {
+    "oem": "Unitree",
+    "model": "G1",
+    "actuator_count": 43,
+    "sensors": ["stereo_camera", "depth_camera", "imu", "force_torque", "microphone", "lidar"],
+    "compute": "onboard"
+  },
+  "motion_engine": {
+    "backend": "kimodo",
+    "supported_models": ["G1", "SMPL-X", "SOMA"],
+    "constraint_types": ["full_body_joint", "root_waypoint_2d", "end_effector"],
+    "text_to_motion": true
+  }
+}

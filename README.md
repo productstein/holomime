@@ -96,6 +96,7 @@ holomime embody --body registry/bodies/figure-02.body.api
 | MuJoCo | Behavioral therapy in simulation -- sim-to-real for behavior | `mujoco-env.ts` + `sim-therapy.ts` |
 | NVIDIA Isaac Sim | Enterprise digital twin testing with PhysX physics | `--adapter isaac` + `isaac-env.ts` |
 | LeRobot (HuggingFace) | Personality to policy parameter mapping, DPO dataset export | `lerobot.ts` |
+| NVIDIA Kimodo | Personality → motion style | `kimodo-personality-mapper.ts` |
 | Unity | Real-time personality push via HTTP/SSE | `--adapter unity` |
 | gRPC | Custom robotics stacks | `--adapter grpc` |
 | MQTT | IoT/edge robots | `--adapter mqtt` |

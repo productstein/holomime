@@ -196,6 +196,36 @@ holomime embody --stack ./identity --swap-body bodies/figure-02.body.api --adapt
           </div>
         </section>
 
+        <hr class="border-[var(--color-warm-border)] my-16" />
+
+        <!-- NVIDIA Kimodo -->
+        <section class="mb-20">
+          <div class="flex items-center gap-4 mb-4">
+            <div class="shrink-0 flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-p-sage-soft)] border border-[var(--color-p-sage)]/20">
+              <svg class="w-6 h-6 text-[var(--color-p-sage)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"/></svg>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">NVIDIA Kimodo</h2>
+              <p class="text-sm text-[var(--color-warm-muted)]">Personality to motion style</p>
+            </div>
+          </div>
+          <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
+            Map Big Five personality traits to humanoid motion style. Agreeableness controls approach gentleness, conscientiousness controls movement precision, extraversion controls gesture amplitude. Supports G1 (Unitree), SOMA, and SMPL-X body models. Released March 2026.
+          </p>
+          <pre class="rounded-lg bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto mb-4"><code>import &lbrace; buildMotionRequest &rbrace; from "holomime";
+
+const request = buildMotionRequest(
+  "Walk to the patient and offer medication",
+  personality.big_five,
+  &lbrace; model: "G1", duration: 5 &rbrace;
+);
+<span class="text-[#94a3b8]">// request.style.approachGentleness = 0.87</span>
+<span class="text-[#94a3b8]">// request.constraints = [speed, proximity, gesture]</span></code></pre>
+          <div class="rounded-md bg-[var(--color-p-sage-soft)] border border-[var(--color-p-sage)]/20 px-4 py-3">
+            <p class="text-sm text-[var(--color-warm-text)]"><strong>Requirements:</strong> NVIDIA Kimodo API access</p>
+          </div>
+        </section>
+
         <!-- CTA -->
         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8 pb-4">
           <a href="/whitepaper" class="inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-semibold text-white"
