@@ -46,41 +46,41 @@ const demoAgents = [
             </div>
             <span class="pipe-label">Define</span>
           </button>
-          <button class="pipe-step locked" data-step="diagnose">
+          <button class="pipe-step pipe-step-pro" data-step="diagnose">
             <div class="pipe-circle">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
             </div>
-            <span class="pipe-label">Diagnose</span>
+            <span class="pipe-label">Diagnose <span class="pro-badge">Pro</span></span>
           </button>
-          <button class="pipe-step locked" data-step="refine">
+          <button class="pipe-step pipe-step-pro" data-step="refine">
             <div class="pipe-circle">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242"/></svg>
             </div>
-            <span class="pipe-label">Refine</span>
+            <span class="pipe-label">Refine <span class="pro-badge">Pro</span></span>
           </button>
-          <button class="pipe-step locked" data-step="train">
+          <button class="pipe-step pipe-step-pro" data-step="train">
             <div class="pipe-circle">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
             </div>
-            <span class="pipe-label">Train</span>
+            <span class="pipe-label">Train <span class="pro-badge">Pro</span></span>
           </button>
-          <button class="pipe-step locked" data-step="evaluate">
+          <button class="pipe-step pipe-step-pro" data-step="evaluate">
             <div class="pipe-circle">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
             </div>
-            <span class="pipe-label">Evaluate</span>
+            <span class="pipe-label">Evaluate <span class="pro-badge">Pro</span></span>
           </button>
-          <button class="pipe-step locked" data-step="monitor">
+          <button class="pipe-step pipe-step-pro" data-step="monitor">
             <div class="pipe-circle">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
             </div>
-            <span class="pipe-label">Monitor</span>
+            <span class="pipe-label">Monitor <span class="pro-badge">Pro</span></span>
           </button>
-          <button class="pipe-step locked" data-step="deploy">
+          <button class="pipe-step pipe-step-pro" data-step="deploy">
             <div class="pipe-circle">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.58-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>
             </div>
-            <span class="pipe-label">Deploy</span>
+            <span class="pipe-label">Deploy <span class="pro-badge">Pro</span></span>
           </button>
         </div>
       </div>
@@ -452,8 +452,9 @@ const demoAgents = [
 <style>
   /* Pipeline nav */
   .pipe-step { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; background: none; border: none; cursor: pointer; transition: all 0.3s; }
-  .pipe-step.locked { opacity: 0.35; cursor: not-allowed; }
-  .pipe-step.locked .pipe-circle { background: var(--color-warm-sand); }
+  .pipe-step-pro { opacity: 0.7; }
+  .pipe-step-pro .pipe-circle { background: var(--color-warm-sand); }
+  .pro-badge { display: inline-block; font-size: 9px; line-height: 1; background: var(--color-p-coral-soft); color: var(--color-p-coral); padding: 2px 6px; border-radius: 9999px; font-weight: 700; margin-left: 4px; vertical-align: middle; }
   .pipe-circle { display: flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--color-warm-sand); color: var(--color-warm-muted); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
   .pipe-step.active .pipe-circle { background: linear-gradient(135deg, var(--color-p-coral), var(--color-p-violet)); color: white; transform: scale(1.15); box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3); }
   .pipe-step.completed .pipe-circle { background: var(--color-p-sage); color: white; }

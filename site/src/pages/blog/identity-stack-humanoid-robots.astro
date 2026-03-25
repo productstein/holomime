@@ -53,9 +53,13 @@ import BlogLayout from "../../components/BlogLayout.astro";
 </p>
 
 <pre><code>soul.md          — values, ethics, purpose          (Aristotle)
-mind.sys       — Big Five, EQ, communication      (Jung)
+mind.sys         — Big Five, EQ, communication      (Jung)
+purpose.cfg      — role, objectives, domain scope   (per-deployment)
+shadow.log       — detected patterns, blind spots   (auto-detected)
+memory.store     — learned contexts, knowledge      (accumulative)
 body.api         — morphology, safety, hardware     (swappable)
 conscience.exe   — deny/allow/escalate enforcement  (Freud)
+ego.runtime      — conflict resolution, mediation   (runtime)
                       ↓ compile
 personality.json — compiled output (existing schema, unchanged)</code></pre>
 
@@ -82,6 +86,30 @@ personality.json — compiled output (existing schema, unchanged)</code></pre>
   <strong>conscience.exe</strong> is Freud's superego — the internalized moral authority. Deny rules,
   allow rules, escalation triggers. Deny dominates in composition. Like soul.md, it's never auto-modified.
   Changing what a robot refuses to do requires explicit human approval.
+</p>
+
+<p>
+  <strong>purpose.cfg</strong> defines the deployment-specific role, objectives, domain scope,
+  stakeholders, and success criteria. While soul.md is universal, purpose.cfg is contextual — the
+  same agent might have different purposes in a hospital vs. a warehouse.
+</p>
+
+<p>
+  <strong>shadow.log</strong> is the diagnostic layer — detected behavioral patterns, blind spots,
+  and therapy outcomes. It's read-only and auto-populated. Every therapy session writes to it. Every
+  pattern detected, every severity score, every trend line lives here.
+</p>
+
+<p>
+  <strong>memory.store</strong> accumulates experience — learned contexts, interaction patterns,
+  and knowledge gained from sessions. Unlike mind.sys which defines personality, memory.store records
+  what the agent has learned through operation.
+</p>
+
+<p>
+  <strong>ego.runtime</strong> is the runtime mediator — Freud's ego balancing purpose against
+  conscience. It controls conflict resolution strategy, adaptation rate, emotional regulation, and
+  response strategy. This is where real-time decision-making parameters live.
 </p>
 
 <h2>Body Swap</h2>
@@ -130,7 +158,7 @@ personality.json — compiled output (existing schema, unchanged)</code></pre>
 <pre><code># Create the identity stack
 npx holomime init-stack
 
-# Edit soul.md, mind.sys, conscience.exe
+# Edit soul.md, mind.sys, purpose.cfg, conscience.exe, etc.
 
 # Compile to .personality.json
 npx holomime compile-stack
@@ -148,7 +176,7 @@ npx holomime embody --stack . --adapter ros2</code></pre>
 
 <p>
   The identity stack is MIT licensed because it should be a standard, not a product.
-  Every humanoid project that adopts soul/mind/body/conscience as vocabulary strengthens
+  Every humanoid project that adopts the eight-file identity stack as vocabulary strengthens
   the ecosystem. The hardware race is on. The soul is missing. Read our <a href="/whitepaper">whitepaper</a> for the full research and rationale behind this approach.
 </p>
 

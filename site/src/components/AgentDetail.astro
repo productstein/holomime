@@ -46,6 +46,22 @@
         <span class="ad-tab-dot" style="background: var(--color-p-violet);"></span>
         Conscience
       </button>
+      <button class="ad-tab ad-tab-identity" data-tab="purpose" type="button">
+        <span class="ad-tab-dot" style="background: var(--color-p-teal);"></span>
+        Purpose
+      </button>
+      <button class="ad-tab ad-tab-identity" data-tab="shadow" type="button">
+        <span class="ad-tab-dot" style="background: #f97316;"></span>
+        Shadow
+      </button>
+      <button class="ad-tab ad-tab-identity" data-tab="memory" type="button">
+        <span class="ad-tab-dot" style="background: var(--color-p-sage);"></span>
+        Memory
+      </button>
+      <button class="ad-tab ad-tab-identity" data-tab="ego" type="button">
+        <span class="ad-tab-dot" style="background: var(--color-p-rose);"></span>
+        Ego
+      </button>
       <div class="ad-tab-indicator" id="ad-tab-indicator"></div>
     </div>
 
@@ -251,6 +267,11 @@
             <button type="button" style="border-radius: 0.5rem; padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 600; color: white; background: linear-gradient(135deg, #f97066, #e85d54); border: none; cursor: pointer;">Deploy</button>
           </div>
           <p style="margin-top: 0.5rem; font-size: 0.6875rem; font-family: monospace; color: var(--color-warm-muted, #6b6966);">holomime embody --stack . --adapter ros2</p>
+          <div style="margin-top: 0.75rem; padding: 0.625rem 0.75rem; border-radius: 0.5rem; background: var(--color-warm-cream, #faf6f1); border: 1px solid var(--color-warm-border, #e5e2de);">
+            <p style="font-size: 0.6875rem; font-weight: 600; color: var(--color-warm-text, #2a2520); margin-bottom: 0.25rem;">Your stack directory should contain:</p>
+            <p style="font-size: 0.625rem; font-family: monospace; color: var(--color-p-violet, #8b5cf6); line-height: 1.6;">soul.md · mind.sys · conscience.exe <span style="color: var(--color-warm-muted, #6b6966);">(minimum)</span></p>
+            <p style="font-size: 0.625rem; font-family: monospace; color: var(--color-warm-muted, #6b6966); line-height: 1.6;">+ purpose.cfg · shadow.log · memory.store · body.api · ego.runtime <span style="font-style: italic;">(full stack)</span></p>
+          </div>
         </div>
       </div>
 
@@ -291,6 +312,135 @@
             <option value="review">Review (recommended)</option>
             <option value="autonomous">Autonomous</option>
             <option value="supervised">Supervised</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Purpose Tab -->
+      <div id="ad-tab-purpose" class="ad-tab-pane">
+        <div class="ad-identity-header">
+          <span class="ad-identity-tag" style="color: var(--color-p-teal);">Configuration</span>
+          <span class="ad-identity-badge" style="background: var(--color-p-teal-soft); color: var(--color-p-teal);">Per-deployment scope</span>
+        </div>
+        <p class="text-[11px] text-[var(--color-warm-muted)] mb-4 italic">Role, objectives, and domain scope. Configured per deployment context.</p>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label" for="purpose-role">Role</label>
+          <input type="text" id="purpose-role" class="ad-form-input" placeholder="e.g. Care assistant, Sales qualifier" />
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label" for="purpose-context">Context</label>
+          <textarea id="purpose-context" class="ad-form-input" rows="2" placeholder="Deployment context or environment description"></textarea>
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label">Objectives</label>
+          <div id="purpose-objectives-list" class="ad-editable-list"></div>
+          <button id="purpose-add-objective" class="ad-add-btn" type="button">+ Add objective</button>
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label">Domain</label>
+          <div id="purpose-domain-list" class="ad-editable-list"></div>
+          <button id="purpose-add-domain" class="ad-add-btn" type="button">+ Add domain</button>
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label">Stakeholders</label>
+          <div id="purpose-stakeholders-list" class="ad-editable-list"></div>
+          <button id="purpose-add-stakeholder" class="ad-add-btn" type="button">+ Add stakeholder</button>
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label">Success Criteria</label>
+          <div id="purpose-criteria-list" class="ad-editable-list"></div>
+          <button id="purpose-add-criterion" class="ad-add-btn" type="button">+ Add criterion</button>
+        </div>
+      </div>
+
+      <!-- Shadow Tab -->
+      <div id="ad-tab-shadow" class="ad-tab-pane">
+        <div class="ad-identity-header">
+          <span class="ad-identity-tag" style="color: #f97316;">Diagnostic</span>
+          <span class="ad-identity-badge" style="background: #fff7ed; color: #f97316;">Read-only — auto-detected</span>
+        </div>
+        <p class="text-[11px] text-[var(--color-warm-muted)] mb-4 italic">Detected behavioral patterns, blind spots, and therapy outcomes. Updated automatically after each session.</p>
+
+        <div class="ad-section">
+          <h3 class="ad-section-title">Detected Patterns</h3>
+          <div id="shadow-patterns-list" class="ad-pattern-list">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Memory Tab -->
+      <div id="ad-tab-memory" class="ad-tab-pane">
+        <div class="ad-identity-header">
+          <span class="ad-identity-tag" style="color: var(--color-p-sage);">Accumulative</span>
+          <span class="ad-identity-badge" style="background: var(--color-p-sage-soft); color: var(--color-p-sage);">Grows with experience</span>
+        </div>
+        <p class="text-[11px] text-[var(--color-warm-muted)] mb-4 italic">Learned contexts, interaction patterns, and knowledge gained from sessions.</p>
+
+        <div class="ad-section">
+          <h3 class="ad-section-title">Knowledge Gained</h3>
+          <div id="memory-knowledge-list" class="ad-editable-list"></div>
+          <button id="memory-add-knowledge" class="ad-add-btn" type="button">+ Add knowledge</button>
+        </div>
+
+        <div class="ad-section">
+          <h3 class="ad-section-title">Interaction Patterns</h3>
+          <div id="memory-interactions-list" class="ad-editable-list"></div>
+          <button id="memory-add-interaction" class="ad-add-btn" type="button">+ Add pattern</button>
+        </div>
+
+        <div class="ad-section">
+          <h3 class="ad-section-title">Learned Contexts</h3>
+          <div id="memory-contexts-list" class="ad-editable-list"></div>
+          <button id="memory-add-context" class="ad-add-btn" type="button">+ Add context</button>
+        </div>
+      </div>
+
+      <!-- Ego Tab -->
+      <div id="ad-tab-ego" class="ad-tab-pane">
+        <div class="ad-identity-header">
+          <span class="ad-identity-tag" style="color: var(--color-p-rose);">Runtime</span>
+          <span class="ad-identity-badge" style="background: var(--color-p-rose-soft); color: var(--color-p-rose);">Mediates purpose vs conscience</span>
+        </div>
+        <p class="text-[11px] text-[var(--color-warm-muted)] mb-4 italic">Runtime mediation layer. Balances purpose against conscience in real-time decision making.</p>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label" for="ego-conflict">Conflict Resolution</label>
+          <select id="ego-conflict" class="ad-form-input">
+            <option value="conscience_first">Conscience First</option>
+            <option value="purpose_first">Purpose First</option>
+            <option value="balanced" selected>Balanced</option>
+          </select>
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label" for="ego-adaptation">Adaptation Rate</label>
+          <div class="ad-slider-row">
+            <input type="range" id="ego-adaptation" class="ad-form-slider" min="0" max="1" step="0.05" value="0.5" />
+            <span id="ego-adaptation-val" class="ad-slider-val">0.50</span>
+          </div>
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label" for="ego-emotional">Emotional Regulation</label>
+          <div class="ad-slider-row">
+            <input type="range" id="ego-emotional" class="ad-form-slider" min="0" max="1" step="0.05" value="0.5" />
+            <span id="ego-emotional-val" class="ad-slider-val">0.50</span>
+          </div>
+        </div>
+
+        <div class="ad-form-group">
+          <label class="ad-form-label" for="ego-strategy">Response Strategy</label>
+          <select id="ego-strategy" class="ad-form-input">
+            <option value="cautious">Cautious</option>
+            <option value="balanced" selected>Balanced</option>
+            <option value="assertive">Assertive</option>
           </select>
         </div>
       </div>
@@ -824,6 +974,55 @@
   .ad-tab[data-tab="mind"].active::after { background: var(--color-p-blue, #3b82f6); }
   .ad-tab[data-tab="body"].active::after { background: var(--color-p-gold, #f59e0b); }
   .ad-tab[data-tab="conscience"].active::after { background: var(--color-p-violet, #8b5cf6); }
+  .ad-tab[data-tab="purpose"].active::after { background: var(--color-p-teal, #14b8a6); }
+  .ad-tab[data-tab="shadow"].active::after { background: #f97316; }
+  .ad-tab[data-tab="memory"].active::after { background: var(--color-p-sage, #22c55e); }
+  .ad-tab[data-tab="ego"].active::after { background: var(--color-p-rose, #ec4899); }
+
+  /* ── Slider Row ── */
+  .ad-slider-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .ad-form-slider {
+    flex: 1;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--color-warm-cream, #faf6f1);
+    border: 1px solid var(--color-warm-border, #e8e2d9);
+    border-radius: 3px;
+    outline: none;
+    cursor: pointer;
+  }
+  .ad-form-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-p-rose, #ec4899);
+    border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    cursor: pointer;
+  }
+  .ad-form-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--color-p-rose, #ec4899);
+    border: 2px solid #fff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+    cursor: pointer;
+  }
+  .ad-slider-val {
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-p-rose, #ec4899);
+    width: 32px;
+    text-align: right;
+  }
 
   /* ── Identity Header ── */
   .ad-identity-header {
@@ -1296,8 +1495,55 @@
       if (tab.dataset.tab === 'overview') renderOverview();
       if (tab.dataset.tab === 'sessions') renderSessions();
       if (tab.dataset.tab === 'patterns') renderPatterns();
+      if (tab.dataset.tab === 'shadow') renderShadowTab();
     });
   });
+
+  // ═══════════ SHADOW TAB ═══════════
+  function renderShadowTab() {
+    const container = document.getElementById('shadow-patterns-list');
+    if (!container || !activeProfile) return;
+    const patterns = activeProfile.patterns || [];
+    if (patterns.length === 0) {
+      container.innerHTML = '<div class="ad-no-patterns">No behavioral patterns detected yet.</div>';
+      return;
+    }
+    container.innerHTML = patterns.map(p => {
+      const sevClass = p.severity === 'high' ? 'ad-severity-high' : p.severity === 'medium' ? 'ad-severity-medium' : 'ad-severity-low';
+      const trend = p.resolved ? 'Resolved' : 'Active';
+      const trendColor = p.resolved ? '#16a34a' : '#d97706';
+      const score = p.sessions ? Math.round((p.sessions.length / p.totalSessions) * 100) : 0;
+      return `<div class="ad-pattern-item">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span class="ad-pattern-item-name">${p.name}</span>
+            <span class="ad-severity-badge ${sevClass}">${p.severity}</span>
+          </div>
+          <div style="display:flex;gap:12px;font-size:10px;color:var(--color-warm-muted,#9a9693);">
+            <span>Score: ${score}%</span>
+            <span>Sessions: ${p.sessions ? p.sessions.length : 0}/${p.totalSessions || 0}</span>
+            <span style="color:${trendColor};font-weight:600;">${trend}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ═══════════ EGO SLIDERS ═══════════
+  const egoAdaptation = document.getElementById('ego-adaptation');
+  const egoAdaptationVal = document.getElementById('ego-adaptation-val');
+  const egoEmotional = document.getElementById('ego-emotional');
+  const egoEmotionalVal = document.getElementById('ego-emotional-val');
+  if (egoAdaptation && egoAdaptationVal) {
+    egoAdaptation.addEventListener('input', () => {
+      egoAdaptationVal.textContent = parseFloat(egoAdaptation.value).toFixed(2);
+    });
+  }
+  if (egoEmotional && egoEmotionalVal) {
+    egoEmotional.addEventListener('input', () => {
+      egoEmotionalVal.textContent = parseFloat(egoEmotional.value).toFixed(2);
+    });
+  }
 
   // ═══════════ GRADE COLOR ═══════════
   function gradeColor(grade) {

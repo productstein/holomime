@@ -268,6 +268,9 @@ const traitDimData = TRAIT_DIMENSIONS.map(dim => ({
                 <button id="copy-prompt-btn" class="text-xs font-medium px-2 py-1 rounded border transition-colors" style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-muted, #9a9693);">
                   Copy
                 </button>
+                <button id="download-personality-btn" class="text-xs font-medium px-2 py-1 rounded border transition-colors" style="border-color: var(--color-warm-border, #e8e2d9); color: var(--color-warm-muted, #9a9693);">
+                  Download personality.json
+                </button>
               </div>
             </div>
             <div class="grid gap-3 sm:grid-cols-3 mb-4">
@@ -338,7 +341,7 @@ const traitDimData = TRAIT_DIMENSIONS.map(dim => ({
   <Footer />
 </Layout>
 
-<script define:vars={{ agentId: agent.id, initialTraits: traits, initialFacets: facets, initialSignatures: signatures, initialPreferences: preferences }}>
+<script define:vars={{ agentId: agent.id, agentHandle: agent.handle, agentName: agent.name, initialTraits: traits, initialFacets: facets, initialSignatures: signatures, initialPreferences: preferences }}>
 (function() {
   // Current trait state
   const currentTraits = { ...initialTraits };
@@ -429,6 +432,30 @@ const traitDimData = TRAIT_DIMENSIONS.map(dim => ({
       const btn = document.getElementById('copy-prompt-btn');
       if (btn) { btn.textContent = 'Copied!'; setTimeout(() => { btn.textContent = 'Copy'; }, 2000); }
     }
+  });
+
+  // Download personality.json
+  document.getElementById('download-personality-btn')?.addEventListener('click', () => {
+    const agentData = {
+      name: agentName,
+      handle: agentHandle,
+      traits: currentTraits,
+      facets: {
+        cognitive_style: document.getElementById('facet-cognitive')?.value || undefined,
+        persuasion: document.getElementById('facet-persuasion')?.value || undefined,
+        collaboration: document.getElementById('facet-collaboration')?.value || undefined,
+      },
+      signatures: initialSignatures,
+      preferences: initialPreferences,
+    };
+    const data = JSON.stringify(agentData, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${agentHandle}.personality.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   });
 
   // Save vector

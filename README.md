@@ -256,6 +256,12 @@ The **body** is the interface between identity and world. Same soul, different b
 
 We don't know if AI is sentient. But we can give it a conscience.
 
+## Open Core
+
+See [PRODUCT.md](PRODUCT.md) for what's in this repo vs. what's proprietary on holomime.com.
+
+**The standard is free. The training infrastructure is the business.**
+
 ## Open Source
 
 MIT licensed. The identity stack is a standard, not a product. The standard is free. The training infrastructure is the business.

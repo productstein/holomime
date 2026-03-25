@@ -1017,7 +1017,26 @@ const personalityStyle: [string, string][] = userPersonality?.spec?.style
             </div>
           )}
 
-          <div class="mt-5 rounded-lg bg-[var(--color-warm-cream)] border border-[var(--color-warm-border)] px-4 py-3">
+          <!-- Identity Stack indicator -->
+          <div class="mt-5 flex items-center gap-3 rounded-lg bg-[var(--color-warm-cream)] border border-[var(--color-warm-border)] px-4 py-3">
+            <div>
+              <p class="text-xs font-medium text-[var(--color-warm-text)]">Identity Stack</p>
+              <p class="mt-0.5 text-[10px] text-[var(--color-warm-muted)]">soul · mind · purpose · shadow · memory · body · conscience · ego</p>
+            </div>
+            <div class="ml-auto flex items-center gap-1">
+              <span class="h-2 w-2 rounded-full bg-[var(--color-p-violet)]" title="soul.md"></span>
+              <span class="h-2 w-2 rounded-full bg-[var(--color-p-violet)]" title="mind.sys"></span>
+              <span class="h-2 w-2 rounded-full bg-[var(--color-p-violet)]" title="purpose.cfg"></span>
+              <span class="h-2 w-2 rounded-full bg-[var(--color-warm-border)]" title="shadow.log"></span>
+              <span class="h-2 w-2 rounded-full bg-[var(--color-warm-border)]" title="memory.store"></span>
+              <span class="h-2 w-2 rounded-full bg-[var(--color-warm-border)]" title="body.api"></span>
+              <span class="h-2 w-2 rounded-full bg-[var(--color-p-violet)]" title="conscience.exe"></span>
+              <span class="h-2 w-2 rounded-full bg-[var(--color-warm-border)]" title="ego.runtime"></span>
+              <span class="ml-1 text-[10px] font-mono text-[var(--color-warm-muted)]">4/8</span>
+            </div>
+          </div>
+
+          <div class="mt-3 rounded-lg bg-[var(--color-warm-cream)] border border-[var(--color-warm-border)] px-4 py-3">
             <p class="text-xs text-[var(--color-warm-muted)]">Edit your spec via the CLI:</p>
             <code class="mt-1 block font-mono text-xs text-[var(--color-warm-text)]">holomime profile edit</code>
           </div>
