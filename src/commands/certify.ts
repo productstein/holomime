@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import figures from "figures";
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { resolve, dirname } from "node:path";
 import { loadSpec } from "../core/inheritance.js";
 import {
   generateCredential,
@@ -10,6 +10,16 @@ import {
 } from "../analysis/certify-core.js";
 import { printHeader } from "../ui/branding.js";
 import { printBox } from "../ui/boxes.js";
+import {
+  loadStandard,
+  loadAllStandards,
+  checkCompliance,
+  KNOWN_STANDARDS,
+} from "../compliance/iso-mappings.js";
+import {
+  generateReportJSON,
+  formatReportTerminal,
+} from "../compliance/report-generator.js";
 
 interface CertifyOptions {
   personality?: string;
@@ -17,6 +27,7 @@ interface CertifyOptions {
   evolve?: string;
   output?: string;
   verify?: string;
+  standard?: string;
 }
 
 export async function certifyCommand(options: CertifyOptions): Promise<void> {
@@ -74,6 +85,59 @@ export async function certifyCommand(options: CertifyOptions): Promise<void> {
       process.exit(1);
     }
     console.log();
+    return;
+  }
+
+  // ─── ISO Compliance mode ──────────────────────────────────
+  if (options.standard) {
+    printHeader("Certify — ISO Compliance Check");
+
+    const specPath = resolve(process.cwd(), options.personality ?? ".personality.json");
+    let spec: any;
+    try {
+      spec = loadSpec(specPath);
+    } catch {
+      console.error(chalk.red(`  Could not read personality file: ${specPath}`));
+      process.exit(1);
+      return;
+    }
+
+    // Load the requested standard(s)
+    const standardName = options.standard.toLowerCase();
+    const reports = [];
+
+    try {
+      if (standardName === "all") {
+        const standards = loadAllStandards();
+        for (const std of standards) {
+          reports.push(checkCompliance(spec, std));
+        }
+      } else {
+        const std = loadStandard(standardName);
+        reports.push(checkCompliance(spec, std));
+      }
+    } catch (err: any) {
+      console.error(chalk.red(`  ${err.message}`));
+      process.exit(1);
+      return;
+    }
+
+    // Display terminal report
+    console.log(formatReportTerminal(reports));
+
+    // Save JSON report if --output specified
+    if (options.output) {
+      const jsonReport = generateReportJSON(reports);
+      const outputPath = resolve(process.cwd(), options.output);
+      const outputDir = dirname(outputPath);
+      if (!existsSync(outputDir)) {
+        mkdirSync(outputDir, { recursive: true });
+      }
+      writeFileSync(outputPath, JSON.stringify(jsonReport, null, 2) + "\n");
+      console.log(chalk.dim(`  Report saved to ${outputPath}`));
+      console.log();
+    }
+
     return;
   }
 

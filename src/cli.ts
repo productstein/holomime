@@ -343,12 +343,13 @@ program
 
 program
   .command("certify")
-  .description("Generate a verifiable behavioral credential for your agent [Pro]")
+  .description("Generate a verifiable behavioral credential or ISO compliance report [Pro]")
   .option("--personality <path>", "Path to .personality.json", ".personality.json")
   .option("--benchmark <path>", "Path to benchmark report JSON")
   .option("--evolve <path>", "Path to evolve result JSON")
-  .option("-o, --output <path>", "Output directory for credential")
+  .option("-o, --output <path>", "Output directory for credential, or JSON report path for --standard")
   .option("--verify <path>", "Verify an existing credential")
+  .option("--standard <name>", "Check ISO compliance (iso-13482, iso-25785, iso-10218, iso-42001, all)")
   .action(certifyCommand);
 
 program

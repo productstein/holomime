@@ -620,6 +620,25 @@ export {
   type MonitoringCertificate,
 } from "./compliance/audit-trail.js";
 
+// ─── ISO Compliance Mappings ─────────────────────────────
+
+export {
+  loadStandard,
+  loadAllStandards,
+  checkCompliance,
+  KNOWN_STANDARDS,
+  type ISOClause,
+  type ISOStandard,
+  type ClauseStatus,
+  type ComplianceCoverageReport,
+} from "./compliance/iso-mappings.js";
+
+export {
+  generateReportJSON,
+  formatReportTerminal,
+  type ComplianceReportJSON,
+} from "./compliance/report-generator.js";
+
 // ─── ReACT Compliance Reports ───────────────────────────
 
 export {
