@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://holomime.com/logo-icon.svg" alt="holomime" width="80" />
+  <img src="site/public/logo-icon.svg" alt="holomime" width="80" />
 </p>
 
 <h1 align="center">holomime</h1>
