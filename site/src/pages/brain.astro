@@ -7,8 +7,8 @@ import { createClient } from "@supabase/supabase-js";
 // Server-side: check for ?d= param to set dynamic OG tags
 const d = Astro.url.searchParams.get("d");
 let isSnapshot = !!d;
-let ogTitle = "HoloMime Brain — See inside your AI agent's brain";
-let ogDescription = "Real-time 3D brain visualization for AI coding agents. One command: npx holomime brain.";
+let ogTitle = "HoloMime Brain — See behavioral drift before it happens";
+let ogDescription = "Real-time drift visualization powered by the 8-file Identity Stack. 14 detectors. One command: npx holomime brain.";
 let ogImage = "https://holomime.com/og-image.png";
 let shortUrl = "";
 
@@ -160,7 +160,7 @@ if (d) {
             </h1>
 
             <p class="text-lg text-[var(--color-warm-muted)] leading-relaxed max-w-xl mx-auto lg:mx-0 mb-8">
-              One command. Your browser opens. A 3D brain lights up in real time as your AI coding agent thinks, responds, and drifts. Watch sycophancy fire. See hedging stack up. Catch the moment your agent starts people-pleasing instead of telling the truth.
+              One command. Your browser opens. 14 detectors light up in real time as your agent responds and drifts. shadow.log catches sycophancy creeping up. conscience.exe flags boundary violations. ego.runtime mediates before it reaches the user.
             </p>
 
             <!-- Install CTA -->
@@ -171,7 +171,7 @@ if (d) {
                   <span class="text-[11px] font-semibold text-[var(--color-warm-muted)] uppercase tracking-wider">One command. Zero config.</span>
                 </div>
                 <code class="text-lg font-mono text-[var(--color-p-violet)]">npx holomime brain</code>
-                <p class="text-xs text-[var(--color-warm-muted)] mt-2">Auto-detects Claude Code, Cline, OpenClaw, Cursor, and Codex.</p>
+                <p class="text-xs text-[var(--color-warm-muted)] mt-2">Auto-detects Claude Code, Cline, Cursor, and Codex.</p>
               </div>
             </div>
 
@@ -371,7 +371,7 @@ if (d) {
             </div>
             <h3 class="text-[var(--color-warm-text)] font-semibold mb-2">Auto-detect</h3>
             <p class="text-sm text-[var(--color-warm-muted)] leading-relaxed">
-              Scans for running agents automatically. Claude Code, Cline, OpenClaw, Cursor, Codex — or point it at any conversation log.
+              Scans for running agents automatically. Claude Code, Cline, Cursor, Codex — or point it at any conversation log.
             </p>
           </div>
           <div class="text-center">
@@ -507,16 +507,26 @@ if (d) {
     <section class="py-20 px-6 bg-[var(--color-warm-cream)] border-y border-[var(--color-warm-sand)]">
       <div class="max-w-3xl mx-auto text-center">
         <p class="text-sm font-semibold tracking-wider uppercase text-[var(--color-p-teal)] mb-3">Compatibility</p>
-        <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color-warm-text)] mb-4">Works with every major AI coding agent</h2>
-        <p class="text-[var(--color-warm-muted)] mb-12">Auto-detects the active agent. Or point it at any conversation log.</p>
+        <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color-warm-text)] mb-4">From coding agents to humanoid robots</h2>
+        <p class="text-[var(--color-warm-muted)] mb-12">Monitor drift across any agent — cloud APIs, coding assistants, or physical robot bodies deployed via ROS2.</p>
 
-        <div class="flex flex-wrap justify-center gap-4">
-          <div class="px-6 py-3.5 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">Claude Code</div>
-          <div class="px-6 py-3.5 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">Cline</div>
-          <div class="px-6 py-3.5 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">OpenClaw</div>
-          <div class="px-6 py-3.5 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">Cursor</div>
-          <div class="px-6 py-3.5 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">Codex CLI</div>
-          <div class="px-6 py-3.5 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-muted)]">Any JSONL log via --watch</div>
+        <div class="mb-6">
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#bbb] mb-3">AI agents</p>
+          <div class="flex flex-wrap justify-center gap-3">
+            <div class="px-5 py-3 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">Claude Code</div>
+            <div class="px-5 py-3 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">Cline</div>
+            <div class="px-5 py-3 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">Cursor</div>
+            <div class="px-5 py-3 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">Codex CLI</div>
+          </div>
+        </div>
+        <div>
+          <p class="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#bbb] mb-3">Robotics platforms</p>
+          <div class="flex flex-wrap justify-center gap-3">
+            <div class="px-5 py-3 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">ROS2</div>
+            <div class="px-5 py-3 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">NVIDIA Isaac</div>
+            <div class="px-5 py-3 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-text)] font-semibold">MuJoCo</div>
+            <div class="px-5 py-3 rounded-xl border border-[var(--color-warm-sand)] bg-white shadow-sm text-sm text-[var(--color-warm-muted)]">Any log via --watch</div>
+          </div>
         </div>
       </div>
     </section>

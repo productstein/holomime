@@ -5,12 +5,16 @@ interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  noindex?: boolean;
+  structuredData?: Record<string, unknown>;
 }
 
 const {
   title = "holomime — Behavioral Intelligence for AI Agents",
   description = "Train agent minds through structured therapy. Diagnose behavioral drift. Fix it permanently. Deploy to any body.",
   ogImage = "https://holomime.com/og-image.png",
+  noindex = false,
+  structuredData,
 } = Astro.props;
 ---
 
@@ -37,10 +41,29 @@ const {
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={Astro.url.href} />
+    <link rel="canonical" href={Astro.url.href} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:site" content="@holomimeIQ" />
+    <meta name="twitter:creator" content="@holomimeIQ" />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "holomime",
+      "url": "https://holomime.com",
+      "logo": "https://holomime.com/logo-icon.svg",
+      "description": "Behavioral intelligence for AI agents and humanoid robots.",
+      "sameAs": [
+        "https://github.com/productstein/holomime",
+        "https://x.com/holomimeIQ",
+        "https://www.npmjs.com/package/holomime"
+      ]
+    })} />
+    {structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
     <slot name="head" />
 
     <title>{title}</title>

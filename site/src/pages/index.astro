@@ -65,12 +65,12 @@ const stackCards = [
 
     <!-- ═══ PROBLEM ═══ -->
     <section class="section-cream py-20 md:py-28">
-      <div class="mx-auto max-w-4xl px-6">
+      <div class="mx-auto max-w-5xl px-6">
         <h2 class="text-[clamp(1.75rem,4vw,2.75rem)] font-bold leading-[1.15] tracking-[-0.02em]">
           <span class="text-[var(--color-warm-text)]">Everyone is building AI.</span><br />
           <span class="text-[#999]">Nobody is training the mind.</span>
         </h2>
-        <p class="mt-12 text-[clamp(1.25rem,2.5vw,1.75rem)] leading-[1.6] text-[#555] max-w-3xl">Locomotion is solved. Manipulation is getting there. But when a care robot drifts from its safety protocols after 10,000 hours — that's not a hardware problem. It's a mind problem.</p>
+        <p class="mt-12 text-[clamp(1.25rem,2.5vw,1.75rem)] leading-[1.6] text-[#555]">Locomotion is solved. Manipulation is getting there. But when a care robot drifts from its safety protocols after 10,000 hours — that's not a hardware problem. It's a mind problem.</p>
       </div>
     </section>
 
@@ -216,15 +216,15 @@ const stackCards = [
       <div class="mx-auto max-w-6xl px-6">
         <h2 class="text-2xl font-bold md:text-3xl tracking-[-0.02em]">The identity stack</h2>
         <p class="mt-2 text-[15px] text-[#777]">Eight files define who the agent is — grounded in Aristotle, Jung, and Freud. They compile into a single <code class="font-mono text-[0.9em] text-[var(--color-warm-text)]">personality.json</code>.</p>
-        <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 items-stretch">
           {stackCards.map((c) => (
-            <div class="holo-card overflow-hidden">
-              <div class="h-[3px]" style={`background: ${c.color};`}></div>
-              <div class="p-5">
+            <div class="holo-card overflow-hidden flex flex-col">
+              <div class="h-[3px] shrink-0" style={`background: ${c.color};`}></div>
+              <div class="p-5 flex flex-col flex-1">
                 <div class="font-mono text-sm font-bold">{c.file}</div>
                 <div class="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.1em] text-[#999]">{c.label}</div>
                 <p class="mt-2 text-[13px] leading-relaxed text-[#777]">{c.desc}</p>
-                <div class="code-mini mt-3"><pre class="whitespace-pre">{c.code}</pre></div>
+                <div class="code-mini mt-auto pt-3"><pre class="whitespace-pre">{c.code}</pre></div>
               </div>
             </div>
           ))}

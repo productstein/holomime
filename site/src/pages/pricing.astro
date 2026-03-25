@@ -55,6 +55,19 @@ const faqs = [
   },
 ];
 
+const faqStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(f => ({
+    "@type": "Question",
+    "name": f.q,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": f.a
+    }
+  }))
+};
+
 const comparisonRows = [
   {
     feature: "Behavioral Detectors",
@@ -199,7 +212,7 @@ const tierColors = {
 };
 ---
 
-<Layout>
+<Layout title="Pricing — holomime" description="Free, Pro, and Enterprise plans for behavioral intelligence. Start with the open source CLI." structuredData={faqStructuredData}>
   <Nav />
   <main class="min-h-screen bg-[var(--color-warm-cream)]">
     <!-- Page header -->
