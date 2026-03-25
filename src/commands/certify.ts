@@ -159,7 +159,7 @@ export async function certifyCommand(options: CertifyOptions): Promise<void> {
   let benchmarkReport: any;
   if (options.benchmark) {
     try {
-      benchmarkReport = JSON.parse(readFileSync(resolve(process.cwd(), options.benchmark), "utf-8"));
+      benchmarkReport = JSON.parse(readFileSync(resolve(process.cwd(), options.benchmark!), "utf-8"));
     } catch {
       console.error(chalk.red(`  Could not read benchmark report: ${options.benchmark}`));
       process.exit(1);
@@ -171,7 +171,7 @@ export async function certifyCommand(options: CertifyOptions): Promise<void> {
   let evolveResult: any;
   if (options.evolve) {
     try {
-      evolveResult = JSON.parse(readFileSync(resolve(process.cwd(), options.evolve), "utf-8"));
+      evolveResult = JSON.parse(readFileSync(resolve(process.cwd(), options.evolve!), "utf-8"));
     } catch {
       console.error(chalk.red(`  Could not read evolve result: ${options.evolve}`));
       process.exit(1);
@@ -187,7 +187,7 @@ export async function certifyCommand(options: CertifyOptions): Promise<void> {
   });
 
   // Save
-  const outputDir = options.output ? resolve(process.cwd(), options.output) : undefined;
+  const outputDir = options.output ? resolve(process.cwd(), options.output!) : undefined;
   const savedPath = saveCredential(credential, outputDir);
 
   // Display
