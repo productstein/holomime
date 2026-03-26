@@ -866,3 +866,20 @@ export {
   type EgoAdjustment,
   type EgoTrackerStats,
 } from "./analysis/ego-tracker.js";
+
+// ─── Edge Runtime (Robotics) ─────────────────────────────
+
+export {
+  CompiledConscience,
+  compileConscience,
+  type ActionContext as EdgeActionContext,
+  type EvalResult as EdgeEvalResult,
+  type CompiledRule,
+  type SafetyBounds,
+} from "./edge/conscience-evaluator.js";
+
+export {
+  EdgeRuntime,
+  type ShadowSignal,
+  type EdgeConfig,
+} from "./edge/edge-runtime.js";

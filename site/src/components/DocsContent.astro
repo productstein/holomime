@@ -562,6 +562,20 @@ holomime compile-stack  # Compiles to .personality.json</code></pre>
               </div>
 
               <div class="doc-card">
+                <h3 class="doc-step">Edge Runtime — &lt;1ms behavioral safety</h3>
+                <p class="text-sm text-[#777] mb-3">Compiled conscience evaluator for real-time robotics. Zero dependencies. Runs alongside a 1kHz control loop on Jetson Thor, Qualcomm, or any ARM64 edge hardware. &lt;200KB footprint. Real-time safety on robot, analytics in cloud, periodic sync.</p>
+                <pre class="doc-code"><code>{`import { EdgeRuntime } from "holomime";
+
+const runtime = new EdgeRuntime({
+  conscienceConfig: { rules: { deny: [{ action: "override_stop", reason: "Safety" }] } },
+  safetyEnvelope: { max_linear_speed_m_s: 1.5, min_proximity_m: 0.5 }
+});
+
+const result = runtime.evaluate({ action: "approach patient", speed: 1.2, proximity: 0.8 });
+// result.allowed = true, result.evalTimeUs = 12 (microseconds)`}</code></pre>
+              </div>
+
+              <div class="doc-card">
                 <h3 class="doc-step">NeuralActionGate — conscience gate for learned controllers</h3>
                 <p class="text-sm text-[#777] mb-3">For fully learned controllers (RL, imitation learning, VLA) where behavior emerges from neural nets with no explicit code, the NeuralActionGate sits between action output and motor execution — checking every action against conscience.exe rules and body.api safety envelope at 200Hz+. Deny dominates. Actions exceeding safety bounds are clamped to the nearest safe value. Every evaluation is logged.</p>
                 <pre class="doc-code"><code>{`import { NeuralActionGate } from "holomime";

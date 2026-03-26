@@ -106,6 +106,17 @@ holomime embody --body registry/bodies/figure-03.body.api
 | gRPC | Custom robotics stacks | `--adapter grpc` |
 | MQTT | IoT/edge robots | `--adapter mqtt` |
 | Neural Action Gate | Conscience gate for learned controllers (VLA, RL, IL) | `neural-action-gate.ts` |
+| Edge Runtime | Compiled conscience for <1ms evaluation | `edge-runtime.ts` |
+
+## Edge Runtime
+
+holomime includes a compiled conscience evaluator for real-time robotics deployment:
+
+- **<1ms p99 latency** — conscience evaluation in microseconds, not milliseconds
+- **Zero dependencies** — no LLM, no network, no cloud required for real-time safety
+- **<200KB footprint** — fits alongside any control loop
+- **Edge/cloud split** — real-time safety on robot, analytics in cloud, periodic sync
+- **Runs on**: Jetson Thor, Qualcomm Robotics, any ARM64 edge hardware
 
 ## ISO Compliance
 

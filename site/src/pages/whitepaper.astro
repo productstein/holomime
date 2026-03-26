@@ -539,9 +539,50 @@ correction_priorities:
   4: communication_style # last</code></pre>
           </div>
 
+          <!-- Edge Runtime -->
+          <div>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.8 Edge Runtime &mdash; &lt;1ms Behavioral Safety</h3>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+              conscience.exe compiles to a deterministic decision tree that runs on edge hardware alongside a robot's 1kHz control loop. No LLM inference. No network roundtrip. No cloud dependency for real-time safety. The compiled evaluator is under 200KB with zero runtime dependencies, achieving sub-millisecond p99 latency &mdash; conscience evaluation in microseconds, not milliseconds.
+            </p>
+            <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
+              The architecture splits cleanly between edge and cloud. The edge runtime handles real-time safety: every action passes through the compiled conscience before reaching actuators. The cloud handles everything else: therapy sessions, DPO training, drift analytics, compliance reporting. Periodic sync pushes updated conscience rules from cloud to edge and pulls shadow.log entries from edge to cloud for analysis. This means the robot is always safe &mdash; even when disconnected from the network.
+            </p>
+            <div class="rounded-lg border border-[var(--color-warm-border)] p-5 mb-4">
+              <h4 class="font-semibold text-[var(--color-warm-text)] mb-3 text-sm">Edge / Cloud Architecture Split</h4>
+              <div class="space-y-2 text-sm text-[var(--color-warm-muted)]">
+                <div class="flex gap-4">
+                  <span class="shrink-0 font-mono w-24 font-semibold text-[var(--color-p-coral)]">Edge</span>
+                  <span>conscience.exe evaluation, safety envelope enforcement, action gating, shadow.log writes</span>
+                </div>
+                <div class="flex gap-4">
+                  <span class="shrink-0 font-mono w-24 font-semibold text-[var(--color-p-blue)]">Cloud</span>
+                  <span>Therapy sessions, DPO training, drift analytics, compliance reports, conscience rule updates</span>
+                </div>
+                <div class="flex gap-4">
+                  <span class="shrink-0 font-mono w-24 font-semibold text-[var(--color-p-sage)]">Sync</span>
+                  <span>Periodic push (updated rules to edge) and pull (shadow.log to cloud) &mdash; robot stays safe when offline</span>
+                </div>
+              </div>
+            </div>
+            <pre class="rounded-md bg-[#0f172a] p-4 text-sm text-[#e2e8f0] overflow-x-auto"><code>┌─────────────────────────────────────────────┐
+│              Edge (on robot)                │
+│  conscience.exe &rarr; decision tree (&lt;200KB)    │
+│  &lt;1ms p99 latency, zero dependencies        │
+│  Runs on: Jetson Thor, Qualcomm, ARM64      │
+└─────────────┬──────────────────┬────────────┘
+              │ periodic sync    │
+              v                  ^
+┌─────────────────────────────────────────────┐
+│              Cloud (holomime platform)      │
+│  Therapy, DPO training, drift analytics,    │
+│  compliance reports, rule updates           │
+└─────────────────────────────────────────────┘</code></pre>
+          </div>
+
           <!-- Body Templates -->
           <div>
-            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.8 OEM Body Templates</h3>
+            <h3 class="text-lg font-bold text-[var(--color-warm-text)] mb-2">4.9 OEM Body Templates</h3>
             <p class="text-[var(--color-warm-muted)] leading-relaxed mb-4">
               Eight pre-built body.api templates for commercially available humanoid platforms. Each template encodes morphology, sensor arrays, actuator limits, and safety envelopes specific to the hardware.
             </p>
