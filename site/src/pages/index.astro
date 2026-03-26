@@ -311,6 +311,32 @@ const stackCards = [
       sph(base,-0.13,0.62,0,0.065,140); sph(base,0.13,0.62,0,0.065,140); ring(base,-0.13,0.62,0,0.07,30); ring(base,0.13,0.62,0,0.07,30);
       cylS(base,-0.13,0.40,0,0.055,0.38,220); cylS(base,0.13,0.40,0,0.055,0.38,220); ring(base,-0.13,0.50,0,0.06,25); ring(base,0.13,0.50,0,0.06,25); ring(base,-0.13,0.32,0,0.06,25); ring(base,0.13,0.32,0,0.06,25);
       boxS(base,-0.13,0.17,0.03,0.10,0.05,0.16,120); boxS(base,0.13,0.17,0.03,0.10,0.05,0.16,120); boxS(base,-0.13,0.16,0.10,0.08,0.03,0.04,30); boxS(base,0.13,0.16,0.10,0.08,0.03,0.04,30);
+      // Brain — wrinkled hemisphere exposed from open head
+      var brainL = [], brainR = [], brainGlow = [];
+      function brainHemi(arr, cx, cy, cz, r, n, xSign) {
+        for (var i = 0; i < n; i++) {
+          var u = Math.random(), v = Math.random();
+          var theta = Math.PI * u; // upper hemisphere only (0 to PI)
+          var phi = Math.PI * v;   // half sphere (left or right)
+          if (xSign < 0) phi = Math.PI + Math.PI * v; // other side
+          // Wrinkle displacement — brain folds
+          var wrinkle = 1.0 + 0.06 * Math.sin(theta * 8) * Math.cos(phi * 6) + 0.03 * Math.sin(theta * 14 + phi * 10);
+          var rr = r * wrinkle * (0.93 + Math.random() * 0.07);
+          var x = cx + rr * Math.sin(theta) * Math.cos(phi);
+          var y = cy + rr * Math.cos(theta) * 0.75; // slightly squashed vertically
+          var z = cz + rr * Math.sin(theta) * Math.sin(phi);
+          // Only keep points in upper portion (above head center)
+          if (y >= cy - r * 0.1) arr.push(x, y, z);
+        }
+      }
+      // Left and right hemispheres with gap between them
+      brainHemi(brainL, -0.02, 2.22, 0, 0.13, 500, -1);
+      brainHemi(brainR, 0.02, 2.22, 0, 0.13, 500, 1);
+      // Central fissure — thin line between hemispheres
+      for (var i = 0; i < 40; i++) { var by = 2.22 + Math.random() * 0.10; brainGlow.push(0, by, (Math.random() - 0.5) * 0.08); }
+      // Inner glow
+      sph(brainGlow, 0, 2.22, 0, 0.07, 60);
+
       // Glow layers
       sph(soulGlow,0,2.15,0,0.12,80);
       sph(mindGlow,0,1.48,0,0.08,60);
@@ -324,9 +350,15 @@ const stackCards = [
       group.add(makeMesh(mindGlow, 0x2d2c2b, 0.018, 0.7));
       group.add(makeMesh(bodyJoints, 0x2d2c2b, 0.016, 0.7));
       group.add(makeMesh(shield, 0x2d2c2b, 0.008, 0.15));
+      // Brain meshes — coral colored
+      var brainLMesh = makeMesh(brainL, 0xf97066, 0.011, 0.85);
+      var brainRMesh = makeMesh(brainR, 0xf97066, 0.011, 0.85);
+      var brainGlowMesh = makeMesh(brainGlow, 0xf97066, 0.016, 0.5);
+      group.add(brainLMesh); group.add(brainRMesh); group.add(brainGlowMesh);
       scene.add(group);
 
-      function animate() { requestAnimationFrame(animate); if (!noMotion) group.rotation.y += 0.004; renderer.render(scene, camera); }
+      var time = 0;
+      function animate() { requestAnimationFrame(animate); if (!noMotion) { group.rotation.y += 0.004; time += 0.02; var pulse = 1.0 + 0.015 * Math.sin(time * 1.5); brainLMesh.scale.set(pulse, pulse, pulse); brainRMesh.scale.set(pulse, pulse, pulse); brainGlowMesh.material.opacity = 0.4 + 0.15 * Math.sin(time * 2); } renderer.render(scene, camera); }
       animate();
       window.addEventListener('resize', function() { var nw=canvas.clientWidth||350, nh=canvas.clientHeight||500; camera.aspect=nw/nh; camera.updateProjectionMatrix(); renderer.setSize(nw,nh); });
     };
