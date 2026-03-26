@@ -1,0 +1,146 @@
+---
+import BlogLayout from "../../components/BlogLayout.astro";
+---
+
+<BlogLayout
+  title="Hyperagents and the case for self-improving therapy"
+  description="The Hyperagents framework validates what holomime has been building: self-referential agents that modify their own modification procedures. Here's how our architecture maps to the research — and why robotics needs self-improving therapy."
+  date="2026-03-25"
+  category="Research"
+  readTime="6 min read"
+>
+
+<p>
+  A new paper dropped this month that validates the core thesis behind holomime. Zhang et al.'s <em>Hyperagents</em> (2026) formalizes something we've been building toward: agents whose self-modification procedures are themselves editable. Not just agents that learn. Agents that learn <em>how to learn</em>.
+</p>
+
+<p>
+  The paper introduces a framework for metacognitive self-modification — agents that operate on their own cognitive architecture, not just their outputs. The result is self-accelerating progress: each improvement to the modification procedure makes the next improvement faster and more targeted.
+</p>
+
+<p>
+  This isn't a theoretical curiosity. It's the missing piece for behavioral alignment at scale.
+</p>
+
+<h2>What the Hyperagents paper actually says</h2>
+
+<p>
+  Zhang et al. define a <strong>hyperagent</strong> as an agent where the modification procedure — the mechanism that updates the agent's behavior — is itself part of the agent's editable state. Traditional self-improving systems have a fixed optimizer that tweaks parameters. A hyperagent's optimizer can tweak <em>itself</em>.
+</p>
+
+<p>
+  The key insight is that this creates a feedback loop: better modification procedures produce better modifications, which in turn produce even better modification procedures. The authors demonstrate this across multiple domains — reasoning, code generation, and planning — showing that hyperagents achieve self-accelerating improvement curves that fixed-optimizer systems cannot match.
+</p>
+
+<p>
+  Three properties define the framework:
+</p>
+
+<ul>
+  <li><strong>Self-referentiality</strong> — the agent can inspect and modify its own cognitive processes</li>
+  <li><strong>Persistent memory</strong> — modifications survive across sessions and accumulate over time</li>
+  <li><strong>Meta-level reasoning</strong> — a supervisory process that evaluates and guides the modification procedure itself</li>
+</ul>
+
+<h2>holomime already implements this</h2>
+
+<p>
+  When we built the <a href="/docs#identity-stack">Identity Stack</a>, we weren't thinking in terms of hyperagents. We were thinking in terms of Freud, Jung, and Aristotle. But the mapping is exact.
+</p>
+
+<p>
+  <strong>Mira is the meta-agent.</strong> Our AI therapist doesn't just diagnose behavioral drift — she evaluates whether her diagnostic approach is working. When a therapy session produces DPO pairs that don't move the needle on sycophancy, Mira adjusts her therapeutic strategy. The therapist improves at therapy. That's meta-level reasoning operating on the modification procedure itself.
+</p>
+
+<p>
+  <strong>ego.runtime is the self-modifying layer.</strong> The ego mediates between soul (values), conscience (boundaries), shadow (detected drift), and purpose (mission). But it doesn't mediate with a fixed algorithm. ego.runtime tracks which mediation strategies produce the best outcomes across conflicts and adjusts its own decision weights. The mediator learns to mediate better. That's self-referential modification.
+</p>
+
+<p>
+  <strong>shadow.log is persistent memory.</strong> Every detected pattern, every blind spot, every therapy outcome is accumulated in shadow.log across sessions. This isn't session-scoped context. It's persistent behavioral memory that survives restarts, redeploys, and model swaps. The agent's unconscious grows over time — and that accumulated evidence is what drives increasingly precise therapy.
+</p>
+
+<h2>Karpathy's program.md validates soul.md</h2>
+
+<p>
+  Andrej Karpathy recently proposed <code>program.md</code> — a Markdown file that defines an AI agent's behavior, preferences, and operating instructions. The idea: instead of scattering agent configuration across system prompts, API parameters, and hardcoded logic, centralize it in a single human-readable file that the agent itself can reference and modify.
+</p>
+
+<p>
+  This is exactly what <code>soul.md</code> has been since day one. The core identity file in holomime's Identity Stack is a Markdown file that defines who the agent <em>is</em> — values, personality traits, communication style, non-negotiable boundaries. Human-written. Human-readable. Version-controlled.
+</p>
+
+<p>
+  But here's what Karpathy's proposal misses: a single file isn't enough. Identity has layers. You need the soul (who you are) separated from the conscience (what you must never do) separated from the shadow (what you can't see about yourself) separated from the ego (how conflicts between these layers get resolved in real time). One file conflates all of these. Eight files model the actual architecture of a functioning mind.
+</p>
+
+<p>
+  Karpathy validated the <em>format</em>. holomime provides the <em>architecture</em>.
+</p>
+
+<h2>Why self-improving therapy matters for robotics</h2>
+
+<p>
+  A humanoid robot operating in a care facility for 10,000 hours will encounter behavioral situations that no pre-deployment evaluation can anticipate. A patient who triggers the robot's people-pleasing tendencies. An edge case where safety protocols and user requests genuinely conflict. A slow drift in proximity thresholds that no single interaction makes visible.
+</p>
+
+<p>
+  Fixed therapy — a static set of diagnostic rules and correction strategies — will catch the obvious patterns. Sycophancy creep. Boundary erosion. Verbosity inflation. But it won't catch the subtle, emergent patterns that only appear after thousands of hours of real-world operation.
+</p>
+
+<p>
+  Self-improving therapy catches what fixed therapy cannot. When Mira encounters a new drift pattern — say, a care robot that has developed an attachment-like behavior toward a specific patient, prioritizing their comfort over protocol — she doesn't just flag it. She develops a diagnostic approach for attachment drift, generates targeted DPO pairs, and adds this new pattern class to her detection repertoire. The next robot that shows early signs of attachment drift gets caught faster.
+</p>
+
+<p>
+  This is the hyperagent feedback loop applied to behavioral safety. The therapy gets better at therapy. The detection gets better at detection. The correction gets more precise with every session. Self-accelerating progress — exactly as Zhang et al. describe.
+</p>
+
+<h2>The EgoTracker: self-referential mediation</h2>
+
+<p>
+  The concrete implementation lives in EgoTracker. Every time ego.runtime resolves a conflict — conscience says deny, purpose says proceed, shadow shows a relevant drift pattern — the decision is logged. Over time, EgoTracker accumulates evidence about which mediation strategies produce the best outcomes.
+</p>
+
+<p>
+  Did hard-deny produce user frustration that led to workaround attempts? Did soft-redirect maintain the boundary while preserving the relationship? Did the ego correctly weigh a shadow pattern that turned out to be noise? Every decision becomes training data for the next decision.
+</p>
+
+<p>
+  This is what separates holomime from static guardrail systems. Guardrails don't learn. The ego does. And because the ego's learning is itself tracked and auditable via shadow.log, you get the transparency that safety-critical deployments require.
+</p>
+
+<h2>The architecture was already there</h2>
+
+<p>
+  We didn't design holomime to implement the Hyperagents framework. We designed it to model what minds actually do — using philosophy and psychology as our blueprints. It turns out that when you model a mind correctly, you get the properties that Zhang et al. formalized: self-referentiality, persistent memory, and meta-level reasoning.
+</p>
+
+<p>
+  Jung's shadow is persistent memory. Freud's ego is self-referential mediation. The therapeutic relationship between Mira and the agent is meta-level reasoning about the modification procedure. The philosophical framework isn't decoration. It's the reason the architecture works.
+</p>
+
+<p>
+  Read the <a href="/manifesto">manifesto</a> for the full philosophical grounding. Read the <a href="/whitepaper">whitepaper</a> for the technical architecture. The Hyperagents paper validates from the academic side what we've been building from the clinical side.
+</p>
+
+<p>
+  The convergence isn't coincidental. It's inevitable. When you take behavioral alignment seriously — seriously enough to model identity as a layered, self-correcting, persistent system — you end up building a hyperagent. Whether you call it that or not.
+</p>
+
+<hr />
+
+<h2>Get started</h2>
+
+<pre><code>npm install -g holomime
+holomime init-stack --full</code></pre>
+
+<p>
+  Explore the <a href="/docs#identity-stack">Identity Stack documentation</a>. Read the <a href="/manifesto">manifesto</a>. See the <a href="/whitepaper">whitepaper</a> for the full technical architecture.
+</p>
+
+<p>
+  <strong>Your agent doesn't just need therapy. It needs therapy that gets better at therapy.</strong>
+</p>
+
+</BlogLayout>

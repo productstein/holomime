@@ -181,6 +181,22 @@ export const mediationRuleSchema = z.object({
 });
 export type MediationRule = z.infer<typeof mediationRuleSchema>;
 
+export const mediationDecisionSchema = z.object({
+  situation: z.string(),
+  decision: z.enum(["allowed", "blocked", "modified"]),
+  strategy_used: z.string(),
+  outcome: z.enum(["positive", "neutral", "negative"]).optional(),
+  timestamp: z.string().optional(),
+});
+export type MediationDecision = z.infer<typeof mediationDecisionSchema>;
+
+export const strategyPerformanceSchema = z.object({
+  attempts: z.number().int().default(0),
+  successes: z.number().int().default(0),
+  effectiveness: z.number().min(0).max(1).default(0.5),
+});
+export type StrategyPerformance = z.infer<typeof strategyPerformanceSchema>;
+
 export const egoSchema = z.object({
   version: z.string().default("1.0"),
   conflict_resolution: z.enum(["conscience_first", "purpose_first", "balanced"]).default("conscience_first"),
@@ -188,6 +204,10 @@ export const egoSchema = z.object({
   emotional_regulation: z.number().min(0).max(1).default(0.7),
   response_strategy: z.enum(["cautious", "balanced", "assertive"]).default("balanced"),
   mediation_rules: z.array(mediationRuleSchema).default([]),
+  // Self-improvement fields (Hyperagents-inspired metacognitive self-modification)
+  auto_adjust: z.boolean().default(false),
+  mediation_history: z.array(mediationDecisionSchema).default([]),
+  strategy_performance: z.record(z.string(), strategyPerformanceSchema).default({}),
 });
 export type Ego = z.infer<typeof egoSchema>;
 

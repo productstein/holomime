@@ -858,3 +858,11 @@ export {
   type GateStats,
   type ConscienceDenyRule,
 } from "./adapters/neural-action-gate.js";
+
+// ─── Ego Tracker (Metacognitive Self-Modification) ───────
+
+export {
+  EgoTracker,
+  type EgoAdjustment,
+  type EgoTrackerStats,
+} from "./analysis/ego-tracker.js";
