@@ -211,11 +211,11 @@ async function therapyStart(options: MiraOptions): Promise<void> {
   saveTherapyState(state);
 
   printBox(
-    "Autonomous therapy started.\n\n" +
-    `  ${chalk.cyan("holomime therapy status")}  \u2014  Check progress\n` +
-    `  ${chalk.cyan("holomime therapy stop")}    \u2014  Stop therapy`,
+    "Background process running. Generating training data, detecting regression, auto-tuning.\n\n" +
+    `  ${chalk.cyan("holomime therapy status")}  \u2014  Check progress and metrics\n` +
+    `  ${chalk.cyan("holomime therapy stop")}    \u2014  Stop background process`,
     "success",
-    "Autonomous Therapy Started",
+    "Therapy Running",
   );
   console.log();
 

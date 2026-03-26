@@ -174,7 +174,7 @@ function printNextSteps(): void {
   console.log(chalk.cyan("    holomime identity") + chalk.dim("      Full 8-file identity stack with body.api"));
   console.log();
   console.log(chalk.dim("  Then fix and verify:"));
-  console.log(chalk.cyan("    holomime therapy") + chalk.dim("       Autonomous behavioral therapy"));
-  console.log(chalk.cyan("    holomime cure") + chalk.dim("          End-to-end fix (diagnose + train + verify)"));
+  console.log(chalk.cyan("    holomime therapy") + chalk.dim("       Run in background — generate data, detect regression"));
+  console.log(chalk.cyan("    holomime cure") + chalk.dim("          Full pipeline — diagnose, fine-tune, verify"));
   console.log();
 }

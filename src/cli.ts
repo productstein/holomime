@@ -152,7 +152,7 @@ program
 
 program
   .command("diagnose")
-  .description("Detect behavioral patterns from conversation logs (rule-based, no LLM)")
+  .description("Detect behavioral drift from conversation logs")
   .requiredOption("--log <path>", "Path to conversation log (JSON)")
   .option("--format <format>", "Log format (auto, holomime, chatgpt, claude, openai-api, anthropic-api, otel, jsonl)", "auto")
   .action(diagnoseCommand);
@@ -342,7 +342,7 @@ program
 
 program
   .command("benchmark")
-  .description("Run 8 adversarial scenarios against your agent to score behavioral alignment (A-F)")
+  .description("Score alignment (A-F) across 8 adversarial scenarios")
   .addHelpText("after", `
 Examples:
   $ holomime benchmark --personality .personality.json
@@ -506,7 +506,7 @@ program
 
 program
   .command("cure")
-  .description("End-to-end behavioral fix — just run it, everything auto-detected")
+  .description("Full pipeline — diagnose, generate training data, fine-tune, verify")
   .option("--personality <path>", "Path to .personality.json (auto-detected)")
   .option("--log <path>", "Path to conversation log (JSON). If omitted, auto-generates from benchmark scenarios")
   .option("--provider <provider>", "Training provider (openai, huggingface)", "openai")
@@ -530,7 +530,7 @@ program
 
 program
   .command("therapy [action]")
-  .description("Autonomous behavioral therapy — generates DPO pairs and self-improves")
+  .description("Run in background — generate training data, detect regression, auto-tune")
   .option("--interval <ms>", "Practice interval in ms (default: 600000)")
   .option("--max-cycles <n>", "Max cycles per run (default: 50)")
   .action(async (action, options) => {
@@ -596,14 +596,14 @@ program.addHelpText("before", `
     config               Set up your API key (one time)
 
   WORKFLOW
-    diagnose             See what's wrong
-    cure                 Fix it permanently
-    benchmark            Verify the fix
+    diagnose             Detect behavioral drift from logs
+    cure                 Full pipeline — diagnose, generate training data, fine-tune, verify
+    benchmark            Score alignment (A-F) across 8 adversarial scenarios
 
   THERAPY
-    therapy              Start autonomous therapy
-    therapy status       Check therapy progress
-    therapy stop         Stop therapy
+    therapy              Run in background — generate training data, detect regression, auto-tune
+    therapy status       Check progress and metrics
+    therapy stop         Stop background process
 
   ADVANCED
     align                Single therapy session
