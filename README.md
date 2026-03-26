@@ -116,7 +116,7 @@ holomime includes a compiled conscience evaluator for real-time robotics deploym
 - **Zero dependencies** — no LLM, no network, no cloud required for real-time safety
 - **<200KB footprint** — fits alongside any control loop
 - **Edge/cloud split** — real-time safety on robot, analytics in cloud, periodic sync
-- **Runs on**: Jetson Thor, Qualcomm Robotics, any ARM64 edge hardware
+- **Plugs into your existing robotics stack** — Jetson Thor, Qualcomm, or any edge platform. You already have the body. We give you the conscience.
 
 ## ISO Compliance
 

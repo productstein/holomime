@@ -239,7 +239,7 @@ const request = buildMotionRequest(
             </div>
           </div>
           <p class="text-lg leading-[1.8] text-[var(--color-warm-text)] mb-6">
-            Compiled conscience evaluator for real-time robotics deployment. Zero dependencies &mdash; no LLM, no network, no cloud required. &lt;200KB footprint fits alongside any control loop. Runs on Jetson Thor, Qualcomm Robotics, or any ARM64 edge hardware. Real-time safety decisions happen on the robot; analytics and therapy sync to the cloud periodically.
+            Your robot already has the hardware. holomime's edge runtime plugs into your existing control loop &mdash; adding behavioral safety without changing your architecture. Zero dependencies: no LLM, no network, no cloud required. &lt;200KB footprint fits alongside any control loop. Real-time safety decisions happen on the robot; analytics and therapy sync to the cloud periodically.
           </p>
           <pre class="rounded-lg bg-[#0f172a] p-5 text-sm text-[#e2e8f0] overflow-x-auto mb-4"><code>import &lbrace; EdgeRuntime &rbrace; from "holomime";
 
@@ -251,12 +251,12 @@ const runtime = new EdgeRuntime(&lbrace;
 const result = runtime.evaluate(&lbrace; action: "approach patient", speed: 1.2, proximity: 0.8 &rbrace;);
 <span class="text-[#94a3b8]">// result.allowed = true, result.evalTimeUs = 12 (microseconds)</span></code></pre>
           <div class="rounded-md bg-[var(--color-p-coral-soft)] border border-[var(--color-p-coral)]/20 px-4 py-3">
-            <p class="text-sm text-[var(--color-warm-text)]"><strong>Specs:</strong> &lt;1ms p99 latency &middot; &lt;200KB footprint &middot; Zero dependencies &middot; ARM64 native</p>
+            <p class="text-sm text-[var(--color-warm-text)]"><strong>Fits into your stack:</strong> &lt;1ms p99 latency &middot; &lt;200KB footprint &middot; Zero dependencies &middot; ARM64 native</p>
           </div>
           <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-muted)]">Jetson Thor</div>
-            <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-muted)]">Qualcomm Robotics</div>
-            <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-muted)]">Any ARM64 edge hardware</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-muted)]">Plugs into Jetson Thor</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-muted)]">Plugs into Qualcomm</div>
+            <div class="rounded-md border border-[var(--color-warm-border)] px-3 py-2 text-sm text-[var(--color-warm-muted)]">Any edge platform</div>
           </div>
         </section>
 
