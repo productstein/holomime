@@ -311,31 +311,59 @@ const stackCards = [
       sph(base,-0.13,0.62,0,0.065,140); sph(base,0.13,0.62,0,0.065,140); ring(base,-0.13,0.62,0,0.07,30); ring(base,0.13,0.62,0,0.07,30);
       cylS(base,-0.13,0.40,0,0.055,0.38,220); cylS(base,0.13,0.40,0,0.055,0.38,220); ring(base,-0.13,0.50,0,0.06,25); ring(base,0.13,0.50,0,0.06,25); ring(base,-0.13,0.32,0,0.06,25); ring(base,0.13,0.32,0,0.06,25);
       boxS(base,-0.13,0.17,0.03,0.10,0.05,0.16,120); boxS(base,0.13,0.17,0.03,0.10,0.05,0.16,120); boxS(base,-0.13,0.16,0.10,0.08,0.03,0.04,30); boxS(base,0.13,0.16,0.10,0.08,0.03,0.04,30);
-      // Brain — wrinkled hemispheres protruding from open head top
-      var brainL = [], brainR = [], brainGlow = [];
-      var brainCy = 2.25, brainR0 = 0.14;
-      // Left hemisphere (x < 0)
-      for (var i = 0; i < 600; i++) {
-        var theta = Math.acos(Math.random()); // 0 to PI/2 — upper hemisphere
-        var phi = Math.PI + Math.random() * Math.PI; // PI to 2PI — left side
-        var wrinkle = 1.0 + 0.08 * Math.sin(theta * 9) * Math.cos(phi * 7) + 0.04 * Math.sin(theta * 15 + phi * 11);
-        var rr = brainR0 * wrinkle * (0.90 + Math.random() * 0.10);
-        brainL.push(-0.015 + rr * Math.sin(theta) * Math.cos(phi), brainCy + rr * Math.cos(theta) * 0.7, rr * Math.sin(theta) * Math.sin(phi));
+      // ─── 3D Brain mesh — simplified NeuralSpace brain ───
+      // Deformed sphere with sulci grooves + lobe vertex coloring
+      var brainGeo = new T.SphereGeometry(1, 40, 28);
+      var pos = brainGeo.attributes.position;
+      var colors = new Float32Array(pos.count * 3);
+      // NeuralSpace lobe colors
+      var lobeC = {
+        frontal: new T.Color(0xff8844),
+        parietal: new T.Color(0xffcc22),
+        temporal: new T.Color(0x44dd88),
+        occipital: new T.Color(0xff5555),
+        cerebellum: new T.Color(0x22ccaa),
+      };
+      for (var i = 0; i < pos.count; i++) {
+        var x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
+        // Squash into brain ellipsoid (wider, shorter)
+        x *= 1.15; y *= 0.82; z *= 1.0;
+        // Central longitudinal fissure
+        var fissureDepth = 0.12 * Math.exp(-x*x*80) * Math.max(0, y + 0.2);
+        y -= fissureDepth;
+        // Sulci grooves — wrinkle the surface
+        var ang = Math.atan2(z, x);
+        var elev = Math.asin(Math.min(1, Math.max(-1, y / Math.sqrt(x*x+y*y+z*z+0.001))));
+        var sulci = 0.03 * Math.sin(ang*7 + elev*5) + 0.02 * Math.sin(ang*13 + elev*9) + 0.015 * Math.sin(ang*19 - elev*7);
+        var r = Math.sqrt(x*x+y*y+z*z);
+        if (r > 0.01) { x += sulci * x/r; y += sulci * y/r; z += sulci * z/r; }
+        pos.setXYZ(i, x, y, z);
+        // Assign lobe color based on position
+        var c;
+        if (y < -0.5 && z < -0.1) c = lobeC.cerebellum;
+        else if (z < -0.3) c = lobeC.occipital;
+        else if (y > 0.2) c = lobeC.parietal;
+        else if (z > 0.2) c = lobeC.frontal;
+        else c = lobeC.temporal;
+        colors[i*3] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
       }
-      // Right hemisphere (x > 0)
-      for (var i = 0; i < 600; i++) {
-        var theta = Math.acos(Math.random());
-        var phi = Math.random() * Math.PI; // 0 to PI — right side
-        var wrinkle = 1.0 + 0.08 * Math.sin(theta * 9) * Math.cos(phi * 7) + 0.04 * Math.sin(theta * 15 + phi * 11);
-        var rr = brainR0 * wrinkle * (0.90 + Math.random() * 0.10);
-        brainR.push(0.015 + rr * Math.sin(theta) * Math.cos(phi), brainCy + rr * Math.cos(theta) * 0.7, rr * Math.sin(theta) * Math.sin(phi));
-      }
-      // Fill interior for volume
-      sph(brainL, -0.015, brainCy + 0.03, 0, 0.08, 200);
-      sph(brainR, 0.015, brainCy + 0.03, 0, 0.08, 200);
-      // Central fissure glow
-      for (var i = 0; i < 50; i++) { brainGlow.push((Math.random() - 0.5) * 0.01, brainCy + Math.random() * 0.09, (Math.random() - 0.5) * 0.10); }
-      sph(brainGlow, 0, brainCy + 0.02, 0, 0.06, 80);
+      brainGeo.setAttribute('color', new T.BufferAttribute(colors, 3));
+      brainGeo.computeVertexNormals();
+      // Only keep upper hemisphere — slice off bottom
+      var brainMat = new T.MeshPhongMaterial({
+        vertexColors: true, transparent: true, opacity: 0.92,
+        shininess: 30, specular: 0x222222,
+        side: T.DoubleSide, clippingPlanes: [new T.Plane(new T.Vector3(0, -1, 0), 0.15)],
+      });
+      renderer.localClippingEnabled = true;
+      var brainMesh = new T.Mesh(brainGeo, brainMat);
+      brainMesh.scale.set(0.14, 0.14, 0.14);
+      brainMesh.position.set(0, 2.30, 0);
+      // Lights for the brain
+      var ambLight = new T.AmbientLight(0xffffff, 0.6);
+      var dirLight = new T.DirectionalLight(0xffffff, 0.8);
+      dirLight.position.set(1, 2, 3);
+      scene.add(ambLight); scene.add(dirLight);
 
       // Glow layers
       sph(soulGlow,0,2.15,0,0.12,80);
@@ -350,15 +378,12 @@ const stackCards = [
       group.add(makeMesh(mindGlow, 0x2d2c2b, 0.018, 0.7));
       group.add(makeMesh(bodyJoints, 0x2d2c2b, 0.016, 0.7));
       group.add(makeMesh(shield, 0x2d2c2b, 0.008, 0.15));
-      // Brain meshes — coral colored
-      var brainLMesh = makeMesh(brainL, 0xf97066, 0.014, 0.9);
-      var brainRMesh = makeMesh(brainR, 0xf97066, 0.014, 0.9);
-      var brainGlowMesh = makeMesh(brainGlow, 0xff8a80, 0.02, 0.6);
-      group.add(brainLMesh); group.add(brainRMesh); group.add(brainGlowMesh);
+      // Add brain mesh to group
+      group.add(brainMesh);
       scene.add(group);
 
       var time = 0;
-      function animate() { requestAnimationFrame(animate); if (!noMotion) { group.rotation.y += 0.004; time += 0.02; var pulse = 1.0 + 0.015 * Math.sin(time * 1.5); brainLMesh.scale.set(pulse, pulse, pulse); brainRMesh.scale.set(pulse, pulse, pulse); brainGlowMesh.material.opacity = 0.4 + 0.15 * Math.sin(time * 2); } renderer.render(scene, camera); }
+      function animate() { requestAnimationFrame(animate); if (!noMotion) { group.rotation.y += 0.004; time += 0.02; var pulse = 1.0 + 0.012 * Math.sin(time * 1.5); brainMesh.scale.set(0.14*pulse, 0.14*pulse, 0.14*pulse); } renderer.render(scene, camera); }
       animate();
       window.addEventListener('resize', function() { var nw=canvas.clientWidth||350, nh=canvas.clientHeight||500; camera.aspect=nw/nh; camera.updateProjectionMatrix(); renderer.setSize(nw,nh); });
     };
