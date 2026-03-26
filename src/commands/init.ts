@@ -338,7 +338,7 @@ export async function initCommand(): Promise<void> {
     `${chalk.green("4.")} ${chalk.cyan("holomime assess --personality .personality.json --log <file>")}`,
     `   ${chalk.dim("Full Big Five alignment check \u2014 spec vs reality")}`,
     ``,
-    `${chalk.magenta("5.")} ${chalk.cyan("holomime session")}  ${chalk.dim("[Pro]")}`,
+    `${chalk.magenta("5.")} ${chalk.cyan("holomime cure")}     ${chalk.dim("[Pro]")}`,
     `   ${chalk.dim("Live AI alignment session for your agent")}`,
     `${chalk.magenta("6.")} ${chalk.cyan("holomime growth")}   ${chalk.dim("[Pro]")}`,
     `   ${chalk.dim("Track improvement over time")}`,
@@ -484,7 +484,7 @@ async function initFromArchetype(name: string, handle: string, purpose: string):
     `${chalk.green("3.")} ${chalk.cyan("holomime diagnose --log <conversation.json>")}`,
     `   ${chalk.dim("Analyze conversation logs for behavioral patterns")}`,
     ``,
-    `${chalk.magenta("4.")} ${chalk.cyan("holomime session")}  ${chalk.dim("[Pro]")}`,
+    `${chalk.magenta("4.")} ${chalk.cyan("holomime cure")}     ${chalk.dim("[Pro]")}`,
     `   ${chalk.dim("Live AI alignment session for your agent")}`,
   ].join("\n");
 

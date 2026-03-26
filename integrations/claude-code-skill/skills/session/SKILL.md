@@ -12,7 +12,7 @@ Run a structured therapy session using holomime's 7-phase clinical protocol. One
 ## Usage
 
 ```bash
-npx holomime session $ARGUMENTS
+npx holomime align $ARGUMENTS
 ```
 
 ## 7-Phase Protocol

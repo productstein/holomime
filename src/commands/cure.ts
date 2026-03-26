@@ -44,7 +44,7 @@ interface CureOptions {
 
 const STAGE_LABELS: Record<string, string> = {
   diagnose: "Diagnose",
-  evolve: "Evolve",
+  evolve: "Align",
   export: "Export",
   train: "Train",
   verify: "Verify",
@@ -175,15 +175,18 @@ export async function cureCommand(options: CureOptions): Promise<void> {
   if (options.dryRun) console.log(chalk.dim(`  Mode:       dry run`));
   console.log();
 
-  // Show pipeline stages
+  // Show pipeline stages (export runs internally, not shown to user)
   const stages: PipelineStage[] = ["diagnose", "export"];
   if (!options.skipTrain) stages.push("train");
   if (!options.skipVerify && !options.skipTrain) stages.push("verify");
   stages.push("report");
 
-  const stageList = stages
+  // User-visible stages (hide export — it's internal plumbing)
+  const visibleStages = stages.filter((s) => s !== "export" && s !== "report");
+
+  const stageList = visibleStages
     .map((s, i) => `${i + 1}. ${STAGE_LABELS[s]}`)
-    .join("  ->  ");
+    .join("  →  ");
 
   printBox(
     `Pipeline: ${stageList}`,

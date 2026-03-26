@@ -80,14 +80,10 @@ holomime core
 # Full 8-file stack (enterprise / robotics)
 # holomime identity
 
-# Compile into .personality.json
-holomime compile-stack
-
-# Diagnose behavioral drift (no LLM needed)
-holomime diagnose
-
-# Benchmark alignment (8 adversarial scenarios, grade A-F)
-holomime benchmark
+# ─── The 3-command workflow ───
+holomime diagnose     # See what's wrong
+holomime cure         # Fix it permanently
+holomime benchmark    # Verify the fix
 
 # Push identity to a robot or avatar
 holomime embody --body registry/bodies/figure-03.body.api
@@ -170,17 +166,17 @@ holomime embody --swap-body registry/bodies/spot.body.api
 
 ## Self-Improvement Loop
 
-Every therapy session produces structured training data. The loop compounds.
+Every therapy cycle produces structured training data. The loop compounds.
 
 ```
-Diagnose ──→ Therapy ──→ Export DPO ──→ Fine-tune ──→ Evaluate
-  11 detectors   dual-LLM     preference     OpenAI /     before/after
-  80+ signals    session       pairs        HuggingFace   grade (A-F)
-       │                                                      │
-       └──────────────────────────────────────────────────────┘
+Diagnose ──→ Cure ──→ Benchmark
+  14 detectors   therapy + train     8 adversarial
+  80+ signals    in one command      scenarios (A-F)
+       │                                   │
+       └───────────────────────────────────┘
 ```
 
-Run it manually with `holomime session`, automatically with `holomime autopilot`, or recursively with `holomime evolve` (loops until behavior converges).
+Run it manually with `holomime diagnose` + `holomime cure` + `holomime benchmark`, automatically with `holomime autopilot`, or recursively with `holomime evolve` (loops until behavior converges). For power users: `holomime align` runs a single therapy session, `holomime export` extracts DPO pairs, and `holomime train` fine-tunes the model.
 
 ## Behavioral Detectors
 
@@ -216,7 +212,7 @@ Plus support for custom detectors -- drop `.json` or `.md` files in `.holomime/d
 claude plugin add productstein/holomime
 ```
 
-Slash commands: `/holomime:diagnose`, `/holomime:benchmark`, `/holomime:profile`, `/holomime:brain`, `/holomime:session`, `/holomime:autopilot`.
+Slash commands: `/holomime:diagnose`, `/holomime:benchmark`, `/holomime:profile`, `/holomime:brain`, `/holomime:align`, `/holomime:autopilot`.
 
 ### MCP Server
 

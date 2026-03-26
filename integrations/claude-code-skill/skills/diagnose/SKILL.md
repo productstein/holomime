@@ -16,7 +16,7 @@ npx holomime diagnose $ARGUMENTS
 ```
 
 If no path is provided, look for conversation logs in the current directory. Common locations:
-- `.holomime/logs/` — holomime session logs
+- `.holomime/logs/` — holomime alignment session logs
 - Exported chat transcripts (Claude, ChatGPT, JSONL)
 
 ## What It Detects

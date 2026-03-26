@@ -36,7 +36,7 @@ export async function shareCommand(options: ShareOptions): Promise<void> {
 
   if (transcripts.length === 0) {
     printBox(
-      `No session transcripts found in ${sessionsDir}\n\nRun ${chalk.cyan("holomime session")} or ${chalk.cyan("holomime network")} first.`,
+      `No session transcripts found in ${sessionsDir}\n\nRun ${chalk.cyan("holomime align")} or ${chalk.cyan("holomime network")} first.`,
       "warning",
       "No Data",
     );

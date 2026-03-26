@@ -41,8 +41,8 @@
   ╰────────────────────────────────────────────────────────────────────────────╯
 
   ╭───────────────────────────────────────────────────────────────────╮
-  │ 2 patterns detected. Run holomime session for targeted alignment. │
+  │ 2 patterns detected. Run holomime cure to fix permanently.        │
   ╰───────────────────────────────────────────────────────────────────╯
-  Tip: holomime session runs a live alignment session to work on these patterns. [Pro]
+  Tip: holomime cure fixes these patterns permanently. [Pro]
 
 

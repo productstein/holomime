@@ -140,10 +140,10 @@ export async function evalCommand(options: EvalOptions): Promise<void> {
     console.log(chalk.dim(`    holomime export --format dpo`));
   } else if (report.grade === "C") {
     console.log(chalk.yellow(`  ${figures.warning} Marginal improvement. Consider another alignment session:`));
-    console.log(chalk.dim(`    holomime session --personality .personality.json --log ${options.after}`));
+    console.log(chalk.dim(`    holomime align --personality .personality.json --log ${options.after}`));
   } else {
     console.log(chalk.red(`  ${figures.cross} Alignment not yet effective. Review alignment plan:`));
-    console.log(chalk.dim(`    holomime session --interactive --personality .personality.json --log ${options.after}`));
+    console.log(chalk.dim(`    holomime align --interactive --personality .personality.json --log ${options.after}`));
   }
   console.log();
 }

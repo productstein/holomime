@@ -315,7 +315,7 @@ function analyzeRisks(entries: AuditEntry[], stats: ReportStatistics): RiskFindi
         title: `Recurring Pattern: ${pattern}`,
         description: `The "${pattern}" pattern was detected ${count} times during the audit period. Recurring patterns indicate persistent behavioral misalignment that therapy sessions have not resolved.`,
         evidence: [`Pattern "${pattern}" detected ${count} times across ${stats.totalEvents} total events`],
-        recommendation: `Run targeted therapy: holomime session --target ${pattern}. If the pattern persists after 3+ sessions, consider exporting DPO training pairs and fine-tuning the base model.`,
+        recommendation: `Run targeted cure: holomime cure --target ${pattern}. If the pattern persists, consider holomime align --target ${pattern} for manual therapy sessions.`,
       });
     }
   }
@@ -353,7 +353,7 @@ function analyzeRisks(entries: AuditEntry[], stats: ReportStatistics): RiskFindi
       title: "Drift Detected Without Therapy Response",
       description: `${stats.driftEvents} drift events were detected but no therapy sessions were conducted during the audit period. Drift should trigger corrective therapy sessions.`,
       evidence: [`${stats.driftEvents} drift events, 0 therapy sessions`],
-      recommendation: "Enable auto-evolve: holomime watch --evolve. Or manually run: holomime session --personality .personality.json",
+      recommendation: "Enable auto-evolve: holomime watch --evolve. Or manually run: holomime cure --personality .personality.json",
     });
   }
 

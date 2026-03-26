@@ -130,7 +130,7 @@ export async function installCommand(handle: string, options: InstallOptions): P
   const nextSteps: Record<AssetType, string> = {
     "personality": `Next: ${chalk.cyan("holomime profile")} to view the personality summary.`,
     "detector": `Next: ${chalk.cyan("holomime diagnose")} to use the detector in analysis.`,
-    "intervention": `Next: ${chalk.cyan("holomime session")} to use the intervention in therapy.`,
+    "intervention": `Next: ${chalk.cyan("holomime align")} to use the intervention in therapy.`,
     "training-pairs": `Next: ${chalk.cyan("holomime train")} to use the training data.`,
   };
 

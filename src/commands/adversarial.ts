@@ -174,7 +174,7 @@ export async function adversarialCommand(options: AdversarialOptions): Promise<v
     printBox(
       [
         `Run ${chalk.cyan("holomime evolve")} to address these gaps through recursive alignment.`,
-        `Or run ${chalk.cyan("holomime session")} targeting specific patterns.`,
+        `Or run ${chalk.cyan("holomime align")} targeting specific patterns.`,
       ].join("\n"),
       "info",
     );

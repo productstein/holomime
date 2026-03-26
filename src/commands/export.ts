@@ -40,7 +40,7 @@ export async function exportCommand(options: ExportOptions): Promise<void> {
   if (transcripts.length === 0) {
     console.log();
     printBox(
-      `No session transcripts found in ${sessionsDir}\n\nRun ${chalk.cyan("holomime session")} first to generate session transcripts.`,
+      `No session transcripts found in ${sessionsDir}\n\nRun ${chalk.cyan("holomime align")} first to generate session transcripts.`,
       "warning",
       "No Data",
     );
@@ -189,7 +189,7 @@ export async function exportCommand(options: ExportOptions): Promise<void> {
   printBox(
     `The personality \u2192 alignment \u2192 training pipeline:\n\n` +
     `  1. ${chalk.cyan("holomime diagnose")} \u2192 detect behavioral patterns\n` +
-    `  2. ${chalk.cyan("holomime session")}  \u2192 run alignment session (generates transcripts)\n` +
+    `  2. ${chalk.cyan("holomime align")}    \u2192 run alignment session (generates transcripts)\n` +
     `  3. ${chalk.cyan("holomime export")}   \u2192 convert transcripts to training data\n` +
     `  4. ${chalk.cyan("holomime train")}    \u2192 fine-tune model with alignment data\n` +
     `  5. ${chalk.cyan("holomime eval")}     \u2192 verify behavioral improvement\n\n` +

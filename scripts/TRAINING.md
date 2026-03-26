@@ -21,7 +21,7 @@ pip install -r scripts/requirements-train.txt
 
 # 2. Generate alignment data (if you haven't already)
 holomime diagnose
-holomime session          # run one or more alignment sessions
+holomime align            # run one or more alignment sessions
 holomime export --format dpo   # or: --format alpaca
 
 # 3. Fine-tune with HuggingFace TRL

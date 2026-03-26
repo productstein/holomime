@@ -28,7 +28,7 @@ const stackCards = [
 
 <Layout
   title="holomime — Behavioral Intelligence for AI Agents and Humanoid Robots"
-  description="Define agent identity. Diagnose behavioral drift. Run structured therapy. Export personality.json to any runtime — from cloud APIs to humanoid robots."
+  description="Define agent identity. Diagnose behavioral drift. Cure it permanently. Deploy personality.json to any runtime — from cloud APIs to humanoid robots."
 >
   <Nav />
 
@@ -97,11 +97,11 @@ const stackCards = [
         <h2 class="text-2xl font-bold md:text-3xl tracking-[-0.02em]">How it works</h2>
         <div class="mt-12">
           {[
-            { n: "01", t: "Build identity", d: "Define values, personality, and boundaries in four files. They compile into a single personality.json." },
-            { n: "02", t: "Train through therapy", d: "Diagnose drift, run correction sessions, generate DPO pairs." },
-            { n: "03", t: "Fine-tune", d: "Permanently rewire the model. No prompt engineering." },
+            { n: "01", t: "Create identity", d: "Define values, personality, and boundaries. personality, core, or full identity — they compile into a single personality.json." },
+            { n: "02", t: "Diagnose", d: "Detect behavioral drift. 14 rule-based detectors across 80+ signals. No LLM needed." },
+            { n: "03", t: "Cure", d: "Mira runs structured therapy and permanently trains the model. One command. The fix is permanent." },
             { n: "04", t: "Deploy", d: "Push personality.json to any runtime — cloud APIs, edge devices, or physical robot bodies via ROS2, gRPC, or MQTT." },
-            { n: "05", t: "Monitor", d: "Detect behavioral drift. Correct autonomously." },
+            { n: "05", t: "Monitor", d: "Detect future drift. Correct autonomously." },
           ].map((s, i) => (
             <div class={`flex gap-6 py-7 ${i < 4 ? 'border-b border-[var(--color-warm-border)]' : ''}`}>
               <span class="text-[28px] font-extrabold text-[#e5e5e5] shrink-0 w-10 leading-none">{s.n}</span>
@@ -113,8 +113,37 @@ const stackCards = [
           ))}
         </div>
 
+        <!-- The Workflow -->
+        <div class="mt-10 rounded-xl border border-[var(--color-p-coral)]/20 bg-[#fdf8f6] p-5">
+          <h3 class="text-[11px] font-semibold uppercase tracking-[0.08em] text-[var(--color-p-coral)] mb-4">The Workflow</h3>
+          <p class="text-[13px] text-[#777] mb-4">diagnose &rarr; cure &rarr; benchmark</p>
+          <div class="grid gap-4 sm:grid-cols-3">
+            <div class="flex gap-3">
+              <div class="text-[22px] font-extrabold text-[var(--color-p-coral)] shrink-0 leading-none">1</div>
+              <div>
+                <code class="text-[12px] font-mono text-[var(--color-warm-text)] block font-semibold">holomime diagnose</code>
+                <p class="text-[11px] text-[#999] mt-1">See what's wrong</p>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <div class="text-[22px] font-extrabold text-[var(--color-p-coral)] shrink-0 leading-none">2</div>
+              <div>
+                <code class="text-[12px] font-mono text-[var(--color-warm-text)] block font-semibold">holomime cure</code>
+                <p class="text-[11px] text-[#999] mt-1">Fix it permanently</p>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <div class="text-[22px] font-extrabold text-[var(--color-p-coral)] shrink-0 leading-none">3</div>
+              <div>
+                <code class="text-[12px] font-mono text-[var(--color-warm-text)] block font-semibold">holomime benchmark</code>
+                <p class="text-[11px] text-[#999] mt-1">Verify the fix</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Tiered onboarding -->
-        <div class="mt-10 rounded-xl border border-[#eee] bg-[#fafafa] p-5">
+        <div class="mt-4 rounded-xl border border-[#eee] bg-[#fafafa] p-5">
           <h3 class="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#999] mb-4">Start simple. Scale up.</h3>
           <div class="grid gap-4 sm:grid-cols-3">
             <div class="flex gap-3">

@@ -43,7 +43,7 @@ export async function activateCommand(key: string): Promise<void> {
         `${figures.tick} ${tierLabel} license activated!`,
         "",
         "Unlocked features:",
-        `  ${chalk.cyan(figures.pointer)} Live alignment sessions (holomime session)`,
+        `  ${chalk.cyan(figures.pointer)} Live alignment sessions (holomime align)`,
         `  ${chalk.cyan(figures.pointer)} Recursive alignment (holomime evolve)`,
         `  ${chalk.cyan(figures.pointer)} Behavioral benchmarking (holomime benchmark)`,
         `  ${chalk.cyan(figures.pointer)} Drift detection (holomime watch)`,

@@ -159,7 +159,7 @@ export function showUpgradePrompt(command: string): void {
  */
 export function showSoftUpsell(context: "diagnose" | "assess"): void {
   console.log(
-    chalk.dim(`  Tip: ${chalk.cyan("holomime session")} runs a live alignment session to work on these patterns. ${chalk.dim("[Pro]")}`),
+    chalk.dim(`  Tip: ${chalk.cyan("holomime cure")} fixes these patterns permanently. ${chalk.dim("[Pro]")}`),
   );
   console.log();
 }

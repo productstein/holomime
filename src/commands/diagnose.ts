@@ -119,7 +119,7 @@ export async function diagnoseCommand(options: DiagnoseOptions): Promise<void> {
   if (warnings.length === 0) {
     printBox(`${figures.tick} No concerning patterns detected. Profile looks healthy.`, "success");
   } else {
-    const summary = `${warnings.length} pattern${warnings.length > 1 ? "s" : ""} detected. Run ${chalk.cyan("holomime session")} for targeted alignment.`;
+    const summary = `${warnings.length} pattern${warnings.length > 1 ? "s" : ""} detected. Run ${chalk.cyan("holomime cure")} to fix permanently.`;
     printBox(summary, warnings.some((w) => w.severity === "concern") ? "concern" : "warning");
   }
 

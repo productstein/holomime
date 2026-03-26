@@ -438,7 +438,7 @@ export async function trainCommand(options: TrainCommandOptions): Promise<void> 
   printBox(
     `The complete behavioral alignment loop:\n\n` +
       `  1. ${chalk.cyan("holomime diagnose")}  → detect behavioral patterns\n` +
-      `  2. ${chalk.cyan("holomime session")}   → run alignment session (generates transcripts)\n` +
+      `  2. ${chalk.cyan("holomime align")}     → run alignment session (generates transcripts)\n` +
       `  3. ${chalk.cyan("holomime export")}    → convert transcripts to training data\n` +
       `  4. ${chalk.cyan("holomime train")}     → fine-tune model with alignment data ${chalk.green("✓")}\n` +
       `  5. ${chalk.cyan("holomime eval")}      → verify behavioral improvement\n\n` +
