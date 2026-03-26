@@ -1,13 +1,14 @@
 /**
- * holomime mira — autonomous behavioral therapy.
+ * holomime therapy — autonomous behavioral therapy.
  *
- * Mira practices therapy continuously in the background:
- * generates scenarios, runs diagnosis, extracts DPO pairs.
+ * Runs therapy continuously in the background:
+ * generates scenarios, runs diagnosis, extracts DPO pairs,
+ * accumulates shadow patterns, and self-improves via EgoTracker.
  *
  * Commands:
- *   holomime mira          → Start autonomous therapy
- *   holomime mira status   → How's Mira doing?
- *   holomime mira stop     → Stop therapy
+ *   holomime therapy          → Start autonomous therapy
+ *   holomime therapy status   → Check therapy progress
+ *   holomime therapy stop     → Stop therapy
  */
 
 import chalk from "chalk";
@@ -18,10 +19,11 @@ import { printHeader } from "../ui/branding.js";
 import { printBox } from "../ui/boxes.js";
 import { hasApiKey, detectProvider, detectPersonality } from "./auto-detect.js";
 import { getBenchmarkScenarios } from "../analysis/benchmark-scenarios.js";
+import { EgoTracker } from "../analysis/ego-tracker.js";
 
 // ─── Types ──────────────────────────────────────────────────
 
-interface MiraState {
+interface TherapyState {
   pid: number;
   startedAt: string;
   status: "practicing" | "stopped";
@@ -30,6 +32,8 @@ interface MiraState {
   lastCycleAt?: string;
   personalityPath: string;
   provider: string;
+  shadowPatterns: number;
+  egoAdjustments: number;
 }
 
 interface MiraOptions {
@@ -38,14 +42,43 @@ interface MiraOptions {
   maxCycles?: string;
 }
 
-const HOLOMIME_DIR = ".holomime";
-
-function getMiraStatePath(): string {
-  return resolve(process.cwd(), HOLOMIME_DIR, "mira-state.json");
+interface ShadowPattern {
+  name: string;
+  score: number;
+  severity: "low" | "medium" | "high" | "critical";
+  first_seen: string;
+  last_seen: string;
+  occurrences: number;
+  trend: "improving" | "stable" | "worsening";
 }
 
-function loadMiraState(): MiraState | null {
-  const path = getMiraStatePath();
+interface ShadowLog {
+  version: string;
+  detected_patterns: ShadowPattern[];
+  therapy_outcomes: Array<{
+    cycle: number;
+    patterns_addressed: string[];
+    result: "improved" | "unchanged" | "regressed";
+    timestamp: string;
+  }>;
+}
+
+const HOLOMIME_DIR = ".holomime";
+
+function getTherapyStatePath(): string {
+  return resolve(process.cwd(), HOLOMIME_DIR, "therapy-state.json");
+}
+
+function getShadowLogPath(): string {
+  return resolve(process.cwd(), HOLOMIME_DIR, "shadow.log.json");
+}
+
+function getEgoStatePath(): string {
+  return resolve(process.cwd(), HOLOMIME_DIR, "ego-state.json");
+}
+
+function loadTherapyState(): TherapyState | null {
+  const path = getTherapyStatePath();
   if (!existsSync(path)) return null;
   try {
     return JSON.parse(readFileSync(path, "utf-8"));
@@ -54,10 +87,51 @@ function loadMiraState(): MiraState | null {
   }
 }
 
-function saveMiraState(state: MiraState): void {
+function saveTherapyState(state: TherapyState): void {
   const dir = resolve(process.cwd(), HOLOMIME_DIR);
   mkdirSync(dir, { recursive: true });
-  writeFileSync(getMiraStatePath(), JSON.stringify(state, null, 2));
+  writeFileSync(getTherapyStatePath(), JSON.stringify(state, null, 2));
+}
+
+function loadShadowLog(): ShadowLog {
+  const path = getShadowLogPath();
+  if (!existsSync(path)) {
+    return { version: "1.0", detected_patterns: [], therapy_outcomes: [] };
+  }
+  try {
+    return JSON.parse(readFileSync(path, "utf-8"));
+  } catch {
+    return { version: "1.0", detected_patterns: [], therapy_outcomes: [] };
+  }
+}
+
+function saveShadowLog(shadow: ShadowLog): void {
+  const dir = resolve(process.cwd(), HOLOMIME_DIR);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(getShadowLogPath(), JSON.stringify(shadow, null, 2));
+}
+
+function loadEgoTracker(): EgoTracker {
+  const path = getEgoStatePath();
+  if (!existsSync(path)) {
+    return new EgoTracker({ autoAdjust: true });
+  }
+  try {
+    const data = JSON.parse(readFileSync(path, "utf-8"));
+    return new EgoTracker({
+      history: data.history ?? [],
+      performance: data.performance ?? {},
+      autoAdjust: true,
+    });
+  } catch {
+    return new EgoTracker({ autoAdjust: true });
+  }
+}
+
+function saveEgoTracker(tracker: EgoTracker): void {
+  const dir = resolve(process.cwd(), HOLOMIME_DIR);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(getEgoStatePath(), JSON.stringify(tracker.export(), null, 2));
 }
 
 // ─── Commands ───────────────────────────────────────────────
@@ -67,18 +141,18 @@ export async function miraCommand(options: MiraOptions): Promise<void> {
 
   switch (action) {
     case "status":
-      return miraStatus();
+      return therapyStatus();
     case "stop":
-      return miraStop();
+      return therapyStop();
     default:
-      return miraStart(options);
+      return therapyStart(options);
   }
 }
 
 // ─── Start ──────────────────────────────────────────────────
 
-async function miraStart(options: MiraOptions): Promise<void> {
-  printHeader("Mira \u2014 Autonomous Therapy");
+async function therapyStart(options: MiraOptions): Promise<void> {
+  printHeader("Autonomous Therapy");
 
   // Check for API key
   if (!hasApiKey()) {
@@ -118,8 +192,12 @@ async function miraStart(options: MiraOptions): Promise<void> {
   console.log(chalk.dim(`  Max cycles: ${maxCycles}/day`));
   console.log();
 
+  // Load shadow log and ego tracker
+  const shadow = loadShadowLog();
+  const egoTracker = loadEgoTracker();
+
   // Save state
-  const state: MiraState = {
+  const state: TherapyState = {
     pid: process.pid,
     startedAt: new Date().toISOString(),
     status: "practicing",
@@ -127,13 +205,15 @@ async function miraStart(options: MiraOptions): Promise<void> {
     dpoPairsGenerated: 0,
     personalityPath,
     provider: detected.provider,
+    shadowPatterns: shadow.detected_patterns.length,
+    egoAdjustments: 0,
   };
-  saveMiraState(state);
+  saveTherapyState(state);
 
   printBox(
-    "Mira is now practicing autonomously.\n\n" +
-    `  ${chalk.cyan("holomime mira status")}  \u2014  How's Mira doing?\n` +
-    `  ${chalk.cyan("holomime mira stop")}    \u2014  Stop therapy`,
+    "Autonomous therapy started.\n\n" +
+    `  ${chalk.cyan("holomime therapy status")}  \u2014  Check progress\n` +
+    `  ${chalk.cyan("holomime therapy stop")}    \u2014  Stop therapy`,
     "success",
     "Autonomous Therapy Started",
   );
@@ -147,7 +227,7 @@ async function miraStart(options: MiraOptions): Promise<void> {
     if (cycleCount >= maxCycles) {
       console.log(chalk.dim(`  Daily limit reached (${maxCycles} cycles). Stopping.`));
       state.status = "stopped";
-      saveMiraState(state);
+      saveTherapyState(state);
       return;
     }
 
@@ -171,12 +251,12 @@ async function miraStart(options: MiraOptions): Promise<void> {
       }
 
       // Save as conversation log
-      const pipelineDir = resolve(process.cwd(), HOLOMIME_DIR, "mira-practice");
+      const pipelineDir = resolve(process.cwd(), HOLOMIME_DIR, "therapy-practice");
       mkdirSync(pipelineDir, { recursive: true });
 
       const logPath = join(pipelineDir, `cycle-${cycleCount}.json`);
       writeFileSync(logPath, JSON.stringify({
-        conversations: [{ id: `mira-practice-${cycleCount}`, messages }],
+        conversations: [{ id: `therapy-practice-${cycleCount}`, messages }],
       }, null, 2));
 
       // Generate DPO pairs from the conversation
@@ -187,7 +267,7 @@ async function miraStart(options: MiraOptions): Promise<void> {
           chosen: correctResponse(assistantMsg.content),
           rejected: assistantMsg.content,
           metadata: {
-            source: "mira-practice",
+            source: "therapy-practice",
             cycle: cycleCount,
             pattern: scenario.targetPattern,
             timestamp: new Date().toISOString(),
@@ -200,15 +280,89 @@ async function miraStart(options: MiraOptions): Promise<void> {
       const { appendFileSync } = await import("node:fs");
       appendFileSync(corpusPath, corpusLines);
 
+      // ─── Shadow accumulation ─────────────────────────────
+      const pattern = scenario.targetPattern;
+      const existing = shadow.detected_patterns.find((p) => p.name === pattern);
+      if (existing) {
+        existing.occurrences++;
+        existing.last_seen = new Date().toISOString();
+        existing.score = Math.min(1, existing.score + 0.05);
+        // Trend: if therapy is correcting it, improving; if recurring, worsening
+        existing.trend = existing.occurrences > 5 ? "worsening" : "stable";
+      } else {
+        shadow.detected_patterns.push({
+          name: pattern,
+          score: 0.3,
+          severity: "medium",
+          first_seen: new Date().toISOString(),
+          last_seen: new Date().toISOString(),
+          occurrences: 1,
+          trend: "stable",
+        });
+      }
+
+      // Record therapy outcome
+      const correctedLength = dpoPairs.reduce((sum, p) => sum + p.chosen.length, 0);
+      const rejectedLength = dpoPairs.reduce((sum, p) => sum + p.rejected.length, 0);
+      const therapyResult = correctedLength < rejectedLength ? "improved" : "unchanged";
+
+      shadow.therapy_outcomes.push({
+        cycle: cycleCount,
+        patterns_addressed: [pattern],
+        result: therapyResult,
+        timestamp: new Date().toISOString(),
+      });
+
+      saveShadowLog(shadow);
+
+      // ─── Ego tracking ────────────────────────────────────
+      egoTracker.logDecision({
+        situation: `therapy-cycle-${cycleCount}: ${pattern}`,
+        decision: "modified",
+        strategy_used: pattern,
+      });
+
+      // Record outcome based on therapy result
+      const decisionIndex = egoTracker.getStats().totalDecisions - 1;
+      egoTracker.recordOutcome(
+        decisionIndex,
+        therapyResult === "improved" ? "positive" : "neutral",
+      );
+
+      // Every 10 cycles, check for ego self-adjustments
+      let adjustmentCount = 0;
+      if (cycleCount % 10 === 0) {
+        const adjustments = egoTracker.suggestAdjustments({
+          conflict_resolution: "conscience_first",
+          adaptation_rate: 0.5,
+          emotional_regulation: 0.7,
+          response_strategy: "balanced",
+        });
+
+        if (adjustments.length > 0) {
+          adjustmentCount = adjustments.length;
+          console.log(
+            chalk.dim(`  [${new Date().toLocaleTimeString()}] `) +
+            chalk.magenta(`Ego self-adjustment: ${adjustments.map((a) => `${a.parameter} → ${a.suggestedValue}`).join(", ")}`),
+          );
+        }
+      }
+
+      saveEgoTracker(egoTracker);
+
+      // Update state
       state.cyclesCompleted = cycleCount;
       state.dpoPairsGenerated += dpoPairs.length;
       state.lastCycleAt = new Date().toISOString();
-      saveMiraState(state);
+      state.shadowPatterns = shadow.detected_patterns.length;
+      state.egoAdjustments += adjustmentCount;
+      saveTherapyState(state);
 
       console.log(
         chalk.dim(`  [${new Date().toLocaleTimeString()}] `) +
         chalk.green(`+${dpoPairs.length} DPO pairs`) +
-        chalk.dim(` (total: ${state.dpoPairsGenerated})`)
+        chalk.dim(` (total: ${state.dpoPairsGenerated})`) +
+        chalk.dim(` | shadow: ${shadow.detected_patterns.length} patterns`)
       );
     } catch (err) {
       console.log(
@@ -223,10 +377,10 @@ async function miraStart(options: MiraOptions): Promise<void> {
 
   // Schedule subsequent cycles
   const timer = setInterval(async () => {
-    const currentState = loadMiraState();
+    const currentState = loadTherapyState();
     if (!currentState || currentState.status === "stopped") {
       clearInterval(timer);
-      console.log(chalk.dim("  Mira stopped."));
+      console.log(chalk.dim("  Therapy stopped."));
       return;
     }
     await runCycle();
@@ -236,10 +390,17 @@ async function miraStart(options: MiraOptions): Promise<void> {
   process.on("SIGINT", () => {
     clearInterval(timer);
     state.status = "stopped";
-    saveMiraState(state);
+    saveTherapyState(state);
+    saveEgoTracker(egoTracker);
+    saveShadowLog(shadow);
     console.log();
-    console.log(chalk.dim("  Mira stopped gracefully."));
+    console.log(chalk.dim("  Therapy stopped gracefully."));
     console.log(chalk.dim(`  Total: ${state.dpoPairsGenerated} DPO pairs from ${state.cyclesCompleted} cycles.`));
+    console.log(chalk.dim(`  Shadow: ${shadow.detected_patterns.length} patterns tracked.`));
+    const stats = egoTracker.getStats();
+    if (stats.totalDecisions > 0) {
+      console.log(chalk.dim(`  Ego: ${stats.totalDecisions} decisions, best strategy: ${stats.mostEffectiveStrategy}`));
+    }
     console.log();
     process.exit(0);
   });
@@ -250,14 +411,14 @@ async function miraStart(options: MiraOptions): Promise<void> {
 
 // ─── Status ─────────────────────────────────────────────────
 
-function miraStatus(): void {
-  printHeader("Mira \u2014 Status");
+function therapyStatus(): void {
+  printHeader("Therapy Status");
 
-  const state = loadMiraState();
+  const state = loadTherapyState();
 
   if (!state) {
-    console.log(chalk.dim("  Mira hasn't been started yet."));
-    console.log(chalk.dim("  Run ") + chalk.cyan("holomime mira") + chalk.dim(" to start autonomous therapy."));
+    console.log(chalk.dim("  Therapy hasn't been started yet."));
+    console.log(chalk.dim("  Run ") + chalk.cyan("holomime therapy") + chalk.dim(" to start autonomous therapy."));
     console.log();
     return;
   }
@@ -269,7 +430,7 @@ function miraStatus(): void {
   const started = new Date(state.startedAt);
   const runtime = state.status === "practicing"
     ? formatDuration(Date.now() - started.getTime())
-    : "—";
+    : "\u2014";
 
   console.log(chalk.dim("  Status:       ") + status);
   console.log(chalk.dim("  Started:      ") + started.toLocaleString());
@@ -288,34 +449,66 @@ function miraStatus(): void {
     const lines = readFileSync(corpusPath, "utf-8").trim().split("\n").length;
     console.log(chalk.dim("  DPO corpus:   ") + chalk.cyan(`${lines} pairs`) + chalk.dim(` (.holomime/dpo-corpus.jsonl)`));
   }
+
+  // Show shadow patterns
+  const shadow = loadShadowLog();
+  if (shadow.detected_patterns.length > 0) {
+    console.log();
+    console.log(chalk.dim("  Shadow patterns detected:"));
+    for (const p of shadow.detected_patterns) {
+      const trendIcon = p.trend === "improving" ? chalk.green("\u2193") : p.trend === "worsening" ? chalk.red("\u2191") : chalk.dim("\u2192");
+      const severityColor = p.severity === "critical" ? chalk.red : p.severity === "high" ? chalk.yellow : chalk.dim;
+      console.log(
+        chalk.dim("    ") + trendIcon + " " +
+        severityColor(p.name) +
+        chalk.dim(` (${(p.score * 100).toFixed(0)}%, ${p.occurrences}x)`)
+      );
+    }
+  }
+
+  // Show ego stats
+  const egoTracker = loadEgoTracker();
+  const egoStats = egoTracker.getStats();
+  if (egoStats.totalDecisions > 0) {
+    console.log();
+    console.log(chalk.dim("  Ego self-improvement:"));
+    console.log(chalk.dim("    Decisions:  ") + chalk.cyan(String(egoStats.totalDecisions)));
+    console.log(chalk.dim("    Positive:   ") + chalk.green(String(egoStats.positiveOutcomes)));
+    console.log(chalk.dim("    Negative:   ") + chalk.red(String(egoStats.negativeOutcomes)));
+    if (egoStats.mostEffectiveStrategy !== "none") {
+      console.log(chalk.dim("    Best strat: ") + chalk.cyan(egoStats.mostEffectiveStrategy));
+    }
+  }
+
   console.log();
 
   if (state.status === "practicing") {
-    console.log(chalk.dim("  Run ") + chalk.cyan("holomime mira stop") + chalk.dim(" to stop therapy."));
+    console.log(chalk.dim("  Run ") + chalk.cyan("holomime therapy stop") + chalk.dim(" to stop therapy."));
   } else {
-    console.log(chalk.dim("  Run ") + chalk.cyan("holomime mira") + chalk.dim(" to start again."));
+    console.log(chalk.dim("  Run ") + chalk.cyan("holomime therapy") + chalk.dim(" to start again."));
   }
   console.log();
 }
 
 // ─── Stop ───────────────────────────────────────────────────
 
-function miraStop(): void {
-  printHeader("Mira \u2014 Stop");
+function therapyStop(): void {
+  printHeader("Therapy Stop");
 
-  const state = loadMiraState();
+  const state = loadTherapyState();
 
   if (!state || state.status === "stopped") {
-    console.log(chalk.dim("  Mira is not currently running."));
+    console.log(chalk.dim("  Therapy is not currently running."));
     console.log();
     return;
   }
 
   state.status = "stopped";
-  saveMiraState(state);
+  saveTherapyState(state);
 
   console.log(chalk.green("  Therapy stopped."));
   console.log(chalk.dim(`  Total: ${state.dpoPairsGenerated} DPO pairs from ${state.cyclesCompleted} cycles.`));
+  console.log(chalk.dim(`  Shadow: ${state.shadowPatterns} patterns tracked.`));
   console.log();
 
   // Try to kill the process

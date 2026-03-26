@@ -63,7 +63,7 @@ program
     // Track command usage (fire-and-forget)
     trackEvent("cli_command", { command: commandName });
 
-    const skipPersonalityCheck = ["init", "init-stack", "compile-stack", "browse", "use", "install", "activate", "telemetry", "brain", "personality", "core", "identity", "config", "mira"];
+    const skipPersonalityCheck = ["init", "init-stack", "compile-stack", "browse", "use", "install", "activate", "telemetry", "brain", "personality", "core", "identity", "config", "therapy"];
     if (!skipPersonalityCheck.includes(commandName) && !checkPersonalityExists()) {
       showWelcome();
       process.exit(0);
@@ -409,7 +409,7 @@ program
 
 program
   .command("daemon", { hidden: true })
-  .description("Background relapse detection [Pro] (use 'holomime mira' instead)")
+  .description("Background relapse detection [Pro] (use 'holomime therapy' instead)")
   .requiredOption("--dir <path>", "Directory to watch for conversation logs")
   .option("--personality <path>", "Path to .personality.json", ".personality.json")
   .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
@@ -529,8 +529,8 @@ program
   });
 
 program
-  .command("mira [action]")
-  .description("Autonomous therapy — Mira practices and generates DPO pairs")
+  .command("therapy [action]")
+  .description("Autonomous behavioral therapy — generates DPO pairs and self-improves")
   .option("--interval <ms>", "Practice interval in ms (default: 600000)")
   .option("--max-cycles <n>", "Max cycles per run (default: 50)")
   .action(async (action, options) => {
@@ -600,10 +600,10 @@ program.addHelpText("before", `
     cure                 Fix it permanently
     benchmark            Verify the fix
 
-  MIRA
-    mira                 Start autonomous therapy
-    mira status          How's Mira doing?
-    mira stop            Stop therapy
+  THERAPY
+    therapy              Start autonomous therapy
+    therapy status       Check therapy progress
+    therapy stop         Stop therapy
 
   ADVANCED
     align                Single therapy session

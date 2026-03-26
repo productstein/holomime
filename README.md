@@ -89,9 +89,9 @@ holomime cure         # Fix it permanently
 holomime benchmark    # Verify the fix
 
 # Start autonomous therapy
-holomime mira         # Mira runs continuous therapy cycles
-holomime mira status  # How's Mira doing?
-holomime mira stop    # Stop therapy
+holomime therapy         # Mira runs continuous therapy cycles
+holomime therapy status  # How's Mira doing?
+holomime therapy stop    # Stop therapy
 
 # Push identity to a robot or avatar
 holomime embody --body registry/bodies/figure-03.body.api
@@ -184,7 +184,7 @@ Diagnose ──→ Cure ──→ Benchmark
        └───────────────────────────────────┘
 ```
 
-Run it manually with `holomime diagnose` + `holomime cure` + `holomime benchmark`, continuously with `holomime mira` (autonomous therapy), or recursively with `holomime evolve` (loops until behavior converges). For power users: `holomime align` runs a single therapy session, `holomime export` extracts DPO pairs, and `holomime train` fine-tunes the model.
+Run it manually with `holomime diagnose` + `holomime cure` + `holomime benchmark`, continuously with `holomime therapy` (autonomous therapy), or recursively with `holomime evolve` (loops until behavior converges). For power users: `holomime align` runs a single therapy session, `holomime export` extracts DPO pairs, and `holomime train` fine-tunes the model.
 
 ## Behavioral Detectors
 

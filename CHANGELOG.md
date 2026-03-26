@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Oversight and drift detection for production agents
 - Pre-session behavioral priming (`holomime pre-session`)
 - Network topology analysis for agent collectives
-- Mira mode (`holomime mira`) for continuous autonomous therapy
+- Therapy mode (`holomime therapy`) for continuous autonomous therapy
 - OpenTelemetry, Anthropic, OpenAI, ChatGPT, and JSONL adapters
 
 ### Changed

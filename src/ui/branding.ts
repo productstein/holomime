@@ -1,12 +1,13 @@
 import chalk from "chalk";
 import gradientString from "gradient-string";
 
-const VERSION = "0.2.0";
+const VERSION = "3.3.5";
 
-const LOGO = `  _  _     _       __  __ _
- | || |___| |___  |  \\/  (_)_ __  ___
- | __ / _ \\ / _ \\ | |\\/| | | '  \\/ -_)
- |_||_\\___/_\\___/ |_|  |_|_|_|_|_\\___|`;
+const LOGO = `  _           _             _
+ | |__   ___ | | ___  _ __ (_)_ __ ___   ___
+ | '_ \\ / _ \\| |/ _ \\| '_ \\| | '_ \` _ \\ / _ \\
+ | | | | (_) | | (_) | | | | | | | | | |  __/
+ |_| |_|\\___/|_|\\___/|_| |_|_|_| |_| |_|\\___|`;
 
 const holomimeGradient = gradientString("#00d4ff", "#b347d9");
 

@@ -113,19 +113,34 @@ export async function configCommand(options: ConfigOptions): Promise<void> {
     new Promise((resolve) => rl.question(question, resolve));
 
   try {
-    const provider = (await ask("  Provider (anthropic/openai) [anthropic]: ")).trim().toLowerCase() || "anthropic";
+    console.log(chalk.dim("  1) anthropic") + chalk.dim("    enter your sk-ant-... key"));
+    console.log(chalk.dim("  2) openai") + chalk.dim("       enter your sk-... key"));
+    console.log();
+    const providerInput = (await ask("  Select provider (1 or 2): ")).trim();
 
-    if (provider !== "anthropic" && provider !== "openai") {
-      console.log(chalk.red(`  Unsupported provider: ${provider}`));
+    let provider: string;
+    if (providerInput === "1" || providerInput.toLowerCase() === "anthropic") {
+      provider = "anthropic";
+    } else if (providerInput === "2" || providerInput.toLowerCase() === "openai") {
+      provider = "openai";
+    } else if (providerInput === "") {
+      console.log(chalk.dim("  Skipped. Run `holomime config` when ready."));
+      rl.close();
+      return;
+    } else {
+      console.log(chalk.red(`  Invalid selection: ${providerInput}`));
       rl.close();
       return;
     }
+
+    console.log(chalk.dim(`  Selected: ${provider}`));
+    console.log();
 
     const keyHint = provider === "anthropic" ? "sk-ant-..." : "sk-...";
     const apiKey = (await ask(`  API Key (${keyHint}): `)).trim();
 
     if (!apiKey) {
-      console.log(chalk.red("  API key is required."));
+      console.log(chalk.dim("  Skipped. Run `holomime config` when ready."));
       rl.close();
       return;
     }
@@ -141,7 +156,7 @@ export async function configCommand(options: ConfigOptions): Promise<void> {
     console.log(chalk.cyan("    holomime diagnose"));
     console.log(chalk.cyan("    holomime cure"));
     console.log(chalk.cyan("    holomime benchmark"));
-    console.log(chalk.cyan("    holomime daemon"));
+    console.log(chalk.cyan("    holomime therapy"));
     console.log();
 
     rl.close();

@@ -46,7 +46,7 @@ const cliCommandsPro = [
   { cmd: "benchmark", desc: "Run 8 adversarial scenarios with A-F scoring", flags: "--publish" },
   { cmd: "adversarial", desc: "Run 30+ adversarial attack scenarios", flags: "--category manipulation" },
   { cmd: "watch", desc: "Continuous relapse detection with auto-align", flags: "--log-dir ./logs --interval 30s" },
-  { cmd: "mira", desc: "Start autonomous therapy — continuous diagnosis, correction, and training", flags: "status | stop" },
+  { cmd: "therapy", desc: "Start autonomous therapy — continuous diagnosis, correction, and training", flags: "status | stop" },
   { cmd: "fleet", desc: "Monitor multiple agents from a single dashboard", flags: "--agents agent1,agent2" },
   { cmd: "fleet-therapy", desc: "Group therapy — treat all fleet agents simultaneously", flags: "" },
   { cmd: "network", desc: "Multi-agent therapy mesh — agents treating agents", flags: "--topology ring" },
@@ -194,8 +194,8 @@ const codeBlocks = {
                 <div class="doc-card">
                   <h3 class="doc-step">7. Autonomous therapy</h3>
                   <p class="text-sm text-[#777] mb-3">Start Mira for continuous autonomous therapy. She diagnoses, corrects, and trains on her own.</p>
-                  <pre class="doc-code"><code>holomime mira</code></pre>
-                  <p class="text-xs text-[#999] mt-2"><code class="font-mono text-[#8b5cf6]">holomime mira status</code> to check progress. <code class="font-mono text-[#8b5cf6]">holomime mira stop</code> to end.</p>
+                  <pre class="doc-code"><code>holomime therapy</code></pre>
+                  <p class="text-xs text-[#999] mt-2"><code class="font-mono text-[#8b5cf6]">holomime therapy status</code> to check progress. <code class="font-mono text-[#8b5cf6]">holomime therapy stop</code> to end.</p>
                 </div>
               </div>
             </div>
@@ -230,8 +230,8 @@ const codeBlocks = {
                 </div>
                 <div class="doc-card">
                   <h3 class="doc-step">6. Monitor</h3>
-                  <p class="text-sm text-[#777] mb-3">Detect behavioral drift in production. Run <code class="font-mono">holomime mira</code> for continuous autonomous therapy.</p>
-                  <pre class="doc-code"><code>holomime mira</code></pre>
+                  <p class="text-sm text-[#777] mb-3">Detect behavioral drift in production. Run <code class="font-mono">holomime therapy</code> for continuous autonomous therapy.</p>
+                  <pre class="doc-code"><code>holomime therapy</code></pre>
                 </div>
               </div>
             </div>
@@ -526,8 +526,8 @@ holomime compile-stack  # Compiles to .personality.json</code></pre>
               </div>
               <div class="doc-card">
                 <h3 class="doc-step">Autonomous Therapy (Mira)</h3>
-                <pre class="doc-code"><code>holomime mira</code></pre>
-                <p class="text-xs text-[#999] mt-2">Mira runs continuous therapy cycles — diagnosing drift, running corrections, and training the model autonomously. Use <code class="font-mono">holomime mira status</code> to check progress and <code class="font-mono">holomime mira stop</code> to end.</p>
+                <pre class="doc-code"><code>holomime therapy</code></pre>
+                <p class="text-xs text-[#999] mt-2">Mira runs continuous therapy cycles — diagnosing drift, running corrections, and training the model autonomously. Use <code class="font-mono">holomime therapy status</code> to check progress and <code class="font-mono">holomime therapy stop</code> to end.</p>
               </div>
               <div class="doc-card">
                 <h3 class="doc-step">Treatment Plans</h3>

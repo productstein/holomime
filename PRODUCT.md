@@ -14,7 +14,7 @@
 ## What's NOT here (Proprietary, holomime.com)
 
 - **Training Infrastructure** — DPO generation at scale, model fine-tuning pipeline
-- **Mira** — autonomous behavioral therapist (continuous monitoring via `holomime mira`)
+- **Mira** — autonomous behavioral therapist (continuous monitoring via `holomime therapy`)
 - **Fleet Management** — multi-agent orchestration, supervisor-to-sub-agent spawning
 - **Practice Package** — therapist model training, curriculum generation
 - **Backend Services** — team management, billing, analytics

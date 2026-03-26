@@ -101,7 +101,7 @@ const stackCards = [
             { n: "02", t: "Diagnose", d: "Detect behavioral drift. 14 rule-based detectors across 80+ signals. No LLM needed." },
             { n: "03", t: "Cure", d: "Mira runs structured therapy and permanently trains the model. One command. The fix is permanent." },
             { n: "04", t: "Deploy", d: "Push personality.json to any runtime — cloud APIs, edge devices, or physical robot bodies via ROS2, gRPC, or MQTT." },
-            { n: "05", t: "Monitor", d: "Detect future drift. Correct autonomously. Run holomime mira for continuous therapy." },
+            { n: "05", t: "Monitor", d: "Detect future drift. Correct autonomously. Run holomime therapy for continuous therapy." },
           ].map((s, i) => (
             <div class={`flex gap-6 py-7 ${i < 4 ? 'border-b border-[var(--color-warm-border)]' : ''}`}>
               <span class="text-[28px] font-extrabold text-[#e5e5e5] shrink-0 w-10 leading-none">{s.n}</span>
@@ -140,7 +140,7 @@ const stackCards = [
               </div>
             </div>
           </div>
-          <p class="text-[11px] text-[#999] mt-4">For continuous therapy: <code class="text-[11px] font-mono text-[var(--color-warm-text)] font-semibold">holomime mira</code> — Mira runs autonomous therapy cycles, detects drift, and corrects it permanently.</p>
+          <p class="text-[11px] text-[#999] mt-4">For continuous therapy: <code class="text-[11px] font-mono text-[var(--color-warm-text)] font-semibold">holomime therapy</code> — Mira runs autonomous therapy cycles, detects drift, and corrects it permanently.</p>
         </div>
 
         <!-- Tiered onboarding -->
