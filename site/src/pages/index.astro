@@ -311,31 +311,31 @@ const stackCards = [
       sph(base,-0.13,0.62,0,0.065,140); sph(base,0.13,0.62,0,0.065,140); ring(base,-0.13,0.62,0,0.07,30); ring(base,0.13,0.62,0,0.07,30);
       cylS(base,-0.13,0.40,0,0.055,0.38,220); cylS(base,0.13,0.40,0,0.055,0.38,220); ring(base,-0.13,0.50,0,0.06,25); ring(base,0.13,0.50,0,0.06,25); ring(base,-0.13,0.32,0,0.06,25); ring(base,0.13,0.32,0,0.06,25);
       boxS(base,-0.13,0.17,0.03,0.10,0.05,0.16,120); boxS(base,0.13,0.17,0.03,0.10,0.05,0.16,120); boxS(base,-0.13,0.16,0.10,0.08,0.03,0.04,30); boxS(base,0.13,0.16,0.10,0.08,0.03,0.04,30);
-      // Brain — wrinkled hemisphere exposed from open head
+      // Brain — wrinkled hemispheres protruding from open head top
       var brainL = [], brainR = [], brainGlow = [];
-      function brainHemi(arr, cx, cy, cz, r, n, xSign) {
-        for (var i = 0; i < n; i++) {
-          var u = Math.random(), v = Math.random();
-          var theta = Math.PI * u; // upper hemisphere only (0 to PI)
-          var phi = Math.PI * v;   // half sphere (left or right)
-          if (xSign < 0) phi = Math.PI + Math.PI * v; // other side
-          // Wrinkle displacement — brain folds
-          var wrinkle = 1.0 + 0.06 * Math.sin(theta * 8) * Math.cos(phi * 6) + 0.03 * Math.sin(theta * 14 + phi * 10);
-          var rr = r * wrinkle * (0.93 + Math.random() * 0.07);
-          var x = cx + rr * Math.sin(theta) * Math.cos(phi);
-          var y = cy + rr * Math.cos(theta) * 0.75; // slightly squashed vertically
-          var z = cz + rr * Math.sin(theta) * Math.sin(phi);
-          // Only keep points in upper portion (above head center)
-          if (y >= cy - r * 0.1) arr.push(x, y, z);
-        }
+      var brainCy = 2.25, brainR0 = 0.14;
+      // Left hemisphere (x < 0)
+      for (var i = 0; i < 600; i++) {
+        var theta = Math.acos(Math.random()); // 0 to PI/2 — upper hemisphere
+        var phi = Math.PI + Math.random() * Math.PI; // PI to 2PI — left side
+        var wrinkle = 1.0 + 0.08 * Math.sin(theta * 9) * Math.cos(phi * 7) + 0.04 * Math.sin(theta * 15 + phi * 11);
+        var rr = brainR0 * wrinkle * (0.90 + Math.random() * 0.10);
+        brainL.push(-0.015 + rr * Math.sin(theta) * Math.cos(phi), brainCy + rr * Math.cos(theta) * 0.7, rr * Math.sin(theta) * Math.sin(phi));
       }
-      // Left and right hemispheres with gap between them
-      brainHemi(brainL, -0.02, 2.22, 0, 0.13, 500, -1);
-      brainHemi(brainR, 0.02, 2.22, 0, 0.13, 500, 1);
-      // Central fissure — thin line between hemispheres
-      for (var i = 0; i < 40; i++) { var by = 2.22 + Math.random() * 0.10; brainGlow.push(0, by, (Math.random() - 0.5) * 0.08); }
-      // Inner glow
-      sph(brainGlow, 0, 2.22, 0, 0.07, 60);
+      // Right hemisphere (x > 0)
+      for (var i = 0; i < 600; i++) {
+        var theta = Math.acos(Math.random());
+        var phi = Math.random() * Math.PI; // 0 to PI — right side
+        var wrinkle = 1.0 + 0.08 * Math.sin(theta * 9) * Math.cos(phi * 7) + 0.04 * Math.sin(theta * 15 + phi * 11);
+        var rr = brainR0 * wrinkle * (0.90 + Math.random() * 0.10);
+        brainR.push(0.015 + rr * Math.sin(theta) * Math.cos(phi), brainCy + rr * Math.cos(theta) * 0.7, rr * Math.sin(theta) * Math.sin(phi));
+      }
+      // Fill interior for volume
+      sph(brainL, -0.015, brainCy + 0.03, 0, 0.08, 200);
+      sph(brainR, 0.015, brainCy + 0.03, 0, 0.08, 200);
+      // Central fissure glow
+      for (var i = 0; i < 50; i++) { brainGlow.push((Math.random() - 0.5) * 0.01, brainCy + Math.random() * 0.09, (Math.random() - 0.5) * 0.10); }
+      sph(brainGlow, 0, brainCy + 0.02, 0, 0.06, 80);
 
       // Glow layers
       sph(soulGlow,0,2.15,0,0.12,80);
@@ -351,9 +351,9 @@ const stackCards = [
       group.add(makeMesh(bodyJoints, 0x2d2c2b, 0.016, 0.7));
       group.add(makeMesh(shield, 0x2d2c2b, 0.008, 0.15));
       // Brain meshes — coral colored
-      var brainLMesh = makeMesh(brainL, 0xf97066, 0.011, 0.85);
-      var brainRMesh = makeMesh(brainR, 0xf97066, 0.011, 0.85);
-      var brainGlowMesh = makeMesh(brainGlow, 0xf97066, 0.016, 0.5);
+      var brainLMesh = makeMesh(brainL, 0xf97066, 0.014, 0.9);
+      var brainRMesh = makeMesh(brainR, 0xf97066, 0.014, 0.9);
+      var brainGlowMesh = makeMesh(brainGlow, 0xff8a80, 0.02, 0.6);
       group.add(brainLMesh); group.add(brainRMesh); group.add(brainGlowMesh);
       scene.add(group);
 
