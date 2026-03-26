@@ -433,6 +433,12 @@ holomime compile-stack  # Compiles to .personality.json</code></pre>
                 <pre class="doc-code"><code set:text={codeBlocks["codeBlock6"]}></code></pre>
               </div>
             </div>
+
+            <div class="doc-card mt-6">
+              <h3 class="doc-step">Self-improving therapy (EgoTracker)</h3>
+              <p class="text-sm text-[#777] mb-3">ego.runtime doesn't just mediate -- it learns. The EgoTracker logs every mediation decision, records outcomes, and suggests parameter adjustments based on accumulated evidence.</p>
+              <pre class="doc-code"><code set:text={'import { EgoTracker } from "holomime";\n\nconst tracker = new EgoTracker({ autoAdjust: true });\ntracker.logDecision({ situation: "speed limit", decision: "modified", strategy_used: "balanced" });\ntracker.recordOutcome(0, "positive");\n\nconst adjustments = tracker.suggestAdjustments(currentConfig);\n// adjustments = [{ parameter: "adaptation_rate", suggestedValue: 0.7, confidence: 0.85 }]'}></code></pre>
+            </div>
           </section>
 
           <!-- ═══ TRAINING & EXPORT ═══ -->

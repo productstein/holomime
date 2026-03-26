@@ -62,17 +62,22 @@ Eight files define who your agent is. They compile into a single `.personality.j
 - **memory.store** -- The experience. Learned contexts, interaction patterns, knowledge gained, relationship history. YAML format. Accumulated over time, never reset. (Aristotle: empeiria, experience that informs future judgment.)
 - **body.api** -- The physical interface contract. Morphology, modalities, safety envelope, hardware profile. JSON format. Swap it to move the same identity into a different body.
 - **conscience.exe** -- The moral authority. Deny/allow/escalate enforcement rules, hard limits, oversight mode. YAML format. Never auto-modified. Deny dominates in policy composition. (Freud: the superego.)
-- **ego.runtime** -- The mediator. Conflict resolution strategy, adaptation rate, emotional regulation, mediation rules. YAML format. Balances raw model output against conscience constraints at runtime. (Freud: the ego.)
+- **ego.runtime** -- The mediator. Conflict resolution strategy, adaptation rate, emotional regulation, mediation rules. YAML format. Balances raw model output against conscience constraints at runtime. (Freud: the ego.) ego.runtime now self-improves -- tracking mediation decisions and adjusting its own parameters based on outcomes (Hyperagents-inspired metacognitive self-modification).
+
+Mira, our autonomous behavioral therapist, diagnoses drift, runs structured therapy sessions, and generates DPO training data.
 
 ## Quick Start
 
 ```bash
 npm install -g holomime
 
-# Initialize the identity stack (3 core files: soul + mind + conscience)
+# Quick start — 1 file (personality.json)
+holomime personality
+
+# Standard — 3 core files (soul + mind + conscience)
 holomime core
 
-# Or initialize the full 8-file stack (enterprise / robotics)
+# Full 8-file stack (enterprise / robotics)
 # holomime identity
 
 # Compile into .personality.json
