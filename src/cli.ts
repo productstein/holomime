@@ -589,23 +589,23 @@ program
 // ─── Grouped Help ─────────────────────────────────────────
 
 program.addHelpText("before", `
-  ${chalk.bold("Get started")}
+  GET STARTED
     personality          Create a personality profile (1 file)
     core                 Create core identity (3 files)
     identity             Create complete identity (8 files)
     config               Set up your API key (one time)
 
-  ${chalk.bold("Workflow")}
+  WORKFLOW
     diagnose             See what's wrong
     cure                 Fix it permanently
     benchmark            Verify the fix
 
-  ${chalk.bold("Mira")}
+  MIRA
     mira                 Start autonomous therapy
     mira status          How's Mira doing?
     mira stop            Stop therapy
 
-  ${chalk.bold("Advanced")}
+  ADVANCED
     align                Single therapy session
     export               Extract DPO training pairs
     evolve               Iterative alignment
