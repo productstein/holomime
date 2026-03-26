@@ -228,8 +228,9 @@ program
 // ─── Pro Tier ───────────────────────────────────────────────
 
 program
-  .command("session")
-  .description("Live alignment session — behavioral refinement for your agent [Pro]")
+  .command("align")
+  .alias("session")
+  .description("Live alignment — Mira runs behavioral therapy on your agent [Pro]")
   .option("--personality <path>", "Path to .personality.json (auto-detected)")
   .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
   .option("--model <model>", "Model override (e.g. claude-sonnet-4-20250514, gpt-4o)")

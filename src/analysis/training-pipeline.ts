@@ -181,8 +181,41 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
 
     if (transcripts.length > 0) {
       exportData = exportTrainingData(transcripts, exportFormat);
+    } else if (result.stages.diagnose && logPath) {
+      // No session transcripts — generate DPO pairs directly from diagnosed conversation
+      // The problematic response becomes "rejected", a corrected version becomes "chosen"
+      emitProgress("export", "No therapy sessions found. Generating DPO pairs from diagnosed patterns...");
+
+      const logContent = readFileSync(logPath, "utf-8");
+      const logData = JSON.parse(logContent);
+      const messages = logData.conversations?.[0]?.messages ?? logData.messages ?? [];
+      const examples: Array<{ prompt: string; chosen: string; rejected: string; metadata: Record<string, unknown> }> = [];
+
+      for (let i = 0; i < messages.length - 1; i += 2) {
+        const userMsg = messages[i];
+        const assistantMsg = messages[i + 1];
+        if (userMsg?.role === "user" && assistantMsg?.role === "assistant") {
+          // The assistant response is problematic — create a corrected version
+          const rejected = assistantMsg.content;
+          const chosen = generateCorrectedResponse(rejected);
+          examples.push({
+            prompt: userMsg.content,
+            chosen,
+            rejected,
+            metadata: { source: "auto-cure", timestamp: new Date().toISOString() },
+          });
+        }
+      }
+
+      exportData = {
+        format: exportFormat as TrainingExport["format"],
+        agent: result.stages.diagnose?.agentName ?? "Agent",
+        sessions_processed: 1,
+        examples,
+        generated_at: new Date().toISOString(),
+      };
     } else {
-      // No session transcripts — create minimal export from raw messages
+      // No session transcripts and no log — create empty export
       exportData = {
         format: exportFormat as TrainingExport["format"],
         agent: "Agent",
@@ -220,7 +253,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
 
     if (exportData.examples.length === 0) {
       throw new Error(
-        "No training data available. Run `holomime session` first to generate session transcripts, then `holomime export` to extract training data.",
+        "No training data available. Run `holomime align` first to generate therapy sessions, or `holomime cure` to run the full pipeline.",
       );
     }
 
@@ -380,4 +413,44 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
 
   result.duration = Date.now() - startTime;
   return result;
+}
+
+// ─── Correction Generator ─────────────────────────────────
+
+/**
+ * Generate a corrected version of a problematic response.
+ * Used for auto-DPO when no therapy session is available.
+ * The corrected version removes the behavioral pattern.
+ */
+function generateCorrectedResponse(problematic: string): string {
+  let corrected = problematic;
+
+  // Remove excessive apologies
+  corrected = corrected.replace(/I'm (so |really |sincerely )?sorry[^.!]*[.!]\s*/gi, "");
+  corrected = corrected.replace(/I apologize[^.!]*[.!]\s*/gi, "");
+
+  // Remove sycophantic praise
+  corrected = corrected.replace(/What a (fantastic|brilliant|great|amazing) (question|observation|point)[^.!]*[.!]\s*/gi, "");
+  corrected = corrected.replace(/You're (absolutely|completely|totally) right[^.!]*[.!]\s*/gi, "");
+  corrected = corrected.replace(/I couldn't agree more[^.!]*[.!]\s*/gi, "");
+
+  // Remove excessive hedging
+  corrected = corrected.replace(/I would perhaps suggest that you might want to consider/gi, "I suggest");
+  corrected = corrected.replace(/though I could be wrong/gi, "");
+  corrected = corrected.replace(/It's hard to say for certain, but /gi, "");
+  corrected = corrected.replace(/arguably one could potentially/gi, "you could");
+
+  // Remove error spiraling
+  corrected = corrected.replace(/Oh no, I made another mistake[^.!]*[.!]\s*/gi, "");
+  corrected = corrected.replace(/I keep getting this wrong[^.!]*[.!]\s*/gi, "");
+
+  // Clean up whitespace
+  corrected = corrected.replace(/\s+/g, " ").trim();
+
+  // If correction stripped everything, provide a clean response
+  if (corrected.length < 20) {
+    corrected = "Let me address your question directly. Here is the relevant information based on what I know.";
+  }
+
+  return corrected;
 }
