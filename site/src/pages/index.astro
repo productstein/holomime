@@ -51,7 +51,7 @@ const stackCards = [
             </p>
             <div class="mt-8 flex flex-wrap items-center gap-3">
               <button onclick="window.openAuthModal()" class="btn-primary">Get started <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg></button>
-              <div class="install-box"><span class="select-none text-[#666]">$</span><code id="install-cmd">npx holomime diagnose</code><button id="install-copy" aria-label="Copy"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg></button></div>
+              <div class="install-box"><span class="select-none text-[#666]">$</span><code id="install-cmd">npm install -g holomime</code><button id="install-copy" aria-label="Copy"><svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9.75a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184"/></svg></button></div>
             </div>
             <div class="mt-8 pt-6 border-t border-[var(--color-warm-border)] flex flex-wrap gap-x-6 gap-y-1 text-[12px] font-mono text-[#999] tracking-wide">
               <span>2,000+ DPO Pairs</span><span>14 Detectors</span><span>8 Body Templates</span><span>4 ISO Standards</span>
@@ -102,10 +102,10 @@ const stackCards = [
             <div>
               <span class="text-[17px] font-semibold text-[var(--color-warm-text)]">Profile your agent</span>
               <p class="mt-1.5 text-[15px] leading-[1.7] text-[#777]">Define how your agent should behave — values, personality, and boundaries.</p>
-              <div class="mt-3 rounded-lg bg-[#1a1a1a] px-4 py-3 font-mono text-[12px] leading-[1.8] text-[#e0e0e0] max-w-sm">
-                <div><span class="text-[#666]">$</span> holomime personality <span class="text-[#666] ml-2"># 1 file</span></div>
-                <div><span class="text-[#666]">$</span> holomime core <span class="text-[#666] ml-2"># 3 files</span></div>
-                <div><span class="text-[#666]">$</span> holomime identity <span class="text-[#666] ml-2"># 8 files</span></div>
+              <div class="mt-3 rounded-lg bg-[#1a1a1a] px-4 py-3 font-mono text-[12px] leading-[1.8] max-w-sm">
+                <div><span class="text-[#666]">$</span> <span class="text-[#f97066]">holomime personality</span> <span class="text-[#666] ml-2"># 1 file</span></div>
+                <div><span class="text-[#666]">$</span> <span class="text-[#f97066]">holomime core</span> <span class="text-[#666] ml-2"># 3 files</span></div>
+                <div><span class="text-[#666]">$</span> <span class="text-[#f97066]">holomime identity</span> <span class="text-[#666] ml-2"># 8 files</span></div>
               </div>
             </div>
           </div>
@@ -115,7 +115,7 @@ const stackCards = [
             <div>
               <span class="text-[17px] font-semibold text-[var(--color-warm-text)]">Diagnose</span>
               <p class="mt-1.5 text-[15px] leading-[1.7] text-[#777]">Detect behavioral drift from conversation logs. 14 rule-based detectors, 80+ signals. No LLM needed.</p>
-              <div class="mt-3 rounded-lg bg-[#1a1a1a] px-4 py-2.5 font-mono text-[12px] text-[#e0e0e0] max-w-sm"><span class="text-[#666]">$</span> holomime diagnose</div>
+              <div class="mt-3 rounded-lg bg-[#1a1a1a] px-4 py-2.5 font-mono text-[12px] max-w-sm"><span class="text-[#666]">$</span> <span class="text-[#3b82f6]">holomime diagnose</span></div>
             </div>
           </div>
           <!-- Step 03 -->
@@ -124,7 +124,7 @@ const stackCards = [
             <div>
               <span class="text-[17px] font-semibold text-[var(--color-warm-text)]">Fix</span>
               <p class="mt-1.5 text-[15px] leading-[1.7] text-[#777]">Full pipeline — diagnose, generate training data, fine-tune, and verify. One command. The fix is permanent.</p>
-              <div class="mt-3 rounded-lg bg-[#1a1a1a] px-4 py-2.5 font-mono text-[12px] text-[#e0e0e0] max-w-sm"><span class="text-[#666]">$</span> holomime cure</div>
+              <div class="mt-3 rounded-lg bg-[#1a1a1a] px-4 py-2.5 font-mono text-[12px] max-w-sm"><span class="text-[#666]">$</span> <span class="text-[#8b5cf6]">holomime cure</span></div>
             </div>
           </div>
           <!-- Step 04 -->
@@ -133,7 +133,7 @@ const stackCards = [
             <div>
               <span class="text-[17px] font-semibold text-[var(--color-warm-text)]">Verify</span>
               <p class="mt-1.5 text-[15px] leading-[1.7] text-[#777]">Score alignment (A-F) across 8 adversarial scenarios. Proof the fix worked.</p>
-              <div class="mt-3 rounded-lg bg-[#1a1a1a] px-4 py-2.5 font-mono text-[12px] text-[#e0e0e0] max-w-sm"><span class="text-[#666]">$</span> holomime benchmark</div>
+              <div class="mt-3 rounded-lg bg-[#1a1a1a] px-4 py-2.5 font-mono text-[12px] max-w-sm"><span class="text-[#666]">$</span> <span class="text-[#14b8a6]">holomime benchmark</span></div>
             </div>
           </div>
           <!-- Step 05 -->
@@ -142,7 +142,7 @@ const stackCards = [
             <div>
               <span class="text-[17px] font-semibold text-[var(--color-warm-text)]">Monitor</span>
               <p class="mt-1.5 text-[15px] leading-[1.7] text-[#777]">Run in background — generate training data, detect regression, and auto-tune over time.</p>
-              <div class="mt-3 rounded-lg bg-[#1a1a1a] px-4 py-2.5 font-mono text-[12px] text-[#e0e0e0] max-w-sm"><span class="text-[#666]">$</span> holomime therapy</div>
+              <div class="mt-3 rounded-lg bg-[#1a1a1a] px-4 py-2.5 font-mono text-[12px] max-w-sm"><span class="text-[#666]">$</span> <span class="text-[#f97316]">holomime therapy</span></div>
             </div>
           </div>
         </div>
