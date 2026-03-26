@@ -40,6 +40,8 @@ import { liveCommand } from "./commands/live.js";
 import { adversarialCommand } from "./commands/adversarial.js";
 import { policyCommand } from "./commands/policy.js";
 import { complianceCommand } from "./commands/compliance.js";
+import { configCommand } from "./commands/config.js";
+import { miraCommand } from "./commands/mira-cmd.js";
 import { showTelemetryBannerIfNeeded } from "./telemetry/config.js";
 import { trackEvent, flushTelemetry } from "./telemetry/client.js";
 
@@ -61,7 +63,7 @@ program
     // Track command usage (fire-and-forget)
     trackEvent("cli_command", { command: commandName });
 
-    const skipPersonalityCheck = ["init", "init-stack", "compile-stack", "browse", "use", "install", "activate", "telemetry", "brain", "personality", "core", "identity"];
+    const skipPersonalityCheck = ["init", "init-stack", "compile-stack", "browse", "use", "install", "activate", "telemetry", "brain", "personality", "core", "identity", "config", "mira"];
     if (!skipPersonalityCheck.includes(commandName) && !checkPersonalityExists()) {
       showWelcome();
       process.exit(0);
@@ -108,6 +110,14 @@ program
     options.full = true;
     await initStackCommand(options);
   });
+
+program
+  .command("config")
+  .description("Set up your API key (one time)")
+  .option("--provider <provider>", "Provider (anthropic, openai)")
+  .option("--key <key>", "API key")
+  .option("--show", "Show current config")
+  .action(configCommand);
 
 program
   .command("compile-stack")
@@ -399,7 +409,8 @@ program
 
 program
   .command("daemon")
-  .description("Background relapse detection with auto-evolve — proactive alignment [Pro]")
+  .hideHelp()
+  .description("Background relapse detection with auto-evolve [Pro] (use 'holomime mira' instead)")
   .requiredOption("--dir <path>", "Directory to watch for conversation logs")
   .option("--personality <path>", "Path to .personality.json", ".personality.json")
   .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
@@ -519,6 +530,16 @@ program
   });
 
 program
+  .command("mira [action]")
+  .description("Autonomous therapy — Mira practices and generates DPO pairs")
+  .option("--interval <ms>", "Practice interval in ms (default: 600000)")
+  .option("--max-cycles <n>", "Max cycles per run (default: 50)")
+  .action(async (action, options) => {
+    options.action = action;
+    await miraCommand(options);
+  });
+
+program
   .command("brain")
   .description("See your agent's brain — real-time NeuralSpace visualization [Pro]")
   .option("--watch <path>", "Manual path to conversation log file")
@@ -565,5 +586,32 @@ program
   .option("--framework <list>", "Comma-separated frameworks (EU AI Act, NIST AI RMF 1.0, SOC 2 Type II, Internal Behavioral Alignment)")
   .option("-o, --output <path>", "Save full Markdown report to file")
   .action(complianceCommand);
+
+// ─── Grouped Help ─────────────────────────────────────────
+
+program.addHelpText("before", `
+  ${chalk.bold("Get started")}
+    personality          Create a personality profile (1 file)
+    core                 Create core identity (3 files)
+    identity             Create complete identity (8 files)
+    config               Set up your API key (one time)
+
+  ${chalk.bold("Workflow")}
+    diagnose             See what's wrong
+    cure                 Fix it permanently
+    benchmark            Verify the fix
+
+  ${chalk.bold("Mira")}
+    mira                 Start autonomous therapy
+    mira status          How's Mira doing?
+    mira stop            Stop therapy
+
+  ${chalk.bold("Advanced")}
+    align                Single therapy session
+    export               Extract DPO training pairs
+    evolve               Iterative alignment
+    certify              ISO compliance check
+    brain                Real-time drift visualization
+`);
 
 program.parseAsync().then(() => flushTelemetry());
