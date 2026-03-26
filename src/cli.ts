@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { printBanner } from "./ui/branding.js";
+import { printBanner, VERSION } from "./ui/branding.js";
 import { requiresPro, hasProLicense, showUpgradePrompt, checkPersonalityExists, showWelcome } from "./ui/tier.js";
 import { initCommand } from "./commands/init.js";
 import { compileCommand } from "./commands/compile.js";
@@ -49,8 +49,8 @@ const program = new Command();
 
 program
   .name("holomime")
-  .description("Personality engine for AI agents — Big Five psychology, not RPG archetypes")
-  .version("1.7.0")
+  .description("Behavioral intelligence for AI agents and humanoid robots")
+  .version(VERSION)
   .hook("preAction", (_thisCommand, actionCommand) => {
     printBanner();
 

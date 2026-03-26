@@ -1,5 +1,5 @@
 /**
- * Playwright demo: The HoloMime Alignment Flywheel
+ * Playwright demo: The holomime Alignment Flywheel
  *
  * Records a terminal demo of the full diagnose → evolve → export → verify loop.
  *
@@ -57,7 +57,7 @@ function run(cmd: string, label: string): string {
   }
 }
 
-test.describe("HoloMime Alignment Flywheel Demo", () => {
+test.describe("holomime Alignment Flywheel Demo", () => {
   test.beforeAll(() => {
     ensureDir(RESULTS);
   });

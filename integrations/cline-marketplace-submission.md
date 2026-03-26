@@ -16,7 +16,7 @@ Need a 400x400 PNG. Current logo is 256x256 at `site/public/logo-icon.png` — r
 
 **Additional Information:**
 
-HoloMime is a behavioral therapy tool for AI agents. The MCP server exposes 6 tools for real-time behavioral monitoring:
+holomime is a behavioral therapy tool for AI agents. The MCP server exposes 6 tools for real-time behavioral monitoring:
 
 | Tool | Description |
 |------|-------------|

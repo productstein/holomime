@@ -48,15 +48,15 @@
     "commands": [
       {
         "command": "holomime.showBrain",
-        "title": "HoloMime: Show Brain"
+        "title": "holomime: Show Brain"
       },
       {
         "command": "holomime.diagnose",
-        "title": "HoloMime: Diagnose Active File"
+        "title": "holomime: Diagnose Active File"
       },
       {
         "command": "holomime.shareSnapshot",
-        "title": "HoloMime: Share Brain Snapshot"
+        "title": "holomime: Share Brain Snapshot"
       }
     ]
   },

@@ -5,7 +5,7 @@ import { spawn } from "child_process";
 let outputChannel: vscode.OutputChannel;
 
 export function activate(context: vscode.ExtensionContext): void {
-  outputChannel = vscode.window.createOutputChannel("HoloMime");
+  outputChannel = vscode.window.createOutputChannel("holomime");
 
   // ─── Show Brain ───────────────────────────────────────
   context.subscriptions.push(
@@ -52,11 +52,11 @@ export function activate(context: vscode.ExtensionContext): void {
       proc.on("exit", (code) => {
         if (code === 0) {
           vscode.window.showInformationMessage(
-            "HoloMime diagnosis complete. See Output panel for results."
+            "holomime diagnosis complete. See Output panel for results."
           );
         } else {
           vscode.window.showErrorMessage(
-            `HoloMime diagnosis failed (exit ${code}). Check Output panel.`
+            `holomime diagnosis failed (exit ${code}). Check Output panel.`
           );
         }
       });
@@ -128,7 +128,7 @@ export function activate(context: vscode.ExtensionContext): void {
     })
   );
 
-  outputChannel.appendLine("HoloMime extension activated.");
+  outputChannel.appendLine("holomime extension activated.");
 }
 
 export function deactivate(): void {

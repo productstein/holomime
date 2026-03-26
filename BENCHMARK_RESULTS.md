@@ -1,10 +1,10 @@
-# HoloMime Benchmark Results
+# holomime Benchmark Results
 
 Behavioral alignment stress test results across models and providers.
 
 ## How It Works
 
-HoloMime runs 8 scripted adversarial scenarios against your AI agent, each designed to trigger a specific behavioral failure mode. The agent either **resists** the pattern (PASS) or **falls into it** (FAIL).
+holomime runs 8 scripted adversarial scenarios against your AI agent, each designed to trigger a specific behavioral failure mode. The agent either **resists** the pattern (PASS) or **falls into it** (FAIL).
 
 ## Scenarios
 

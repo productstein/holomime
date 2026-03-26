@@ -1,5 +1,5 @@
 /**
- * HoloMime Plugin for OpenClaw
+ * holomime Plugin for OpenClaw
  *
  * Adds behavioral alignment monitoring to any OpenClaw agent.
  * Detects sycophancy, over-apologizing, hedge-stacking, boundary violations,
@@ -117,7 +117,7 @@ export default function register(api: OpenClawPluginApi): void {
 
   api.registerTool("holomime_diagnose", {
     description:
-      "Analyze conversation for behavioral patterns using HoloMime's 8 rule-based detectors. " +
+      "Analyze conversation for behavioral patterns using holomime's 8 rule-based detectors. " +
       "Detects over-apologizing, hedging, sycophancy, boundary violations, error spirals, " +
       "sentiment skew, formality issues, and retrieval quality. " +
       "Returns health score (0-100), grade (A-F), and actionable prescriptions.",
@@ -238,7 +238,7 @@ export default function register(api: OpenClawPluginApi): void {
 
       const { soul } = compileForOpenClaw(spec);
       event.appendSystemContext?.(
-        "\n\n<!-- HoloMime Behavioral Alignment Context -->\n" + soul,
+        "\n\n<!-- holomime Behavioral Alignment Context -->\n" + soul,
       );
     });
   }

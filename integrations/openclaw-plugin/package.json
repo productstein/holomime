@@ -1,7 +1,7 @@
 {
   "name": "holomime-openclaw",
   "version": "1.0.0",
-  "description": "HoloMime behavioral alignment plugin for OpenClaw — detect personality drift, sycophancy, and 6 more patterns in real-time",
+  "description": "holomime behavioral alignment plugin for OpenClaw — detect personality drift, sycophancy, and 6 more patterns in real-time",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

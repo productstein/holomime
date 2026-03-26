@@ -261,7 +261,7 @@ export async function fireWebhooks(
         const encoder = new TextEncoder();
         const key = await crypto.subtle.importKey("raw", encoder.encode(hook.secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
         const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(body));
-        headers["X-HoloMime-Signature"] = Array.from(new Uint8Array(sig), b => b.toString(16).padStart(2, "0")).join("");
+        headers["X-Holomime-Signature"] = Array.from(new Uint8Array(sig), b => b.toString(16).padStart(2, "0")).join("");
       }
 
       // Attempt delivery with tracking and single retry on failure

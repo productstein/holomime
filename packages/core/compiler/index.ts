@@ -14,7 +14,7 @@ export interface CompileInput {
 }
 
 /**
- * The Compatibility Compiler — HoloMime's core differentiator.
+ * The Compatibility Compiler — holomime's core differentiator.
  *
  * Transforms a personality vector into a provider-specific runtime configuration.
  * Same personality vector → consistent behavior across Claude, GPT, Gemini, and local models.

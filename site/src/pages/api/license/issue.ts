@@ -55,7 +55,7 @@ export const POST: APIRoute = async ({ request }) => {
     .single();
 
   if (error) {
-    console.error("[HoloMime] License creation failed:", error.message);
+    console.error("[holomime] License creation failed:", error.message);
     return new Response(
       JSON.stringify({ error: "License creation failed" }),
       { status: 500, headers: { "Content-Type": "application/json" } },

@@ -15,7 +15,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-violet-600">
                 <span className="text-xs font-bold text-white">H</span>
               </div>
-              <span className="hidden text-base font-semibold tracking-tight text-zinc-100 sm:block">HoloMime</span>
+              <span className="hidden text-base font-semibold tracking-tight text-zinc-100 sm:block">holomime</span>
             </Link>
             <div className="hidden items-center gap-0.5 sm:flex">
               <NavLink href="/dashboard">Agents</NavLink>

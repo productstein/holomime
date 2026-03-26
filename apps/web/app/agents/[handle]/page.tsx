@@ -12,11 +12,11 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { handle } = await params;
   const agent = await getPublicAgent(handle);
-  if (!agent) return { title: "Agent Not Found \u2014 HoloMime" };
+  if (!agent) return { title: "Agent Not Found \u2014 holomime" };
 
   return {
-    title: `${agent.name} \u2014 HoloMime`,
-    description: agent.description ?? `${agent.name} on HoloMime`,
+    title: `${agent.name} \u2014 holomime`,
+    description: agent.description ?? `${agent.name} on holomime`,
   };
 }
 
@@ -80,7 +80,7 @@ export default async function PublicAgentPage({ params }: Props) {
             <div className="flex h-7 w-7 items-center justify-center rounded-md bg-violet-600 text-[11px] font-bold text-white">
               H
             </div>
-            <span className="text-sm font-semibold tracking-tight">HoloMime</span>
+            <span className="text-sm font-semibold tracking-tight">holomime</span>
           </a>
           <a href="/sign-up" className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-medium text-white hover:bg-violet-500 transition-colors">
             Get Started
@@ -187,7 +187,7 @@ export default async function PublicAgentPage({ params }: Props) {
         {/* Footer */}
         <div className="mt-20 text-center">
           <p className="text-xs text-zinc-700">
-            Powered by <a href="/" className="text-zinc-500 hover:text-zinc-300 transition-colors">HoloMime</a>
+            Powered by <a href="/" className="text-zinc-500 hover:text-zinc-300 transition-colors">holomime</a>
           </p>
         </div>
       </div>

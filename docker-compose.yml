@@ -1,4 +1,4 @@
-# HoloMime Self-Hosted Stack
+# holomime Self-Hosted Stack
 # Usage: docker-compose up -d
 
 services:

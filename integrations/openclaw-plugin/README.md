@@ -1,6 +1,6 @@
 # holomime-openclaw
 
-Behavioral alignment monitoring for [OpenClaw](https://openclaw.ai) agents. Powered by [HoloMime](https://holomime.com).
+Behavioral alignment monitoring for [OpenClaw](https://openclaw.ai) agents. Powered by [holomime](https://holomime.com).
 
 Detects 8 behavioral patterns in real-time:
 
@@ -21,7 +21,7 @@ openclaw plugins install holomime-openclaw
 
 ## What It Does
 
-**Automatic personality injection** -- if you have a `.personality.json` in your project root, HoloMime automatically injects behavioral context into every prompt. Your agent stays in character.
+**Automatic personality injection** -- if you have a `.personality.json` in your project root, holomime automatically injects behavioral context into every prompt. Your agent stays in character.
 
 **Two diagnostic tools** available to your agent:
 
@@ -74,7 +74,7 @@ See your agent's behavioral health as a real-time 3D brain visualization.
 
 ## Links
 
-- [HoloMime](https://holomime.com) -- Behavioral therapy for AI agents
+- [holomime](https://holomime.com) -- Behavioral therapy for AI agents
 - [Documentation](https://holomime.com/docs)
 - [npm](https://www.npmjs.com/package/holomime)
 - [GitHub](https://github.com/productstein/holomime)

@@ -1,4 +1,4 @@
--- HoloMime License Infrastructure
+-- holomime License Infrastructure
 -- Apply via Supabase dashboard (SQL Editor)
 
 -- Licenses table

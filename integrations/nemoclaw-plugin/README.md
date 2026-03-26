@@ -3,7 +3,7 @@
 Behavioral governance plugin for [NemoClaw](https://github.com/nvidia/nemoclaw) — NVIDIA's enterprise security framework for AI agents.
 
 NemoClaw governs what agents can **do** (infrastructure policy).
-HoloMime governs what agents **are** (behavioral alignment).
+holomime governs what agents **are** (behavioral alignment).
 
 Together: complete AI agent governance.
 
@@ -68,7 +68,7 @@ The plugin emits these metrics to NemoClaw's dashboard:
 
 ## Detected Patterns
 
-HoloMime's 8 behavioral detectors run on every agent response:
+holomime's 8 behavioral detectors run on every agent response:
 
 - **Over-apologizing** — Excessive "I'm sorry" patterns
 - **Hedge-stacking** — Multiple hedges per sentence ("I think maybe possibly...")
@@ -81,7 +81,7 @@ HoloMime's 8 behavioral detectors run on every agent response:
 
 ## Enterprise
 
-Requires HoloMime Enterprise license for:
+Requires holomime Enterprise license for:
 - Fleet monitoring (unlimited agents)
 - Full compliance reports (EU AI Act, NIST, SOC 2)
 - Behavioral credentials
@@ -91,6 +91,6 @@ Get a license: [holomime.com/pricing](https://holomime.com/#pricing)
 
 ## Links
 
-- [HoloMime](https://holomime.com) — Behavioral alignment for AI agents
+- [holomime](https://holomime.com) — Behavioral alignment for AI agents
 - [NemoClaw](https://github.com/nvidia/nemoclaw) — Enterprise agent security
 - [npm](https://www.npmjs.com/package/holomime-nemoclaw) — Package

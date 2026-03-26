@@ -1,7 +1,7 @@
 {
   "name": "holomime-nemoclaw",
   "version": "1.0.0",
-  "description": "HoloMime behavioral governance plugin for NemoClaw — real-time drift detection, compliance audit trails, and behavioral credentials for enterprise AI agents",
+  "description": "holomime behavioral governance plugin for NemoClaw — real-time drift detection, compliance audit trails, and behavioral credentials for enterprise AI agents",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

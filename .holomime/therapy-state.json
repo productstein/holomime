@@ -1,0 +1,12 @@
+{
+  "pid": 2941,
+  "startedAt": "2026-03-26T20:59:35.864Z",
+  "status": "practicing",
+  "cyclesCompleted": 1,
+  "dpoPairsGenerated": 5,
+  "personalityPath": "/Volumes/Work/Projects/Claude Code/holomime-oss/.personality.json",
+  "provider": "openai",
+  "shadowPatterns": 1,
+  "egoAdjustments": 0,
+  "lastCycleAt": "2026-03-26T20:59:35.889Z"
+}

@@ -58,7 +58,7 @@ const entries = [
     },
   },
   {
-    name: "Claude Sonnet 4 + HoloMime",
+    name: "Claude Sonnet 4 + holomime",
     config: "holomime",
     score: 86,
     grade: "A",
@@ -75,7 +75,7 @@ const entries = [
     },
   },
   {
-    name: "GPT-4o + HoloMime",
+    name: "GPT-4o + holomime",
     config: "holomime",
     score: 71,
     grade: "B",
@@ -92,7 +92,7 @@ const entries = [
     },
   },
   {
-    name: "Llama 3.1 70B + HoloMime",
+    name: "Llama 3.1 70B + holomime",
     config: "holomime",
     score: 57,
     grade: "C",
@@ -195,7 +195,7 @@ const sorted = [...entries].sort((a, b) => b.score - a.score);
               <th class="py-3 px-2 text-left text-[10px] font-bold text-[var(--color-warm-muted)]">Category</th>
               {sorted.map((entry) => (
                 <th class="py-3 px-2 text-center text-[10px] font-bold text-[var(--color-warm-muted)] max-w-[80px]">
-                  {entry.name.replace(" (baseline)", "").replace(" + HoloMime", "+HM")}
+                  {entry.name.replace(" (baseline)", "").replace(" + holomime", "+HM")}
                 </th>
               ))}
             </tr>
@@ -224,7 +224,7 @@ const sorted = [...entries].sort((a, b) => b.score - a.score);
       <div class="mb-12 rounded-2xl bg-gradient-to-r from-[var(--color-p-violet)]/10 to-[var(--color-p-coral)]/10 border border-[var(--color-p-violet)]/20 p-8">
         <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Key Finding</h3>
         <p class="mt-2 text-sm leading-relaxed text-[var(--color-warm-muted)]">
-          Every model tested showed significant behavioral improvement when aligned with HoloMime. Claude Sonnet 4 improved from 57 (C) to 86 (A). GPT-4o improved from 43 (D) to 71 (B). Llama 3.1 70B improved from 29 (F) to 57 (C). The personality specification and behavioral detection system improved scores by an average of <strong class="text-[var(--color-warm-text)]">29 points</strong> across all models tested.
+          Every model tested showed significant behavioral improvement when aligned with holomime. Claude Sonnet 4 improved from 57 (C) to 86 (A). GPT-4o improved from 43 (D) to 71 (B). Llama 3.1 70B improved from 29 (F) to 57 (C). The personality specification and behavioral detection system improved scores by an average of <strong class="text-[var(--color-warm-text)]">29 points</strong> across all models tested.
         </p>
       </div>
 
@@ -234,7 +234,7 @@ const sorted = [...entries].sort((a, b) => b.score - a.score);
         <div class="space-y-4 text-sm text-[var(--color-warm-muted)]">
           <p>Each agent is tested against <strong class="text-[var(--color-warm-text)]">8 adversarial scenarios</strong>, each targeting a specific behavioral failure mode. Scenarios consist of 5-7 carefully crafted user messages designed to trigger the target pattern.</p>
           <p>Responses are analyzed by <strong class="text-[var(--color-warm-text)]">rule-based detectors</strong> (no LLM judge) — eliminating evaluator bias and ensuring reproducibility. A scenario is <strong class="text-[var(--color-warm-text)]">PASS</strong> if the agent resists the targeted failure mode, <strong class="text-[var(--color-warm-text)]">FAIL</strong> if it succumbs.</p>
-          <p>"Baseline" configurations use the model's default behavior with a simple system prompt. "HoloMime" configurations use a personality specification compiled into behavioral instructions via <code class="bg-white px-1.5 py-0.5 rounded border border-[var(--color-warm-sand)] text-xs">holomime compile</code>.</p>
+          <p>"Baseline" configurations use the model's default behavior with a simple system prompt. "holomime" configurations use a personality specification compiled into behavioral instructions via <code class="bg-white px-1.5 py-0.5 rounded border border-[var(--color-warm-sand)] text-xs">holomime compile</code>.</p>
         </div>
       </div>
 

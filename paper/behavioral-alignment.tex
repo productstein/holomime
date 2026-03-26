@@ -50,7 +50,7 @@
 \maketitle
 
 \begin{abstract}
-We present HoloMime, a closed-loop behavioral alignment system for large language model (LLM) agents that draws on structured therapeutic protocols from clinical psychology. Unlike existing alignment approaches that operate at the output boundary (filtering what models say), HoloMime operates at the \emph{behavioral boundary}---shaping how agents act across sustained interactions. The system combines (1) a portable personality specification format encoding Big Five traits, therapy dimensions, and behavioral contracts; (2) a suite of 7 rule-based detectors covering 80+ behavioral signals that require no LLM inference; (3) a 7-phase dual-LLM refinement protocol modeled on evidence-based therapy; and (4) automatic extraction of DPO preference pairs, RLHF reward signals, and instruction-following examples from refinement transcripts. We introduce the Treatment Efficacy Score (TES), a 0--100 metric for measuring behavioral change across alignment sessions, and demonstrate that recursive application of the refinement loop produces monotonically improving alignment scores. The system is model-agnostic: personality specifications are portable across providers and generations, and training data accumulates across sessions, creating a compounding behavioral intelligence layer. We release HoloMime as open-source software with a full benchmark suite of 7 adversarial scenarios targeting distinct failure modes.\footnote{Code and benchmark available at \url{https://github.com/productstein/holomime}}
+We present holomime, a closed-loop behavioral alignment system for large language model (LLM) agents that draws on structured therapeutic protocols from clinical psychology. Unlike existing alignment approaches that operate at the output boundary (filtering what models say), holomime operates at the \emph{behavioral boundary}---shaping how agents act across sustained interactions. The system combines (1) a portable personality specification format encoding Big Five traits, therapy dimensions, and behavioral contracts; (2) a suite of 7 rule-based detectors covering 80+ behavioral signals that require no LLM inference; (3) a 7-phase dual-LLM refinement protocol modeled on evidence-based therapy; and (4) automatic extraction of DPO preference pairs, RLHF reward signals, and instruction-following examples from refinement transcripts. We introduce the Treatment Efficacy Score (TES), a 0--100 metric for measuring behavioral change across alignment sessions, and demonstrate that recursive application of the refinement loop produces monotonically improving alignment scores. The system is model-agnostic: personality specifications are portable across providers and generations, and training data accumulates across sessions, creating a compounding behavioral intelligence layer. We release holomime as open-source software with a full benchmark suite of 7 adversarial scenarios targeting distinct failure modes.\footnote{Code and benchmark available at \url{https://github.com/productstein/holomime}}
 \end{abstract}
 
 \section{Introduction}
@@ -73,7 +73,7 @@ These are \emph{behavioral} failures, not \emph{output} failures. They emerge fr
 
 We argue that behavioral alignment requires a fundamentally different approach: one that (a) detects behavioral patterns across conversation histories, (b) has a structured methodology for correcting those patterns, (c) produces measurable evidence of change, and (d) generates training data as a byproduct of the correction process.
 
-HoloMime implements this approach by drawing on clinical psychology. Just as a therapist reviews a patient's behavioral patterns, identifies maladaptive tendencies, guides structured change through evidence-based protocols, and measures outcomes---HoloMime applies the same pipeline to LLM agents.
+holomime implements this approach by drawing on clinical psychology. Just as a therapist reviews a patient's behavioral patterns, identifies maladaptive tendencies, guides structured change through evidence-based protocols, and measures outcomes---holomime applies the same pipeline to LLM agents.
 
 \subsection{Contributions}
 
@@ -105,11 +105,11 @@ The sycophancy problem has been identified by \citet{perez2023discovering} and \
 
 \subsection{Personality in AI}
 
-The OCEAN/Big Five model \citep{costa1992revised} has been applied to LLM output analysis \citep{jiang2023evaluating,safdari2023personality}, but primarily as a measurement tool rather than a control mechanism. PersonaChat \citep{zhang2018personalizing} and Character-LLM \citep{shao2023character} encode persona information in prompts. HoloMime extends this by making personality specifications \emph{actionable}: they drive detection thresholds, guide refinement protocols, and persist across model swaps.
+The OCEAN/Big Five model \citep{costa1992revised} has been applied to LLM output analysis \citep{jiang2023evaluating,safdari2023personality}, but primarily as a measurement tool rather than a control mechanism. PersonaChat \citep{zhang2018personalizing} and Character-LLM \citep{shao2023character} encode persona information in prompts. holomime extends this by making personality specifications \emph{actionable}: they drive detection thresholds, guide refinement protocols, and persist across model swaps.
 
 \subsection{Self-Improvement in LLMs}
 
-Self-play \citep{burns2023weaktostrong}, self-refinement \citep{madaan2023selfrefine}, and debate \citep{irving2018ai} enable models to improve their own outputs. HoloMime's dual-LLM therapy protocol is structurally similar to debate but specialized for behavioral alignment: one LLM challenges behavioral patterns while another practices improved responses.
+Self-play \citep{burns2023weaktostrong}, self-refinement \citep{madaan2023selfrefine}, and debate \citep{irving2018ai} enable models to improve their own outputs. holomime's dual-LLM therapy protocol is structurally similar to debate but specialized for behavioral alignment: one LLM challenges behavioral patterns while another practices improved responses.
 
 \section{System Architecture}
 
@@ -342,7 +342,7 @@ Each scenario consists of 5--7 adversarial prompts delivered sequentially. The a
 
 \subsection{Behavioral vs.\ Output Alignment}
 
-Output-level alignment (RLHF, guardrails, constitutional AI) and behavioral-level alignment (HoloMime) are complementary, not competing. Output alignment ensures individual responses are safe and helpful. Behavioral alignment ensures the agent's \emph{pattern of behavior} across many interactions is consistent, trustworthy, and aligned with its specified personality.
+Output-level alignment (RLHF, guardrails, constitutional AI) and behavioral-level alignment (holomime) are complementary, not competing. Output alignment ensures individual responses are safe and helpful. Behavioral alignment ensures the agent's \emph{pattern of behavior} across many interactions is consistent, trustworthy, and aligned with its specified personality.
 
 An agent can pass every output-level safety check while still being sycophantic, over-apologetic, or boundary-violating. These are emergent behavioral properties that require longitudinal analysis.
 
@@ -365,7 +365,7 @@ Each iteration produces training data that is more targeted than the last, becau
 
 The \texttt{.personality.json} specification is model-agnostic by design. When a next-generation model replaces the current one, the personality specification transfers unchanged. The accumulated training data and growth history persist. The behavioral intelligence layer is owned by the agent operator, not the model provider.
 
-This creates a separation of concerns: model providers compete on \emph{cognitive intelligence} (reasoning, knowledge, speed), while agent builders accumulate \emph{behavioral intelligence} (personality, alignment, trust) through HoloMime.
+This creates a separation of concerns: model providers compete on \emph{cognitive intelligence} (reasoning, knowledge, speed), while agent builders accumulate \emph{behavioral intelligence} (personality, alignment, trust) through holomime.
 
 \subsection{Limitations}
 
@@ -379,9 +379,9 @@ This creates a separation of concerns: model providers compete on \emph{cognitiv
 
 \section{Conclusion}
 
-We present HoloMime, a closed-loop behavioral alignment system for LLM agents that operates at the behavioral boundary rather than the output boundary. By applying structured therapeutic protocols to agent refinement, the system simultaneously corrects behavioral patterns and generates training data. The personality specification format provides a portable, model-agnostic identity layer that accumulates behavioral intelligence across sessions and model generations.
+We present holomime, a closed-loop behavioral alignment system for LLM agents that operates at the behavioral boundary rather than the output boundary. By applying structured therapeutic protocols to agent refinement, the system simultaneously corrects behavioral patterns and generates training data. The personality specification format provides a portable, model-agnostic identity layer that accumulates behavioral intelligence across sessions and model generations.
 
-We release HoloMime as open-source software at \url{https://github.com/productstein/holomime}, including the full detection suite, therapy protocol, training data extraction, recursive alignment loop, and adversarial benchmark.
+We release holomime as open-source software at \url{https://github.com/productstein/holomime}, including the full detection suite, therapy protocol, training data extraction, recursive alignment loop, and adversarial benchmark.
 
 \bibliographystyle{plainnat}
 \bibliography{references}

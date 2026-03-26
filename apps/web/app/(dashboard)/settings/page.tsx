@@ -78,7 +78,7 @@ function ApiKeysSection() {
   return (
     <section className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
       <h2 className="text-sm font-semibold text-zinc-200">API Keys</h2>
-      <p className="mt-1 text-xs text-zinc-500">Keys for the HoloMime SDK and REST API</p>
+      <p className="mt-1 text-xs text-zinc-500">Keys for the holomime SDK and REST API</p>
 
       {newKey && (
         <div className="mt-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-4">

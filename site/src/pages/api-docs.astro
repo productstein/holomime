@@ -146,7 +146,7 @@ const endpoints: Record<string, Endpoint[]> = {
   "enabled": true,
   "created_at": "..."
 }`,
-      notes: "If you provide a secret, every webhook delivery includes an X-HoloMime-Signature header (HMAC-SHA256 hex digest of the request body).",
+      notes: "If you provide a secret, every webhook delivery includes an X-Holomime-Signature header (HMAC-SHA256 hex digest of the request body).",
     },
     {
       method: "PUT",
@@ -595,7 +595,7 @@ const tierColors: Record<string, string> = {
   "timestamp": "2026-03-04T12:00:00.000Z",
   "data": { ... }  // full analysis result
 }`}</code></pre>
-          <p class="text-xs text-[var(--color-warm-muted)] mt-3">If you set a <code class="font-mono">secret</code>, verify the <code class="font-mono">X-HoloMime-Signature</code> header (HMAC-SHA256 hex of the body).</p>
+          <p class="text-xs text-[var(--color-warm-muted)] mt-3">If you set a <code class="font-mono">secret</code>, verify the <code class="font-mono">X-Holomime-Signature</code> header (HMAC-SHA256 hex of the body).</p>
         </div>
 
         {endpoints.webhooks.map((ep) => (

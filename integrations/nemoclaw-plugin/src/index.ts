@@ -1,7 +1,7 @@
 /**
- * HoloMime Behavioral Governance Plugin for NemoClaw
+ * holomime Behavioral Governance Plugin for NemoClaw
  *
- * Integrates HoloMime's behavioral alignment engine into NemoClaw's
+ * Integrates holomime's behavioral alignment engine into NemoClaw's
  * enterprise policy framework. Provides:
  *
  * 1. Pre-action behavioral guard — block/correct drifting responses
@@ -11,7 +11,7 @@
  * 5. Fleet monitoring — multi-agent behavioral governance
  *
  * NemoClaw handles infrastructure policy (sandbox, network, permissions).
- * HoloMime handles behavioral policy (personality, drift, alignment).
+ * holomime handles behavioral policy (personality, drift, alignment).
  * Together: complete AI agent governance.
  */
 
@@ -157,7 +157,7 @@ export function register(ctx: NemoClawPluginContext): NemoClawPlugin {
     actionCount: 0,
   };
 
-  logger.info(`HoloMime behavioral governance active`, {
+  logger.info(`holomime behavioral governance active`, {
     mode,
     agent: agentName,
     hasSpec: !!spec,
@@ -204,7 +204,7 @@ export function register(ctx: NemoClawPluginContext): NemoClawPlugin {
 
     shutdown() {
       clearInterval(healthInterval);
-      logger.info("HoloMime behavioral governance shutting down", {
+      logger.info("holomime behavioral governance shutting down", {
         actionsProcessed: state.actionCount,
         violations: state.violationCount,
       });

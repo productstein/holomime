@@ -35,7 +35,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     if (error) {
-      console.error("[HoloMime] Contact lead save failed:", error.message);
+      console.error("[holomime] Contact lead save failed:", error.message);
     }
   }
 

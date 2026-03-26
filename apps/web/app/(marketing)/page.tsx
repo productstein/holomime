@@ -28,7 +28,7 @@ export default function LandingPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600">
               <span className="text-sm font-bold text-white">H</span>
             </div>
-            <span className="text-lg font-semibold tracking-tight">HoloMime</span>
+            <span className="text-lg font-semibold tracking-tight">holomime</span>
           </div>
           <div className="flex items-center gap-6">
             <Link href="#features" className="hidden text-sm text-zinc-400 transition-colors hover:text-zinc-100 sm:block">Features</Link>
@@ -395,7 +395,7 @@ export default function LandingPage() {
             <div className="flex h-6 w-6 items-center justify-center rounded bg-violet-600">
               <span className="text-[10px] font-bold text-white">H</span>
             </div>
-            <span className="text-sm text-zinc-500">&copy; 2026 HoloMime</span>
+            <span className="text-sm text-zinc-500">&copy; 2026 holomime</span>
           </div>
           <div className="flex gap-6 text-sm text-zinc-500">
             <Link href="#pricing" className="transition-colors hover:text-zinc-300">Pricing</Link>
@@ -499,7 +499,7 @@ const codeSnippet = (
   <>
     <span className="text-violet-400">import</span>
     <span className="text-zinc-300">{" { "}</span>
-    <span className="text-amber-300">HoloMime</span>
+    <span className="text-amber-300">holomime</span>
     <span className="text-zinc-300">{" } "}</span>
     <span className="text-violet-400">from</span>
     <span className="text-emerald-400">{" '@holomime/sdk'"}</span>
@@ -508,7 +508,7 @@ const codeSnippet = (
     <span className="text-violet-400">const</span>
     <span className="text-zinc-300"> holo </span>
     <span className="text-violet-400">= new</span>
-    <span className="text-amber-300"> HoloMime</span>
+    <span className="text-amber-300"> holomime</span>
     <span className="text-zinc-300">{"({ "}</span>
     <span className="text-zinc-300">apiKey</span>
     <span className="text-zinc-500">: </span>

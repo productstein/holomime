@@ -23,7 +23,7 @@ export const POST: APIRoute = async ({ request }) => {
     event = validateEvent(body, Object.fromEntries(request.headers.entries()), webhookSecret);
   } catch (err) {
     if (err instanceof WebhookVerificationError) {
-      console.error("[HoloMime] Webhook signature verification failed");
+      console.error("[holomime] Webhook signature verification failed");
       return new Response("Invalid webhook signature", { status: 403 });
     }
     throw err;
@@ -38,7 +38,7 @@ export const POST: APIRoute = async ({ request }) => {
         const email = checkout.customerEmail;
         const customerId = checkout.customerId;
 
-        console.log(`[HoloMime] Checkout succeeded: ${customerId} (${email})`);
+        console.log(`[holomime] Checkout succeeded: ${customerId} (${email})`);
 
         if (supabase && email) {
           // Determine tier from Polar product ID
@@ -66,9 +66,9 @@ export const POST: APIRoute = async ({ request }) => {
           });
 
           if (error) {
-            console.error(`[HoloMime] Failed to create license: ${error.message}`);
+            console.error(`[holomime] Failed to create license: ${error.message}`);
           } else {
-            console.log(`[HoloMime] License created: ${licenseKey.slice(0, 12)}...`);
+            console.log(`[holomime] License created: ${licenseKey.slice(0, 12)}...`);
           }
         }
       }
@@ -77,7 +77,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     case "subscription.canceled": {
       const sub = event.data;
-      console.log(`[HoloMime] Subscription cancelled: ${sub.customerId}`);
+      console.log(`[holomime] Subscription cancelled: ${sub.customerId}`);
 
       if (supabase) {
         const { error } = await supabase
@@ -86,7 +86,7 @@ export const POST: APIRoute = async ({ request }) => {
           .eq("polar_subscription_id", sub.id);
 
         if (error) {
-          console.error(`[HoloMime] Failed to revoke license: ${error.message}`);
+          console.error(`[holomime] Failed to revoke license: ${error.message}`);
         }
       }
       break;
@@ -94,7 +94,7 @@ export const POST: APIRoute = async ({ request }) => {
 
     case "subscription.revoked": {
       const sub = event.data;
-      console.log(`[HoloMime] Subscription revoked: ${sub.customerId}`);
+      console.log(`[holomime] Subscription revoked: ${sub.customerId}`);
 
       if (supabase) {
         await supabase

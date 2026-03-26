@@ -1,6 +1,6 @@
 {
   "name": "holomime",
-  "description": "Behavioral alignment monitoring for AI agents — detect sycophancy, hedging, over-apologizing, boundary violations, and 4 more patterns in real-time. Powered by HoloMime's 8 rule-based detectors.",
+  "description": "Behavioral alignment monitoring for AI agents — detect sycophancy, hedging, over-apologizing, boundary violations, and 4 more patterns in real-time. Powered by holomime's 8 rule-based detectors.",
   "configSchema": {
     "type": "object",
     "additionalProperties": false,

@@ -1,4 +1,4 @@
-# HoloMime Self-Hosted
+# holomime Self-Hosted
 # Build: docker build -t holomime .
 # Run:   docker run -p 4321:4321 --env-file .env holomime
 

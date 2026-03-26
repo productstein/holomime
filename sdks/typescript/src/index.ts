@@ -1,11 +1,11 @@
 /**
- * HoloMime SDK — Personality engine for AI agents
+ * holomime SDK — Personality engine for AI agents
  *
  * @example
  * ```typescript
- * import { HoloMime } from '@holomime/sdk';
+ * import { holomime } from '@holomime/sdk';
  *
- * const holo = new HoloMime({ apiKey: 'mk_...' });
+ * const holo = new holomime({ apiKey: 'mk_...' });
  *
  * // Load a personality
  * const vector = await holo.vectors.get('my-sales-agent');
@@ -22,7 +22,7 @@
  * ```
  */
 
-export interface HoloMimeConfig {
+export interface holomimeConfig {
   apiKey: string;
   baseUrl?: string;
 }
@@ -100,7 +100,7 @@ export interface HealthScore {
   drift_level: string;
 }
 
-export class HoloMime {
+export class holomime {
   private apiKey: string;
   private baseUrl: string;
 
@@ -109,7 +109,7 @@ export class HoloMime {
   public telemetry: Telemetry;
   public eval: Eval;
 
-  constructor(config: HoloMimeConfig) {
+  constructor(config: holomimeConfig) {
     this.apiKey = config.apiKey;
     this.baseUrl = config.baseUrl ?? "https://api.holomime.com/v1";
 
@@ -132,7 +132,7 @@ export class HoloMime {
 
     if (!res.ok) {
       const error = await res.json().catch(() => ({ message: res.statusText }));
-      throw new HoloMimeError(res.status, error.message ?? "API request failed");
+      throw new holomimeError(res.status, error.message ?? "API request failed");
     }
 
     return res.json();
@@ -147,7 +147,7 @@ export class HoloMime {
 }
 
 class Vectors {
-  constructor(private client: HoloMime) {}
+  constructor(private client: holomime) {}
 
   async get(idOrHandle: string): Promise<PersonalityVector> {
     return this.client.request("GET", `/vectors/${idOrHandle}`);
@@ -175,7 +175,7 @@ class Vectors {
 }
 
 class Agents {
-  constructor(private client: HoloMime) {}
+  constructor(private client: holomime) {}
 
   async get(idOrHandle: string): Promise<Agent> {
     return this.client.request("GET", `/agents/${idOrHandle}`);
@@ -191,7 +191,7 @@ class Agents {
 }
 
 class Telemetry {
-  constructor(private client: HoloMime) {}
+  constructor(private client: holomime) {}
 
   async report(event: TelemetryEvent): Promise<void> {
     await this.client.request("POST", "/telemetry/events", event);
@@ -207,7 +207,7 @@ class Telemetry {
 }
 
 class Eval {
-  constructor(private client: HoloMime) {}
+  constructor(private client: holomime) {}
 
   async run(suiteId: string, vectorId: string): Promise<{ runId: string }> {
     return this.client.request("POST", "/eval/run", { suite_id: suiteId, vector_id: vectorId });
@@ -222,11 +222,11 @@ class Eval {
   }
 }
 
-export class HoloMimeError extends Error {
+export class holomimeError extends Error {
   constructor(public status: number, message: string) {
     super(message);
-    this.name = "HoloMimeError";
+    this.name = "holomimeError";
   }
 }
 
-export default HoloMime;
+export default holomime;

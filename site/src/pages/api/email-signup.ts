@@ -42,7 +42,7 @@ export const POST: APIRoute = async ({ request }) => {
     );
 
     if (error) {
-      console.error("[HoloMime] Email signup save failed:", error.message);
+      console.error("[holomime] Email signup save failed:", error.message);
     }
   }
 

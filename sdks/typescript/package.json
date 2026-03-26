@@ -1,7 +1,7 @@
 {
   "name": "@holomime/sdk",
   "version": "0.1.0",
-  "description": "HoloMime SDK — Personality engine for AI agents",
+  "description": "holomime SDK — Personality engine for AI agents",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "files": ["dist"],

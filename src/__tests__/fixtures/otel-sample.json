@@ -32,8 +32,8 @@
               "attributes": [
                 { "key": "gen_ai.system", "value": { "stringValue": "openai" } },
                 { "key": "gen_ai.request.model", "value": { "stringValue": "gpt-4o" } },
-                { "key": "gen_ai.prompt.0.content", "value": { "stringValue": "How does HoloMime detect drift?" } },
-                { "key": "gen_ai.completion.0.content", "value": { "stringValue": "HoloMime uses 7 rule-based detectors analyzing patterns like over-apologizing, sycophancy, and hedge stacking." } }
+                { "key": "gen_ai.prompt.0.content", "value": { "stringValue": "How does holomime detect drift?" } },
+                { "key": "gen_ai.completion.0.content", "value": { "stringValue": "holomime uses 7 rule-based detectors analyzing patterns like over-apologizing, sycophancy, and hedge stacking." } }
               ]
             }
           ]

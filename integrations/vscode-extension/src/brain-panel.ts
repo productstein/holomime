@@ -27,7 +27,7 @@ function findFreePort(): Promise<number> {
 }
 
 /**
- * Show or create the HoloMime Brain webview panel.
+ * Show or create the holomime Brain webview panel.
  * Spawns `npx holomime brain` as a child process and embeds
  * an iframe pointing to the local server.
  */
@@ -45,7 +45,7 @@ export async function showBrainPanel(
   brainPort = port;
 
   // Start the brain server as a child process
-  outputChannel.appendLine(`Starting HoloMime brain on port ${port}...`);
+  outputChannel.appendLine(`Starting holomime brain on port ${port}...`);
 
   brainProcess = spawn("npx", ["holomime", "brain", "--no-open", "--port", String(port)], {
     cwd: vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? process.cwd(),
@@ -63,12 +63,12 @@ export async function showBrainPanel(
   });
 
   brainProcess.on("error", (err) => {
-    vscode.window.showErrorMessage(`HoloMime brain failed to start: ${err.message}`);
+    vscode.window.showErrorMessage(`holomime brain failed to start: ${err.message}`);
     outputChannel.appendLine(`Process error: ${err.message}`);
   });
 
   brainProcess.on("exit", (code) => {
-    outputChannel.appendLine(`HoloMime brain exited (code ${code})`);
+    outputChannel.appendLine(`holomime brain exited (code ${code})`);
     brainProcess = undefined;
     brainPort = undefined;
   });
@@ -77,7 +77,7 @@ export async function showBrainPanel(
   const ready = await waitForServer(port, 15_000);
   if (!ready) {
     vscode.window.showErrorMessage(
-      "HoloMime brain server did not start in time. Is an AI agent running?"
+      "holomime brain server did not start in time. Is an AI agent running?"
     );
     killBrainProcess();
     return;
@@ -86,7 +86,7 @@ export async function showBrainPanel(
   // Create webview panel
   currentPanel = vscode.window.createWebviewPanel(
     "holomimeBrain",
-    "HoloMime Brain",
+    "holomime Brain",
     vscode.ViewColumn.Beside,
     {
       enableScripts: true,

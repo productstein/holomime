@@ -1,4 +1,4 @@
-// HoloMime shared configuration constants
+// holomime shared configuration constants
 
 export const TRAIT_DIMENSIONS = [
   "warmth",

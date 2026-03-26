@@ -7,7 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 // Server-side: check for ?d= param to set dynamic OG tags
 const d = Astro.url.searchParams.get("d");
 let isSnapshot = !!d;
-let ogTitle = "HoloMime Brain — See behavioral drift before it happens";
+let ogTitle = "holomime Brain — See behavioral drift before it happens";
 let ogDescription = "Real-time drift visualization powered by the 8-file Identity Stack. 14 detectors. One command: npx holomime brain.";
 let ogImage = "https://holomime.com/og-image.png";
 let shortUrl = "";
@@ -361,7 +361,7 @@ if (d) {
         <p class="text-sm font-semibold tracking-wider uppercase text-[var(--color-p-coral)] text-center mb-3">How it works</p>
         <h2 class="text-2xl sm:text-3xl font-bold text-[var(--color-warm-text)] text-center mb-4">Three steps. No configuration.</h2>
         <p class="text-[var(--color-warm-muted)] text-center max-w-lg mx-auto mb-16">
-          HoloMime Brain watches your agent's conversation log in real time, runs 8 behavioral detectors on every message, and maps the results onto 9 anatomical brain regions.
+          holomime Brain watches your agent's conversation log in real time, runs 8 behavioral detectors on every message, and maps the results onto 9 anatomical brain regions.
         </p>
 
         <div class="grid md:grid-cols-3 gap-8">

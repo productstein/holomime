@@ -59,7 +59,7 @@ export const POST: APIRoute = async ({ locals }) => {
     .single();
 
   if (error) {
-    console.error("[HoloMime] Developer key creation failed:", error.message);
+    console.error("[holomime] Developer key creation failed:", error.message);
     return new Response(
       JSON.stringify({ error: "Key generation failed. Please try again." }),
       { status: 500, headers: { "Content-Type": "application/json" } },

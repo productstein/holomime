@@ -33,7 +33,7 @@ Thumbs.db
 *.tsbuildinfo
 npm-debug.log*
 
-# HoloMime runtime data
+# holomime runtime data
 .holomime/sessions/
 .holomime/credentials/
 .holomime/daemon.json
