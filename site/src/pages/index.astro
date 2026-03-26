@@ -120,7 +120,7 @@ const stackCards = [
               <div class="text-[22px] font-extrabold text-[#e5e5e5] shrink-0 leading-none">1</div>
               <div>
                 <div class="text-[13px] font-semibold text-[var(--color-warm-text)]">Quick start</div>
-                <code class="text-[11px] font-mono text-[#bbb] block mt-1">holomime init</code>
+                <code class="text-[11px] font-mono text-[#bbb] block mt-1">holomime personality</code>
                 <p class="text-[11px] text-[#999] mt-1">1 file — personality.json</p>
               </div>
             </div>
@@ -128,7 +128,7 @@ const stackCards = [
               <div class="text-[22px] font-extrabold text-[#e5e5e5] shrink-0 leading-none">3</div>
               <div>
                 <div class="text-[13px] font-semibold text-[var(--color-warm-text)]">Standard</div>
-                <code class="text-[11px] font-mono text-[#bbb] block mt-1">holomime init-stack</code>
+                <code class="text-[11px] font-mono text-[#bbb] block mt-1">holomime core</code>
                 <p class="text-[11px] text-[#999] mt-1">soul + mind + conscience</p>
               </div>
             </div>
@@ -136,7 +136,7 @@ const stackCards = [
               <div class="text-[22px] font-extrabold text-[var(--color-p-coral)] shrink-0 leading-none">8</div>
               <div>
                 <div class="text-[13px] font-semibold text-[var(--color-warm-text)]">Full stack</div>
-                <code class="text-[11px] font-mono text-[#bbb] block mt-1">holomime init-stack --full</code>
+                <code class="text-[11px] font-mono text-[#bbb] block mt-1">holomime identity</code>
                 <p class="text-[11px] text-[#999] mt-1">All 8 files — enterprise & robotics</p>
               </div>
             </div>
@@ -358,7 +358,7 @@ const stackCards = [
 
     // --- Terminal typing ---
     function runTerminal() {
-      var cmd = 'holomime diagnose --input chat.json';
+      var cmd = 'holomime diagnose';
       var el = document.getElementById('term-cmd');
       var cursor = document.getElementById('term-cursor');
       var i = 0;

@@ -21,8 +21,9 @@ const navSections = [
 ];
 
 const cliCommandsFree = [
-  { cmd: "init", desc: "Build a personality profile through guided assessment", flags: "--swap-body [template]" },
-  { cmd: "init-stack", desc: "Create identity stack (3 files default, 8 with --full: soul.md, mind.sys, purpose.cfg, shadow.log, memory.store, body.api, conscience.exe, ego.runtime)", flags: "--dir [path]" },
+  { cmd: "personality", desc: "Build a personality profile through guided assessment", flags: "--swap-body [template]" },
+  { cmd: "core", desc: "Create identity stack (3 files default)", flags: "--dir [path]" },
+  { cmd: "identity", desc: "Create full identity stack (all 8 files: soul.md, mind.sys, purpose.cfg, shadow.log, memory.store, body.api, conscience.exe, ego.runtime)", flags: "--dir [path]" },
   { cmd: "compile-stack", desc: "Compile identity stack into .personality.json", flags: "--dir [path] --output [file]" },
   { cmd: "compile", desc: "Compile .personality.json into runtime config for a specific provider + surface", flags: "--provider openai --surface chat" },
   { cmd: "validate", desc: "Validate .personality.json schema and psychological coherence", flags: "--strict" },
@@ -90,7 +91,7 @@ const codeBlocks = {
   "codeBlock11": "import { MuJoCoEnvironment } from \"holomime\";\n\nconst env = new MuJoCoEnvironment();\nawait env.start();\nconst obs = await env.reset();\nconst result = await env.step([0.1, 0.2, ...]);",
   "codeBlock12": "holomime sim --adapter isaac --scene warehouse",
   "codeBlock13": "import { LeRobotAdapter } from \"holomime\";\n\nconst adapter = new LeRobotAdapter();\nconst policy = adapter.mapPersonalityToPolicy(spec);\n// { gripForceScale: 0.7, movementPrecision: 0.85, ... }\nawait adapter.pushToHub(\"my-org/my-robot-policy\");",
-  "codeBlock14": "holomime init --swap-body figure-03",
+  "codeBlock14": "holomime personality --swap-body figure-03",
   "codeBlock15": "holomime voice --provider livekit --room my-room",
   "codeBlock16": "import { HolomimeCallbackHandler } from \"holomime/integrations/langchain\";\n\nconst handler = new HolomimeCallbackHandler({\n  personality: \".personality.json\"\n});\n// Add to your LangChain chain as a callback",
   "codeBlockKimodo": "import { KimodoAdapter } from \"holomime\";\n\nconst kimodo = new KimodoAdapter();\nconst motion = kimodo.buildMotionRequest(\n  \"Walk to the patient\",\n  personality.big_five,\n  { model: \"G1\" }\n);\n// { prompt: \"Walk to the patient gently\", style: { gentleness: 0.8, precision: 0.9 } }",
@@ -158,7 +159,7 @@ const codeBlocks = {
               <div class="doc-card">
                 <h3 class="doc-step">2. Create a personality</h3>
                 <p class="text-sm text-[#777] mb-3">Interactive guided assessment that builds your agent's personality profile.</p>
-                <pre class="doc-code"><code>holomime init</code></pre>
+                <pre class="doc-code"><code>holomime personality</code></pre>
                 <p class="text-xs text-[#999] mt-2">Creates <code class="font-mono text-[#8b5cf6]">.personality.json</code> in your project root.</p>
               </div>
               <div class="doc-card">
@@ -181,7 +182,7 @@ const codeBlocks = {
               Eight files define who your agent is — grounded in Aristotle, Jung, and Freud. They compile into a single <code class="font-mono text-sm text-[#8b5cf6]">personality.json</code>.
             </p>
 
-            <pre class="doc-code mb-8"><code>holomime init-stack --full  # Creates all 8 files
+            <pre class="doc-code mb-8"><code>holomime identity  # Creates all 8 files
 holomime compile-stack  # Compiles to .personality.json</code></pre>
 
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-4">
@@ -608,7 +609,7 @@ const result = gate.evaluate(neuralNetOutput, { humanProximity: 0.8, currentSpee
 
             <div class="space-y-4">
               {[
-                { step: "1. Assign body", cmd: "holomime init --swap-body figure-03", desc: "Choose from 8 pre-built OEM profiles." },
+                { step: "1. Assign body", cmd: "holomime personality --swap-body figure-03", desc: "Choose from 8 pre-built OEM profiles." },
                 { step: "2. Simulate", cmd: "holomime sim --env mujoco --scenario distress-response", desc: "Test in physics sim before hardware." },
                 { step: "3. Certify", cmd: "holomime certify", desc: "Check ISO compliance." },
                 { step: "4. Deploy", cmd: "holomime deploy --adapter ros2 --host ws://robot:9090", desc: "Push to hardware via ROS2." },
@@ -685,7 +686,7 @@ This project uses [holomime](https://holomime.com) for behavioral alignment.
           <div class="rounded-xl border border-[#e5e5e5] bg-[#fafafa] p-8 text-center">
             <h3 class="text-lg font-bold text-[#1a1a1a]">Ready to get started?</h3>
             <p class="mt-2 text-sm text-[#777] mb-6">Install holomime and create your first personality in 60 seconds.</p>
-            <pre class="doc-code inline-block mb-6"><code>npm i -g holomime && holomime init</code></pre>
+            <pre class="doc-code inline-block mb-6"><code>npm i -g holomime && holomime personality</code></pre>
             <div class="flex justify-center gap-4">
               <button onclick="window.openAuthModal()" class="btn-primary">Get Started</button>
               <a href="https://github.com/productstein/holomime" target="_blank" rel="noopener" class="btn-secondary">View on GitHub</a>

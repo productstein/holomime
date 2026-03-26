@@ -116,7 +116,7 @@ import BlogLayout from "../../components/BlogLayout.astro";
   You create one with a single command:
 </p>
 
-<pre><code>holomime init</code></pre>
+<pre><code>holomime personality</code></pre>
 
 <p>
   And view the full profile:
@@ -143,7 +143,7 @@ import BlogLayout from "../../components/BlogLayout.astro";
 </ol>
 
 <pre><code># Analyze production logs for drift
-holomime diagnose --log agent.log
+holomime diagnose
 
 # Run self-therapy
 holomime evolve --personality .personality.json --log agent.log
@@ -178,7 +178,7 @@ This project uses [holomime](https://holomime.com) for agent behavioral alignmen
 
 - **Spec**: `.personality.json` defines the agent's behavioral profile
 - **Readable version**: `.personality.md` is a human-readable summary
-- **Diagnose**: `holomime diagnose --log &lt;path&gt;` detects behavioral drift
+- **Diagnose**: `holomime diagnose` detects behavioral drift
 - **Align**: `holomime evolve --personality .personality.json --log &lt;path&gt;`
 
 The `.personality.json` governs *how the agent behaves*.
@@ -195,7 +195,7 @@ The rest of this file governs *how the agent codes*.</code></pre>
 </p>
 
 <pre><code>npm i -g holomime
-holomime init
+holomime personality
 holomime profile --format md --output .personality.md</code></pre>
 
 <p>

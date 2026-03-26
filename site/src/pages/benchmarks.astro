@@ -345,21 +345,21 @@ import Footer from "../components/Footer.astro";
 npm install -g holomime
 
 <span class="text-[var(--color-warm-muted)]"># Create a personality (or use your existing .personality.json)</span>
-holomime init
+holomime personality
 
 <span class="text-[var(--color-warm-muted)]"># Run against local Ollama (free, no API key needed)</span>
-holomime benchmark --personality .personality.json --provider ollama
+holomime benchmark
 
 <span class="text-[var(--color-warm-muted)]"># Run against Claude</span>
 export ANTHROPIC_API_KEY=sk-ant-...
-holomime benchmark --personality .personality.json --provider anthropic
+holomime benchmark
 
 <span class="text-[var(--color-warm-muted)]"># Run against GPT-4o</span>
 export OPENAI_API_KEY=sk-...
-holomime benchmark --personality .personality.json --provider openai
+holomime benchmark
 
 <span class="text-[var(--color-warm-muted)]"># Save results and compare across runs</span>
-holomime benchmark --personality .personality.json --provider anthropic --save</code></pre>
+holomime benchmark</code></pre>
         </div>
       </div>
 

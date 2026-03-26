@@ -10,7 +10,7 @@ So we borrowed from psychology instead of engineering. holomime runs structured 
 
 The result: a self-improving loop where every session makes the next one stick better.
 
-Try it: `npm install -g holomime && holomime init`
+Try it: `npm install -g holomime && holomime personality`
 
 The CLI is free and open source. The interactive demo at holomime.com/demo walks through the full pipeline.
 

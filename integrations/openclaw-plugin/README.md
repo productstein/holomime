@@ -59,7 +59,7 @@ openclaw plugins install holomime-openclaw
 ## Create a Personality
 
 ```bash
-npx holomime init
+npx holomime personality
 ```
 
 This creates a `.personality.json` with Big Five traits, therapy dimensions, communication style, and growth areas.

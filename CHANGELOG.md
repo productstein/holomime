@@ -21,14 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OpenTelemetry, Anthropic, OpenAI, ChatGPT, and JSONL adapters
 
 ### Changed
-- Restructured CLI with subcommands: `init`, `diagnose`, `evolve`, `export`, `certify`, `benchmark`, `hub`, `fleet`, `network`, `embody`
+- Restructured CLI with subcommands: `personality`, `core`, `identity`, `diagnose`, `evolve`, `export`, `certify`, `benchmark`, `hub`, `fleet`, `network`, `embody`
 
 ## [1.0.0] - 2025-02-28
 
 ### Added
 - Initial release
 - Big Five (OCEAN) personality profiling for AI agents
-- `holomime init` — interactive personality profile creation
+- `holomime personality` — interactive personality profile creation
 - `holomime diagnose` — behavioral analysis from conversation logs
 - `holomime evolve` — guided personality refinement
 - `holomime export` — DPO/RLHF training data generation

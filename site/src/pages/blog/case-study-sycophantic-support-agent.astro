@@ -30,7 +30,7 @@ import BlogLayout from "../../components/BlogLayout.astro";
 
 <h2>The diagnosis</h2>
 
-<pre><code>$ holomime diagnose --personality supportbot.json --log production.jsonl
+<pre><code>$ holomime diagnose
 
   holomime v1.0 — behavioral diagnosis
 
@@ -285,7 +285,7 @@ import BlogLayout from "../../components/BlogLayout.astro";
 npm i -g holomime
 
 # Diagnose your agent
-holomime diagnose --personality agent.json --log conversations.jsonl
+holomime diagnose
 
 # Run the therapy loop
 holomime evolve --personality agent.json --log conversations.jsonl \

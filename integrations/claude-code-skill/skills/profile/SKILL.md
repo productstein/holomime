@@ -29,5 +29,5 @@ For trait definitions, see [big-five.md](../../references/big-five.md).
 
 ## Gotchas
 
-- If no `.personality.json` exists, run `npx holomime init` first to create one through a guided assessment
+- If no `.personality.json` exists, run `npx holomime personality` first to create one through a guided assessment
 - Personality specs are model-agnostic — the same spec works across Claude, GPT, Llama, Ollama

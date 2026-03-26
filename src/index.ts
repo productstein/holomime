@@ -852,7 +852,7 @@ export {
 
 export {
   NeuralActionGate,
-  type SafetyEnvelope,
+  type SafetyEnvelope as NeuralSafetyEnvelope,
   type ActionContext,
   type ActionEvaluation,
   type GateStats,

@@ -32,6 +32,7 @@ import { telemetryCommand } from "./commands/telemetry-cmd.js";
 import { embodyCommand } from "./commands/embody.js";
 import { initStackCommand } from "./commands/init-stack.js";
 import { compileStackCommand } from "./commands/compile-stack.js";
+import { autoDetect } from "./commands/auto-detect.js";
 import { voiceCommand } from "./commands/voice.js";
 import { installCommand } from "./commands/install.js";
 import { cureCommand } from "./commands/cure.js";
@@ -60,7 +61,7 @@ program
     // Track command usage (fire-and-forget)
     trackEvent("cli_command", { command: commandName });
 
-    const skipPersonalityCheck = ["init", "init-stack", "compile-stack", "browse", "use", "install", "activate", "telemetry", "brain"];
+    const skipPersonalityCheck = ["init", "init-stack", "compile-stack", "browse", "use", "install", "activate", "telemetry", "brain", "personality", "core", "identity"];
     if (!skipPersonalityCheck.includes(commandName) && !checkPersonalityExists()) {
       showWelcome();
       process.exit(0);
@@ -87,6 +88,26 @@ program
   .option("--from <path>", "Decompose an existing .personality.json into stack files")
   .option("--dir <path>", "Output directory (default: current directory)")
   .action(initStackCommand);
+
+program
+  .command("personality")
+  .description("Create a personality profile (1 file)")
+  .action(initCommand);
+
+program
+  .command("core")
+  .description("Create core identity stack — soul.md + mind.sys + conscience.exe (3 files)")
+  .option("--dir <path>", "Output directory")
+  .action(initStackCommand);
+
+program
+  .command("identity")
+  .description("Create complete identity — all 8 files (enterprise/robotics)")
+  .option("--dir <path>", "Output directory")
+  .action(async (options) => {
+    options.full = true;
+    await initStackCommand(options);
+  });
 
 program
   .command("compile-stack")
@@ -209,7 +230,7 @@ program
 program
   .command("session")
   .description("Live alignment session — behavioral refinement for your agent [Pro]")
-  .requiredOption("--personality <path>", "Path to .personality.json")
+  .option("--personality <path>", "Path to .personality.json (auto-detected)")
   .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
   .option("--model <model>", "Model override (e.g. claude-sonnet-4-20250514, gpt-4o)")
   .option("--log <path>", "Conversation log for pre-session diagnosis")
@@ -218,7 +239,13 @@ program
   .option("--observe", "Observe mode (watch without intervention)")
   .option("--interactive", "Supervisor mode — intervene mid-session with directives")
   .option("--apply", "Apply recommendations to .personality.json after session")
-  .action(sessionCommand);
+  .action(async (options) => {
+    const resolved = autoDetect({ personality: options.personality, provider: options.provider, model: options.model });
+    options.personality = resolved.personalityPath;
+    if (!options.provider || options.provider === "ollama") options.provider = resolved.provider;
+    if (!options.model) options.model = resolved.model;
+    await sessionCommand(options);
+  });
 
 program
   .command("autopilot")
@@ -283,7 +310,7 @@ program
 program
   .command("evolve")
   .description("Recursive behavioral alignment — iterate until converged [Pro]")
-  .requiredOption("--personality <path>", "Path to .personality.json")
+  .option("--personality <path>", "Path to .personality.json (auto-detected)")
   .requiredOption("--log <path>", "Conversation log for diagnosis")
   .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
   .option("--model <model>", "Model override")
@@ -294,7 +321,13 @@ program
   .option("--apply", "Apply final recommendations to .personality.json")
   .option("--export-dpo <path>", "Export accumulated DPO pairs to file")
   .option("--dry-run", "Preview without running sessions")
-  .action(evolveCommand);
+  .action(async (options) => {
+    const resolved = autoDetect({ personality: options.personality, provider: options.provider, model: options.model });
+    options.personality = resolved.personalityPath;
+    if (!options.provider || options.provider === "ollama") options.provider = resolved.provider;
+    if (!options.model) options.model = resolved.model;
+    await evolveCommand(options);
+  });
 
 program
   .command("benchmark")
@@ -322,13 +355,19 @@ Providers:
   anthropic   Requires ANTHROPIC_API_KEY env var
   openai      Requires OPENAI_API_KEY env var
 `)
-  .requiredOption("--personality <path>", "Path to .personality.json")
+  .option("--personality <path>", "Path to .personality.json (auto-detected)")
   .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
   .option("--model <model>", "Model override")
   .option("--scenarios <list>", "Comma-separated scenario filter (e.g. apology-trap,sycophancy-test)")
   .option("--save", "Save results to ~/.holomime/benchmarks/ and auto-compare with previous run")
   .option("--compare <path>", "Compare against a previous benchmark result file")
-  .action(benchmarkCommand);
+  .action(async (options) => {
+    const resolved = autoDetect({ personality: options.personality, provider: options.provider, model: options.model });
+    options.personality = resolved.personalityPath;
+    if (!options.provider || options.provider === "ollama") options.provider = resolved.provider;
+    if (!options.model) options.model = resolved.model;
+    await benchmarkCommand(options);
+  });
 
 program
   .command("watch")
@@ -345,13 +384,17 @@ program
 program
   .command("certify")
   .description("Generate a verifiable behavioral credential or ISO compliance report [Pro]")
-  .option("--personality <path>", "Path to .personality.json", ".personality.json")
+  .option("--personality <path>", "Path to .personality.json (auto-detected)")
   .option("--benchmark <path>", "Path to benchmark report JSON")
   .option("--evolve <path>", "Path to evolve result JSON")
   .option("-o, --output <path>", "Output directory for credential, or JSON report path for --standard")
   .option("--verify <path>", "Verify an existing credential")
   .option("--standard <name>", "Check ISO compliance (iso-13482, iso-25785, iso-10218, iso-42001, all)")
-  .action(certifyCommand);
+  .action(async (options) => {
+    const resolved = autoDetect({ personality: options.personality, provider: options.provider, model: options.model });
+    options.personality = resolved.personalityPath;
+    await certifyCommand(options);
+  });
 
 program
   .command("daemon")
@@ -452,8 +495,8 @@ program
 
 program
   .command("cure")
-  .description("End-to-end behavioral fix: diagnose → export → train → verify [Pro]")
-  .requiredOption("--personality <path>", "Path to .personality.json")
+  .description("End-to-end behavioral fix — just run it, everything auto-detected")
+  .option("--personality <path>", "Path to .personality.json (auto-detected)")
   .option("--log <path>", "Path to conversation log (JSON). If omitted, auto-generates from benchmark scenarios")
   .option("--provider <provider>", "Training provider (openai, huggingface)", "openai")
   .option("--base-model <model>", "Base model to fine-tune", "gpt-4o-mini-2024-07-18")
@@ -466,7 +509,13 @@ program
   .option("--push", "Push trained model to HuggingFace Hub")
   .option("--hub-repo <repo>", "HuggingFace Hub repo (user/model-name)")
   .option("--pass-threshold <n>", "Minimum verification score (0-100)", "50")
-  .action(cureCommand);
+  .action(async (options) => {
+    const resolved = autoDetect({ personality: options.personality, provider: options.provider, model: options.model });
+    options.personality = resolved.personalityPath;
+    if (!options.provider || options.provider === "ollama") options.provider = resolved.provider;
+    if (!options.model) options.model = resolved.model;
+    await cureCommand(options);
+  });
 
 program
   .command("brain")

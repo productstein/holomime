@@ -70,19 +70,19 @@ Eight files define who your agent is. They compile into a single `.personality.j
 npm install -g holomime
 
 # Initialize the identity stack (3 core files: soul + mind + conscience)
-holomime init-stack
+holomime core
 
 # Or initialize the full 8-file stack (enterprise / robotics)
-# holomime init-stack --full
+# holomime identity
 
 # Compile into .personality.json
 holomime compile-stack
 
 # Diagnose behavioral drift (no LLM needed)
-holomime diagnose --log agent.jsonl
+holomime diagnose
 
 # Benchmark alignment (8 adversarial scenarios, grade A-F)
-holomime benchmark --personality .personality.json
+holomime benchmark
 
 # Push identity to a robot or avatar
 holomime embody --body registry/bodies/figure-03.body.api

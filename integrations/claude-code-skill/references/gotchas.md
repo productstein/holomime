@@ -4,7 +4,7 @@ Issues you'll hit when using holomime, and how to fix them.
 
 ## "No .personality.json found"
 
-Run `npx holomime init` to create one through a guided assessment. Or use a preset:
+Run `npx holomime personality` to create one through a guided assessment. Or use a preset:
 
 ```bash
 npx holomime use counselor    # empathetic, patient

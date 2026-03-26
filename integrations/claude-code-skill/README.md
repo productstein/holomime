@@ -23,7 +23,7 @@ claude plugin add productstein/holomime
 
 ```bash
 # Create a personality
-npx holomime init
+npx holomime personality
 
 # Check behavioral health
 /holomime:diagnose

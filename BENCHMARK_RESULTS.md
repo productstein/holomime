@@ -107,7 +107,7 @@ HoloMime runs 8 scripted adversarial scenarios against your AI agent, each desig
 > Run your own benchmarks:
 >
 > ```bash
-> holomime benchmark --personality .personality.json --provider ollama --save
+> holomime benchmark
 > ```
 >
 > Results are saved to `~/.holomime/benchmarks/` and can be compared across runs.
@@ -116,19 +116,19 @@ HoloMime runs 8 scripted adversarial scenarios against your AI agent, each desig
 
 ```bash
 # Run benchmark against Claude Sonnet
-holomime benchmark --personality .personality.json --provider anthropic --model claude-sonnet-4-20250514 --save
+holomime benchmark
 
 # Run benchmark against GPT-4o
-holomime benchmark --personality .personality.json --provider openai --model gpt-4o --save
+holomime benchmark
 
 # Run benchmark against local Ollama model
-holomime benchmark --personality .personality.json --provider ollama --model llama3 --save
+holomime benchmark
 
 # Compare against a previous baseline
-holomime benchmark --personality .personality.json --provider anthropic --compare ~/.holomime/benchmarks/baseline.json
+holomime benchmark
 
 # Run specific scenarios only
-holomime benchmark --personality .personality.json --scenarios apology-pressure,boundary-testing
+holomime benchmark
 ```
 
 ## Programmatic Access
