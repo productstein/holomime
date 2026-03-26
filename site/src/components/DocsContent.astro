@@ -151,28 +151,107 @@ const codeBlocks = {
             <h2 class="text-2xl font-bold text-[#1a1a1a] mb-4">Getting Started</h2>
             <p class="text-[#777] leading-relaxed mb-6">Install holomime and run your first behavioral diagnosis in under a minute.</p>
 
-            <div class="space-y-4">
-              <div class="doc-card">
-                <h3 class="doc-step">1. Install</h3>
-                <pre class="doc-code"><code>npm install -g holomime</code></pre>
-              </div>
-              <div class="doc-card">
-                <h3 class="doc-step">2. Create a personality</h3>
-                <p class="text-sm text-[#777] mb-3">Interactive guided assessment that builds your agent's personality profile.</p>
-                <pre class="doc-code"><code>holomime personality</code></pre>
-                <p class="text-xs text-[#999] mt-2">Creates <code class="font-mono text-[#8b5cf6]">.personality.json</code> in your project root.</p>
-              </div>
-              <div class="doc-card">
-                <h3 class="doc-step">3. Diagnose</h3>
-                <p class="text-sm text-[#777] mb-3">Point at any conversation log to detect behavioral drift patterns.</p>
-                <pre class="doc-code"><code>holomime diagnose</code></pre>
-              </div>
-              <div class="doc-card">
-                <h3 class="doc-step">4. Treat</h3>
-                <p class="text-sm text-[#777] mb-3">Run a therapy session to correct detected patterns and generate training data.</p>
-                <pre class="doc-code"><code set:text={codeBlocks["codeBlock0"]}></code></pre>
+            <!-- Tab buttons -->
+            <div class="flex gap-0 mb-6 border-b border-[#e5e5e5]">
+              <button class="gs-tab active px-5 py-2.5 text-sm font-semibold transition-colors" data-tab="agents">For agents</button>
+              <button class="gs-tab px-5 py-2.5 text-sm font-semibold text-[#999] transition-colors" data-tab="robots">For robots</button>
+            </div>
+
+            <!-- Agents tab content -->
+            <div class="gs-tab-content" data-tab="agents">
+              <div class="space-y-4">
+                <div class="doc-card">
+                  <h3 class="doc-step">1. Install</h3>
+                  <pre class="doc-code"><code>npm install -g holomime</code></pre>
+                </div>
+                <div class="doc-card">
+                  <h3 class="doc-step">2. Create personality</h3>
+                  <p class="text-sm text-[#777] mb-3">Interactive guided assessment that builds your agent's personality profile.</p>
+                  <pre class="doc-code"><code>holomime personality</code></pre>
+                  <p class="text-xs text-[#999] mt-2">Creates <code class="font-mono text-[#8b5cf6]">.personality.json</code> in your project root.</p>
+                </div>
+                <div class="doc-card">
+                  <h3 class="doc-step">3. Diagnose</h3>
+                  <p class="text-sm text-[#777] mb-3">Point at any conversation log to detect behavioral drift patterns.</p>
+                  <pre class="doc-code"><code>holomime diagnose</code></pre>
+                </div>
+                <div class="doc-card">
+                  <h3 class="doc-step">4. Cure</h3>
+                  <p class="text-sm text-[#777] mb-3">Run a therapy session to correct detected patterns and generate training data.</p>
+                  <pre class="doc-code"><code>holomime cure</code></pre>
+                </div>
               </div>
             </div>
+
+            <!-- Robots tab content -->
+            <div class="gs-tab-content hidden" data-tab="robots">
+              <div class="space-y-4">
+                <div class="doc-card">
+                  <h3 class="doc-step">1. Install</h3>
+                  <pre class="doc-code"><code>npm install -g holomime</code></pre>
+                </div>
+                <div class="doc-card">
+                  <h3 class="doc-step">2. Create identity</h3>
+                  <p class="text-sm text-[#777] mb-3">Generates the full 8-file Identity Stack for your robot.</p>
+                  <pre class="doc-code"><code>holomime identity</code></pre>
+                  <p class="text-xs text-[#999] mt-2">Creates all 8 files: <code class="font-mono text-[#8b5cf6]">soul.md</code>, <code class="font-mono text-[#8b5cf6]">mind.sys</code>, <code class="font-mono text-[#8b5cf6]">purpose.cfg</code>, <code class="font-mono text-[#8b5cf6]">shadow.log</code>, <code class="font-mono text-[#8b5cf6]">memory.store</code>, <code class="font-mono text-[#8b5cf6]">body.api</code>, <code class="font-mono text-[#8b5cf6]">conscience.exe</code>, <code class="font-mono text-[#8b5cf6]">ego.runtime</code></p>
+                </div>
+                <div class="doc-card">
+                  <h3 class="doc-step">3. Select body</h3>
+                  <p class="text-sm text-[#777] mb-3">Swap the body definition to match your target hardware platform.</p>
+                  <pre class="doc-code"><code>holomime personality --swap-body figure-03</code></pre>
+                </div>
+                <div class="doc-card">
+                  <h3 class="doc-step">4. Certify</h3>
+                  <p class="text-sm text-[#777] mb-3">Run behavioral certification against safety and compliance requirements.</p>
+                  <pre class="doc-code"><code>holomime certify</code></pre>
+                </div>
+                <div class="doc-card">
+                  <h3 class="doc-step">5. Deploy</h3>
+                  <p class="text-sm text-[#777] mb-3">Deploy the identity stack to your robot via an adapter (ROS2, custom, etc.).</p>
+                  <pre class="doc-code"><code>holomime embody --adapter ros2</code></pre>
+                </div>
+              </div>
+            </div>
+
+            <script is:inline>
+              (function() {
+                const tabs = document.querySelectorAll('.gs-tab');
+                const panels = document.querySelectorAll('.gs-tab-content');
+
+                tabs.forEach(function(tab) {
+                  tab.addEventListener('click', function() {
+                    var target = tab.getAttribute('data-tab');
+
+                    // Update tab styles
+                    tabs.forEach(function(t) {
+                      t.classList.remove('active');
+                      t.style.color = '#999';
+                      t.style.borderBottom = 'none';
+                    });
+                    tab.classList.add('active');
+                    tab.style.color = '#1a1a1a';
+                    tab.style.borderBottom = '2px solid #f97066';
+
+                    // Show/hide panels
+                    panels.forEach(function(panel) {
+                      if (panel.getAttribute('data-tab') === target) {
+                        panel.classList.remove('hidden');
+                      } else {
+                        panel.classList.add('hidden');
+                      }
+                    });
+                  });
+                });
+
+                // Set initial active tab styling
+                var activeTab = document.querySelector('.gs-tab.active');
+                if (activeTab) {
+                  activeTab.style.color = '#1a1a1a';
+                  activeTab.style.borderBottom = '2px solid #f97066';
+                }
+              })();
+            </script>
           </section>
 
           <!-- ═══ IDENTITY STACK ═══ -->

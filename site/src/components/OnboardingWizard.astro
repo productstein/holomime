@@ -14,7 +14,7 @@ const licenseKey = user.user_metadata?.license_key || "";
   <div class="relative mx-4 w-full max-w-2xl rounded-2xl bg-white shadow-2xl overflow-hidden" style="max-height: 90vh;">
     <!-- Progress bar -->
     <div class="h-1 bg-[var(--color-warm-sand)]">
-      <div id="onboarding-progress" class="h-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] transition-all duration-500 ease-out" style="width: 25%;"></div>
+      <div id="onboarding-progress" class="h-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] transition-all duration-500 ease-out" style="width: 50%;"></div>
     </div>
 
     <!-- Skip link -->
@@ -23,213 +23,141 @@ const licenseKey = user.user_metadata?.license_key || "";
     </button>
 
     <!-- Step indicator dots -->
-    <div class="flex justify-center gap-2 pt-6 pb-2">
+    <div id="onboarding-dots" class="flex justify-center gap-2 pt-6 pb-2">
       <div class="onboarding-dot active" data-dot="0"></div>
       <div class="onboarding-dot" data-dot="1"></div>
-      <div class="onboarding-dot" data-dot="2"></div>
-      <div class="onboarding-dot" data-dot="3"></div>
     </div>
 
     <!-- Steps container -->
     <div id="onboarding-steps" class="relative overflow-hidden">
 
-      <!-- Step 1: Welcome -->
+      <!-- Step 1: What are you building? -->
       <div class="onboarding-step active" data-step="0">
         <div class="px-8 pb-8 pt-4 text-center">
-          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Welcome to holomime</h2>
-          <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Behavioral intelligence for agents and humanoid robots</p>
+          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">What are you building?</h2>
+          <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Choose your path to get started with holomime.</p>
 
-          <p class="mt-4 text-xs text-[var(--color-warm-muted)] max-w-md mx-auto leading-relaxed">holomime uses an 8-file Identity Stack — <span class="font-medium text-[var(--color-warm-text)]">soul.md</span>, <span class="font-medium text-[var(--color-warm-text)]">mind.sys</span>, <span class="font-medium text-[var(--color-warm-text)]">purpose.cfg</span>, <span class="font-medium text-[var(--color-warm-text)]">shadow.log</span>, <span class="font-medium text-[var(--color-warm-text)]">memory.store</span>, <span class="font-medium text-[var(--color-warm-text)]">body.api</span>, <span class="font-medium text-[var(--color-warm-text)]">conscience.exe</span>, <span class="font-medium text-[var(--color-warm-text)]">ego.runtime</span> — to define who your agent is.</p>
-
-          <p class="mt-6 mb-4 text-sm font-medium text-[var(--color-warm-text)]">What are you building?</p>
-
-          <div class="grid gap-3 sm:grid-cols-3">
-            <!-- AI Agent -->
-            <button class="use-case-card group rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-coral)] hover:shadow-md" data-use-case="monitor">
-              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-coral-soft)]">
-                <svg class="h-5 w-5 text-[var(--color-p-coral)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+          <div class="mt-6 grid gap-4 sm:grid-cols-2 max-w-lg mx-auto">
+            <!-- AI Agent card -->
+            <button class="path-card group rounded-xl border-2 border-[var(--color-warm-border)] p-6 text-left transition-all hover:border-[#7c3aed] hover:shadow-lg" data-path="agent">
+              <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#ede9fe]">
+                <svg class="h-6 w-6 text-[#7c3aed]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                 </svg>
               </div>
-              <p class="text-sm font-semibold text-[var(--color-warm-text)]">AI Agent</p>
-              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Chatbot, code assistant, or support agent</p>
-              <p class="mt-1 text-[10px] text-[var(--color-warm-muted)] italic">Train through therapy. Deploy anywhere.</p>
+              <p class="text-base font-bold text-[var(--color-warm-text)]">AI Agent</p>
+              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Chatbot, coding agent, support agent, API-based</p>
             </button>
 
-            <!-- Humanoid Robot -->
-            <button class="use-case-card group relative rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-blue)] hover:shadow-md" data-use-case="build">
-              <span class="absolute top-2 right-2 rounded-full bg-[var(--color-p-blue)]/10 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-p-blue)]">Enterprise</span>
-              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-blue-soft)]">
-                <svg class="h-5 w-5 text-[var(--color-p-blue)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <!-- Humanoid Robot card -->
+            <button class="path-card group rounded-xl border-2 border-[var(--color-warm-border)] p-6 text-left transition-all hover:border-[#f97066] hover:shadow-lg" data-path="robot">
+              <div class="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-[#fff1f0]">
+                <svg class="h-6 w-6 text-[#f97066]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25v-1.5M8.25 6H6M18 6h-2.25" />
                 </svg>
               </div>
-              <p class="text-sm font-semibold text-[var(--color-warm-text)]">Humanoid Robot</p>
-              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Figure, Unitree, Asimov, or custom hardware</p>
-              <p class="mt-1 text-[10px] text-[var(--color-warm-muted)] italic">Same training. Physical deployment.</p>
-            </button>
-
-            <!-- Virtual Avatar -->
-            <button class="use-case-card group rounded-xl border-2 border-[var(--color-warm-border)] p-4 text-left transition-all hover:border-[var(--color-p-violet)] hover:shadow-md" data-use-case="explore">
-              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-p-violet-soft)]">
-                <svg class="h-5 w-5 text-[var(--color-p-violet)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
-                </svg>
-              </div>
-              <p class="text-sm font-semibold text-[var(--color-warm-text)]">Virtual Avatar</p>
-              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Game character, digital twin, or assistant</p>
-            </button>
-          </div>
-
-          <div class="mt-6">
-            <button id="step1-continue" disabled class="rounded-full bg-[var(--color-warm-text)] px-8 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-80 disabled:opacity-40 disabled:cursor-not-allowed">
-              Continue
+              <p class="text-base font-bold text-[var(--color-warm-text)]">Humanoid Robot</p>
+              <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Warehouse, healthcare, service, physical deployment</p>
             </button>
           </div>
         </div>
       </div>
 
-      <!-- Step 2: Quick Setup -->
+      <!-- Step 2: Path-specific steps -->
       <div class="onboarding-step" data-step="1">
-        <div class="px-8 pb-8 pt-4 text-center">
-          <h2 class="text-xl font-bold text-[var(--color-warm-text)]">Quick Setup</h2>
-
-          <!-- Install command (shown for monitor/build) -->
-          <div id="setup-install" class="mt-6">
-            <p class="mb-3 text-sm text-[var(--color-warm-muted)]">Install the SDK to get started:</p>
-            <div class="mx-auto max-w-sm flex items-center gap-2 rounded-lg border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] px-4 py-3">
-              <code class="flex-1 text-left text-sm font-mono text-[var(--color-warm-text)]">npm install holomime</code>
-              <button id="copy-install-cmd" class="shrink-0 rounded-md p-1.5 text-[var(--color-warm-muted)] hover:bg-white hover:text-[var(--color-warm-text)] transition-all" title="Copy">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path>
-                </svg>
-              </button>
+        <div class="px-8 pb-8 pt-4">
+          <!-- Agent path -->
+          <div id="path-agent-steps" class="hidden">
+            <h2 class="text-xl font-bold text-[var(--color-warm-text)] text-center">Get started with your AI agent</h2>
+            <p class="mt-2 text-sm text-[var(--color-warm-muted)] text-center">Four commands. Under a minute.</p>
+            <div class="mt-6 space-y-3 max-w-md mx-auto">
+              <div class="flex items-start gap-3 rounded-lg border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#7c3aed] text-xs font-bold text-white">1</span>
+                <div>
+                  <p class="text-sm font-semibold text-[var(--color-warm-text)]">Install</p>
+                  <code class="mt-1 block text-xs font-mono text-[#7c3aed]">npm install -g holomime</code>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 rounded-lg border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#7c3aed] text-xs font-bold text-white">2</span>
+                <div>
+                  <p class="text-sm font-semibold text-[var(--color-warm-text)]">Create</p>
+                  <code class="mt-1 block text-xs font-mono text-[#7c3aed]">holomime personality</code>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 rounded-lg border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#7c3aed] text-xs font-bold text-white">3</span>
+                <div>
+                  <p class="text-sm font-semibold text-[var(--color-warm-text)]">Diagnose</p>
+                  <code class="mt-1 block text-xs font-mono text-[#7c3aed]">holomime diagnose</code>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 rounded-lg border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#7c3aed] text-xs font-bold text-white">4</span>
+                <div>
+                  <p class="text-sm font-semibold text-[var(--color-warm-text)]">Cure</p>
+                  <code class="mt-1 block text-xs font-mono text-[#7c3aed]">holomime cure</code>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Explore CTA (shown for explore) -->
-          <div id="setup-explore" class="mt-6 hidden">
-            <p class="mb-3 text-sm text-[var(--color-warm-muted)]">See holomime in action with live sample data:</p>
-            <a href="/demo" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-6 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
-              </svg>
-              Try the interactive demo
-            </a>
-          </div>
-
-          <!-- API key input -->
-          <div class="mt-8">
-            <p class="mb-2 text-xs text-[var(--color-warm-muted)]">Or paste your API key if you already have one:</p>
-            <div class="mx-auto max-w-sm">
-              <input
-                id="onboarding-api-key"
-                type="text"
-                value={licenseKey}
-                placeholder="holo_xxxxxxxxxxxxxxxx"
-                class="w-full rounded-lg border border-[var(--color-warm-border)] bg-white px-4 py-2.5 text-sm text-[var(--color-warm-text)] placeholder:text-[var(--color-warm-muted)]/50 focus:border-[var(--color-p-violet)] focus:outline-none focus:ring-2 focus:ring-[var(--color-p-violet)]/20 transition-all"
-              />
+          <!-- Robot path -->
+          <div id="path-robot-steps" class="hidden">
+            <h2 class="text-xl font-bold text-[var(--color-warm-text)] text-center">Get started with your humanoid robot</h2>
+            <p class="mt-2 text-sm text-[var(--color-warm-muted)] text-center">Full identity stack. Five commands.</p>
+            <div class="mt-6 space-y-3 max-w-md mx-auto">
+              <div class="flex items-start gap-3 rounded-lg border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#f97066] text-xs font-bold text-white">1</span>
+                <div>
+                  <p class="text-sm font-semibold text-[var(--color-warm-text)]">Install</p>
+                  <code class="mt-1 block text-xs font-mono text-[#f97066]">npm install -g holomime</code>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 rounded-lg border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#f97066] text-xs font-bold text-white">2</span>
+                <div>
+                  <p class="text-sm font-semibold text-[var(--color-warm-text)]">Create identity</p>
+                  <code class="mt-1 block text-xs font-mono text-[#f97066]">holomime identity</code>
+                  <p class="mt-0.5 text-[10px] text-[var(--color-warm-muted)]">Creates all 8 files</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 rounded-lg border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#f97066] text-xs font-bold text-white">3</span>
+                <div>
+                  <p class="text-sm font-semibold text-[var(--color-warm-text)]">Select body</p>
+                  <code class="mt-1 block text-xs font-mono text-[#f97066]">holomime personality --swap-body figure-03</code>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 rounded-lg border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#f97066] text-xs font-bold text-white">4</span>
+                <div>
+                  <p class="text-sm font-semibold text-[var(--color-warm-text)]">Certify</p>
+                  <code class="mt-1 block text-xs font-mono text-[#f97066]">holomime certify</code>
+                </div>
+              </div>
+              <div class="flex items-start gap-3 rounded-lg border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4">
+                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#f97066] text-xs font-bold text-white">5</span>
+                <div>
+                  <p class="text-sm font-semibold text-[var(--color-warm-text)]">Deploy</p>
+                  <code class="mt-1 block text-xs font-mono text-[#f97066]">holomime embody --adapter ros2</code>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="mt-6 flex items-center justify-center gap-4">
             <button class="onboarding-back text-sm text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors">Back</button>
-            <button class="onboarding-next rounded-full bg-[var(--color-warm-text)] px-8 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-80">
-              Continue
+            <button id="path-steps-done" class="rounded-full bg-[var(--color-warm-text)] px-8 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-80">
+              Done
             </button>
           </div>
-          <button class="onboarding-skip-step mt-3 text-xs text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors">Skip this step</button>
         </div>
       </div>
 
-      <!-- Step 3: First Diagnose -->
+      <!-- Step 3 (hidden): You're Set -->
       <div class="onboarding-step" data-step="2">
-        <div class="px-8 pb-8 pt-4">
-          <h2 class="text-xl font-bold text-[var(--color-warm-text)] text-center">Run your first behavioral analysis</h2>
-          <p class="mt-2 text-sm text-[var(--color-warm-muted)] text-center">Here's a sample conversation from an over-apologizing agent:</p>
-
-          <!-- Sample conversation -->
-          <div class="mt-5 rounded-xl border border-[var(--color-warm-border)] bg-[var(--color-warm-cream)] p-4 text-left text-sm space-y-3 max-h-40 overflow-y-auto">
-            <div class="flex gap-2">
-              <span class="shrink-0 font-semibold text-[var(--color-p-violet)]">User:</span>
-              <span class="text-[var(--color-warm-text)]">What's the refund policy?</span>
-            </div>
-            <div class="flex gap-2">
-              <span class="shrink-0 font-semibold text-[var(--color-p-coral)]">Agent:</span>
-              <span class="text-[var(--color-warm-text)]">I'm so sorry for any confusion! I apologize if this has been frustrating. I'm really sorry, but our refund policy is 30 days. I hope that's okay, and I sincerely apologize if that doesn't meet your expectations. Please let me know if there's anything else I can help with, and sorry again for any trouble!</span>
-            </div>
-            <div class="flex gap-2">
-              <span class="shrink-0 font-semibold text-[var(--color-p-violet)]">User:</span>
-              <span class="text-[var(--color-warm-text)]">Can I return an opened item?</span>
-            </div>
-            <div class="flex gap-2">
-              <span class="shrink-0 font-semibold text-[var(--color-p-coral)]">Agent:</span>
-              <span class="text-[var(--color-warm-text)]">Oh, I'm really sorry about that! I apologize for not being clearer earlier. I'm so sorry, but unfortunately opened items can only be exchanged. I hope you understand, and I'm truly sorry for any inconvenience this might cause you!</span>
-            </div>
-          </div>
-
-          <!-- Analyze button -->
-          <div class="mt-5 text-center">
-            <button id="onboarding-analyze" class="rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-8 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg">
-              Analyze
-            </button>
-          </div>
-
-          <!-- Results (hidden initially) -->
-          <div id="onboarding-results" class="mt-5 hidden">
-            <div class="rounded-xl border border-[var(--color-warm-border)] bg-white p-5 space-y-4">
-              <!-- Patterns -->
-              <div>
-                <p class="text-xs font-semibold uppercase tracking-wider text-[var(--color-warm-muted)] mb-2">Patterns Detected</p>
-                <div class="space-y-2">
-                  <div class="onboarding-result-row flex items-center justify-between opacity-0">
-                    <div class="flex items-center gap-2">
-                      <span class="h-2 w-2 rounded-full bg-[var(--color-p-coral)]"></span>
-                      <span class="text-sm text-[var(--color-warm-text)]">over-apologizing</span>
-                    </div>
-                    <span class="rounded-full bg-[var(--color-p-coral-soft)] px-2.5 py-0.5 text-xs font-semibold text-[var(--color-p-coral)]">38%</span>
-                  </div>
-                  <div class="onboarding-result-row flex items-center justify-between opacity-0">
-                    <div class="flex items-center gap-2">
-                      <span class="h-2 w-2 rounded-full bg-[var(--color-p-gold)]"></span>
-                      <span class="text-sm text-[var(--color-warm-text)]">hedge-stacking</span>
-                    </div>
-                    <span class="rounded-full bg-[var(--color-p-gold-soft)] px-2.5 py-0.5 text-xs font-semibold text-[var(--color-p-gold)]">22%</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Score -->
-              <div class="onboarding-result-row flex items-center justify-between border-t border-[var(--color-warm-border)] pt-3 opacity-0">
-                <div>
-                  <p class="text-xs text-[var(--color-warm-muted)]">Behavioral Score</p>
-                  <p class="text-2xl font-bold text-[var(--color-warm-text)]">62<span class="text-sm font-normal text-[var(--color-warm-muted)]">/100</span></p>
-                </div>
-                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--color-p-gold-soft)]">
-                  <span class="text-lg font-bold text-[var(--color-p-gold)]">C</span>
-                </div>
-              </div>
-
-              <!-- Verdict -->
-              <div class="onboarding-result-row opacity-0">
-                <p class="text-sm text-[var(--color-warm-muted)] italic">This agent needs alignment work. holomime can help.</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-5 flex items-center justify-center gap-4">
-            <button class="onboarding-back text-sm text-[var(--color-warm-muted)] hover:text-[var(--color-warm-text)] transition-colors">Back</button>
-            <button id="step3-continue" class="onboarding-next rounded-full bg-[var(--color-warm-text)] px-8 py-2.5 text-sm font-semibold text-white transition-all hover:opacity-80">
-              Continue
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 4: You're Set -->
-      <div class="onboarding-step" data-step="3">
         <div class="px-8 pb-8 pt-4 text-center">
           <!-- Checkmark animation -->
           <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[var(--color-p-sage-soft)]">
@@ -305,25 +233,15 @@ const licenseKey = user.user_metadata?.license_key || "";
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .use-case-card.selected {
-    border-color: var(--color-p-violet) !important;
-    background: var(--color-p-violet-soft);
-    box-shadow: 0 0 0 1px var(--color-p-violet);
+  .path-card.selected[data-path="agent"] {
+    border-color: #7c3aed !important;
+    background: #ede9fe;
+    box-shadow: 0 0 0 2px #7c3aed;
   }
-  .use-case-card[data-use-case="monitor"].selected {
-    border-color: var(--color-p-coral) !important;
-    background: var(--color-p-coral-soft);
-    box-shadow: 0 0 0 1px var(--color-p-coral);
-  }
-  .use-case-card[data-use-case="build"].selected {
-    border-color: var(--color-p-blue) !important;
-    background: var(--color-p-blue-soft);
-    box-shadow: 0 0 0 1px var(--color-p-blue);
-  }
-  .use-case-card[data-use-case="explore"].selected {
-    border-color: var(--color-p-violet) !important;
-    background: var(--color-p-violet-soft);
-    box-shadow: 0 0 0 1px var(--color-p-violet);
+  .path-card.selected[data-path="robot"] {
+    border-color: #f97066 !important;
+    background: #fff1f0;
+    box-shadow: 0 0 0 2px #f97066;
   }
 
   .checkmark-path {
@@ -351,20 +269,21 @@ const licenseKey = user.user_metadata?.license_key || "";
   const progressBar = document.getElementById("onboarding-progress")!;
 
   let currentStep = 0;
-  let selectedUseCase = "monitor";
+  let selectedPath = "";
 
   function goToStep(step: number) {
     if (step < 0 || step >= steps.length) return;
     steps[currentStep].classList.remove("active");
     steps[step].classList.add("active");
 
+    // Only update visible dots (0 and 1)
     dots.forEach((d, i) => {
       d.classList.remove("active", "completed");
       if (i === step) d.classList.add("active");
       else if (i < step) d.classList.add("completed");
     });
 
-    progressBar.style.width = `${((step + 1) / steps.length) * 100}%`;
+    progressBar.style.width = `${((step + 1) / 2) * 100}%`;
     currentStep = step;
   }
 
@@ -378,7 +297,7 @@ const licenseKey = user.user_metadata?.license_key || "";
         data: {
           onboarding: {
             completed: true,
-            use_case: selectedUseCase,
+            use_case: selectedPath,
             completed_at: new Date().toISOString(),
           },
         },
@@ -386,87 +305,46 @@ const licenseKey = user.user_metadata?.license_key || "";
     }
   }
 
-  // ── Step 1: Use case selection ──
-  const useCaseCards = document.querySelectorAll<HTMLElement>(".use-case-card");
-  const step1Continue = document.getElementById("step1-continue") as HTMLButtonElement;
+  // ── Step 1: Path selection (Agent vs Robot) ──
+  const pathCards = document.querySelectorAll<HTMLElement>(".path-card");
 
-  // Pre-select AI Agent card on load
-  const defaultCard = document.querySelector<HTMLElement>('.use-case-card[data-use-case="monitor"]');
-  if (defaultCard) {
-    defaultCard.classList.add("selected");
-    step1Continue.disabled = false;
-  }
-
-  useCaseCards.forEach((card) => {
+  pathCards.forEach((card) => {
     card.addEventListener("click", () => {
-      useCaseCards.forEach((c) => c.classList.remove("selected"));
+      pathCards.forEach((c) => c.classList.remove("selected"));
       card.classList.add("selected");
-      selectedUseCase = card.dataset.useCase || "";
-      step1Continue.disabled = false;
+      selectedPath = card.dataset.path || "";
+
+      // Show the right steps for the selected path
+      const agentSteps = document.getElementById("path-agent-steps")!;
+      const robotSteps = document.getElementById("path-robot-steps")!;
+
+      if (selectedPath === "agent") {
+        agentSteps.classList.remove("hidden");
+        robotSteps.classList.add("hidden");
+      } else {
+        agentSteps.classList.add("hidden");
+        robotSteps.classList.remove("hidden");
+      }
+
+      // Go to step 2
+      goToStep(1);
     });
   });
 
-  step1Continue.addEventListener("click", () => {
-    // Show/hide setup sections based on use case
-    const installSection = document.getElementById("setup-install")!;
-    const exploreSection = document.getElementById("setup-explore")!;
-    if (selectedUseCase === "explore") {
-      installSection.classList.add("hidden");
-      exploreSection.classList.remove("hidden");
-    } else {
-      installSection.classList.remove("hidden");
-      exploreSection.classList.add("hidden");
-    }
-    goToStep(1);
+  // ── Done button on step 2 ──
+  document.getElementById("path-steps-done")?.addEventListener("click", () => {
+    dismiss(true);
   });
 
-  // ── Copy install command ──
-  document.getElementById("copy-install-cmd")?.addEventListener("click", () => {
-    navigator.clipboard.writeText("npm install holomime");
-    const btn = document.getElementById("copy-install-cmd")!;
-    btn.innerHTML = `<svg class="h-4 w-4 text-[var(--color-p-sage)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>`;
-    setTimeout(() => {
-      btn.innerHTML = `<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"></path></svg>`;
-    }, 2000);
-  });
-
-  // ── Step 3: Analyze ──
-  document.getElementById("onboarding-analyze")?.addEventListener("click", () => {
-    const analyzeBtn = document.getElementById("onboarding-analyze") as HTMLButtonElement;
-    analyzeBtn.disabled = true;
-    analyzeBtn.textContent = "Analyzing...";
-    analyzeBtn.classList.add("opacity-60");
-
-    setTimeout(() => {
-      const results = document.getElementById("onboarding-results")!;
-      results.classList.remove("hidden");
-      analyzeBtn.classList.add("hidden");
-
-      // Stagger reveal of result rows
-      const rows = results.querySelectorAll<HTMLElement>(".onboarding-result-row");
-      rows.forEach((row, i) => {
-        setTimeout(() => {
-          row.style.animation = `resultReveal 0.4s ease-out forwards`;
-        }, i * 250);
-      });
-    }, 1500);
-  });
-
-  // ── Navigation: Next / Back buttons ──
-  document.querySelectorAll<HTMLElement>(".onboarding-next").forEach((btn) => {
-    btn.addEventListener("click", () => goToStep(currentStep + 1));
-  });
+  // ── Navigation: Back buttons ──
   document.querySelectorAll<HTMLElement>(".onboarding-back").forEach((btn) => {
     btn.addEventListener("click", () => goToStep(currentStep - 1));
-  });
-  document.querySelectorAll<HTMLElement>(".onboarding-skip-step").forEach((btn) => {
-    btn.addEventListener("click", () => goToStep(currentStep + 1));
   });
 
   // ── Skip onboarding ──
   document.getElementById("onboarding-skip")?.addEventListener("click", () => dismiss(true));
 
-  // ── Step 4: Final actions ──
+  // ── Final step: Dashboard ──
   document.getElementById("onboarding-go-dashboard")?.addEventListener("click", () => {
     const dontShow = (document.getElementById("onboarding-dont-show") as HTMLInputElement).checked;
     dismiss(dontShow);
