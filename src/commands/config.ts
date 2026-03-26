@@ -113,29 +113,21 @@ export async function configCommand(options: ConfigOptions): Promise<void> {
     new Promise((resolve) => rl.question(question, resolve));
 
   try {
-    const apiKey = (await ask("  API Key: ")).trim();
+    const provider = (await ask("  Provider (anthropic/openai) [anthropic]: ")).trim().toLowerCase() || "anthropic";
+
+    if (provider !== "anthropic" && provider !== "openai") {
+      console.log(chalk.red(`  Unsupported provider: ${provider}`));
+      rl.close();
+      return;
+    }
+
+    const keyHint = provider === "anthropic" ? "sk-ant-..." : "sk-...";
+    const apiKey = (await ask(`  API Key (${keyHint}): `)).trim();
 
     if (!apiKey) {
       console.log(chalk.red("  API key is required."));
       rl.close();
       return;
-    }
-
-    // Auto-detect provider from key prefix
-    let provider: string;
-    if (apiKey.startsWith("sk-ant-")) {
-      provider = "anthropic";
-    } else if (apiKey.startsWith("sk-")) {
-      provider = "openai";
-    } else {
-      console.log(chalk.yellow("  Could not detect provider from key prefix."));
-      const providerInput = (await ask("  Provider (anthropic/openai): ")).trim();
-      if (providerInput !== "anthropic" && providerInput !== "openai") {
-        console.log(chalk.red(`  Unsupported provider: ${providerInput}`));
-        rl.close();
-        return;
-      }
-      provider = providerInput;
     }
 
     const config: HolomimeConfig = { provider, apiKey };

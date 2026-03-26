@@ -14,7 +14,7 @@ export function printBanner(): void {
   console.log();
   console.log(holomimeGradient(LOGO));
   console.log();
-  console.log(`  ${chalk.dim("Personality engine for AI agents")}  ${chalk.bgCyan.black(` v${VERSION} `)}`);
+  console.log(`  ${chalk.dim("Behavioral intelligence for AI agents and humanoid robots")}  ${chalk.bgCyan.black(` v${VERSION} `)}`);
   console.log();
 }
 
