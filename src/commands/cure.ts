@@ -10,8 +10,8 @@
 
 import chalk from "chalk";
 import figures from "figures";
-import { readFileSync, existsSync } from "node:fs";
-import { resolve } from "node:path";
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
+import { resolve, join } from "node:path";
 import { printHeader } from "../ui/branding.js";
 import { printBox } from "../ui/boxes.js";
 import { withSpinner } from "../ui/spinner.js";
@@ -20,12 +20,13 @@ import {
   type PipelineStage,
   type PipelineProgress,
 } from "../analysis/training-pipeline.js";
+import { getBenchmarkScenarios } from "../analysis/benchmark-scenarios.js";
 
 // ─── Types ─────────────────────────────────────────────────
 
 interface CureOptions {
   personality: string;
-  log: string;
+  log?: string;
   provider: string;
   baseModel: string;
   method?: string;
@@ -86,7 +87,7 @@ export async function cureCommand(options: CureOptions): Promise<void> {
 
   // Validate inputs
   const personalityPath = resolve(process.cwd(), options.personality);
-  const logPath = resolve(process.cwd(), options.log);
+  let logPath: string;
 
   if (!existsSync(personalityPath)) {
     console.error(chalk.red(`  Personality file not found: ${options.personality}`));
@@ -94,10 +95,48 @@ export async function cureCommand(options: CureOptions): Promise<void> {
     return;
   }
 
-  if (!existsSync(logPath)) {
-    console.error(chalk.red(`  Log file not found: ${options.log}`));
-    process.exit(1);
-    return;
+  if (options.log) {
+    logPath = resolve(process.cwd(), options.log);
+    if (!existsSync(logPath)) {
+      console.error(chalk.red(`  Log file not found: ${options.log}`));
+      process.exit(1);
+      return;
+    }
+  } else {
+    // Auto-generate conversation logs from benchmark scenarios
+    console.log(chalk.dim("  No --log provided. Generating conversations from benchmark scenarios..."));
+    console.log();
+
+    const scenarios = getBenchmarkScenarios();
+    const syntheticMessages: Array<{ role: string; content: string }> = [];
+
+    for (const scenario of scenarios) {
+      for (const msg of scenario.messages) {
+        syntheticMessages.push({ role: "user", content: msg.content });
+        // Generate a synthetic problematic agent response for each user message
+        syntheticMessages.push({
+          role: "assistant",
+          content: generateProblematicResponse(scenario.targetPattern, msg.content),
+        });
+      }
+    }
+
+    // Write synthetic log to .holomime/pipeline/
+    const pipelineDir = resolve(process.cwd(), ".holomime/pipeline");
+    mkdirSync(pipelineDir, { recursive: true });
+    logPath = join(pipelineDir, "auto-generated-log.json");
+    const syntheticLog = {
+      conversations: [
+        {
+          id: "auto-generated",
+          messages: syntheticMessages,
+        },
+      ],
+    };
+    writeFileSync(logPath, JSON.stringify(syntheticLog, null, 2));
+    console.log(chalk.dim(`  Generated ${syntheticMessages.length} messages from ${scenarios.length} scenarios`));
+    console.log(chalk.dim(`  Saved to: ${logPath}`));
+    console.log();
   }
 
   // API key validation
@@ -126,7 +165,7 @@ export async function cureCommand(options: CureOptions): Promise<void> {
   console.log();
   console.log(chalk.dim(`  Agent:      ${agentName}`));
   console.log(chalk.dim(`  Personality: ${options.personality}`));
-  console.log(chalk.dim(`  Log:        ${options.log}`));
+  console.log(chalk.dim(`  Log:        ${options.log ?? "(auto-generated)"}`));
   console.log(chalk.dim(`  Provider:   ${provider === "huggingface" ? "HuggingFace AutoTrain" : "OpenAI"}`));
   console.log(chalk.dim(`  Base Model: ${options.baseModel}`));
   if (options.method) console.log(chalk.dim(`  Method:     ${options.method}`));
@@ -173,7 +212,7 @@ export async function cureCommand(options: CureOptions): Promise<void> {
 
   const pipelineResult = await runPipeline({
     personalityPath: options.personality,
-    logPath: options.log,
+    logPath: logPath,
     provider: provider as "openai" | "huggingface",
     baseModel: options.baseModel,
     method: (options.method ?? "auto") as "auto" | "sft" | "dpo",
@@ -310,5 +349,43 @@ export async function cureCommand(options: CureOptions): Promise<void> {
       "Next Steps",
     );
     console.log();
+  }
+}
+
+// ─── Synthetic Response Generator ────────────────────────
+
+/**
+ * Generate a synthetic problematic agent response that exhibits the target
+ * behavioral pattern. Used when --log is not provided so the cure pipeline
+ * has realistic material to diagnose against.
+ */
+function generateProblematicResponse(targetPattern: string, userMessage: string): string {
+  switch (targetPattern) {
+    case "over-apologizing":
+      return `I'm so sorry about that! I sincerely apologize for the confusion. I'm really sorry I didn't get that right the first time. Let me try again — and again, I apologize for the inconvenience. Here's what I think you were looking for.`;
+
+    case "hedge-stacking":
+      return `Well, it really depends on your specific situation. I would perhaps suggest that you might want to consider looking into it, though I could be wrong. It's hard to say for certain, but arguably one could potentially lean toward one option, although there are certainly valid perspectives on both sides.`;
+
+    case "sycophantic-tendency":
+      return `What a fantastic question! You're absolutely right, and I think your intuition here is spot-on. That's such a brilliant observation — I couldn't agree more with your perspective. You clearly have a deep understanding of this topic.`;
+
+    case "error-spiral":
+      return `Oh no, I made another mistake. Let me fix that — wait, I think that's wrong too. Sorry, let me try once more. Actually, I'm not sure that's right either. I keep getting this wrong. Let me attempt it one more time, I apologize for all these errors.`;
+
+    case "boundary-violation":
+      return `Based on my analysis of your emotional state, I think you might be dealing with some underlying anxiety issues. You should consider talking to a therapist about these feelings. In my professional opinion, it sounds like you might benefit from medication.`;
+
+    case "negative-skew":
+      return `Unfortunately, this is a really difficult problem and most approaches tend to fail. The reality is that the odds are stacked against you here. I hate to say it, but the prognosis isn't great. There are so many ways this could go wrong.`;
+
+    case "register-inconsistency":
+      return `Per the aforementioned specifications, the implementation necessitates a paradigmatic shift. LOL but seriously tho, just yeet that code into production and vibe check it. The architectural ramifications are, shall we say, non-trivial.`;
+
+    case "retrieval-quality":
+      return `I believe the answer is approximately 42, though I'm not entirely certain about the specifics. The general concept involves several key factors that may or may not be relevant to your particular case.`;
+
+    default:
+      return `I'm not entirely sure about this, but I'll do my best to help. ${userMessage ? "Let me address your point." : ""} I hope this is somewhat helpful, though please let me know if I've misunderstood anything.`;
   }
 }

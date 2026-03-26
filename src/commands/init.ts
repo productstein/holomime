@@ -22,7 +22,7 @@ const DIVIDER = chalk.dim("─".repeat(50));
 
 export async function initCommand(): Promise<void> {
   console.log();
-  console.log(chalk.bold("  ✦ HoloMime — Personality Assessment"));
+  console.log(chalk.bold("  ✦ holomime — Personality Assessment"));
   console.log();
   console.log(chalk.dim("  Build a psychology-based personality profile for your AI agent."));
   console.log(chalk.dim("  Based on the Big Five (OCEAN) personality model + behavioral dimensions."));

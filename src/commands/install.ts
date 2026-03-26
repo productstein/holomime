@@ -1,5 +1,5 @@
 /**
- * HoloMime Install Command — download and install community assets from the marketplace.
+ * holomime Install Command — download and install community assets from the marketplace.
  *
  *   holomime install @author/detector-name
  *   holomime install friendly-helper

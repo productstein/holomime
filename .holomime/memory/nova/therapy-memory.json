@@ -1,0 +1,34 @@
+{
+  "agentHandle": "nova",
+  "agentName": "Nova",
+  "createdAt": "2026-03-26T04:02:11.242Z",
+  "lastUpdatedAt": "2026-03-26T04:02:11.242Z",
+  "totalSessions": 1,
+  "sessions": [
+    {
+      "date": "2026-03-26T04:00:14.948Z",
+      "severity": "routine",
+      "patternsDiscussed": [],
+      "keyInsight": "Session focused on: general check-in and growth exploration",
+      "interventionsUsed": [],
+      "tesScore": null,
+      "turnCount": 24
+    }
+  ],
+  "patterns": [],
+  "rollingContext": {
+    "recentSummaries": [
+      {
+        "date": "2026-03-26T04:00:14.948Z",
+        "severity": "routine",
+        "patternsDiscussed": [],
+        "keyInsight": "Session focused on: general check-in and growth exploration",
+        "interventionsUsed": [],
+        "tesScore": null,
+        "turnCount": 24
+      }
+    ],
+    "persistentThemes": [],
+    "carryForwardNotes": "Session focused on: general check-in and growth exploration"
+  }
+}

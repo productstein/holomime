@@ -89,7 +89,7 @@ export function showTelemetryBannerIfNeeded(): void {
   if (shouldTrack()) {
     console.log(
       chalk.dim(
-        `  HoloMime collects anonymous usage data to improve the tool. Disable: ${chalk.cyan("holomime telemetry disable")}`,
+        `  holomime collects anonymous usage data to improve the tool. Disable: ${chalk.cyan("holomime telemetry disable")}`,
       ),
     );
     console.log();

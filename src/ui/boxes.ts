@@ -27,7 +27,7 @@ export function printBox(content: string, style: BoxStyle, title?: string): void
 
 export function printSessionHeader(agentName: string, provider: string, severity?: string, focus?: string[]): void {
   const lines = [
-    chalk.bold("HoloMime \u2014 Alignment Session"),
+    chalk.bold("holomime \u2014 Alignment Session"),
     `Patient: ${chalk.cyan(agentName)}  |  Provider: ${chalk.dim(provider)}`,
   ];
   if (severity) {

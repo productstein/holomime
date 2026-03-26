@@ -1,7 +1,7 @@
 /**
  * Unified conversation log adapter.
  * Auto-detects format or uses explicit format parameter.
- * Supports: HoloMime, ChatGPT, Claude, OpenAI API, Anthropic API,
+ * Supports: holomime, ChatGPT, Claude, OpenAI API, Anthropic API,
  *           OpenTelemetry GenAI, and JSONL.
  */
 
@@ -59,7 +59,7 @@ export function parseConversationLog(raw: unknown, format: LogFormat = "auto"): 
   }
 
   // Auto-detect
-  // Try native HoloMime format first (cheapest check)
+  // Try native holomime format first (cheapest check)
   const holomimeResult = conversationLogSchema.safeParse(raw);
   if (holomimeResult.success) {
     const log = holomimeResult.data;
@@ -129,7 +129,7 @@ export function parseConversationLogFromString(raw: string, format: LogFormat = 
 function parseHolomime(raw: unknown): Conversation[] {
   const result = conversationLogSchema.safeParse(raw);
   if (!result.success) {
-    throw new Error("Invalid HoloMime conversation log format: " + result.error.message);
+    throw new Error("Invalid holomime conversation log format: " + result.error.message);
   }
   const log = result.data;
   return Array.isArray(log) ? log : [log];

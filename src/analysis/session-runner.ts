@@ -153,7 +153,7 @@ export async function runTherapySession(
 
     therapistHistory.push({ role: "user", content: `[Phase: ${phaseConfig.name}] ${phaseDirective}` });
 
-    const typing = cb?.onThinking?.("AgentMD is thinking");
+    const typing = cb?.onThinking?.("Mira is thinking");
     const therapistReply = await provider.chat(therapistHistory as any);
     typing?.stop();
 

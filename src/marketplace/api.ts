@@ -1,5 +1,5 @@
 /**
- * HoloMime Marketplace — API client.
+ * holomime Marketplace — API client.
  * Provides a unified interface for marketplace operations.
  * Currently backed by LocalMarketplaceBackend; can be swapped for a remote REST API.
  */

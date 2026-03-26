@@ -5,7 +5,7 @@
  * Event-driven: when therapy adjusts personality scores, the embodied config
  * updates and pushes to connected runtime adapters (ROS2, Unity, webhook).
  *
- * HoloMime generates the config; the runtime adapter delivers it.
+ * holomime generates the config; the runtime adapter delivers it.
  */
 
 import { EventEmitter } from "node:events";

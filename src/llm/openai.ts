@@ -1,5 +1,5 @@
 /**
- * OpenAI Chat Completions API client for HoloMime therapy sessions.
+ * OpenAI Chat Completions API client for holomime therapy sessions.
  * Uses native fetch — no SDK dependency.
  */
 

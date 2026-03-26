@@ -168,7 +168,7 @@ export function generateBenchmarkMarkdown(benchmarks: PublishedBenchmark[]): str
   if (benchmarks.length === 0) return "No benchmark results found.\n";
 
   const lines: string[] = [
-    "# HoloMime Benchmark Results",
+    "# holomime Benchmark Results",
     "",
     "Behavioral alignment stress test results across models and providers.",
     "",

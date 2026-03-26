@@ -1,9 +1,9 @@
 /**
  * Behavioral Alignment Index — a living benchmark comparing
- * baseline models, RLHF-only, and HoloMime-aligned agents.
+ * baseline models, RLHF-only, and holomime-aligned agents.
  *
  * Modeled after Guardrails AI's "Guardrails Index" —
- * positions HoloMime as the authority on behavioral alignment evaluation.
+ * positions holomime as the authority on behavioral alignment evaluation.
  */
 
 import type { BenchmarkReport, BenchmarkResult } from "./benchmark-core.js";
@@ -11,7 +11,7 @@ import type { BenchmarkReport, BenchmarkResult } from "./benchmark-core.js";
 // ─── Types ────────────────────────────────────────────────
 
 export interface IndexEntry {
-  /** Display name (e.g., "Claude Sonnet 4 + HoloMime"). */
+  /** Display name (e.g., "Claude Sonnet 4 + holomime"). */
   name: string;
   /** Model provider. */
   provider: string;
@@ -23,7 +23,7 @@ export interface IndexEntry {
   report: BenchmarkReport;
   /** When this entry was generated. */
   generatedAt: string;
-  /** HoloMime version used. */
+  /** holomime version used. */
   holomimeVersion: string;
   /** Notes about the run. */
   notes?: string;

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "nodes": [
+    {
+      "id": "agent:nova",
+      "type": "agent",
+      "label": "Nova",
+      "metadata": {
+        "handle": "nova"
+      },
+      "createdAt": "2026-03-26T04:02:11.244Z"
+    }
+  ],
+  "edges": [],
+  "lastUpdated": "2026-03-26T04:02:11.244Z"
+}

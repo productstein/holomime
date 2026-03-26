@@ -1,5 +1,5 @@
 /**
- * HoloMime Marketplace — type definitions for community asset sharing.
+ * holomime Marketplace — type definitions for community asset sharing.
  */
 
 // ─── Asset Types ────────────────────────────────────────────

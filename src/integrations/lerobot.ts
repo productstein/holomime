@@ -40,7 +40,7 @@ export interface LeRobotFrame {
   action: number[];
   reward: number;
   done: boolean;
-  /** HoloMime personality-driven policy overrides applied to this frame. */
+  /** holomime personality-driven policy overrides applied to this frame. */
   policy_overrides?: PolicyOverrides;
 }
 

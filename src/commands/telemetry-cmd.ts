@@ -32,7 +32,7 @@ export async function telemetryCommand(action?: string): Promise<void> {
       `Status: ${status.enabled ? chalk.green("Enabled") : chalk.yellow("Disabled")}`,
       `Reason: ${chalk.dim(status.reason)}`,
       "",
-      chalk.dim("HoloMime collects anonymous usage data to improve the tool."),
+      chalk.dim("holomime collects anonymous usage data to improve the tool."),
       chalk.dim("No personal information, API keys, or file paths are ever collected."),
       "",
       `Enable:  ${chalk.cyan("holomime telemetry enable")}`,

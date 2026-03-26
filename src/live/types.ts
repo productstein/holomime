@@ -1,5 +1,5 @@
 /**
- * Types for the HoloMime Live real-time behavioral monitoring system.
+ * Types for the holomime Live real-time behavioral monitoring system.
  */
 
 export interface BrainRegionState {

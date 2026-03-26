@@ -1,5 +1,5 @@
 /**
- * HoloMime Personality Marketplace — registry client.
+ * holomime Personality Marketplace — registry client.
  * Fetches personality profiles from a GitHub-hosted JSON registry,
  * with fallback to the bundled local registry.
  */
@@ -126,7 +126,7 @@ export async function createGist(
       "Accept": "application/vnd.github+json",
     },
     body: JSON.stringify({
-      description: `HoloMime personality: ${handle}`,
+      description: `holomime personality: ${handle}`,
       public: true,
       files: {
         ".personality.json": {

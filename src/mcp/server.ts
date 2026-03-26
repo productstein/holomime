@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * HoloMime MCP Server — exposes diagnose, assess, and profile as MCP tools.
+ * holomime MCP Server — exposes diagnose, assess, and profile as MCP tools.
  * Agents can self-diagnose by calling these tools.
  *
  * Run: holomime-mcp (stdio transport)
@@ -402,6 +402,6 @@ export async function startMCPServer(): Promise<void> {
 
 // If run directly (not imported), start the server
 startMCPServer().catch((err) => {
-  console.error("HoloMime MCP server error:", err);
+  console.error("holomime MCP server error:", err);
   process.exit(1);
 });

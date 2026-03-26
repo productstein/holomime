@@ -454,7 +454,7 @@ program
   .command("cure")
   .description("End-to-end behavioral fix: diagnose → export → train → verify [Pro]")
   .requiredOption("--personality <path>", "Path to .personality.json")
-  .requiredOption("--log <path>", "Path to conversation log (JSON)")
+  .option("--log <path>", "Path to conversation log (JSON). If omitted, auto-generates from benchmark scenarios")
   .option("--provider <provider>", "Training provider (openai, huggingface)", "openai")
   .option("--base-model <model>", "Base model to fine-tune", "gpt-4o-mini-2024-07-18")
   .option("--method <method>", "Training method (auto, sft, dpo)", "auto")

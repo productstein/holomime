@@ -3,7 +3,7 @@
  *
  * Defines how voice, gesture, and gaze coordinate in real-time.
  * This is a declarative spec — the runtime (ROS2, Unity, etc.) interprets it.
- * HoloMime generates the profile; it does not implement the realtime loop.
+ * holomime generates the profile; it does not implement the realtime loop.
  */
 
 import { z } from "zod";

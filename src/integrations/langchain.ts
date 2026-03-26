@@ -286,7 +286,7 @@ export class HolomimeViolationError extends Error {
 
   constructor(violation: CallbackViolation) {
     const patternNames = violation.patterns.map((p) => p.name).join(", ");
-    super(`HoloMime behavioral violation (${violation.severity}): ${patternNames}`);
+    super(`holomime behavioral violation (${violation.severity}): ${patternNames}`);
     this.name = "HolomimeViolationError";
     this.violation = violation;
   }

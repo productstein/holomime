@@ -1,4 +1,4 @@
-// HoloMime — Personality engine for AI agents
+// holomime — Personality engine for AI agents
 // Public API for programmatic usage
 
 // ─── Core Types & Schemas ───────────────────────────────────

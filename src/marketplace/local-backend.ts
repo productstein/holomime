@@ -1,5 +1,5 @@
 /**
- * HoloMime Marketplace — local file-based backend.
+ * holomime Marketplace — local file-based backend.
  * Stores assets in ~/.holomime/marketplace/ as JSON files.
  * Implements MarketplaceBackend so it can be swapped for a remote API later.
  */

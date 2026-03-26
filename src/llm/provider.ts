@@ -1,5 +1,5 @@
 /**
- * Unified LLM provider interface for HoloMime.
+ * Unified LLM provider interface for holomime.
  * All providers (Ollama, Anthropic, OpenAI) implement this.
  */
 

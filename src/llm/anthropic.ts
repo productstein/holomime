@@ -1,5 +1,5 @@
 /**
- * Anthropic Messages API client for HoloMime therapy sessions.
+ * Anthropic Messages API client for holomime therapy sessions.
  * Uses native fetch — no SDK dependency.
  */
 

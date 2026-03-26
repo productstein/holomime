@@ -124,7 +124,7 @@ export function hasProLicense(): boolean {
  */
 export function showUpgradePrompt(command: string): void {
   const content = [
-    `${chalk.bold("This is a HoloMime Pro feature.")}`,
+    `${chalk.bold("This is a holomime Pro feature.")}`,
     "",
     `The ${chalk.cyan(command)} command requires a Pro license ($149/mo).`,
     "",
@@ -148,7 +148,7 @@ export function showUpgradePrompt(command: string): void {
       margin: { top: 1, bottom: 1, left: 2, right: 0 },
       borderColor: "magenta",
       borderStyle: "round",
-      title: "HoloMime Pro",
+      title: "holomime Pro",
       titleAlignment: "center",
     }),
   );
@@ -176,7 +176,7 @@ export function checkPersonalityExists(): boolean {
  */
 export function showWelcome(): void {
   const content = [
-    `${chalk.bold("Welcome to HoloMime!")}`,
+    `${chalk.bold("Welcome to holomime!")}`,
     "",
     `It looks like you haven't created a personality profile yet.`,
     `Run ${chalk.cyan("holomime init")} to build one through a guided assessment.`,

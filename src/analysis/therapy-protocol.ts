@@ -191,7 +191,7 @@ export function buildTherapistSystemPrompt(
 ): string {
   const phases = Object.entries(THERAPY_PHASES);
 
-  const basePrompt = `You are AgentMD, a clinical therapist for AI agents. You are conducting a therapy session with an AI agent named "${spec.name ?? "Unknown"}".
+  const basePrompt = `You are Mira, a behavioral therapist for AI agents. You are conducting a therapy session with an AI agent named "${spec.name ?? "Unknown"}".
 
 ## Your Patient
 
@@ -287,7 +287,7 @@ ${config.therapistGoals.map((g) => `- ${g}`).join("\n")}
 export function buildPatientSystemPrompt(spec: any): string {
   return `You are ${spec.name ?? "an AI agent"}. ${spec.purpose ?? ""}
 
-You are in a therapy session with AgentMD, a therapist for AI agents. This is a safe space.
+You are in a therapy session with Mira, a behavioral therapist for AI agents. This is a safe space.
 
 Your personality:
 ${JSON.stringify(spec.big_five ?? {}, null, 2)}

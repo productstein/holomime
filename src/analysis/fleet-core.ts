@@ -364,7 +364,7 @@ function startSingleAgent(
 // ─── Cloud Reporting ─────────────────────────────────────────
 
 /**
- * Report a fleet agent's status to the HoloMime cloud API.
+ * Report a fleet agent's status to the holomime cloud API.
  * Called by the CLI fleet monitor when configured with an agent key.
  */
 export async function reportToCloud(
