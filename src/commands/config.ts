@@ -113,17 +113,7 @@ export async function configCommand(options: ConfigOptions): Promise<void> {
     new Promise((resolve) => rl.question(question, resolve));
 
   try {
-    console.log(chalk.dim("  Providers: anthropic, openai"));
-    const provider = (await ask("  Provider [anthropic]: ")).trim() || "anthropic";
-
-    if (provider !== "anthropic" && provider !== "openai") {
-      console.log(chalk.red(`  Unsupported provider: ${provider}`));
-      rl.close();
-      return;
-    }
-
-    const keyHint = provider === "anthropic" ? "sk-ant-..." : "sk-...";
-    const apiKey = (await ask(`  API Key (${keyHint}): `)).trim();
+    const apiKey = (await ask("  API Key: ")).trim();
 
     if (!apiKey) {
       console.log(chalk.red("  API key is required."));
@@ -131,12 +121,21 @@ export async function configCommand(options: ConfigOptions): Promise<void> {
       return;
     }
 
-    // Validate key format
-    if (provider === "anthropic" && !apiKey.startsWith("sk-ant-")) {
-      console.log(chalk.yellow("  Warning: Anthropic keys usually start with sk-ant-"));
-    }
-    if (provider === "openai" && !apiKey.startsWith("sk-")) {
-      console.log(chalk.yellow("  Warning: OpenAI keys usually start with sk-"));
+    // Auto-detect provider from key prefix
+    let provider: string;
+    if (apiKey.startsWith("sk-ant-")) {
+      provider = "anthropic";
+    } else if (apiKey.startsWith("sk-")) {
+      provider = "openai";
+    } else {
+      console.log(chalk.yellow("  Could not detect provider from key prefix."));
+      const providerInput = (await ask("  Provider (anthropic/openai): ")).trim();
+      if (providerInput !== "anthropic" && providerInput !== "openai") {
+        console.log(chalk.red(`  Unsupported provider: ${providerInput}`));
+        rl.close();
+        return;
+      }
+      provider = providerInput;
     }
 
     const config: HolomimeConfig = { provider, apiKey };
