@@ -408,9 +408,8 @@ program
   });
 
 program
-  .command("daemon")
-  .hideHelp()
-  .description("Background relapse detection with auto-evolve [Pro] (use 'holomime mira' instead)")
+  .command("daemon", { hidden: true })
+  .description("Background relapse detection [Pro] (use 'holomime mira' instead)")
   .requiredOption("--dir <path>", "Directory to watch for conversation logs")
   .option("--personality <path>", "Path to .personality.json", ".personality.json")
   .option("--provider <provider>", "LLM provider (ollama, anthropic, openai)", "ollama")
