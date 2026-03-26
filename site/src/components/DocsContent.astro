@@ -35,7 +35,7 @@ const cliCommandsFree = [
 ];
 
 const cliCommandsPro = [
-  { cmd: "diagnose", desc: "Detect behavioral patterns in conversation logs", flags: "--log [path] --format openai-api" },
+  { cmd: "diagnose", desc: "Detect behavioral drift from conversation logs", flags: "--log [path] --format openai-api" },
   { cmd: "assess", desc: "Full Big Five alignment check — compare spec vs actual behavior", flags: "--personality .personality.json --log [path]" },
   { cmd: "align", desc: "Live therapy session — interactive behavioral refinement", flags: "--provider anthropic --model claude-3-5-sonnet" },
   { cmd: "evolve", desc: "Recursive alignment — diagnose → refine → apply until converged", flags: "--max-iterations 5 --threshold 80" },
@@ -43,15 +43,15 @@ const cliCommandsPro = [
   { cmd: "export", desc: "Export sessions as training data", flags: "--format dpo|rlhf|alpaca|hf|openai" },
   { cmd: "certify", desc: "Generate verifiable behavioral credential + ISO compliance reports", flags: "--standards all" },
   { cmd: "brain", desc: "Real-time NeuralSpace visualization — watch your agent think", flags: "--port 3838 --snapshot" },
-  { cmd: "benchmark", desc: "Run 8 adversarial scenarios with A-F scoring", flags: "--publish" },
+  { cmd: "benchmark", desc: "Score alignment (A-F) across 8 adversarial scenarios", flags: "--publish" },
   { cmd: "adversarial", desc: "Run 30+ adversarial attack scenarios", flags: "--category manipulation" },
   { cmd: "watch", desc: "Continuous relapse detection with auto-align", flags: "--log-dir ./logs --interval 30s" },
-  { cmd: "therapy", desc: "Start autonomous therapy — continuous diagnosis, correction, and training", flags: "status | stop" },
+  { cmd: "therapy", desc: "Run in background — generate training data, detect regression, auto-tune", flags: "status | stop" },
   { cmd: "fleet", desc: "Monitor multiple agents from a single dashboard", flags: "--agents agent1,agent2" },
   { cmd: "fleet-therapy", desc: "Group therapy — treat all fleet agents simultaneously", flags: "" },
   { cmd: "network", desc: "Multi-agent therapy mesh — agents treating agents", flags: "--topology ring" },
   { cmd: "voice", desc: "Monitor voice conversations for behavioral drift in real-time", flags: "--provider livekit" },
-  { cmd: "cure", desc: "End-to-end fix: diagnose → export → train → verify", flags: "--auto" },
+  { cmd: "cure", desc: "Full pipeline — diagnose, generate training data, fine-tune, verify", flags: "--auto" },
   { cmd: "interview", desc: "Self-awareness interview — metacognition scoring", flags: "" },
   { cmd: "policy", desc: "Generate guard policies from natural language requirements", flags: "--input 'never discuss competitors'" },
   { cmd: "prescribe", desc: "Diagnose and prescribe DPO treatments from corpus", flags: "" },

@@ -99,7 +99,7 @@ const stackCards = [
           {[
             { n: "01", t: "Create identity", d: "Define values, personality, and boundaries. personality, core, or full identity — they compile into a single personality.json." },
             { n: "02", t: "Diagnose", d: "Detect behavioral drift. 14 rule-based detectors across 80+ signals. No LLM needed." },
-            { n: "03", t: "Cure", d: "Mira runs structured therapy and permanently trains the model. One command. The fix is permanent." },
+            { n: "03", t: "Cure", d: "Full pipeline — diagnose, generate training data, fine-tune, and verify. One command. The fix is permanent." },
             { n: "04", t: "Deploy", d: "Push personality.json to any runtime — cloud APIs, edge devices, or physical robot bodies via ROS2, gRPC, or MQTT." },
             { n: "05", t: "Monitor", d: "Detect future drift. Correct autonomously. Run holomime therapy for continuous therapy." },
           ].map((s, i) => (
@@ -140,7 +140,7 @@ const stackCards = [
               </div>
             </div>
           </div>
-          <p class="text-[11px] text-[#999] mt-4">For continuous therapy: <code class="text-[11px] font-mono text-[var(--color-warm-text)] font-semibold">holomime therapy</code> — Mira runs autonomous therapy cycles, detects drift, and corrects it permanently.</p>
+          <p class="text-[11px] text-[#999] mt-4">For continuous monitoring: <code class="text-[11px] font-mono text-[var(--color-warm-text)] font-semibold">holomime therapy</code> — runs in the background, generating training data, detecting regression, and auto-tuning over time.</p>
         </div>
 
         <!-- Tiered onboarding -->
