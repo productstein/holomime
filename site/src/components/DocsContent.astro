@@ -21,6 +21,7 @@ const navSections = [
 ];
 
 const cliCommandsFree = [
+  { cmd: "config", desc: "Set your API key (one time setup)", flags: "" },
   { cmd: "personality", desc: "Build a personality profile through guided assessment", flags: "--swap-body [template]" },
   { cmd: "core", desc: "Create identity stack (3 files default)", flags: "--dir [path]" },
   { cmd: "identity", desc: "Create full identity stack (all 8 files: soul.md, mind.sys, purpose.cfg, shadow.log, memory.store, body.api, conscience.exe, ego.runtime)", flags: "--dir [path]" },
@@ -45,7 +46,7 @@ const cliCommandsPro = [
   { cmd: "benchmark", desc: "Run 8 adversarial scenarios with A-F scoring", flags: "--publish" },
   { cmd: "adversarial", desc: "Run 30+ adversarial attack scenarios", flags: "--category manipulation" },
   { cmd: "watch", desc: "Continuous relapse detection with auto-align", flags: "--log-dir ./logs --interval 30s" },
-  { cmd: "daemon", desc: "Background relapse detection with auto-evolve", flags: "--config daemon.yaml" },
+  { cmd: "mira", desc: "Start autonomous therapy — continuous diagnosis, correction, and training", flags: "status | stop" },
   { cmd: "fleet", desc: "Monitor multiple agents from a single dashboard", flags: "--agents agent1,agent2" },
   { cmd: "fleet-therapy", desc: "Group therapy — treat all fleet agents simultaneously", flags: "" },
   { cmd: "network", desc: "Multi-agent therapy mesh — agents treating agents", flags: "--topology ring" },
@@ -165,25 +166,36 @@ const codeBlocks = {
                   <pre class="doc-code"><code>npm install -g holomime</code></pre>
                 </div>
                 <div class="doc-card">
-                  <h3 class="doc-step">2. Create</h3>
+                  <h3 class="doc-step">2. Configure</h3>
+                  <p class="text-sm text-[#777] mb-3">Set your API key. One time only.</p>
+                  <pre class="doc-code"><code>holomime config</code></pre>
+                </div>
+                <div class="doc-card">
+                  <h3 class="doc-step">3. Create</h3>
                   <p class="text-sm text-[#777] mb-3">Interactive guided assessment that builds your agent's personality profile.</p>
                   <pre class="doc-code"><code>holomime personality</code></pre>
                   <p class="text-xs text-[#999] mt-2">Creates <code class="font-mono text-[#8b5cf6]">.personality.json</code> in your project root.</p>
                 </div>
                 <div class="doc-card">
-                  <h3 class="doc-step">3. Diagnose</h3>
+                  <h3 class="doc-step">4. Diagnose</h3>
                   <p class="text-sm text-[#777] mb-3">Point at any conversation log to detect behavioral drift patterns. No LLM needed.</p>
                   <pre class="doc-code"><code>holomime diagnose</code></pre>
                 </div>
                 <div class="doc-card">
-                  <h3 class="doc-step">4. Cure</h3>
+                  <h3 class="doc-step">5. Cure</h3>
                   <p class="text-sm text-[#777] mb-3">Mira runs therapy, exports DPO pairs, and trains the model. One command. The fix is permanent.</p>
                   <pre class="doc-code"><code>holomime cure</code></pre>
                 </div>
                 <div class="doc-card">
-                  <h3 class="doc-step">5. Verify</h3>
+                  <h3 class="doc-step">6. Verify</h3>
                   <p class="text-sm text-[#777] mb-3">Run 8 adversarial scenarios and grade your agent A-F. Proof the fix worked.</p>
                   <pre class="doc-code"><code>holomime benchmark</code></pre>
+                </div>
+                <div class="doc-card">
+                  <h3 class="doc-step">7. Autonomous therapy</h3>
+                  <p class="text-sm text-[#777] mb-3">Start Mira for continuous autonomous therapy. She diagnoses, corrects, and trains on her own.</p>
+                  <pre class="doc-code"><code>holomime mira</code></pre>
+                  <p class="text-xs text-[#999] mt-2"><code class="font-mono text-[#8b5cf6]">holomime mira status</code> to check progress. <code class="font-mono text-[#8b5cf6]">holomime mira stop</code> to end.</p>
                 </div>
               </div>
             </div>
@@ -196,25 +208,30 @@ const codeBlocks = {
                   <pre class="doc-code"><code>npm install -g holomime</code></pre>
                 </div>
                 <div class="doc-card">
-                  <h3 class="doc-step">2. Create identity</h3>
+                  <h3 class="doc-step">2. Configure</h3>
+                  <p class="text-sm text-[#777] mb-3">Set your API key. One time only.</p>
+                  <pre class="doc-code"><code>holomime config</code></pre>
+                </div>
+                <div class="doc-card">
+                  <h3 class="doc-step">3. Create identity</h3>
                   <p class="text-sm text-[#777] mb-3">Generates the full 8-file Identity Stack for your robot.</p>
                   <pre class="doc-code"><code>holomime identity</code></pre>
                   <p class="text-xs text-[#999] mt-2">Creates all 8 files: <code class="font-mono text-[#8b5cf6]">soul.md</code>, <code class="font-mono text-[#8b5cf6]">mind.sys</code>, <code class="font-mono text-[#8b5cf6]">purpose.cfg</code>, <code class="font-mono text-[#8b5cf6]">shadow.log</code>, <code class="font-mono text-[#8b5cf6]">memory.store</code>, <code class="font-mono text-[#8b5cf6]">body.api</code>, <code class="font-mono text-[#8b5cf6]">conscience.exe</code>, <code class="font-mono text-[#8b5cf6]">ego.runtime</code></p>
                 </div>
                 <div class="doc-card">
-                  <h3 class="doc-step">3. Certify</h3>
+                  <h3 class="doc-step">4. Certify</h3>
                   <p class="text-sm text-[#777] mb-3">Run behavioral certification against ISO safety and compliance standards.</p>
                   <pre class="doc-code"><code>holomime certify</code></pre>
                 </div>
                 <div class="doc-card">
-                  <h3 class="doc-step">4. Deploy</h3>
+                  <h3 class="doc-step">5. Deploy</h3>
                   <p class="text-sm text-[#777] mb-3">Deploy the identity stack to your robot via an adapter (ROS2, gRPC, MQTT, etc.).</p>
                   <pre class="doc-code"><code>holomime embody --adapter ros2</code></pre>
                 </div>
                 <div class="doc-card">
-                  <h3 class="doc-step">5. Monitor</h3>
-                  <p class="text-sm text-[#777] mb-3">Detect behavioral drift in production. Run continuously or on-demand.</p>
-                  <pre class="doc-code"><code>holomime diagnose</code></pre>
+                  <h3 class="doc-step">6. Monitor</h3>
+                  <p class="text-sm text-[#777] mb-3">Detect behavioral drift in production. Run <code class="font-mono">holomime mira</code> for continuous autonomous therapy.</p>
+                  <pre class="doc-code"><code>holomime mira</code></pre>
                 </div>
               </div>
             </div>
@@ -508,9 +525,9 @@ holomime compile-stack  # Compiles to .personality.json</code></pre>
                 <p class="text-xs text-[#999] mt-2">Loops diagnose → align → apply until the target score is reached or max iterations hit.</p>
               </div>
               <div class="doc-card">
-                <h3 class="doc-step">Autonomous Daemon</h3>
-                <pre class="doc-code"><code>holomime daemon</code></pre>
-                <p class="text-xs text-[#999] mt-2">Background process that monitors for drift and auto-triggers therapy.</p>
+                <h3 class="doc-step">Autonomous Therapy (Mira)</h3>
+                <pre class="doc-code"><code>holomime mira</code></pre>
+                <p class="text-xs text-[#999] mt-2">Mira runs continuous therapy cycles — diagnosing drift, running corrections, and training the model autonomously. Use <code class="font-mono">holomime mira status</code> to check progress and <code class="font-mono">holomime mira stop</code> to end.</p>
               </div>
               <div class="doc-card">
                 <h3 class="doc-step">Treatment Plans</h3>

@@ -71,6 +71,9 @@ Mira, our autonomous behavioral therapist, diagnoses drift, runs structured ther
 ```bash
 npm install -g holomime
 
+# Configure your API key (one time)
+holomime config
+
 # Quick start — 1 file (personality.json)
 holomime personality
 
@@ -80,10 +83,15 @@ holomime core
 # Full 8-file stack (enterprise / robotics)
 # holomime identity
 
-# ─── The 3-command workflow ───
+# ─── The workflow ───
 holomime diagnose     # See what's wrong
 holomime cure         # Fix it permanently
 holomime benchmark    # Verify the fix
+
+# Start autonomous therapy
+holomime mira         # Mira runs continuous therapy cycles
+holomime mira status  # How's Mira doing?
+holomime mira stop    # Stop therapy
 
 # Push identity to a robot or avatar
 holomime embody --body registry/bodies/figure-03.body.api
@@ -176,7 +184,7 @@ Diagnose ──→ Cure ──→ Benchmark
        └───────────────────────────────────┘
 ```
 
-Run it manually with `holomime diagnose` + `holomime cure` + `holomime benchmark`, automatically with `holomime autopilot`, or recursively with `holomime evolve` (loops until behavior converges). For power users: `holomime align` runs a single therapy session, `holomime export` extracts DPO pairs, and `holomime train` fine-tunes the model.
+Run it manually with `holomime diagnose` + `holomime cure` + `holomime benchmark`, continuously with `holomime mira` (autonomous therapy), or recursively with `holomime evolve` (loops until behavior converges). For power users: `holomime align` runs a single therapy session, `holomime export` extracts DPO pairs, and `holomime train` fine-tunes the model.
 
 ## Behavioral Detectors
 

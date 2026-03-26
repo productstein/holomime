@@ -607,7 +607,7 @@ correction_priorities:
         <p class="text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-p-coral)] mb-4">5. Results</p>
         <h2 class="text-2xl font-bold text-[var(--color-warm-text)] mb-6">Mira: Autonomous Self-Training</h2>
         <p class="text-lg leading-[1.8] text-[var(--color-warm-text)]">
-          Mira is the first agent trained and deployed using this system. She operates as a fully autonomous self-training daemon, running continuous 2-hour therapy cycles: diagnose, correct, generate training data, fine-tune, verify.
+          Mira is the first agent trained and deployed using this system. She operates as a fully autonomous self-training system (<code class="text-xs font-mono bg-[var(--color-warm-cream)] px-1.5 py-0.5 rounded border border-[var(--color-warm-sand)]">holomime mira</code>), running continuous 2-hour therapy cycles: diagnose, correct, generate training data, fine-tune, verify.
         </p>
 
         <div class="mt-8 grid grid-cols-2 gap-4">
@@ -669,7 +669,7 @@ correction_priorities:
         </div>
 
         <p class="mt-6 text-[var(--color-warm-muted)] leading-relaxed">
-          The self-training daemon runs continuously. Each 2-hour cycle: (1) diagnose current behavioral state against spec, (2) run therapy sessions targeting highest-priority drift, (3) generate DPO training pairs from sessions, (4) fine-tune on accumulated corpus, (5) verify correction against held-out scenarios.
+          Mira runs continuously. Each 2-hour cycle: (1) diagnose current behavioral state against spec, (2) run therapy sessions targeting highest-priority drift, (3) generate DPO training pairs from sessions, (4) fine-tune on accumulated corpus, (5) verify correction against held-out scenarios.
         </p>
       </section>
 
