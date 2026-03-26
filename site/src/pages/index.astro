@@ -297,8 +297,10 @@ const stackCards = [
       function ring(arr, cx, cy, cz, r, n) { for (var i = 0; i < n; i++) { var a = (i/n)*Math.PI*2+Math.random()*0.1, rr = r*(0.95+Math.random()*0.1); arr.push(cx+rr*Math.cos(a), cy+(Math.random()-0.5)*0.01, cz+rr*Math.sin(a)); } }
       function boxS(arr, cx, cy, cz, bw, bh, bd, n) { for (var i = 0; i < n; i++) { var face = Math.floor(Math.random()*6), u = Math.random()-0.5, v = Math.random()-0.5; if(face===0) arr.push(cx+bw/2,cy+u*bh,cz+v*bd); else if(face===1) arr.push(cx-bw/2,cy+u*bh,cz+v*bd); else if(face===2) arr.push(cx+u*bw,cy+bh/2,cz+v*bd); else if(face===3) arr.push(cx+u*bw,cy-bh/2,cz+v*bd); else if(face===4) arr.push(cx+u*bw,cy+v*bh,cz+bd/2); else arr.push(cx+u*bw,cy+v*bh,cz-bd/2); } }
 
-      // Body parts
-      sph(base,0,2.15,0,0.20,600); ring(base,0,2.15,0,0.21,40); sph(base,-0.07,2.18,0.16,0.035,60); sph(base,0.07,2.18,0.16,0.035,60); sph(base,0,2.02,0.08,0.06,40);
+      // Body parts — head with open top for brain
+      // Lower head shell only (skip top quadrant so brain is visible)
+      for (var i = 0; i < 400; i++) { var u=Math.random(),v=Math.random(),theta=2*Math.PI*u,phi=Math.acos(2*v-1),rr=0.20*(0.92+Math.random()*0.08),py=2.15+rr*Math.cos(phi); if(py<2.28) base.push(rr*Math.sin(phi)*Math.cos(theta),py,rr*Math.sin(phi)*Math.sin(theta)); }
+      ring(base,0,2.15,0,0.21,40); sph(base,-0.07,2.18,0.16,0.035,60); sph(base,0.07,2.18,0.16,0.035,60); sph(base,0,2.02,0.08,0.06,40);
       cylS(base,0,1.90,0,0.065,0.10,120); ring(base,0,1.95,0,0.07,30); ring(base,0,1.85,0,0.07,30);
       sph(base,-0.32,1.78,0,0.08,150); sph(base,0.32,1.78,0,0.08,150); cylS(base,0,1.78,0,0.04,0.02,60); boxS(base,-0.15,1.78,0,0.30,0.04,0.08,80); boxS(base,0.15,1.78,0,0.30,0.04,0.08,80);
       boxS(base,0,1.58,0,0.42,0.30,0.20,500); boxS(base,0,1.30,0,0.36,0.26,0.18,400); cylS(base,0,1.44,0.10,0.01,0.50,60); ring(base,0,1.65,0,0.18,30); ring(base,0,1.50,0,0.16,30); ring(base,0,1.35,0,0.14,25); cylS(base,-0.20,1.50,0.08,0.03,0.20,40); cylS(base,0.20,1.50,0.08,0.03,0.20,40);
@@ -312,58 +314,31 @@ const stackCards = [
       cylS(base,-0.13,0.40,0,0.055,0.38,220); cylS(base,0.13,0.40,0,0.055,0.38,220); ring(base,-0.13,0.50,0,0.06,25); ring(base,0.13,0.50,0,0.06,25); ring(base,-0.13,0.32,0,0.06,25); ring(base,0.13,0.32,0,0.06,25);
       boxS(base,-0.13,0.17,0.03,0.10,0.05,0.16,120); boxS(base,0.13,0.17,0.03,0.10,0.05,0.16,120); boxS(base,-0.13,0.16,0.10,0.08,0.03,0.04,30); boxS(base,0.13,0.16,0.10,0.08,0.03,0.04,30);
       // ─── 3D Brain mesh — simplified NeuralSpace brain ───
-      // Deformed sphere with sulci grooves + lobe vertex coloring
-      var brainGeo = new T.SphereGeometry(1, 40, 28);
+      var brainGeo = new T.SphereGeometry(1, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.55);
       var pos = brainGeo.attributes.position;
       var colors = new Float32Array(pos.count * 3);
-      // NeuralSpace lobe colors
-      var lobeC = {
-        frontal: new T.Color(0xff8844),
-        parietal: new T.Color(0xffcc22),
-        temporal: new T.Color(0x44dd88),
-        occipital: new T.Color(0xff5555),
-        cerebellum: new T.Color(0x22ccaa),
-      };
+      var lobeC = { frontal: [1.0,0.53,0.27], parietal: [1.0,0.8,0.13], temporal: [0.27,0.87,0.53], occipital: [1.0,0.33,0.33], cerebellum: [0.13,0.8,0.67] };
       for (var i = 0; i < pos.count; i++) {
         var x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-        // Squash into brain ellipsoid (wider, shorter)
-        x *= 1.15; y *= 0.82; z *= 1.0;
-        // Central longitudinal fissure
-        var fissureDepth = 0.12 * Math.exp(-x*x*80) * Math.max(0, y + 0.2);
-        y -= fissureDepth;
-        // Sulci grooves — wrinkle the surface
-        var ang = Math.atan2(z, x);
-        var elev = Math.asin(Math.min(1, Math.max(-1, y / Math.sqrt(x*x+y*y+z*z+0.001))));
-        var sulci = 0.03 * Math.sin(ang*7 + elev*5) + 0.02 * Math.sin(ang*13 + elev*9) + 0.015 * Math.sin(ang*19 - elev*7);
-        var r = Math.sqrt(x*x+y*y+z*z);
-        if (r > 0.01) { x += sulci * x/r; y += sulci * y/r; z += sulci * z/r; }
+        x *= 1.2; y *= 0.75; // squash into ellipsoid
+        // Central fissure
+        var fd = 0.15 * Math.exp(-x*x*60) * Math.max(0, y + 0.3);
+        y -= fd;
+        // Sulci wrinkles
+        var ang = Math.atan2(z, x), r = Math.sqrt(x*x+y*y+z*z);
+        var sulci = 0.04 * Math.sin(ang*8 + y*6) + 0.025 * Math.sin(ang*14 - y*10);
+        if (r > 0.01) { x += sulci*x/r; y += sulci*y/r; z += sulci*z/r; }
         pos.setXYZ(i, x, y, z);
-        // Assign lobe color based on position
-        var c;
-        if (y < -0.5 && z < -0.1) c = lobeC.cerebellum;
-        else if (z < -0.3) c = lobeC.occipital;
-        else if (y > 0.2) c = lobeC.parietal;
-        else if (z > 0.2) c = lobeC.frontal;
-        else c = lobeC.temporal;
-        colors[i*3] = c.r; colors[i*3+1] = c.g; colors[i*3+2] = c.b;
+        // Lobe coloring
+        var c = z > 0.25 ? lobeC.frontal : z < -0.3 ? lobeC.occipital : y > 0.3 ? lobeC.parietal : lobeC.temporal;
+        colors[i*3] = c[0]; colors[i*3+1] = c[1]; colors[i*3+2] = c[2];
       }
       brainGeo.setAttribute('color', new T.BufferAttribute(colors, 3));
       brainGeo.computeVertexNormals();
-      // Only keep upper hemisphere — slice off bottom
-      var brainMat = new T.MeshPhongMaterial({
-        vertexColors: true, transparent: true, opacity: 0.92,
-        shininess: 30, specular: 0x222222,
-        side: T.DoubleSide, clippingPlanes: [new T.Plane(new T.Vector3(0, -1, 0), 0.15)],
-      });
-      renderer.localClippingEnabled = true;
+      var brainMat = new T.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.95, side: T.DoubleSide });
       var brainMesh = new T.Mesh(brainGeo, brainMat);
-      brainMesh.scale.set(0.14, 0.14, 0.14);
-      brainMesh.position.set(0, 2.30, 0);
-      // Lights for the brain
-      var ambLight = new T.AmbientLight(0xffffff, 0.6);
-      var dirLight = new T.DirectionalLight(0xffffff, 0.8);
-      dirLight.position.set(1, 2, 3);
-      scene.add(ambLight); scene.add(dirLight);
+      brainMesh.scale.set(0.18, 0.18, 0.18);
+      brainMesh.position.set(0, 2.32, 0);
 
       // Glow layers
       sph(soulGlow,0,2.15,0,0.12,80);
@@ -383,7 +358,7 @@ const stackCards = [
       scene.add(group);
 
       var time = 0;
-      function animate() { requestAnimationFrame(animate); if (!noMotion) { group.rotation.y += 0.004; time += 0.02; var pulse = 1.0 + 0.012 * Math.sin(time * 1.5); brainMesh.scale.set(0.14*pulse, 0.14*pulse, 0.14*pulse); } renderer.render(scene, camera); }
+      function animate() { requestAnimationFrame(animate); if (!noMotion) { group.rotation.y += 0.004; time += 0.02; var pulse = 1.0 + 0.015 * Math.sin(time * 1.5); brainMesh.scale.set(0.18*pulse, 0.18*pulse, 0.18*pulse); } renderer.render(scene, camera); }
       animate();
       window.addEventListener('resize', function() { var nw=canvas.clientWidth||350, nh=canvas.clientHeight||500; camera.aspect=nw/nh; camera.updateProjectionMatrix(); renderer.setSize(nw,nh); });
     };
