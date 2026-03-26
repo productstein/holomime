@@ -178,10 +178,11 @@ export function showWelcome(): void {
   const content = [
     `${chalk.bold("Welcome to holomime!")}`,
     "",
-    `It looks like you haven't created a personality profile yet.`,
-    `Run ${chalk.cyan("holomime init")} to build one through a guided assessment.`,
+    `Define how your agent should behave \u2014 holomime diagnoses drift and fixes it.`,
     "",
-    chalk.dim("Takes about 5 minutes. Creates .personality.json in this directory."),
+    `  ${chalk.cyan("holomime personality")}    ${chalk.dim("Quick setup (1 file, ~5 min)")}`,
+    `  ${chalk.cyan("holomime core")}           ${chalk.dim("Core identity (3 files)")}`,
+    `  ${chalk.cyan("holomime identity")}       ${chalk.dim("Full stack with body.api (robots)")}`,
   ].join("\n");
 
   console.log(
@@ -190,7 +191,7 @@ export function showWelcome(): void {
       margin: { top: 1, bottom: 1, left: 2, right: 0 },
       borderColor: "cyan",
       borderStyle: "round",
-      title: "First Time?",
+      title: "Get Started",
       titleAlignment: "center",
     }),
   );

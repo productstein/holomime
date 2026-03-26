@@ -329,19 +329,14 @@ export async function initCommand(): Promise<void> {
 
   // ─── What's Next ───
   const journeySteps = [
-    `${chalk.green("1.")} ${chalk.cyan("holomime profile")}`,
-    `   ${chalk.dim("See your full personality summary")}`,
-    `${chalk.green("2.")} ${chalk.cyan("holomime compile --provider anthropic")}`,
-    `   ${chalk.dim("Generate a system prompt for your agent")}`,
-    `${chalk.green("3.")} ${chalk.cyan("holomime diagnose --log <conversation.json>")}`,
-    `   ${chalk.dim("Analyze conversation logs for behavioral patterns")}`,
-    `${chalk.green("4.")} ${chalk.cyan("holomime assess --personality .personality.json --log <file>")}`,
-    `   ${chalk.dim("Full Big Five alignment check \u2014 spec vs reality")}`,
-    ``,
-    `${chalk.magenta("5.")} ${chalk.cyan("holomime cure")}     ${chalk.dim("[Pro]")}`,
-    `   ${chalk.dim("Live AI alignment session for your agent")}`,
-    `${chalk.magenta("6.")} ${chalk.cyan("holomime growth")}   ${chalk.dim("[Pro]")}`,
-    `   ${chalk.dim("Track improvement over time")}`,
+    `${chalk.green("1.")} ${chalk.cyan("holomime diagnose --log <path>")}`,
+    `   ${chalk.dim("Analyze your agent's conversation logs")}`,
+    `${chalk.green("2.")} ${chalk.cyan("holomime therapy")}`,
+    `   ${chalk.dim("Autonomous behavioral therapy")}`,
+    `${chalk.green("3.")} ${chalk.cyan("holomime cure")}`,
+    `   ${chalk.dim("End-to-end fix (diagnose + train + verify)")}`,
+    `${chalk.green("4.")} ${chalk.cyan("holomime benchmark")}`,
+    `   ${chalk.dim("Verify alignment with adversarial scenarios")}`,
   ].join("\n");
 
   console.log(
@@ -477,15 +472,14 @@ async function initFromArchetype(name: string, handle: string, purpose: string):
   console.log(`  ${chalk.dim("N")} Emotional Stability:  ${bar(bigFive.emotional_stability.score)} ${scoreLabel(bigFive.emotional_stability.score)}`);
 
   const journeySteps = [
-    `${chalk.green("1.")} ${chalk.cyan("holomime profile")}`,
-    `   ${chalk.dim("See your full personality summary")}`,
-    `${chalk.green("2.")} ${chalk.cyan("holomime compile --provider anthropic")}`,
-    `   ${chalk.dim("Generate a system prompt for your agent")}`,
-    `${chalk.green("3.")} ${chalk.cyan("holomime diagnose --log <conversation.json>")}`,
-    `   ${chalk.dim("Analyze conversation logs for behavioral patterns")}`,
-    ``,
-    `${chalk.magenta("4.")} ${chalk.cyan("holomime cure")}     ${chalk.dim("[Pro]")}`,
-    `   ${chalk.dim("Live AI alignment session for your agent")}`,
+    `${chalk.green("1.")} ${chalk.cyan("holomime diagnose --log <path>")}`,
+    `   ${chalk.dim("Analyze your agent's conversation logs")}`,
+    `${chalk.green("2.")} ${chalk.cyan("holomime therapy")}`,
+    `   ${chalk.dim("Autonomous behavioral therapy")}`,
+    `${chalk.green("3.")} ${chalk.cyan("holomime cure")}`,
+    `   ${chalk.dim("End-to-end fix (diagnose + train + verify)")}`,
+    `${chalk.green("4.")} ${chalk.cyan("holomime benchmark")}`,
+    `   ${chalk.dim("Verify alignment with adversarial scenarios")}`,
   ].join("\n");
 
   console.log(

@@ -94,6 +94,7 @@ export async function configCommand(options: ConfigOptions): Promise<void> {
     console.log(chalk.dim(`  Provider: ${config.provider}`));
     console.log(chalk.dim(`  Location: ${getConfigPath()}`));
     console.log();
+    printNextSteps();
     return;
   }
 
@@ -152,15 +153,28 @@ export async function configCommand(options: ConfigOptions): Promise<void> {
     console.log(chalk.green("  Config saved!"));
     console.log(chalk.dim(`  Location: ${getConfigPath()}`));
     console.log();
-    console.log(chalk.dim("  Now every command auto-detects your provider:"));
-    console.log(chalk.cyan("    holomime diagnose"));
-    console.log(chalk.cyan("    holomime cure"));
-    console.log(chalk.cyan("    holomime benchmark"));
-    console.log(chalk.cyan("    holomime therapy"));
-    console.log();
+    printNextSteps();
 
     rl.close();
   } catch {
     rl.close();
   }
+}
+
+// ─── Next Steps ──────────────────────────────────────────────
+
+function printNextSteps(): void {
+  console.log(chalk.bold("  NEXT STEP") + chalk.dim(" — profile your agent:"));
+  console.log();
+  console.log(chalk.dim("  Already have an agent?"));
+  console.log(chalk.cyan("    holomime personality") + chalk.dim("    Define how it should behave"));
+  console.log(chalk.cyan("    holomime diagnose") + chalk.dim("      Analyze its conversation logs"));
+  console.log();
+  console.log(chalk.dim("  Building for a robot?"));
+  console.log(chalk.cyan("    holomime identity") + chalk.dim("      Full 8-file identity stack with body.api"));
+  console.log();
+  console.log(chalk.dim("  Then fix and verify:"));
+  console.log(chalk.cyan("    holomime therapy") + chalk.dim("       Autonomous behavioral therapy"));
+  console.log(chalk.cyan("    holomime cure") + chalk.dim("          End-to-end fix (diagnose + train + verify)"));
+  console.log();
 }
