@@ -4,67 +4,64 @@ import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
 ---
 
-<Layout title="Contact Sales — holomime" description="Talk to our team about holomime Enterprise. Custom deployments, premium voices, SSO, and dedicated support.">
+<Layout title="Contact Sales — holomime" description="Talk to our team about holomime for your AI agents and humanoid robots.">
   <Nav />
-  <main class="min-h-screen bg-[var(--color-warm-cream)] pt-28 pb-20">
+  <main class="min-h-screen pt-28 pb-20">
     <div class="mx-auto max-w-2xl px-6">
       <!-- Header -->
       <div class="text-center mb-10">
-        <span class="inline-block rounded-full px-4 py-1.5 text-xs font-semibold tracking-wider uppercase" style="background: color-mix(in srgb, var(--color-p-gold) 15%, transparent); color: var(--color-p-gold);">
-          Enterprise
-        </span>
-        <h1 class="mt-4 text-3xl font-extrabold text-[var(--color-warm-text)] md:text-4xl">
+        <h1 class="text-3xl font-extrabold text-[#1a1a1a] md:text-4xl tracking-[-0.02em]">
           Let's talk about your agents
         </h1>
-        <p class="mt-3 text-[var(--color-warm-muted)]">
-          Tell us about your use case and we'll help you get started with holomime Enterprise. You can also <a href="/docs" class="text-[var(--color-p-violet)] hover:text-[var(--color-warm-text)] transition-colors font-medium">explore the documentation</a> or <a href="/pricing" class="text-[var(--color-p-violet)] hover:text-[var(--color-warm-text)] transition-colors font-medium">view pricing plans</a> first.
+        <p class="mt-3 text-[15px] text-[#777]">
+          Tell us about your use case and we'll help you get started. You can also <a href="/docs" class="text-[#1a1a1a] underline underline-offset-2 hover:text-[#555] transition-colors">explore the docs</a> or <a href="/pricing" class="text-[#1a1a1a] underline underline-offset-2 hover:text-[#555] transition-colors">view pricing</a> first.
         </p>
       </div>
 
       <!-- Form card -->
-      <div class="rounded-2xl bg-white p-8 shadow-xl shadow-black/5 border border-[var(--color-warm-border)]">
+      <div class="rounded-2xl bg-white p-8 border border-[#eee]">
         <form id="contact-form" class="space-y-5">
           <div class="grid gap-5 sm:grid-cols-2">
             <div>
-              <label for="contact-name" class="block text-xs font-medium text-[var(--color-warm-muted)] mb-1.5">Name *</label>
+              <label for="contact-name" class="block text-xs font-medium text-[#999] mb-1.5">Name *</label>
               <input
                 id="contact-name"
                 type="text"
                 required
                 maxlength="200"
                 placeholder="Jane Smith"
-                class="w-full rounded-lg border border-[var(--color-warm-border)] bg-white px-3 py-2.5 text-sm text-[var(--color-warm-text)] placeholder:text-[var(--color-warm-muted)]/50 outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20"
+                class="w-full rounded-lg border border-[#eee] bg-white px-3 py-2.5 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none transition-colors focus:border-[#999] focus:ring-2 focus:ring-[#eee]"
               />
             </div>
             <div>
-              <label for="contact-email" class="block text-xs font-medium text-[var(--color-warm-muted)] mb-1.5">Work email *</label>
+              <label for="contact-email" class="block text-xs font-medium text-[#999] mb-1.5">Work email *</label>
               <input
                 id="contact-email"
                 type="email"
                 required
                 maxlength="320"
                 placeholder="jane@company.com"
-                class="w-full rounded-lg border border-[var(--color-warm-border)] bg-white px-3 py-2.5 text-sm text-[var(--color-warm-text)] placeholder:text-[var(--color-warm-muted)]/50 outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20"
+                class="w-full rounded-lg border border-[#eee] bg-white px-3 py-2.5 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none transition-colors focus:border-[#999] focus:ring-2 focus:ring-[#eee]"
               />
             </div>
           </div>
 
           <div class="grid gap-5 sm:grid-cols-2">
             <div>
-              <label for="contact-company" class="block text-xs font-medium text-[var(--color-warm-muted)] mb-1.5">Company</label>
+              <label for="contact-company" class="block text-xs font-medium text-[#999] mb-1.5">Company</label>
               <input
                 id="contact-company"
                 type="text"
                 maxlength="200"
                 placeholder="Acme Inc."
-                class="w-full rounded-lg border border-[var(--color-warm-border)] bg-white px-3 py-2.5 text-sm text-[var(--color-warm-text)] placeholder:text-[var(--color-warm-muted)]/50 outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20"
+                class="w-full rounded-lg border border-[#eee] bg-white px-3 py-2.5 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none transition-colors focus:border-[#999] focus:ring-2 focus:ring-[#eee]"
               />
             </div>
             <div>
-              <label for="contact-agents" class="block text-xs font-medium text-[var(--color-warm-muted)] mb-1.5">How many agents?</label>
+              <label for="contact-agents" class="block text-xs font-medium text-[#999] mb-1.5">How many agents?</label>
               <select
                 id="contact-agents"
-                class="w-full rounded-lg border border-[var(--color-warm-border)] bg-white px-3 py-2.5 text-sm text-[var(--color-warm-text)] outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20"
+                class="w-full rounded-lg border border-[#eee] bg-white px-3 py-2.5 text-sm text-[#1a1a1a] outline-none transition-colors focus:border-[#999] focus:ring-2 focus:ring-[#eee]"
               >
                 <option value="">Select...</option>
                 <option value="1-10">1-10</option>
@@ -76,14 +73,14 @@ import Footer from "../components/Footer.astro";
           </div>
 
           <div>
-            <label for="contact-message" class="block text-xs font-medium text-[var(--color-warm-muted)] mb-1.5">How can we help? *</label>
+            <label for="contact-message" class="block text-xs font-medium text-[#999] mb-1.5">How can we help? *</label>
             <textarea
               id="contact-message"
               required
               maxlength="5000"
               rows="4"
-              placeholder="Tell us about your use case, the agents you're building, and what you need from holomime Enterprise..."
-              class="w-full rounded-lg border border-[var(--color-warm-border)] bg-white px-3 py-2.5 text-sm text-[var(--color-warm-text)] placeholder:text-[var(--color-warm-muted)]/50 outline-none transition-colors focus:border-[var(--color-p-violet)] focus:ring-2 focus:ring-[var(--color-p-violet)]/20 resize-y"
+              placeholder="Tell us about your use case, the agents you're building, and what you need..."
+              class="w-full rounded-lg border border-[#eee] bg-white px-3 py-2.5 text-sm text-[#1a1a1a] placeholder:text-[#ccc] outline-none transition-colors focus:border-[#999] focus:ring-2 focus:ring-[#eee] resize-y"
             ></textarea>
           </div>
 
@@ -93,45 +90,45 @@ import Footer from "../components/Footer.astro";
           <button
             type="submit"
             id="contact-submit"
-            class="w-full rounded-lg bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-[var(--color-p-coral)]/20 transition-all hover:shadow-xl hover:shadow-[var(--color-p-coral)]/30"
+            class="btn-primary w-full justify-center"
           >
             Send Message
           </button>
         </form>
 
-        <p class="mt-5 text-center text-xs text-[var(--color-warm-muted)]">
-          We typically respond within one business day. You can also reach us at <a href="mailto:hello@holomime.com" class="font-medium text-[var(--color-p-violet)] hover:text-[var(--color-warm-text)] transition-colors">hello@holomime.com</a>.
+        <p class="mt-5 text-center text-xs text-[#bbb]">
+          We typically respond within one business day. You can also reach us at <a href="mailto:hello@holomime.com" class="text-[#1a1a1a] underline underline-offset-2">hello@holomime.com</a>.
         </p>
       </div>
 
       <!-- What you get -->
       <div class="mt-12 grid gap-6 sm:grid-cols-3">
         <div class="text-center">
-          <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full" style="background: color-mix(in srgb, var(--color-p-violet) 10%, transparent);">
-            <svg class="h-5 w-5" style="color: var(--color-p-violet);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#f5f5f5]">
+            <svg class="h-5 w-5 text-[#999]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
             </svg>
           </div>
-          <h3 class="text-sm font-bold text-[var(--color-warm-text)]">Custom Setup</h3>
-          <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Self-hosted deployment, custom detectors, and tailored alignment protocols.</p>
+          <h3 class="text-sm font-bold text-[#1a1a1a]">Custom Setup</h3>
+          <p class="mt-1 text-xs text-[#999]">Self-hosted deployment, custom detectors, and tailored alignment protocols.</p>
         </div>
         <div class="text-center">
-          <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full" style="background: color-mix(in srgb, var(--color-p-coral) 10%, transparent);">
-            <svg class="h-5 w-5" style="color: var(--color-p-coral);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#f5f5f5]">
+            <svg class="h-5 w-5 text-[#999]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18" />
             </svg>
           </div>
-          <h3 class="text-sm font-bold text-[var(--color-warm-text)]">Premium Voices</h3>
-          <p class="mt-1 text-xs text-[var(--color-warm-muted)]">ElevenLabs premium TTS, custom voice cloning, and unlimited sessions.</p>
+          <h3 class="text-sm font-bold text-[#1a1a1a]">Dedicated Support</h3>
+          <p class="mt-1 text-xs text-[#999]">Direct engineering support, onboarding, and ongoing optimization.</p>
         </div>
         <div class="text-center">
-          <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full" style="background: color-mix(in srgb, var(--color-p-gold) 10%, transparent);">
-            <svg class="h-5 w-5" style="color: var(--color-p-gold);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <div class="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[#f5f5f5]">
+            <svg class="h-5 w-5 text-[#999]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
             </svg>
           </div>
-          <h3 class="text-sm font-bold text-[var(--color-warm-text)]">Compliance Ready</h3>
-          <p class="mt-1 text-xs text-[var(--color-warm-muted)]">SSO, audit logs, SOC 2 Type II (in progress), and a 99.9% SLA.</p>
+          <h3 class="text-sm font-bold text-[#1a1a1a]">Compliance Ready</h3>
+          <p class="mt-1 text-xs text-[#999]">SSO, audit logs, ISO compliance reports, and a 99.9% SLA.</p>
         </div>
       </div>
     </div>
