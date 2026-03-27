@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.4.0] - 2026-03-26
+
+### Added
+- Auto-detect robot vs agent in `cure` pipeline — if body.api exists, exports training data instead of fine-tuning via API
+- `--export-only` flag for explicit export-only mode (robotics companies with their own training infrastructure)
+- Robotics cure flow: diagnose → export DPO pairs → suggest HuggingFace push + ISO certify
+
 ## [3.3.10] - 2026-03-26
 
 ### Fixed

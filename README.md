@@ -85,8 +85,13 @@ holomime core
 
 # ─── The workflow ───
 holomime diagnose     # See what's wrong
-holomime cure         # Fix it permanently
+holomime cure         # Fix it permanently (auto-detects agent vs robot)
 holomime benchmark    # Verify the fix
+
+# If body.api exists, cure auto-switches to robotics mode:
+# diagnose → export DPO pairs → push to HuggingFace → suggest ISO certify
+# Your team trains on your own infrastructure. We generate the data.
+holomime cure --export-only  # Explicit export-only mode
 
 # Start autonomous therapy
 holomime therapy         # Mira runs continuous therapy cycles

@@ -51,7 +51,7 @@ const cliCommandsPro = [
   { cmd: "fleet-therapy", desc: "Group therapy — treat all fleet agents simultaneously", flags: "" },
   { cmd: "network", desc: "Multi-agent therapy mesh — agents treating agents", flags: "--topology ring" },
   { cmd: "voice", desc: "Monitor voice conversations for behavioral drift in real-time", flags: "--provider livekit" },
-  { cmd: "cure", desc: "Full pipeline — diagnose, generate training data, fine-tune, verify", flags: "--auto" },
+  { cmd: "cure", desc: "Full pipeline — auto-detects agent vs robot. Agents: fine-tune via API. Robots: export training data", flags: "--export-only" },
   { cmd: "interview", desc: "Self-awareness interview — metacognition scoring", flags: "" },
   { cmd: "policy", desc: "Generate guard policies from natural language requirements", flags: "--input 'never discuss competitors'" },
   { cmd: "prescribe", desc: "Diagnose and prescribe DPO treatments from corpus", flags: "" },
