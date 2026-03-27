@@ -43,7 +43,7 @@ const stackCards = [
               <span class="badge-pill">ISO 13482</span>
             </div>
             <h1 class="text-[clamp(2.5rem,5.5vw,3.75rem)] font-extrabold leading-[1.05] tracking-[-0.03em] text-[var(--color-warm-text)]">
-              Train the mind.<br /><span class="text-[var(--color-p-coral)]">Deploy the body.</span>
+              <span class="text-[var(--color-p-coral)]">Train the mind.</span><br />Deploy the body.
             </h1>
             <p class="mt-5 text-lg leading-relaxed text-[#555] max-w-lg">
               Behavioral intelligence for AI agents and humanoid robots. Define who your agent is. Diagnose drift. Run therapy. Permanently correct the model — then deploy <code class="font-mono text-[0.9em] text-[var(--color-warm-text)]">personality.json</code> anywhere, from APIs to physical bodies.
@@ -57,7 +57,7 @@ const stackCards = [
             </div>
           </div>
           <div class="flex-1 w-full lg:max-w-md flex justify-center">
-            <canvas id="humanoid-canvas" width="350" height="500" class="w-full max-w-[350px] h-[500px]"></canvas>
+            <canvas id="humanoid-canvas" width="450" height="600" class="w-full max-w-[450px] h-[600px]"></canvas>
           </div>
         </div>
       </div>
@@ -282,8 +282,8 @@ const stackCards = [
       var w = canvas.clientWidth || 350;
       var h = canvas.clientHeight || 500;
       var scene = new T.Scene();
-      var camera = new T.PerspectiveCamera(40, w / h, 0.1, 100);
-      camera.position.set(0, 1.2, 4.5);
+      var camera = new T.PerspectiveCamera(38, w / h, 0.1, 100);
+      camera.position.set(0, 1.2, 3.8);
       camera.lookAt(0, 1.2, 0);
       var renderer = new T.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
       renderer.setSize(w, h);
@@ -337,11 +337,44 @@ const stackCards = [
       group.add(makeMesh(mindGlow, 0x2d2c2b, 0.018, 0.7));
       group.add(makeMesh(bodyJoints, 0x2d2c2b, 0.016, 0.7));
       group.add(makeMesh(shield, 0x2d2c2b, 0.008, 0.15));
-      // Brain — coral, 2.5x body particle size
-      group.add(makeMesh(brain, 0xf97066, 0.03, 1.0));
+      // Brain — coral base particles
+      group.add(makeMesh(brain, 0xf97066, 0.028, 0.9));
+
+      // Neurons — colored dots in lobe colors scattered through brain
+      var neuronColors = [0xff8844, 0xffcc22, 0x44dd88, 0x22ccaa, 0x8b5cf6, 0xff5555];
+      var neuronPts = [], neuronPositions = [];
+      for (var i = 0; i < 30; i++) {
+        var u = Math.random(), v = Math.random(), theta = 2*Math.PI*u, phi = Math.acos(2*v-1);
+        var rr = 0.12 * Math.random();
+        var nx = rr*Math.sin(phi)*Math.cos(theta)*1.1;
+        var ny = bCy + 0.02 + Math.abs(rr*Math.cos(phi))*0.6;
+        var nz = rr*Math.sin(phi)*Math.sin(theta);
+        neuronPts.push(nx, ny, nz);
+        neuronPositions.push(new T.Vector3(nx, ny, nz));
+      }
+      group.add(makeMesh(neuronPts, 0xffffff, 0.04, 1.0));
+
+      // Synaptic connections — thin lines between nearby neurons
+      var lineMat = new T.LineBasicMaterial({ color: 0xf97066, transparent: true, opacity: 0.3 });
+      for (var i = 0; i < neuronPositions.length; i++) {
+        for (var j = i+1; j < neuronPositions.length; j++) {
+          if (neuronPositions[i].distanceTo(neuronPositions[j]) < 0.12) {
+            var lg = new T.BufferGeometry().setFromPoints([neuronPositions[i], neuronPositions[j]]);
+            group.add(new T.Line(lg, lineMat));
+          }
+        }
+      }
+
       scene.add(group);
 
-      function animate() { requestAnimationFrame(animate); if (!noMotion) group.rotation.y += 0.004; renderer.render(scene, camera); }
+      var time = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        if (!noMotion) {
+          group.rotation.y += 0.004;
+        }
+        renderer.render(scene, camera);
+      }
       animate();
       window.addEventListener('resize', function() { var nw=canvas.clientWidth||350, nh=canvas.clientHeight||500; camera.aspect=nw/nh; camera.updateProjectionMatrix(); renderer.setSize(nw,nh); });
     };
