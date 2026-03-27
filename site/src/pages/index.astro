@@ -315,7 +315,7 @@ const stackCards = [
       // ─── Brain — coral hemisphere dome sitting on top of head ───
       var brain = [];
       // Generate sphere but only keep upper hemisphere (y > center)
-      var bCy = 2.33; // bottom of brain = head top area
+      var bCy = 2.27; // overlaps with head rim — no gap
       for (var i = 0; i < 1500; i++) {
         var u = Math.random(), v = Math.random(), theta = 2*Math.PI*u, phi = Math.acos(2*v-1);
         var rr = 0.15*(0.92+Math.random()*0.08);
