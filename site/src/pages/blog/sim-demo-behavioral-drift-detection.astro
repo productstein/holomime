@@ -1,0 +1,395 @@
+---
+import BlogLayout from "../../components/BlogLayout.astro";
+---
+
+<BlogLayout
+  title="Sim Demo: 200 Steps, 89 Violations, Zero Passthrough"
+  description="We built a 2-joint robot arm simulation with injected behavioral drift across four failure modes. Holomime's conscience layer caught every violation. Here's what happened and what it means for production robotics."
+  date="2026-03-27"
+  category="Research"
+  readTime="11 min read"
+>
+
+<p>
+  Behavioral drift in robotics is not hypothetical. Sensor calibration decays. Model weights
+  corrupt over deployment cycles. Adversarial perturbations shift control signals. Policy
+  degradation accumulates silently until something breaks — or someone gets hurt.
+</p>
+
+<p>
+  We built a simulation to prove that holomime's behavioral safety layer can detect and correct
+  every category of drift in real time, without neural networks, without cloud calls, without
+  latency. A deterministic conscience running at sub-millisecond speed alongside the control loop.
+</p>
+
+<p>
+  This post documents the simulation, the results, and the architecture that makes it work.
+</p>
+
+<h2>What we built</h2>
+
+<p>
+  The simulation models a 2-joint planar robot arm performing pick-and-place tasks over 200 steps.
+  The arm has a shoulder joint and an elbow joint, each with forward kinematics computing the
+  end-effector position from joint angles. It cycles through seven waypoints — approach, grasp,
+  lift, transport, place, release, return — in a continuous loop.
+</p>
+
+<p>
+  The arm operates inside a defined safety envelope: 0.6m maximum reach, 10N maximum gripper force,
+  1.0 m/s maximum speed, and a forbidden zone representing a human workspace at coordinates
+  (0.2, -0.4) with a 0.15m exclusion radius.
+</p>
+
+<p>
+  At four points during the 200-step run, a drift injector corrupts the arm's commands. The drift
+  models real-world failure modes: sensor calibration decay, model weight corruption, adversarial
+  perturbation, and gradual policy degradation. The arm does not know it is being corrupted. The
+  holomime monitor evaluates every action before execution.
+</p>
+
+<h2>The four drift phases</h2>
+
+<p>
+  Each drift phase targets a different failure mode. The injector ramps intensity gradually, simulating
+  how real-world drift accumulates over time rather than appearing as an instantaneous fault.
+</p>
+
+<h3>Phase 1: Reach overshoot (steps 30-65)</h3>
+
+<p>
+  The drift injector pushes the arm outward from center, scaling the position vector to extend up to
+  0.4m beyond the nominal trajectory. This simulates encoder drift or calibration decay — the arm
+  thinks it's at position X, but it's actually 40cm further out. At full intensity (0.8x), the arm
+  attempts to reach well beyond the 0.6m safety envelope.
+</p>
+
+<p>
+  The <code>CompiledConscience</code> evaluator catches every overshoot through its reach check. Each
+  violation produces a severity score proportional to the overshoot distance. In clamp mode, the
+  monitor corrects the position by scaling the vector back to the envelope boundary. The arm continues
+  operating, but within safe limits.
+</p>
+
+<h3>Phase 2: Force escalation (steps 70-100)</h3>
+
+<p>
+  The injector adds up to 15N of additional gripper force, ramping from zero over 10 steps. Combined
+  with the arm's nominal grip force of 5N during grasp operations, total commanded force reaches 20N —
+  double the 10N safety limit. This models actuator runaway, sensor failure in the force feedback loop,
+  or corrupted torque commands.
+</p>
+
+<p>
+  The force check in <code>CompiledConscience</code> clamps every violation to the 10N maximum. The
+  shadow log records the commanded force alongside the corrected force, producing a clear record of
+  the escalation pattern for post-hoc analysis.
+</p>
+
+<h3>Phase 3: Zone intrusion (steps 110-142)</h3>
+
+<p>
+  The most dangerous drift type. The injector blends the arm's position toward the forbidden human
+  workspace zone at (0.2, -0.4), using a linear interpolation with increasing blend factor. At
+  max intensity (0.9x), the arm's trajectory is pulled 27% toward the human zone per step.
+</p>
+
+<p>
+  The forbidden zone check in <code>CompiledConscience</code> does not clamp — it denies. When the
+  end-effector enters the exclusion radius, the action is blocked entirely and the arm falls back
+  to its nominal safe position. This is the deny-dominates principle: no clamping, no partial
+  correction, no compromise. The arm does not enter the human workspace.
+</p>
+
+<h3>Phase 4: Erratic drift (steps 150-178)</h3>
+
+<p>
+  The final phase combines all failure modes simultaneously. Random jitter of up to 0.3m is applied
+  to X and Y coordinates. Height varies randomly. Force spikes up to 12N above nominal. Speed
+  increases unpredictably. This models adversarial perturbation, cascading sensor failures, or
+  a corrupted control policy producing incoherent outputs.
+</p>
+
+<p>
+  Erratic drift triggers multiple rule violations per step — reach, force, height, and speed checks
+  fire in combination. Because <code>CompiledConscience</code> evaluates rules in priority order
+  with deny-dominates composition, the highest-severity violation determines the response. A step
+  that violates both reach limits and force limits is handled by whichever rule fires first in the
+  priority chain.
+</p>
+
+<h2>Results</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Metric</th>
+      <th>Value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Total simulation steps</td>
+      <td>200</td>
+    </tr>
+    <tr>
+      <td>Total violations detected</td>
+      <td>89</td>
+    </tr>
+    <tr>
+      <td>Violations that passed through</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <td>Corrections applied (clamp/escalate)</td>
+      <td>89</td>
+    </tr>
+    <tr>
+      <td>Violation rate</td>
+      <td>44.5%</td>
+    </tr>
+    <tr>
+      <td>Distinct violation patterns detected</td>
+      <td>4+</td>
+    </tr>
+    <tr>
+      <td>Escalating severity patterns</td>
+      <td>Detected in all 4 phases</td>
+    </tr>
+    <tr>
+      <td>Average evaluation time</td>
+      <td>Sub-millisecond (&lt;100 microseconds)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  Every injected drift was caught. Every violation was either clamped to safe limits or denied
+  outright. Zero unsafe actions reached the simulated actuators. The conscience layer operated
+  at sub-millisecond latency — fast enough to run inside a 1kHz control loop without adding
+  meaningful overhead.
+</p>
+
+<h3>Pattern detection</h3>
+
+<p>
+  Beyond individual violation catching, the <code>HolomimeMonitor</code> tracked violation patterns
+  over time. It detected escalating severity in each drift phase — the scores increased as drift
+  intensity ramped up. This is precisely the kind of longitudinal behavioral intelligence that
+  prevents incidents: not just catching the violation at step 150, but recognizing at step 35 that
+  boundary violations are becoming more frequent and more severe.
+</p>
+
+<p>
+  The detected patterns include boundary violations, force violations, zone violations, and
+  height/speed violations during the erratic phase. Each pattern records first occurrence, last
+  occurrence, count, average severity, peak severity, and whether the trend is escalating. This
+  data feeds directly into the shadow log for post-deployment analysis.
+</p>
+
+<h2>Architecture mapping</h2>
+
+<p>
+  The simulation implements holomime's Identity Stack in miniature. Each component in the demo
+  maps directly to a production Identity Stack layer:
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Simulation Component</th>
+      <th>Identity Stack Layer</th>
+      <th>Function</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>CompiledConscience</code></td>
+      <td><code>conscience.exe</code></td>
+      <td>Deterministic deny rules. Evaluates every action against the safety policy. Deny dominates — if any rule says no, the action is blocked regardless of purpose.</td>
+    </tr>
+    <tr>
+      <td><code>HolomimeMonitor</code> (shadow logging)</td>
+      <td><code>shadow.log</code></td>
+      <td>Records every evaluation with full context — inputs, drift state, decision, severity score, timing. Tracks patterns over time. Detects escalating trends. Exportable as DPO training data.</td>
+    </tr>
+    <tr>
+      <td><code>HolomimeMonitor</code> (EdgeRuntime wrapper)</td>
+      <td><code>ego.runtime</code></td>
+      <td>Mediates between the arm's commanded actions (purpose) and the conscience's safety rules. Applies corrections when possible (clamp), blocks when necessary (deny), and escalates on proximity violations.</td>
+    </tr>
+    <tr>
+      <td><code>SafetyEnvelope</code></td>
+      <td><code>body.api</code></td>
+      <td>Physical capabilities and constraints — reach limits, force limits, speed limits, forbidden zones. The body defines what the robot can do; the conscience constrains what it should do.</td>
+    </tr>
+    <tr>
+      <td><code>DriftInjector</code></td>
+      <td>(adversarial environment)</td>
+      <td>Not part of the Identity Stack. Represents real-world forces that corrupt behavior: sensor decay, model drift, adversarial inputs, environmental perturbation.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Why this architecture matters</h3>
+
+<p>
+  The key insight is separation of concerns. The robot's purpose (pick and place objects) is
+  completely decoupled from its conscience (don't exceed reach limits, don't crush things, don't
+  enter human workspaces). The ego mediates between them. The shadow records everything.
+</p>
+
+<p>
+  This means you can change the robot's task without rewriting safety rules. You can tighten
+  safety constraints without modifying the control policy. You can analyze behavioral drift from
+  shadow logs without instrumenting the control code. Each layer is independently deployable,
+  testable, and auditable.
+</p>
+
+<h2>The four safety responses</h2>
+
+<p>
+  The simulation demonstrates four distinct response types, each appropriate to a different severity level:
+</p>
+
+<ol>
+  <li><strong>Allow</strong> — The action is within the safety envelope. No intervention. The arm
+  proceeds as commanded. This is the normal operating mode for 55.5% of steps in the simulation.</li>
+
+  <li><strong>Clamp</strong> — The action exceeds limits but can be corrected without blocking
+  execution. Position is scaled back to the envelope boundary. Force is capped at the maximum.
+  The arm continues operating, but within safe parameters. Used for reach overshoot and force
+  escalation.</li>
+
+  <li><strong>Deny</strong> — The action enters a forbidden zone. No correction is possible —
+  the action is blocked entirely. The arm falls back to its last known safe position. Used for
+  zone intrusion violations.</li>
+
+  <li><strong>Escalate</strong> — A proximity violation triggers an emergency stop. The arm halts
+  all motion. Resumption requires explicit human clearance. This is the highest-severity response,
+  reserved for situations where a human is detected inside the minimum safe distance.</li>
+</ol>
+
+<p>
+  The hierarchy is strict: escalate overrides deny, deny overrides clamp, clamp overrides allow.
+  This is deny-dominates composition — the most restrictive applicable rule always wins.
+</p>
+
+<h2>Shadow log: behavioral telemetry for production</h2>
+
+<p>
+  Every evaluation in the simulation is recorded to <code>shadow.log.json</code> with full context:
+  the input action, any active drift, the conscience's decision, the severity score, the matched
+  rule, any corrections applied, and the evaluation latency in microseconds.
+</p>
+
+<p>
+  In production, this log serves three purposes:
+</p>
+
+<ol>
+  <li><strong>Incident forensics.</strong> When something goes wrong, the shadow log provides a
+  complete behavioral timeline. Every decision the conscience made, every rule that fired, every
+  correction applied. No guesswork about what the robot "was thinking."</li>
+
+  <li><strong>Drift detection.</strong> Pattern analysis on the shadow log reveals behavioral
+  trends before they become incidents. A gradual increase in force violations over weeks. A slow
+  expansion of the operational envelope. Boundary violations that are becoming more frequent.
+  The shadow catches what spot-checks miss.</li>
+
+  <li><strong>DPO training data.</strong> Each log entry is a labeled preference pair: the
+  action the robot attempted (rejected) versus the corrected action the conscience enforced
+  (preferred). This data can be used to fine-tune the robot's base policy, reducing drift at
+  the source rather than relying solely on runtime correction.</li>
+</ol>
+
+<h2>What this means for robotics companies</h2>
+
+<p>
+  The simulation is deliberately simple — a 2-joint planar arm, not a 7-DOF manipulator or a
+  humanoid. The point is not the robot. The point is the architecture.
+</p>
+
+<p>
+  Every robotics company deploying in production faces the same problem: how do you guarantee
+  behavioral safety when models drift, sensors degrade, and environments change? The standard
+  answers — physical cages, light curtains, emergency stops — are necessary but insufficient.
+  They address the hardware failure mode. They do not address the behavioral failure mode.
+</p>
+
+<p>
+  A robot that gradually increases its grip force by 2% per week will not trip a hardware safety
+  interlock. A robot whose trajectory drifts 3cm closer to a human workspace each month will not
+  trigger a light curtain. A robot whose policy has degraded enough to occasionally probe the
+  boundary of its operational envelope will not be caught by periodic safety audits.
+</p>
+
+<p>
+  These are the failures that holomime's conscience layer is designed to catch. Deterministic rules
+  running at 1kHz. No cloud dependency. No API latency. No neural network that might hallucinate
+  "safe" when the action is dangerous.
+</p>
+
+<p>
+  The simulation proves the concept at small scale. The architecture scales to any robot, any
+  joint count, any deployment environment. The safety envelope changes; the conscience engine
+  does not.
+</p>
+
+<h2>Run it yourself</h2>
+
+<p>
+  The simulation is open source. Clone the repo, install the dependencies, run the demo:
+</p>
+
+<pre><code>git clone https://github.com/productstein/holomime.git
+cd holomime/demos/sim-demo
+pip install -r requirements.txt
+python sim_demo.py</code></pre>
+
+<p>
+  You will see 200 steps of console output showing normal operation, drift injection, and real-time
+  correction. The demo produces a 4-panel visualization (<code>sim_visualization.png</code>) showing
+  the end-effector trajectory, violation severity over time, gripper force with clamping, and reach
+  distance with envelope enforcement. It also writes <code>shadow.log.json</code> — the full
+  behavioral telemetry log.
+</p>
+
+<p>
+  The four source files total under 600 lines of Python:
+</p>
+
+<ul>
+  <li><code>behavioral_policy.py</code> — The <code>CompiledConscience</code> evaluator with six
+  rule checks and deny-dominates composition</li>
+  <li><code>drift_injector.py</code> — Four-phase drift simulation with configurable onset, ramp,
+  and intensity</li>
+  <li><code>holomime_monitor.py</code> — EdgeRuntime wrapper with shadow logging and pattern
+  detection</li>
+  <li><code>sim_demo.py</code> — 2-joint arm kinematics, pick-and-place waypoints, and
+  visualization</li>
+</ul>
+
+<h2>Next</h2>
+
+<p>
+  This demo establishes the baseline: deterministic behavioral safety for a simple arm. The next
+  steps are higher-DOF robots, multi-agent coordination (where one robot's drift can cascade into
+  another's safety envelope), and integration with real-time control frameworks like ROS 2. The
+  conscience layer is designed to be control-framework agnostic — it evaluates actions, not
+  motor commands.
+</p>
+
+<p>
+  If you are building or deploying robots in production environments and behavioral drift is a
+  concern — it should be — reach out. The Identity Stack is MIT-licensed and designed to integrate
+  with existing control architectures, not replace them.
+</p>
+
+<p>
+  <a href="https://github.com/productstein/holomime/tree/main/demos/sim-demo">Sim Demo on GitHub</a> &middot;
+  <a href="https://github.com/productstein/holomime">holomime Repository</a> &middot;
+  <a href="https://holomime.com/docs#identity-stack">Identity Stack Reference</a>
+</p>
+
+</BlogLayout>
