@@ -26,11 +26,12 @@ const dropdowns = [
   {
     label: "Research",
     items: [
+      { name: "Whitepaper", desc: "Technical architecture", href: "/whitepaper" },
+      { name: "Papers & Findings", desc: "Published research", href: "/research" },
       { name: "Blog", desc: "Updates and case studies", href: "/blog" },
       { name: "Benchmarks", desc: "Adversarial stress tests", href: "/benchmarks" },
-      { name: "Whitepaper", desc: "Technical architecture", href: "/whitepaper" },
       { name: "Manifesto", desc: "Why behavioral intelligence", href: "/manifesto" },
-      { name: "Research", desc: "Papers and findings", href: "/research" },
+      { name: "Lab", desc: "Join the research lab", href: "https://discord.gg/S77M2NU9mM" },
     ],
   },
 ];
@@ -55,7 +56,7 @@ const dropdowns = [
           <div class="nav-dropdown-panel absolute left-0 top-full pt-2 opacity-0 invisible pointer-events-none transition-all duration-150">
             <div class="w-[260px] rounded-xl border border-[#eee] bg-white p-2 shadow-lg shadow-black/5">
               {dd.items.map((item) => (
-                <a href={item.href} class="flex flex-col gap-0.5 rounded-lg px-3 py-2.5 transition-colors hover:bg-[#f8f8f8]">
+                <a href={item.href} class="flex flex-col gap-0.5 rounded-lg px-3 py-2.5 transition-colors hover:bg-[#f8f8f8]" {...(item.href.startsWith('http') ? { target: '_blank', rel: 'noopener' } : {})}>
                   <span class="text-[13px] font-medium text-[#1a1a1a]">{item.name}</span>
                   <span class="text-[11px] text-[#999]">{item.desc}</span>
                 </a>
@@ -64,8 +65,7 @@ const dropdowns = [
           </div>
         </div>
       ))}
-      <a href="/docs" class="px-3 py-2 text-[13px] font-medium text-[#555] rounded-md transition-colors hover:text-[#1a1a1a] hover:bg-[#f5f5f5]">Docs</a>
-      <a href="https://discord.gg/S77M2NU9mM" target="_blank" rel="noopener" class="px-3 py-2 text-[13px] font-medium text-[#555] rounded-md transition-colors hover:text-[#1a1a1a] hover:bg-[#f5f5f5]">Lab</a>
+      <a href="/docs" class="px-3 py-2 text-[13px] font-medium text-[#555] rounded-md transition-colors hover:text-[#1a1a1a] hover:bg-[#f5f5f5]">Documentation</a>
     </div>
 
     <!-- Right actions -->
