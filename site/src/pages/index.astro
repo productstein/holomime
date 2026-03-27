@@ -297,8 +297,8 @@ const stackCards = [
       function ring(arr, cx, cy, cz, r, n) { for (var i = 0; i < n; i++) { var a = (i/n)*Math.PI*2+Math.random()*0.1, rr = r*(0.95+Math.random()*0.1); arr.push(cx+rr*Math.cos(a), cy+(Math.random()-0.5)*0.01, cz+rr*Math.sin(a)); } }
       function boxS(arr, cx, cy, cz, bw, bh, bd, n) { for (var i = 0; i < n; i++) { var face = Math.floor(Math.random()*6), u = Math.random()-0.5, v = Math.random()-0.5; if(face===0) arr.push(cx+bw/2,cy+u*bh,cz+v*bd); else if(face===1) arr.push(cx-bw/2,cy+u*bh,cz+v*bd); else if(face===2) arr.push(cx+u*bw,cy+bh/2,cz+v*bd); else if(face===3) arr.push(cx+u*bw,cy-bh/2,cz+v*bd); else if(face===4) arr.push(cx+u*bw,cy+v*bh,cz+bd/2); else arr.push(cx+u*bw,cy+v*bh,cz-bd/2); } }
 
-      // Body parts — full head
-      sph(base,0,2.15,0,0.20,600);
+      // Body parts — head with open top for brain
+      for (var i = 0; i < 500; i++) { var u=Math.random(),v=Math.random(),theta=2*Math.PI*u,phi=Math.acos(2*v-1),rr=0.20*(0.92+Math.random()*0.08),py=2.15+rr*Math.cos(phi); if(py<2.25) base.push(rr*Math.sin(phi)*Math.cos(theta),py,rr*Math.sin(phi)*Math.sin(theta)); }
       ring(base,0,2.15,0,0.21,40); sph(base,-0.07,2.18,0.16,0.035,60); sph(base,0.07,2.18,0.16,0.035,60); sph(base,0,2.02,0.08,0.06,40);
       cylS(base,0,1.90,0,0.065,0.10,120); ring(base,0,1.95,0,0.07,30); ring(base,0,1.85,0,0.07,30);
       sph(base,-0.32,1.78,0,0.08,150); sph(base,0.32,1.78,0,0.08,150); cylS(base,0,1.78,0,0.04,0.02,60); boxS(base,-0.15,1.78,0,0.30,0.04,0.08,80); boxS(base,0.15,1.78,0,0.30,0.04,0.08,80);
