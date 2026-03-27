@@ -313,32 +313,28 @@ const stackCards = [
       sph(base,-0.13,0.62,0,0.065,140); sph(base,0.13,0.62,0,0.065,140); ring(base,-0.13,0.62,0,0.07,30); ring(base,0.13,0.62,0,0.07,30);
       cylS(base,-0.13,0.40,0,0.055,0.38,220); cylS(base,0.13,0.40,0,0.055,0.38,220); ring(base,-0.13,0.50,0,0.06,25); ring(base,0.13,0.50,0,0.06,25); ring(base,-0.13,0.32,0,0.06,25); ring(base,0.13,0.32,0,0.06,25);
       boxS(base,-0.13,0.17,0.03,0.10,0.05,0.16,120); boxS(base,0.13,0.17,0.03,0.10,0.05,0.16,120); boxS(base,-0.13,0.16,0.10,0.08,0.03,0.04,30); boxS(base,0.13,0.16,0.10,0.08,0.03,0.04,30);
-      // ─── 3D Brain mesh — simplified NeuralSpace brain ───
-      var brainGeo = new T.SphereGeometry(1, 32, 24, 0, Math.PI * 2, 0, Math.PI * 0.55);
-      var pos = brainGeo.attributes.position;
-      var colors = new Float32Array(pos.count * 3);
-      var lobeC = { frontal: [1.0,0.53,0.27], parietal: [1.0,0.8,0.13], temporal: [0.27,0.87,0.53], occipital: [1.0,0.33,0.33], cerebellum: [0.13,0.8,0.67] };
-      for (var i = 0; i < pos.count; i++) {
-        var x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
-        x *= 1.2; y *= 0.75; // squash into ellipsoid
-        // Central fissure
-        var fd = 0.15 * Math.exp(-x*x*60) * Math.max(0, y + 0.3);
-        y -= fd;
-        // Sulci wrinkles
-        var ang = Math.atan2(z, x), r = Math.sqrt(x*x+y*y+z*z);
-        var sulci = 0.04 * Math.sin(ang*8 + y*6) + 0.025 * Math.sin(ang*14 - y*10);
-        if (r > 0.01) { x += sulci*x/r; y += sulci*y/r; z += sulci*z/r; }
-        pos.setXYZ(i, x, y, z);
-        // Lobe coloring
-        var c = z > 0.25 ? lobeC.frontal : z < -0.3 ? lobeC.occipital : y > 0.3 ? lobeC.parietal : lobeC.temporal;
-        colors[i*3] = c[0]; colors[i*3+1] = c[1]; colors[i*3+2] = c[2];
+      // ─── Brain — coral particles sitting on top of open head ───
+      var brain = [];
+      // Upper hemisphere dome — wrinkled brain shape
+      for (var i = 0; i < 1200; i++) {
+        var theta = Math.acos(Math.random()); // 0 to PI/2 — upper hemisphere only
+        var phi = Math.random() * Math.PI * 2;
+        var rr = 0.16 * (0.88 + Math.random() * 0.12);
+        // Wrinkle displacement for brain folds
+        rr *= 1.0 + 0.06 * Math.sin(theta * 9) * Math.cos(phi * 7) + 0.03 * Math.sin(theta * 15 + phi * 11);
+        var x = rr * Math.sin(theta) * Math.cos(phi);
+        var y = 2.32 + rr * Math.cos(theta) * 0.65; // squash vertically, center at 2.32
+        var z = rr * Math.sin(theta) * Math.sin(phi);
+        // Central fissure — indent along x=0
+        y -= 0.03 * Math.exp(-x * x * 400);
+        brain.push(x * 1.15, y, z); // widen slightly
       }
-      brainGeo.setAttribute('color', new T.BufferAttribute(colors, 3));
-      brainGeo.computeVertexNormals();
-      var brainMat = new T.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.95, side: T.DoubleSide });
-      var brainMesh = new T.Mesh(brainGeo, brainMat);
-      brainMesh.scale.set(0.18, 0.18, 0.18);
-      brainMesh.position.set(0, 2.32, 0);
+      // Fill interior for volume
+      for (var i = 0; i < 300; i++) {
+        var u = Math.random(), v = Math.random(), theta = 2*Math.PI*u, phi = Math.acos(v); // upper only
+        var rr = 0.10 * Math.random();
+        brain.push(rr*Math.sin(phi)*Math.cos(theta)*1.15, 2.34+rr*Math.cos(phi)*0.5, rr*Math.sin(phi)*Math.sin(theta));
+      }
 
       // Glow layers
       sph(soulGlow,0,2.15,0,0.12,80);
@@ -353,12 +349,11 @@ const stackCards = [
       group.add(makeMesh(mindGlow, 0x2d2c2b, 0.018, 0.7));
       group.add(makeMesh(bodyJoints, 0x2d2c2b, 0.016, 0.7));
       group.add(makeMesh(shield, 0x2d2c2b, 0.008, 0.15));
-      // Add brain mesh to group
-      group.add(brainMesh);
+      // Brain — coral particles, 1.5x larger than body
+      group.add(makeMesh(brain, 0xf97066, 0.018, 0.9));
       scene.add(group);
 
-      var time = 0;
-      function animate() { requestAnimationFrame(animate); if (!noMotion) { group.rotation.y += 0.004; time += 0.02; var pulse = 1.0 + 0.015 * Math.sin(time * 1.5); brainMesh.scale.set(0.18*pulse, 0.18*pulse, 0.18*pulse); } renderer.render(scene, camera); }
+      function animate() { requestAnimationFrame(animate); if (!noMotion) group.rotation.y += 0.004; renderer.render(scene, camera); }
       animate();
       window.addEventListener('resize', function() { var nw=canvas.clientWidth||350, nh=canvas.clientHeight||500; camera.aspect=nw/nh; camera.updateProjectionMatrix(); renderer.setSize(nw,nh); });
     };
