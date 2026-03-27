@@ -53,11 +53,18 @@ export function detectProvider(): { provider: string; model: string; apiKey?: st
     if (existsSync(configPath)) {
       const config = JSON.parse(readFileSync(configPath, "utf-8"));
       if (config.provider && config.apiKey) {
-        // Set the env var so downstream code can use it
+        // Set env vars so downstream code can use them
         if (config.provider === "anthropic") {
           process.env.ANTHROPIC_API_KEY = config.apiKey;
         } else if (config.provider === "openai") {
           process.env.OPENAI_API_KEY = config.apiKey;
+        }
+        // Also load additional keys if present
+        if (config.openaiKey && !process.env.OPENAI_API_KEY) {
+          process.env.OPENAI_API_KEY = config.openaiKey;
+        }
+        if (config.hfToken && !process.env.HF_TOKEN) {
+          process.env.HF_TOKEN = config.hfToken;
         }
 
         const defaultModel = config.provider === "anthropic"

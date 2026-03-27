@@ -111,13 +111,54 @@ export async function cureCommand(options: CureOptions): Promise<void> {
     printHeader("Cure \u2014 End-to-End Behavioral Fix");
   }
 
-  const provider = options.provider;
+  // ─── Graceful provider/key detection ────────────────────
+  // Load keys from config if not in env
+  try {
+    const { loadConfig } = await import("./config.js");
+    const cfg = loadConfig();
+    if (cfg) {
+      if (cfg.provider === "anthropic" && cfg.apiKey && !process.env.ANTHROPIC_API_KEY) {
+        process.env.ANTHROPIC_API_KEY = cfg.apiKey;
+      }
+      if (cfg.provider === "openai" && cfg.apiKey && !process.env.OPENAI_API_KEY) {
+        process.env.OPENAI_API_KEY = cfg.apiKey;
+      }
+      if (cfg.openaiKey && !process.env.OPENAI_API_KEY) {
+        process.env.OPENAI_API_KEY = cfg.openaiKey;
+      }
+      if (cfg.hfToken && !process.env.HF_TOKEN) {
+        process.env.HF_TOKEN = cfg.hfToken;
+      }
+    }
+  } catch { /* config not available */ }
+
+  let provider = options.provider;
+
+  // If no training key available, gracefully fall back to export-only
+  const hasOpenAIKey = !!process.env.OPENAI_API_KEY;
+  const hasHFToken = !!process.env.HF_TOKEN;
+
+  if (!isRobotFlow && provider === "openai" && !hasOpenAIKey) {
+    if (hasHFToken) {
+      provider = "huggingface";
+      console.log(chalk.dim("  No OpenAI key found. Using HuggingFace for training."));
+    } else {
+      // No training key at all — fall back to export-only
+      console.log(chalk.dim("  No training provider key found. Exporting training data only."));
+      console.log(chalk.dim("  Run ") + chalk.cyan("holomime config") + chalk.dim(" to add keys for fine-tuning."));
+      console.log();
+      options.skipTrain = true;
+      options.skipVerify = true;
+    }
+  }
+
   if (provider !== "openai" && provider !== "huggingface") {
-    console.error(
-      chalk.red(`  Unsupported provider: ${provider}. Supported: openai, huggingface`),
-    );
-    process.exit(1);
-    return;
+    // Default to openai if provider is something else (like anthropic/ollama from auto-detect)
+    provider = "openai";
+    if (!hasOpenAIKey) {
+      options.skipTrain = true;
+      options.skipVerify = true;
+    }
   }
 
   // Validate inputs
@@ -174,22 +215,20 @@ export async function cureCommand(options: CureOptions): Promise<void> {
     console.log();
   }
 
-  // API key validation
-  if (provider === "openai") {
-    const apiKey = process.env.OPENAI_API_KEY ?? "";
-    if (!apiKey) {
-      console.error(chalk.red("  OPENAI_API_KEY environment variable is required for OpenAI training."));
-      console.log(chalk.dim("  Set it with: export OPENAI_API_KEY=sk-..."));
-      process.exit(1);
-      return;
-    }
-  } else if (provider === "huggingface") {
-    const token = process.env.HF_TOKEN ?? process.env.HUGGING_FACE_HUB_TOKEN ?? "";
-    if (!token) {
-      console.error(chalk.red("  HF_TOKEN environment variable is required for HuggingFace training."));
-      console.log(chalk.dim("  Set it with: export HF_TOKEN=hf_..."));
-      process.exit(1);
-      return;
+  // API key validation — graceful fallback to export-only if missing
+  if (!options.skipTrain) {
+    if (provider === "openai" && !process.env.OPENAI_API_KEY) {
+      console.log(chalk.dim("  No OpenAI key configured. Switching to export-only mode."));
+      console.log(chalk.dim("  Run ") + chalk.cyan("holomime config") + chalk.dim(" to add an OpenAI key for fine-tuning."));
+      console.log();
+      options.skipTrain = true;
+      options.skipVerify = true;
+    } else if (provider === "huggingface" && !(process.env.HF_TOKEN ?? process.env.HUGGING_FACE_HUB_TOKEN)) {
+      console.log(chalk.dim("  No HuggingFace token configured. Switching to export-only mode."));
+      console.log(chalk.dim("  Run ") + chalk.cyan("holomime config") + chalk.dim(" to add a HuggingFace token."));
+      console.log();
+      options.skipTrain = true;
+      options.skipVerify = true;
     }
   }
 

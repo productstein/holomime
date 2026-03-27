@@ -22,6 +22,8 @@ export interface HolomimeConfig {
   provider: string;
   apiKey: string;
   model?: string;
+  openaiKey?: string;
+  hfToken?: string;
 }
 
 // ─── Config Path ────────────────────────────────────────────
@@ -70,12 +72,19 @@ export async function configCommand(options: ConfigOptions): Promise<void> {
   if (options.show) {
     const config = loadConfig();
     if (config) {
-      console.log(chalk.dim("  Provider:  ") + chalk.cyan(config.provider));
-      console.log(chalk.dim("  API Key:   ") + chalk.cyan(config.apiKey.slice(0, 12) + "..." + config.apiKey.slice(-4)));
-      if (config.model) {
-        console.log(chalk.dim("  Model:     ") + chalk.cyan(config.model));
+      const mask = (k: string) => k.slice(0, 8) + "..." + k.slice(-4);
+      console.log(chalk.dim("  Provider:     ") + chalk.cyan(config.provider));
+      console.log(chalk.dim("  API Key:      ") + chalk.cyan(mask(config.apiKey)));
+      if (config.openaiKey) {
+        console.log(chalk.dim("  OpenAI Key:   ") + chalk.cyan(mask(config.openaiKey)));
       }
-      console.log(chalk.dim("  Config:    ") + getConfigPath());
+      if (config.hfToken) {
+        console.log(chalk.dim("  HF Token:     ") + chalk.cyan(mask(config.hfToken)));
+      }
+      if (config.model) {
+        console.log(chalk.dim("  Model:        ") + chalk.cyan(config.model));
+      }
+      console.log(chalk.dim("  Config:       ") + getConfigPath());
     } else {
       console.log(chalk.yellow("  No config found. Run `holomime config` to set up."));
     }
@@ -147,11 +156,27 @@ export async function configCommand(options: ConfigOptions): Promise<void> {
     }
 
     const config: HolomimeConfig = { provider, apiKey };
+
+    // Ask for additional keys
+    console.log();
+    if (provider === "anthropic") {
+      console.log(chalk.dim("  Optional: OpenAI key for fine-tuning (press enter to skip)"));
+      const openaiKey = (await ask("  OpenAI Key (sk-...): ")).trim();
+      if (openaiKey) config.openaiKey = openaiKey;
+    }
+
+    console.log(chalk.dim("  Optional: HuggingFace token for dataset export (press enter to skip)"));
+    const hfToken = (await ask("  HF Token (hf_...): ")).trim();
+    if (hfToken) config.hfToken = hfToken;
+
     saveConfig(config);
 
     console.log();
     console.log(chalk.green("  Config saved!"));
     console.log(chalk.dim(`  Location: ${getConfigPath()}`));
+    if (provider === "anthropic" && !config.openaiKey) {
+      console.log(chalk.dim("  Note: Add an OpenAI key later for fine-tuning: holomime config"));
+    }
     console.log();
     printNextSteps();
 

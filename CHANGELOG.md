@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.5.0] - 2026-03-26
+
+### Added
+- Multi-key config: `holomime config` now accepts Anthropic + OpenAI + HuggingFace keys in one setup
+- Graceful cure fallbacks: `holomime cure` never blocks — exports training data even with zero API keys configured
+- Flywheel on homepage: "Every agent we train makes every robot safer"
+
+### Changed
+- `cure` loads API keys from `~/.holomime/config.json` (no more manual env var exports)
+- `config --show` displays all configured keys (masked)
+
 ## [3.4.0] - 2026-03-26
 
 ### Added

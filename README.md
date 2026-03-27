@@ -93,6 +93,9 @@ holomime benchmark    # Verify the fix
 # Your team trains on your own infrastructure. We generate the data.
 holomime cure --export-only  # Explicit export-only mode
 
+# No API keys? cure still works — exports training data locally.
+# Add keys later with: holomime config
+
 # Start autonomous therapy
 holomime therapy         # Mira runs continuous therapy cycles
 holomime therapy status  # How's Mira doing?
