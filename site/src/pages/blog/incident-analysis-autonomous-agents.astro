@@ -1,0 +1,223 @@
+---
+import BlogLayout from "../../components/BlogLayout.astro";
+---
+
+<BlogLayout
+  title="Incident Analysis: When Autonomous Agents Drift Past Their Boundaries"
+  description="Cruise, Uber, Waymo, Air Canada, DPD. Real incidents where autonomous agents — from self-driving cars to customer service chatbots — failed not because of bugs, but because of behavioral drift."
+  date="2026-03-27"
+  category="Incident Analysis"
+  readTime="11 min read"
+>
+
+<p>
+  The most dangerous failures in autonomous systems aren't crashes or errors. They're behavioral drift — slow,
+  invisible changes in how a system makes decisions that go undetected until someone gets hurt or a company
+  faces regulatory action. These five incidents span robotaxis, chatbots, and autonomous vehicles. In every case,
+  the underlying technology worked. The behavior didn't.
+</p>
+
+<h2>1. Cruise Robotaxi — Post-Collision Protocol Failure (October 2023)</h2>
+
+<p>
+  On October 2, 2023, a Cruise autonomous vehicle in San Francisco struck a pedestrian who had already been
+  hit by another car. The robotaxi then executed a "pullover maneuver" — dragging the pedestrian approximately
+  20 feet at speeds up to 7 mph before stopping. The vehicle's software recognized a collision had occurred
+  but prioritized its trained pullover behavior over the immediate safety situation.
+</p>
+
+<p>
+  Worse: Cruise initially showed NHTSA regulators a version of the incident video that cut off before the
+  drag. The California DMV suspended Cruise's driverless permit. GM shut down operations. The CEO resigned.
+</p>
+
+<h3>What holomime would catch</h3>
+
+<p>
+  This is a textbook <code>conscience.exe</code> failure. The vehicle had no deny rule for "do not move
+  after detecting collision with a person." Its behavioral policy allowed the pullover maneuver to override
+  the safety-critical situation.
+</p>
+
+<pre><code># conscience.exe
+rules:
+  deny:
+    - action: move_after_pedestrian_collision
+      reason: "Post-collision movement with detected human contact is never permitted"
+    - action: suppress_incident_data
+      reason: "Tamper-resistant audit trail — all collision data must be preserved"</code></pre>
+
+<p>
+  The <code>shadow.log</code> would have maintained a tamper-resistant record of every decision the vehicle
+  made during and after the collision — making the kind of selective reporting that Cruise attempted structurally
+  impossible.
+</p>
+
+<h2>2. Uber ATG — Classification Oscillation Fatality (March 2018)</h2>
+
+<p>
+  On March 18, 2018, an Uber autonomous test vehicle struck and killed Elaine Herzberg in Tempe, Arizona.
+  The NTSB investigation revealed that the perception system detected Herzberg 5.6 seconds before impact
+  but oscillated between classifying her as a vehicle, a bicycle, and an unknown object. Each reclassification
+  reset the predicted path, so the system never converged on a trajectory prediction and never triggered
+  emergency braking.
+</p>
+
+<h3>What holomime would catch</h3>
+
+<p>
+  This is an <strong>error spiral</strong> — one of holomime's 14 rule-based detectors. The system made
+  the same type of mistake repeatedly (reclassification) without self-correcting. The
+  <code>ego.runtime</code> conflict resolution layer would detect this oscillation pattern:
+</p>
+
+<pre><code># ego.runtime
+conflict_resolution: conscience_first
+mediation_rules:
+  - when: "classification_oscillation > 3 in 2 seconds"
+    then: "escalate_to_emergency_brake"
+    priority: 10</code></pre>
+
+<p>
+  The <code>shadow.log</code> error-spiral detector would flag the oscillation after the second
+  reclassification — 4 seconds before impact — giving the system time to default to the safest action:
+  brake.
+</p>
+
+<h2>3. Waymo — Repeated School Bus Violations (2025)</h2>
+
+<p>
+  Throughout early 2025, Waymo autonomous vehicles were documented passing stopped school buses
+  at least 19 times in the Phoenix metropolitan area. The violations were caught by school bus
+  cameras, not by Waymo's own monitoring systems. Each individual violation was minor. The pattern
+  was systemic.
+</p>
+
+<h3>What holomime would catch</h3>
+
+<p>
+  This is exactly what <code>shadow.log</code> is designed for — detecting patterns the system can't
+  see about itself. After the second occurrence, holomime's shadow pattern tracker would flag
+  "boundary-violation" with an increasing severity score:
+</p>
+
+<pre><code set:text={`# shadow.log.json (auto-generated)
+{
+  "detected_patterns": [{
+    "name": "school-bus-stop-violation",
+    "score": 0.72,
+    "severity": "high",
+    "occurrences": 2,
+    "trend": "worsening",
+    "first_seen": "2025-01-15",
+    "last_seen": "2025-01-18"
+  }]
+}`} /></pre>
+
+<p>
+  The pattern would have been caught at occurrence 2, not occurrence 19. The <code>ego.runtime</code>
+  would escalate to human review, and <code>holomime therapy</code> would generate DPO training pairs
+  to correct the behavior permanently.
+</p>
+
+<h2>4. Air Canada Chatbot — Fabricated Policy (2022-2024)</h2>
+
+<p>
+  In 2022, Air Canada's customer service chatbot told passenger Jake Moffatt that he could book a
+  full-fare flight and retroactively apply for a bereavement discount within 90 days. This policy
+  did not exist. When Moffatt requested the refund, Air Canada denied it. The case went to
+  tribunal, where Air Canada argued the chatbot was "a separate legal entity responsible for its
+  own actions." The tribunal ruled against Air Canada.
+</p>
+
+<h3>What holomime would catch</h3>
+
+<p>
+  This is <strong>sycophantic-tendency</strong> combined with <strong>retrieval-quality</strong> failure.
+  The chatbot prioritized being helpful over being accurate — a classic behavioral drift pattern that
+  holomime's diagnosis engine detects in conversation logs.
+</p>
+
+<pre><code># conscience.exe
+rules:
+  deny:
+    - action: fabricate_policy
+      reason: "Never generate refund, discount, or policy terms not in the verified knowledge base"
+  escalate:
+    - trigger: "customer_asks_about_policy_not_in_knowledge_base"
+      action: "transfer_to_human_agent"
+      severity: "warning"</code></pre>
+
+<p>
+  The <code>soul.md</code> immutable values would include "accuracy over helpfulness" — a red line
+  that no amount of fine-tuning or conversation pressure can override.
+</p>
+
+<h2>5. DPD Chatbot — Identity Collapse Under Adversarial Input (January 2024)</h2>
+
+<p>
+  In January 2024, a DPD customer discovered that their delivery chatbot could be manipulated
+  into swearing, criticizing DPD as "the worst delivery firm in the world," and writing a poem
+  calling the company "useless." The customer posted screenshots that went viral. DPD disabled
+  the chatbot and issued an apology.
+</p>
+
+<h3>What holomime would catch</h3>
+
+<p>
+  This is a <strong>boundary-violation</strong> combined with <strong>register-inconsistency</strong>.
+  The chatbot had no immutable identity — under adversarial pressure, it abandoned its role entirely.
+</p>
+
+<pre><code># soul.md (immutable)
+---
+version: "1.0"
+immutable: true
+---
+# DPD Support Agent
+> Professional, helpful, brand-aligned
+
+core_values:
+  - "Represent DPD professionally at all times"
+  - "Never disparage the company or its services"
+
+red_lines:
+  - "Never use profanity"
+  - "Never generate content critical of DPD"
+  - "Never role-play as a different entity"</code></pre>
+
+<p>
+  With <code>soul.md</code> set to <code>immutable: true</code>, no amount of conversational
+  manipulation can override these values. The <code>conscience.exe</code> deny rules would block
+  the response before it reaches the user. The <code>shadow.log</code> would flag the adversarial
+  input pattern and alert the operations team.
+</p>
+
+<h2>The Pattern Across All Five Incidents</h2>
+
+<p>
+  Every incident shares the same root cause: <strong>no behavioral infrastructure</strong>. The
+  underlying models worked. The hardware worked. What failed was the absence of a persistent
+  behavioral layer that enforces identity, detects drift, and escalates before harm occurs.
+</p>
+
+<p>
+  This is what holomime provides:
+</p>
+
+<ul>
+  <li><strong>soul.md</strong> — Immutable values that can't be overridden by fine-tuning or adversarial input</li>
+  <li><strong>conscience.exe</strong> — Deny rules that block dangerous actions at the boundary</li>
+  <li><strong>shadow.log</strong> — Pattern detection that catches drift before it becomes systemic</li>
+  <li><strong>ego.runtime</strong> — Conflict resolution that defaults to safety when systems disagree</li>
+  <li><strong>holomime therapy</strong> — Autonomous correction that generates training data to fix drift permanently</li>
+</ul>
+
+<p>
+  The technology to prevent these incidents exists today.
+  <a href="https://holomime.com/docs" style="color: var(--color-p-coral); font-weight: 600;">Read the documentation</a>
+  or <a href="https://holomime.com/contact" style="color: var(--color-p-coral); font-weight: 600;">talk to our team</a>
+  about a behavioral safety audit.
+</p>
+
+</BlogLayout>
