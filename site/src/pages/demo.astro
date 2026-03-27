@@ -155,7 +155,7 @@ const demoAgents = [
           <!-- Navigation -->
           <div class="mt-8 flex items-center justify-between">
             <button id="btn-prev" class="rounded-full border border-[var(--color-warm-sand)] px-6 py-2.5 text-sm font-medium text-[var(--color-warm-muted)] transition-all hover:border-[var(--color-warm-muted)] disabled:opacity-30 disabled:cursor-not-allowed" disabled>Back</button>
-            <button id="btn-next" class="btn-press rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[var(--color-p-coral)]/20">Next</button>
+            <button id="btn-next" class="btn-primary btn-press rounded-full">Next</button>
           </div>
         </div>
       </div>
@@ -175,7 +175,7 @@ const demoAgents = [
               <button id="btn-sample" class="rounded-full border border-[var(--color-p-violet)]/20 bg-[var(--color-p-violet-soft)] px-4 py-1.5 text-xs font-semibold text-[var(--color-p-violet)] transition-all hover:bg-[var(--color-p-violet)]/10">Load Sample</button>
             </div>
             <textarea id="log-input" class="h-[360px] w-full rounded-2xl border-2 border-[var(--color-warm-sand)] bg-white p-5 font-mono text-xs text-[var(--color-warm-text)] placeholder-[var(--color-warm-muted)]/50 transition-all focus:border-[var(--color-p-violet)] focus:outline-none resize-none" placeholder="Paste a conversation log or click Load Sample..."></textarea>
-            <button id="btn-diagnose" class="btn-press mt-4 w-full rounded-xl bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] py-3.5 text-sm font-semibold text-white shadow-lg shadow-[var(--color-p-coral)]/20">Run 8 Behavioral Detectors</button>
+            <button id="btn-diagnose" class="btn-primary btn-press mt-4 w-full rounded-xl">Run 8 Behavioral Detectors</button>
           </div>
           <div>
             <h3 class="mb-4 text-base font-bold text-[var(--color-warm-text)]">Diagnosis Results</h3>
@@ -192,7 +192,7 @@ const demoAgents = [
           </div>
         </div>
         <div class="mt-8 flex justify-end">
-          <button id="btn-to-refine" class="btn-press hidden rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-8 py-2.5 text-sm font-semibold text-white shadow-lg">Continue to Refinement &rarr;</button>
+          <button id="btn-to-refine" class="btn-primary btn-press hidden rounded-full">Continue to Refinement &rarr;</button>
         </div>
       </div>
 
@@ -243,13 +243,13 @@ const demoAgents = [
           <!-- Controls -->
           <div class="mt-6 flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <button id="therapy-play" class="btn-press flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-6 py-2.5 text-sm font-semibold text-white shadow-lg">
+              <button id="therapy-play" class="btn-primary btn-press flex items-center gap-2 rounded-full">
                 <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                 Start Session
               </button>
               <button id="therapy-skip" class="hidden rounded-full border border-[var(--color-warm-sand)] px-4 py-2 text-xs font-medium text-[var(--color-warm-muted)] hover:border-[var(--color-warm-muted)]">Skip to End</button>
             </div>
-            <button id="btn-to-train" class="btn-press hidden rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-6 py-2.5 text-sm font-semibold text-white shadow-lg">Export Training Data &rarr;</button>
+            <button id="btn-to-train" class="btn-primary btn-press hidden rounded-full">Export Training Data &rarr;</button>
           </div>
         </div>
       </div>
@@ -313,7 +313,7 @@ const demoAgents = [
           <div id="train-content" class="rounded-2xl border-2 border-[var(--color-warm-sand)] bg-[var(--color-holo-slate)] p-6 font-mono text-sm text-slate-300 overflow-x-auto min-h-[300px]"></div>
           <div id="train-explainer" class="mt-4 rounded-xl bg-[var(--color-warm-cream)] p-4 text-sm text-[var(--color-warm-muted)]"></div>
           <div class="mt-8 flex justify-end">
-            <button id="btn-to-eval" class="btn-press rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-8 py-2.5 text-sm font-semibold text-white shadow-lg">Measure Outcomes &rarr;</button>
+            <button id="btn-to-eval" class="btn-primary btn-press rounded-full">Measure Outcomes &rarr;</button>
           </div>
         </div>
       </div>
@@ -360,7 +360,7 @@ const demoAgents = [
           <div id="eval-patterns" class="grid gap-4 md:grid-cols-2"></div>
           <!-- Continue to Monitor -->
           <div class="mt-8 flex justify-end">
-            <button id="btn-to-monitor" class="btn-press hidden rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-8 py-2.5 text-sm font-semibold text-white shadow-lg">View NeuralSpace &rarr;</button>
+            <button id="btn-to-monitor" class="btn-primary btn-press hidden rounded-full">View NeuralSpace &rarr;</button>
           </div>
         </div>
       </div>
@@ -381,7 +381,7 @@ const demoAgents = [
           </p>
 
           <div class="mt-8 flex justify-end">
-            <button id="btn-to-deploy" class="btn-press rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-8 py-2.5 text-sm font-semibold text-white shadow-lg">Deploy Your Agent &rarr;</button>
+            <button id="btn-to-deploy" class="btn-primary btn-press rounded-full">Deploy Your Agent &rarr;</button>
           </div>
         </div>
       </div>
@@ -436,7 +436,7 @@ const demoAgents = [
             <h3 class="text-lg font-bold text-[var(--color-warm-text)]">The Loop is Complete</h3>
             <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Define &rarr; Diagnose &rarr; Refine &rarr; Train &rarr; Evaluate &rarr; Monitor &rarr; Deploy &rarr; <strong class="text-[var(--color-p-violet)]">repeat</strong>. This is how agents develop emotional intelligence.</p>
             <div class="mt-6 flex items-center justify-center gap-4">
-              <a href="/#pricing" class="btn-press rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-8 py-3 text-sm font-semibold text-white shadow-lg">Get Started</a>
+              <a href="/#pricing" class="btn-primary btn-press rounded-full">Get Started</a>
               <button id="btn-restart" class="rounded-full border border-[var(--color-warm-sand)] px-6 py-3 text-sm font-medium text-[var(--color-warm-muted)] hover:border-[var(--color-warm-muted)]">Run Again</button>
             </div>
           </div>
@@ -826,7 +826,7 @@ function showArchetypeReveal(a: typeof ARCHETYPES[0]) {
 
       <div class="mt-8 flex items-center justify-center gap-4">
         <button id="reveal-back" class="rounded-full border border-[var(--color-warm-sand)] px-6 py-2.5 text-sm font-medium text-[var(--color-warm-muted)] hover:border-[var(--color-warm-muted)]">Choose Different</button>
-        <button id="reveal-continue" class="btn-press rounded-full bg-gradient-to-r from-[var(--color-p-coral)] to-[var(--color-p-violet)] px-8 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[var(--color-p-coral)]/20">Continue to Diagnose \u2192</button>
+        <button id="reveal-continue" class="btn-primary btn-press rounded-full">Continue to Diagnose \u2192</button>
       </div>
     </div>`;
 
