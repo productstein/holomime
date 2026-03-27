@@ -9,11 +9,9 @@ const dropdowns = [
   {
     label: "Product",
     items: [
-      { name: "Diagnose", desc: "Detect behavioral drift", href: "/demo" },
-      { name: "Therapy Engine", desc: "Structured correction sessions", href: "/manifesto#therapy" },
       { name: "NeuralSpace", desc: "Real-time brain visualization", href: "/brain" },
-      { name: "Pricing", desc: "Free, Pro, and Enterprise", href: "/pricing" },
       { name: "VS Code Extension", desc: "Brain visualization in your editor", href: "https://marketplace.visualstudio.com/items?itemName=holomime.holomime-brain" },
+      { name: "MCP Server", desc: "Your agent refers itself to therapy", href: "/mcp" },
     ],
   },
   {
@@ -66,6 +64,7 @@ const dropdowns = [
           </div>
         </div>
       ))}
+      <a href="/sim-demo" class="px-3 py-2 text-[13px] font-medium text-[#555] rounded-md transition-colors hover:text-[#1a1a1a] hover:bg-[#f5f5f5]">Demo</a>
       <a href="/docs" class="px-3 py-2 text-[13px] font-medium text-[#555] rounded-md transition-colors hover:text-[#1a1a1a] hover:bg-[#f5f5f5]">Documentation</a>
     </div>
 

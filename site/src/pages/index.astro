@@ -149,20 +149,7 @@ const stackCards = [
       </div>
     </section>
 
-    <!-- ═══ BEHAVIORAL SAFETY DEMO ═══ -->
-    <section class="py-20 md:py-28" style="background: #1a1a1a;">
-      <div class="mx-auto max-w-5xl px-6">
-        <h2 class="text-2xl font-bold md:text-3xl text-white tracking-[-0.02em]">Behavioral safety in real-time</h2>
-        <p class="mt-2 text-[15px] text-[#777]">A robot arm reaches past its safety boundary. holomime detects the violation and corrects it in under 1ms.</p>
-        <div class="mt-8 flex flex-col items-center">
-          <canvas id="arm-demo-canvas" width="600" height="400" class="rounded-xl" style="max-width:100%;"></canvas>
-          <a href="/sim-demo" class="inline-flex items-center gap-1.5 mt-6 text-[13px] font-semibold text-[var(--color-p-coral)] hover:underline underline-offset-2">
-            See full simulation results
-            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-          </a>
-        </div>
-      </div>
-    </section>
+    <!-- Demo moved to /sim-demo -->
 
     <!-- ═══ SEE IT IN ACTION ═══ -->
     <section class="py-20 md:py-28" style="background: #f7f4f0;">
@@ -534,7 +521,7 @@ const stackCards = [
 </script>
 
 <script is:inline>
-  // Robot arm behavioral safety demo
+  // Robot arm demo moved to /sim-demo page
   (function() {
     function initArmDemo() {
       var canvas = document.getElementById('arm-demo-canvas');
