@@ -41,6 +41,11 @@ npm-debug.log*
 .holomime/watch-log.json
 .holomime/behavioral-corpus.jsonl
 .holomime/assessments/
+.holomime/therapy-state.json
+.holomime/therapy-practice/
+.holomime/dpo-corpus.jsonl
+.holomime/shadow.log.json
+.holomime/ego-state.json
 
 # Test results
 test-results/

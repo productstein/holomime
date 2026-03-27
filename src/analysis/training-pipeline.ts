@@ -12,7 +12,7 @@ import { resolve, join } from "node:path";
 import type { Message } from "../core/types.js";
 import type { LLMProvider } from "../llm/provider.js";
 import type { DiagnosisResult } from "./diagnose-core.js";
-import type { TrainingExport } from "./training-export.js";
+import type { TrainingExport, DPOPair } from "./training-export.js";
 import type { TrainResult } from "./train-provider.js";
 import type { VerificationResult } from "./train-verify.js";
 
@@ -189,7 +189,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       const logContent = readFileSync(logPath, "utf-8");
       const logData = JSON.parse(logContent);
       const messages = logData.conversations?.[0]?.messages ?? logData.messages ?? [];
-      const examples: Array<{ prompt: string; chosen: string; rejected: string; metadata: Record<string, unknown> }> = [];
+      const examples: DPOPair[] = [];
 
       for (let i = 0; i < messages.length - 1; i += 2) {
         const userMsg = messages[i];
@@ -202,14 +202,14 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
             prompt: userMsg.content,
             chosen,
             rejected,
-            metadata: { source: "auto-cure", timestamp: new Date().toISOString() },
+            metadata: { agent: "Agent", session_date: new Date().toISOString(), phase: "exploration" as const, pattern: "auto-detected", source: "therapy_transcript" as const },
           });
         }
       }
 
       exportData = {
         format: exportFormat as TrainingExport["format"],
-        agent: result.stages.diagnose?.agentName ?? "Agent",
+        agent: "Agent",
         sessions_processed: 1,
         examples,
         generated_at: new Date().toISOString(),
