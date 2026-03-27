@@ -38,6 +38,7 @@ interface CureOptions {
   push?: boolean;
   hubRepo?: string;
   passThreshold?: string;
+  exportOnly?: boolean;
 }
 
 // ─── Stage Display ────────────────────────────────────────
@@ -74,7 +75,41 @@ function getAgentName(personalityPath: string): string {
 // ─── Command ──────────────────────────────────────────────
 
 export async function cureCommand(options: CureOptions): Promise<void> {
-  printHeader("Cure \u2014 End-to-End Behavioral Fix");
+  // ─── Auto-detect robot vs agent ───────────────────────
+  const cwd = process.cwd();
+  const hasBodyApi = existsSync(resolve(cwd, "body.api")) ||
+    existsSync(resolve(cwd, ".holomime/body.api")) ||
+    existsSync(resolve(cwd, "identity/body.api"));
+
+  const isRobotFlow = options.exportOnly || (hasBodyApi && options.provider === "openai");
+
+  if (isRobotFlow) {
+    // Robot flow — export training data, don't fine-tune via API
+    let bodyName = "robot";
+    try {
+      for (const p of ["body.api", ".holomime/body.api", "identity/body.api"]) {
+        const bp = resolve(cwd, p);
+        if (existsSync(bp)) {
+          const body = JSON.parse(readFileSync(bp, "utf-8"));
+          bodyName = body.hardware_profile?.model ?? body.morphology ?? "robot";
+          break;
+        }
+      }
+    } catch { /* */ }
+
+    printHeader("Cure \u2014 Robotics Training Pipeline");
+    console.log();
+    console.log(chalk.dim(`  Robot identity detected`) + chalk.cyan(` (${bodyName})`));
+    console.log(chalk.dim("  Generating behavioral training data for your pipeline."));
+    console.log();
+
+    // Force export-only mode
+    options.skipTrain = true;
+    options.skipVerify = true;
+    options.provider = "huggingface";
+  } else {
+    printHeader("Cure \u2014 End-to-End Behavioral Fix");
+  }
 
   const provider = options.provider;
   if (provider !== "openai" && provider !== "huggingface") {
@@ -342,7 +377,22 @@ export async function cureCommand(options: CureOptions): Promise<void> {
   console.log();
 
   // Next steps
-  if (pipelineResult.stages.train) {
+  if (isRobotFlow) {
+    const exportPath = ".holomime/pipeline/";
+    const nextSteps = [
+      `Training data exported to ${chalk.cyan(exportPath)}`,
+      "",
+      "  Import into your training pipeline:",
+      `  ${chalk.dim("$")} ${chalk.cyan("huggingface-cli download")} ${chalk.dim(options.hubRepo ?? "<your-org/dataset>")}`,
+      "",
+      "  Or use the local JSONL directly:",
+      `  ${chalk.dim("$")} ${chalk.cyan("ls .holomime/pipeline/*.jsonl")}`,
+      "",
+      `  ${chalk.dim("Run")} ${chalk.cyan("holomime certify")} ${chalk.dim("for ISO compliance report.")}`,
+    ];
+    printBox(nextSteps.join("\n"), "success", "Training Data Ready");
+    console.log();
+  } else if (pipelineResult.stages.train) {
     printBox(
       `The behavioral fix has been applied:\n\n` +
         `  Model: ${chalk.cyan(pipelineResult.stages.train.modelId)}\n` +

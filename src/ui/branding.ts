@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import gradientString from "gradient-string";
 
-const VERSION = "3.3.10";
+const VERSION = "3.4.0";
 
 const LOGO = `  _           _             _
  | |__   ___ | | ___  _ __ (_)_ __ ___   ___

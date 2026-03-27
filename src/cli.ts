@@ -516,6 +516,7 @@ program
   .option("--suffix <name>", "Model name suffix")
   .option("--skip-train", "Skip training step (diagnose + export only)")
   .option("--skip-verify", "Skip post-training verification")
+  .option("--export-only", "Export training data only (for teams with their own training infrastructure)")
   .option("--dry-run", "Preview pipeline plan without executing")
   .option("--push", "Push trained model to HuggingFace Hub")
   .option("--hub-repo <repo>", "HuggingFace Hub repo (user/model-name)")
