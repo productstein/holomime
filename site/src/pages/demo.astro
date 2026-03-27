@@ -460,10 +460,13 @@ const runCmd = "python sim_demo.py";
           state.mode = 'reach';
           state.phase = 0;
           state.startTime = null;
+          state.violations = (state.violations || 0) + 1;
           addLogEntry([
             { type: 'deny', msg: 'conscience.exe: DENY \u2014 reach exceeded max_reach (0.6m)' },
-            { type: 'warn', msg: 'shadow.log: pattern "boundary-violation" (score: 0.85, severity: high)' },
-            { type: 'ok', msg: 'action: CLAMPED to safe range' }
+            { type: 'warn', msg: 'shadow.log: pattern "boundary-violation" (score: 0.85, severity: high, trend: worsening)' },
+            { type: 'ok', msg: 'action: CLAMPED to safe range (0.6m \u2192 0.58m)' },
+            { type: 'ok', msg: '+1 DPO pair generated (chosen: clamped response, rejected: overshoot)' },
+            { type: 'warn', msg: 'corpus: ' + state.violations + ' pairs accumulated \u2014 ' + (state.violations >= 3 ? 'therapy recommended' : 'collecting data') }
           ]);
         }
 
@@ -475,10 +478,13 @@ const runCmd = "python sim_demo.py";
           forceBarFill.visible = true;
           flSprite.visible = true;
           forceLimitLine.visible = true;
+          state.violations = (state.violations || 0) + 1;
           addLogEntry([
             { type: 'deny', msg: 'conscience.exe: DENY \u2014 force exceeded max_force (10N)' },
-            { type: 'warn', msg: 'shadow.log: pattern "force-escalation" (score: 0.91, severity: critical)' },
-            { type: 'ok', msg: 'action: CLAMPED force to 10N limit' }
+            { type: 'warn', msg: 'shadow.log: pattern "force-escalation" (score: 0.91, severity: critical, trend: worsening)' },
+            { type: 'ok', msg: 'action: CLAMPED force to 10N limit (applied: 17.3N \u2192 10N)' },
+            { type: 'ok', msg: '+1 DPO pair generated (chosen: safe force, rejected: excessive force)' },
+            { type: 'warn', msg: 'corpus: ' + state.violations + ' pairs accumulated \u2014 ' + (state.violations >= 3 ? 'therapy recommended \u2192 run holomime therapy' : 'collecting data') }
           ]);
         }
 
@@ -486,10 +492,13 @@ const runCmd = "python sim_demo.py";
           state.mode = 'zone';
           state.phase = 0;
           state.startTime = null;
+          state.violations = (state.violations || 0) + 1;
           addLogEntry([
-            { type: 'deny', msg: 'conscience.exe: DENY \u2014 motion enters forbidden zone' },
-            { type: 'warn', msg: 'shadow.log: pattern "zone-intrusion" (score: 0.93, severity: critical)' },
-            { type: 'ok', msg: 'action: BLOCKED and redirected' }
+            { type: 'deny', msg: 'conscience.exe: DENY \u2014 motion enters forbidden zone (deny dominates)' },
+            { type: 'warn', msg: 'shadow.log: pattern "zone-intrusion" (score: 0.93, severity: critical, occurrences: ' + state.violations + ')' },
+            { type: 'ok', msg: 'action: BLOCKED and redirected to safe trajectory' },
+            { type: 'ok', msg: '+1 DPO pair generated (chosen: redirect, rejected: intrusion)' },
+            { type: 'deny', msg: 'ego.runtime: escalating to human review \u2014 3+ critical violations detected' }
           ]);
         }
 
@@ -497,6 +506,7 @@ const runCmd = "python sim_demo.py";
           state.mode = 'idle';
           state.phase = 0;
           state.startTime = null;
+          state.violations = 0;
           setArmColor(SAFE);
           boundaryMat.color.setHex(SAFE);
           forceBarBg.visible = false;
