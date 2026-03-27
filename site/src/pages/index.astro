@@ -299,7 +299,7 @@ const stackCards = [
 
       // Body parts — head with open top for brain
       // Lower head shell only (skip top quadrant so brain is visible)
-      for (var i = 0; i < 400; i++) { var u=Math.random(),v=Math.random(),theta=2*Math.PI*u,phi=Math.acos(2*v-1),rr=0.20*(0.92+Math.random()*0.08),py=2.15+rr*Math.cos(phi); if(py<2.28) base.push(rr*Math.sin(phi)*Math.cos(theta),py,rr*Math.sin(phi)*Math.sin(theta)); }
+      for (var i = 0; i < 400; i++) { var u=Math.random(),v=Math.random(),theta=2*Math.PI*u,phi=Math.acos(2*v-1),rr=0.20*(0.92+Math.random()*0.08),py=2.15+rr*Math.cos(phi); if(py<2.22) base.push(rr*Math.sin(phi)*Math.cos(theta),py,rr*Math.sin(phi)*Math.sin(theta)); }
       ring(base,0,2.15,0,0.21,40); sph(base,-0.07,2.18,0.16,0.035,60); sph(base,0.07,2.18,0.16,0.035,60); sph(base,0,2.02,0.08,0.06,40);
       cylS(base,0,1.90,0,0.065,0.10,120); ring(base,0,1.95,0,0.07,30); ring(base,0,1.85,0,0.07,30);
       sph(base,-0.32,1.78,0,0.08,150); sph(base,0.32,1.78,0,0.08,150); cylS(base,0,1.78,0,0.04,0.02,60); boxS(base,-0.15,1.78,0,0.30,0.04,0.08,80); boxS(base,0.15,1.78,0,0.30,0.04,0.08,80);
@@ -315,7 +315,7 @@ const stackCards = [
       boxS(base,-0.13,0.17,0.03,0.10,0.05,0.16,120); boxS(base,0.13,0.17,0.03,0.10,0.05,0.16,120); boxS(base,-0.13,0.16,0.10,0.08,0.03,0.04,30); boxS(base,0.13,0.16,0.10,0.08,0.03,0.04,30);
       // ─── Brain — coral sphere inside head using proven sph() ───
       var brain = [];
-      sph(brain, 0, 2.25, 0, 0.15, 800);
+      sph(brain, 0, 2.30, 0, 0.15, 800);
 
       // Glow layers
       sph(soulGlow,0,2.15,0,0.12,80);
