@@ -283,9 +283,9 @@ const stackCards = [
       var w = canvas.clientWidth || 350;
       var h = canvas.clientHeight || 500;
       var scene = new T.Scene();
-      var camera = new T.PerspectiveCamera(32, w / h, 0.1, 100);
-      camera.position.set(0, 1.0, 4.2);
-      camera.lookAt(0, 1.0, 0);
+      var camera = new T.PerspectiveCamera(40, w / h, 0.1, 100);
+      camera.position.set(0, 1.2, 4.5);
+      camera.lookAt(0, 1.2, 0);
       var renderer = new T.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
       renderer.setSize(w, h);
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
