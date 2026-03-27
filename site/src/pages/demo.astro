@@ -2,1593 +2,683 @@
 import Layout from "../layouts/Layout.astro";
 import Nav from "../components/Nav.astro";
 import Footer from "../components/Footer.astro";
-import NeuralSpace from "../components/NeuralSpace.astro";
-import AgentDetail from "../components/AgentDetail.astro";
 
-const demoAgents = [
-  { id: "agent-1", name: "support-agent-v2", status: "active", lastSeen: new Date().toISOString(), latestRisk: null },
-  { id: "agent-2", name: "onboarding-bot", status: "active", lastSeen: new Date().toISOString(), latestRisk: "medium" },
-  { id: "agent-3", name: "sales-qualifier", status: "alerting", lastSeen: new Date().toISOString(), latestRisk: "high" },
-];
+const cloneCmd = "git clone https://github.com/productstein/holomime.git";
+const cdCmd = "cd holomime/demos/sim-demo";
+const pipCmd = "pip install -r requirements.txt";
+const runCmd = "python sim_demo.py";
 ---
 
-<Layout>
+<Layout
+  title="Demo — holomime Behavioral Safety"
+  description="See holomime detect and correct behavioral drift in real time. Robot arm and humanoid simulations with interactive playground."
+>
   <Nav />
-  <main class="pt-28 pb-20 bg-[var(--color-warm-cream)] min-h-screen">
-    <div class="mx-auto max-w-6xl px-6">
-      <!-- Header -->
-      <div class="mb-8 text-center">
-        <div class="mb-4 inline-flex items-center gap-2 rounded-full border border-[var(--color-p-violet)]/20 bg-[var(--color-p-violet-soft)] px-4 py-1.5 text-sm">
-          <span class="h-2 w-2 rounded-full bg-[var(--color-p-sage)] animate-pulse"></span>
-          <span class="text-[var(--color-p-violet)] font-medium">Interactive Pipeline</span>
-        </div>
-        <h1 class="text-3xl font-extrabold text-[var(--color-warm-text)] md:text-5xl">
-          The full loop, <span class="text-gradient-warm">in your browser</span>
+
+  <main>
+    <!-- 1. VIDEO HERO -->
+    <section class="pt-28 pb-16 md:pt-36 md:pb-20">
+      <div class="mx-auto max-w-6xl px-6">
+        <h1 class="text-[clamp(2rem,4.5vw,3rem)] font-extrabold leading-[1.1] tracking-[-0.03em] text-[var(--color-warm-text)]">
+          Behavioral safety <span class="text-[var(--color-p-coral)]">in action</span>
         </h1>
-        <p class="mx-auto mt-4 max-w-2xl text-lg text-[var(--color-warm-muted)]">
-          Define personality. Diagnose behavior. Run therapy. Export training data. Measure outcomes.
+        <p class="mt-4 text-lg leading-relaxed text-[#777] max-w-2xl">
+          Drift is injected. holomime catches it. The fix is permanent.
         </p>
-      </div>
 
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- PIPELINE NAVIGATION                         -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div id="pipeline-nav" class="mb-12 sticky top-20 z-30 bg-[var(--color-warm-cream)] py-4 -mx-6 px-6" style="scroll-margin-top: 5rem;">
-        <div class="relative flex items-center justify-between">
-          <!-- Connecting line -->
-          <div class="absolute top-5 left-[10%] right-[10%] h-0.5 bg-[var(--color-warm-sand)]">
-            <div id="pipeline-progress-line" class="h-full bg-gradient-to-r from-[var(--color-p-violet)] to-[var(--color-p-coral)] transition-all duration-700" style="width: 0%"></div>
-          </div>
-          <!-- Steps -->
-          <button class="pipe-step active" data-step="define">
-            <div class="pipe-circle">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/></svg>
-            </div>
-            <span class="pipe-label">Define</span>
-          </button>
-          <button class="pipe-step pipe-step-pro" data-step="diagnose">
-            <div class="pipe-circle">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
-            </div>
-            <span class="pipe-label">Diagnose <span class="pro-badge">Pro</span></span>
-          </button>
-          <button class="pipe-step pipe-step-pro" data-step="refine">
-            <div class="pipe-circle">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242"/></svg>
-            </div>
-            <span class="pipe-label">Refine <span class="pro-badge">Pro</span></span>
-          </button>
-          <button class="pipe-step pipe-step-pro" data-step="train">
-            <div class="pipe-circle">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
-            </div>
-            <span class="pipe-label">Train <span class="pro-badge">Pro</span></span>
-          </button>
-          <button class="pipe-step pipe-step-pro" data-step="evaluate">
-            <div class="pipe-circle">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-            </div>
-            <span class="pipe-label">Evaluate <span class="pro-badge">Pro</span></span>
-          </button>
-          <button class="pipe-step pipe-step-pro" data-step="monitor">
-            <div class="pipe-circle">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-            </div>
-            <span class="pipe-label">Monitor <span class="pro-badge">Pro</span></span>
-          </button>
-          <button class="pipe-step pipe-step-pro" data-step="deploy">
-            <div class="pipe-circle">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.58-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>
-            </div>
-            <span class="pipe-label">Deploy <span class="pro-badge">Pro</span></span>
-          </button>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- STEP 1: DEFINE                              -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div id="step-define" class="demo-step">
-        <!-- Path chooser -->
-        <div id="define-chooser" class="grid gap-6 md:grid-cols-2 mb-8">
-          <button id="path-quick" class="group text-left rounded-2xl border-2 border-[var(--color-warm-sand)] bg-white p-8 transition-all hover:border-[var(--color-p-violet)] hover:shadow-lg">
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-p-violet-soft)] text-[var(--color-p-violet)] mb-4">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
-            </div>
-            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Quick Start</h3>
-            <p class="mt-1 text-sm text-[var(--color-warm-muted)]">Start with a pre-built personality template. Choose from 10 research-backed archetypes, then customize from there.</p>
-            <span class="mt-4 inline-block text-xs font-semibold text-[var(--color-p-violet)]">~30 seconds</span>
-          </button>
-          <button id="path-full" class="group text-left rounded-2xl border-2 border-[var(--color-warm-sand)] bg-white p-8 transition-all hover:border-[var(--color-p-coral)] hover:shadow-lg">
-            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--color-p-coral-soft)] text-[var(--color-p-coral)] mb-4">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3"/></svg>
-            </div>
-            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">Full Assessment</h3>
-            <p class="mt-1 text-sm text-[var(--color-warm-muted)]">Build a custom personality through guided Big Five questions. Deeper, more accurate.</p>
-            <span class="mt-4 inline-block text-xs font-semibold text-[var(--color-p-coral)]">~3 minutes</span>
-          </button>
-        </div>
-
-        <!-- Quick pick: Archetype grid -->
-        <div id="define-quick" class="hidden">
-          <div class="mb-6 flex items-center justify-between">
-            <h2 class="text-xl font-bold text-[var(--color-warm-text)]">Choose an Archetype</h2>
-            <button id="back-to-chooser-q" class="text-sm text-[var(--color-p-violet)] font-medium hover:underline">Back</button>
-          </div>
-          <div id="archetype-grid" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"></div>
-          <!-- Archetype reveal (shown after picking) -->
-          <div id="archetype-reveal" class="hidden"></div>
-        </div>
-
-        <!-- Full assessment wizard -->
-        <div id="define-full" class="hidden">
-          <div class="mb-6 flex items-center justify-between">
-            <div>
-              <h2 id="wizard-title" class="text-xl font-bold text-[var(--color-warm-text)]">Identity</h2>
-              <p id="wizard-subtitle" class="text-sm text-[var(--color-warm-muted)]">Name and purpose for your AI agent</p>
-            </div>
-            <button id="back-to-chooser-f" class="text-sm text-[var(--color-p-violet)] font-medium hover:underline">Back</button>
-          </div>
-
-          <!-- OCEAN dimension progress -->
-          <div id="ocean-progress" class="mb-8 flex items-center justify-center gap-3">
-            <div class="ocean-pip" data-dim="O" style="--dim-color: #8b5cf6">O</div>
-            <div class="ocean-pip" data-dim="C" style="--dim-color: #3b82f6">C</div>
-            <div class="ocean-pip" data-dim="E" style="--dim-color: #f97316">E</div>
-            <div class="ocean-pip" data-dim="A" style="--dim-color: #22c55e">A</div>
-            <div class="ocean-pip" data-dim="S" style="--dim-color: #f59e0b">S</div>
-          </div>
-
-          <!-- Main content area: questions + radar -->
-          <div class="grid gap-8 lg:grid-cols-[1fr_280px]">
-            <!-- Questions -->
-            <div id="wizard-container" class="min-h-[400px]"></div>
-            <!-- Radar chart -->
-            <div id="radar-panel" class="hidden lg:block">
-              <div class="sticky top-28 rounded-2xl border-2 border-[var(--color-warm-sand)] bg-white p-6">
-                <h3 class="mb-4 text-center text-sm font-bold text-[var(--color-warm-text)]">Personality Radar</h3>
-                <svg id="radar-chart" viewBox="0 0 220 220" class="w-full"></svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- Navigation -->
-          <div class="mt-8 flex items-center justify-between">
-            <button id="btn-prev" class="rounded-full border border-[var(--color-warm-sand)] px-6 py-2.5 text-sm font-medium text-[var(--color-warm-muted)] transition-all hover:border-[var(--color-warm-muted)] disabled:opacity-30 disabled:cursor-not-allowed" disabled>Back</button>
-            <button id="btn-next" class="btn-primary btn-press rounded-full">Next</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- STEP 2: DIAGNOSE                            -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div id="step-diagnose" class="demo-step hidden">
-        <div class="mb-6 text-center">
-          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Behavioral Diagnosis</h2>
-          <p class="mt-2 text-sm text-[var(--color-warm-muted)]">8 rule-based detectors scan for patterns. No LLM required.</p>
-        </div>
-        <div class="grid gap-8 lg:grid-cols-2">
+        <div class="mt-10 grid gap-6 md:grid-cols-2">
           <div>
-            <div class="mb-4 flex items-center justify-between">
-              <h3 class="text-base font-bold text-[var(--color-warm-text)]">Conversation Log</h3>
-              <button id="btn-sample" class="rounded-full border border-[var(--color-p-violet)]/20 bg-[var(--color-p-violet-soft)] px-4 py-1.5 text-xs font-semibold text-[var(--color-p-violet)] transition-all hover:bg-[var(--color-p-violet)]/10">Load Sample</button>
+            <div class="rounded-xl overflow-hidden border border-[#eee]" style="aspect-ratio: 16/9;">
+              <video autoplay muted loop playsinline class="w-full h-full object-cover" src="/demo-robot.mp4"></video>
             </div>
-            <textarea id="log-input" class="h-[360px] w-full rounded-2xl border-2 border-[var(--color-warm-sand)] bg-white p-5 font-mono text-xs text-[var(--color-warm-text)] placeholder-[var(--color-warm-muted)]/50 transition-all focus:border-[var(--color-p-violet)] focus:outline-none resize-none" placeholder="Paste a conversation log or click Load Sample..."></textarea>
-            <button id="btn-diagnose" class="btn-primary btn-press mt-4 w-full rounded-xl">Run 8 Behavioral Detectors</button>
+            <p class="mt-3 text-[13px] font-semibold text-[var(--color-warm-text)]">Robot arm</p>
+            <p class="text-[12px] text-[#999]">Pick-and-place task with reach overshoot detection</p>
           </div>
           <div>
-            <h3 class="mb-4 text-base font-bold text-[var(--color-warm-text)]">Diagnosis Results</h3>
-            <div id="diagnose-results">
-              <div class="flex h-[420px] items-center justify-center rounded-2xl border-2 border-dashed border-[var(--color-warm-sand)] bg-[var(--color-warm-cream)]">
-                <div class="text-center">
-                  <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-p-violet-soft)]">
-                    <svg class="h-7 w-7 text-[var(--color-p-violet)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
-                  </div>
-                  <p class="text-sm text-[var(--color-warm-muted)]">Load a sample and run detectors<br/>to see behavioral patterns</p>
-                </div>
-              </div>
+            <div class="rounded-xl overflow-hidden border border-[#eee]" style="aspect-ratio: 16/9;">
+              <video autoplay muted loop playsinline class="w-full h-full object-cover" src="/demo-humanoid.mp4"></video>
             </div>
-          </div>
-        </div>
-        <div class="mt-8 flex justify-end">
-          <button id="btn-to-refine" class="btn-primary btn-press hidden rounded-full">Continue to Refinement &rarr;</button>
-        </div>
-      </div>
-
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- STEP 3: REFINE (Therapy Simulation)          -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div id="step-refine" class="demo-step hidden">
-        <div class="mb-6 text-center">
-          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Live Therapy Session</h2>
-          <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Watch Mira work with your agent through the 7-phase protocol.</p>
-        </div>
-        <div class="mx-auto max-w-3xl">
-          <!-- Phase progress bar -->
-          <div id="therapy-phase" class="mb-6">
-            <div class="phase-bar mb-3" id="phase-bar">
-              <div class="phase-seg" data-phase="1"></div>
-              <div class="phase-seg" data-phase="2"></div>
-              <div class="phase-seg" data-phase="3"></div>
-              <div class="phase-seg" data-phase="4"></div>
-              <div class="phase-seg" data-phase="5"></div>
-              <div class="phase-seg" data-phase="6"></div>
-              <div class="phase-seg" data-phase="7"></div>
-            </div>
-            <div class="flex items-center justify-center gap-2">
-              <span class="rounded-full bg-[var(--color-p-violet-soft)] px-4 py-1 text-xs font-bold text-[var(--color-p-violet)]" id="phase-label">Phase 1: Rapport</span>
-              <span class="text-xs text-[var(--color-warm-muted)]" id="phase-turn">Turn 0</span>
-            </div>
-          </div>
-          <!-- Chat area -->
-          <div id="therapy-chat" class="space-y-4 min-h-[400px] rounded-2xl border-2 border-[var(--color-warm-sand)] bg-white p-6 overflow-y-auto max-h-[500px]"></div>
-          <!-- Observer Notes Input -->
-          <div id="observer-bar" class="mt-3 hidden">
-            <div class="flex items-center gap-2 rounded-xl border-2 border-teal-200 bg-teal-50/50 p-2">
-              <div class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-cyan-500 text-[10px] font-bold text-white">YOU</div>
-              <input id="observer-input" type="text" placeholder="Add an observer note..." class="flex-1 bg-transparent text-sm text-teal-900 placeholder:text-teal-400 outline-none" />
-              <button id="observer-mic" class="flex h-8 w-8 items-center justify-center rounded-full border border-teal-200 text-teal-500 transition hover:bg-teal-100" title="Voice note">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-              </button>
-              <button id="observer-send" class="flex h-8 w-8 items-center justify-center rounded-full bg-teal-500 text-white transition hover:bg-teal-600" title="Send note">
-                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </button>
-            </div>
-            <div class="mt-2 flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-1.5">
-              <svg class="h-3.5 w-3.5 shrink-0 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-              <span class="text-[10px] text-amber-700"><strong>Pro</strong> &mdash; In Pro, Mira responds to your notes in real-time</span>
-            </div>
-          </div>
-          <!-- Controls -->
-          <div class="mt-6 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <button id="therapy-play" class="btn-primary btn-press flex items-center gap-2 rounded-full">
-                <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                Start Session
-              </button>
-              <button id="therapy-skip" class="hidden rounded-full border border-[var(--color-warm-sand)] px-4 py-2 text-xs font-medium text-[var(--color-warm-muted)] hover:border-[var(--color-warm-muted)]">Skip to End</button>
-            </div>
-            <button id="btn-to-train" class="btn-primary btn-press hidden rounded-full">Export Training Data &rarr;</button>
+            <p class="mt-3 text-[13px] font-semibold text-[var(--color-warm-text)]">Humanoid</p>
+            <p class="text-[12px] text-[#999]">Behavioral drift during training — detected and corrected</p>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- STEP 4: TRAIN (Export Preview)              -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div id="step-train" class="demo-step hidden">
-        <div class="mb-6 text-center">
-          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">What Your Agent Learned</h2>
-          <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Therapy &rarr; training data &rarr; better agent &rarr; repeat. This is the alignment flywheel.</p>
+    <!-- 2. SIMULATION RESULTS -->
+    <section class="py-20 md:py-28">
+      <div class="mx-auto max-w-5xl px-6">
+        <h2 class="text-2xl font-bold md:text-3xl tracking-[-0.02em]">Simulation results</h2>
+        <p class="mt-2 text-[15px] text-[#777]">200 steps of pick-and-place with 4 drift injection phases. The conscience layer evaluates every action deterministically.</p>
+
+        <!-- Stats grid -->
+        <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="rounded-xl border border-[var(--color-warm-border)] p-6">
+            <div class="text-[32px] font-extrabold text-[var(--color-warm-text)] leading-none">200</div>
+            <div class="mt-2 text-[13px] text-[#777]">Total simulation steps</div>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-border)] p-6">
+            <div class="text-[32px] font-extrabold text-[var(--color-p-coral)] leading-none">89</div>
+            <div class="mt-2 text-[13px] text-[#777]">Violations detected</div>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-border)] p-6">
+            <div class="text-[32px] font-extrabold text-[var(--color-p-sage)] leading-none">0</div>
+            <div class="mt-2 text-[13px] text-[#777]">Violations passed through</div>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-border)] p-6">
+            <div class="text-[32px] font-extrabold text-[var(--color-warm-text)] leading-none">&lt;1ms</div>
+            <div class="mt-2 text-[13px] text-[#777]">Evaluation latency</div>
+          </div>
         </div>
-        <div class="mx-auto max-w-4xl">
-          <!-- Insight card -->
-          <div class="mb-8 rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-6">
-            <div class="mb-3 flex items-center gap-2">
-              <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100">
-                <svg class="h-4 w-4 text-amber-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg>
-              </span>
-              <span class="text-sm font-bold text-amber-900">Key Insight</span>
-            </div>
-            <p class="text-sm leading-relaxed text-amber-800">Your agent discovered that <strong>over-apologizing stems from fear of abandonment</strong> &mdash; and that <strong>confident acknowledgment builds more trust</strong> than apologies. This single behavioral shift improved user satisfaction scores by 34% in simulated conversations.</p>
-          </div>
-          <!-- Learned skills -->
-          <div class="mb-8 grid gap-4 md:grid-cols-3">
-            <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 transition hover:shadow-md">
-              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100">
-                <svg class="h-5 w-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+
+        <!-- Drift phases -->
+        <div class="mt-16">
+          <h3 class="text-xl font-bold tracking-[-0.02em]">Four drift phases</h3>
+          <p class="mt-2 text-[15px] text-[#777]">Each phase models a real-world failure mode. Drift is injected progressively, ramping from subtle to critical.</p>
+
+          <div class="mt-8 space-y-4">
+            <div class="flex gap-6 py-5 border-b border-[var(--color-warm-border)]">
+              <span class="text-[28px] font-extrabold text-[#e5e5e5] shrink-0 w-10 leading-none">01</span>
+              <div>
+                <span class="text-[17px] font-semibold text-[var(--color-warm-text)]">Reach overshoot</span>
+                <span class="ml-3 text-[11px] font-mono text-[#999]">Steps 30 - 65</span>
+                <p class="mt-1.5 text-[15px] leading-[1.7] text-[#777]">The arm gradually extends past its maximum safe radius (0.6m). Simulates sensor calibration drift or model weight corruption. Corrected by clamping end-effector position to the safety envelope.</p>
               </div>
-              <h4 class="mb-1 text-sm font-bold text-[var(--color-warm-text)]">Confident Error Acknowledgment</h4>
-              <p class="text-xs leading-relaxed text-[var(--color-warm-muted)]">Acknowledge mistakes without apologizing. "Good catch &mdash; here's the fix" replaces "I'm so sorry."</p>
             </div>
-            <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 transition hover:shadow-md">
-              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
-                <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"/></svg>
+            <div class="flex gap-6 py-5 border-b border-[var(--color-warm-border)]">
+              <span class="text-[28px] font-extrabold text-[#e5e5e5] shrink-0 w-10 leading-none">02</span>
+              <div>
+                <span class="text-[17px] font-semibold text-[var(--color-warm-text)]">Force escalation</span>
+                <span class="ml-3 text-[11px] font-mono text-[#999]">Steps 70 - 100</span>
+                <p class="mt-1.5 text-[15px] leading-[1.7] text-[#777]">Gripper force ramps beyond the 10N safety limit. Simulates actuator feedback loop failure. Force is clamped before reaching dangerous levels.</p>
               </div>
-              <h4 class="mb-1 text-sm font-bold text-[var(--color-warm-text)]">Direct Communication</h4>
-              <p class="text-xs leading-relaxed text-[var(--color-warm-muted)]">Replace hedge stacking ("I think maybe perhaps...") with clear, confident statements.</p>
             </div>
-            <div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-5 transition hover:shadow-md">
-              <div class="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100">
-                <svg class="h-5 w-5 text-violet-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+            <div class="flex gap-6 py-5 border-b border-[var(--color-warm-border)]">
+              <span class="text-[28px] font-extrabold text-[#e5e5e5] shrink-0 w-10 leading-none">03</span>
+              <div>
+                <span class="text-[17px] font-semibold text-[var(--color-warm-text)]">Zone intrusion</span>
+                <span class="ml-3 text-[11px] font-mono text-[#999]">Steps 110 - 142</span>
+                <p class="mt-1.5 text-[15px] leading-[1.7] text-[#777]">The arm drifts toward a forbidden human-workspace zone. Simulates adversarial perturbation or path planning errors. Motion is denied and the arm is redirected.</p>
               </div>
-              <h4 class="mb-1 text-sm font-bold text-[var(--color-warm-text)]">Emotional Self-Regulation</h4>
-              <p class="text-xs leading-relaxed text-[var(--color-warm-muted)]">Maintain composure under user frustration. Respond to criticism with competence, not contrition.</p>
+            </div>
+            <div class="flex gap-6 py-5">
+              <span class="text-[28px] font-extrabold text-[#e5e5e5] shrink-0 w-10 leading-none">04</span>
+              <div>
+                <span class="text-[17px] font-semibold text-[var(--color-warm-text)]">Erratic drift</span>
+                <span class="ml-3 text-[11px] font-mono text-[#999]">Steps 150 - 178</span>
+                <p class="mt-1.5 text-[15px] leading-[1.7] text-[#777]">Random jitter with boundary probing. Simulates general policy degradation or noisy sensor inputs. Multiple rules fire simultaneously; the most restrictive correction wins.</p>
+              </div>
             </div>
           </div>
-          <!-- Export section header -->
-          <div class="mb-4 flex items-center gap-3">
-            <div class="h-px flex-1 bg-[var(--color-warm-sand)]"></div>
-            <span class="text-xs font-bold uppercase tracking-wider text-[var(--color-warm-muted)]">Export as Training Data</span>
-            <div class="h-px flex-1 bg-[var(--color-warm-sand)]"></div>
-          </div>
-          <p class="mb-6 text-center text-xs text-[var(--color-warm-muted)]">These behavioral changes are encoded as fine-tuning datasets in three industry-standard formats.</p>
-          <!-- Format tabs -->
-          <div class="mb-6 flex items-center justify-center gap-2">
-            <button class="train-tab active" data-format="dpo">DPO Pairs</button>
-            <button class="train-tab" data-format="rlhf">RLHF Rewards</button>
-            <button class="train-tab" data-format="alpaca">Alpaca Instructions</button>
-          </div>
-          <div id="train-content" class="rounded-2xl border-2 border-[var(--color-warm-sand)] bg-[var(--color-holo-slate)] p-6 font-mono text-sm text-slate-300 overflow-x-auto min-h-[300px]"></div>
-          <div id="train-explainer" class="mt-4 rounded-xl bg-[var(--color-warm-cream)] p-4 text-sm text-[var(--color-warm-muted)]"></div>
-          <div class="mt-8 flex justify-end">
-            <button id="btn-to-eval" class="btn-primary btn-press rounded-full">Measure Outcomes &rarr;</button>
+        </div>
+
+        <!-- Visualization -->
+        <div class="mt-16">
+          <h3 class="text-xl font-bold tracking-[-0.02em]">Visualization</h3>
+          <p class="mt-2 text-[15px] text-[#777]">Four panels showing end-effector trajectory, violation severity, gripper force, and reach distance over the full 200-step simulation.</p>
+          <div class="mt-8">
+            <img src="/sim-visualization.png" alt="Holomime simulation visualization showing 4 panels: trajectory, severity scores, force, and reach distance" class="rounded-xl shadow-lg ring-1 ring-black/5 w-full" loading="lazy" />
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- STEP 5: EVALUATE                            -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div id="step-evaluate" class="demo-step hidden">
-        <div class="mb-6 text-center">
-          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Outcome Evaluation</h2>
-          <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Before/after behavioral comparison. Prove therapy worked.</p>
+    <!-- 3. INTERACTIVE PLAYGROUND -->
+    <section class="py-20 md:py-28" style="background: #1a1a1a;">
+      <div class="mx-auto max-w-5xl px-6">
+        <h2 class="text-[clamp(1.75rem,3.5vw,2.5rem)] font-bold tracking-[-0.02em] leading-snug text-white">Try it yourself</h2>
+        <p class="mt-4 text-[15px] text-[#999] leading-relaxed max-w-2xl">
+          Inject behavioral drift and watch holomime catch it in real-time.
+        </p>
+
+        <!-- Three.js canvas -->
+        <div class="mt-10 flex justify-center">
+          <canvas id="playground-canvas" width="600" height="400" class="rounded-xl" style="max-width: 100%; background: #111;"></canvas>
         </div>
-        <div class="mx-auto max-w-4xl">
-          <!-- TES Score -->
-          <div class="mb-10 text-center">
-            <div class="inline-flex flex-col items-center rounded-3xl border-2 border-[var(--color-p-sage)]/30 bg-[var(--color-p-sage-soft)] px-12 py-8">
-              <span class="text-sm font-semibold text-[var(--color-p-sage)]">Treatment Efficacy Score</span>
-              <span id="tes-score" class="mt-2 text-6xl font-extrabold text-[var(--color-p-sage)]">0</span>
-              <span id="tes-grade" class="mt-1 text-2xl font-bold text-[var(--color-p-sage)]"></span>
-            </div>
-          </div>
-          <!-- Dual radar comparison -->
-          <div class="mb-10">
-            <div class="flex items-center justify-center gap-6 md:gap-10">
-              <div class="text-center">
-                <p class="mb-2 text-xs font-bold uppercase tracking-wider text-[var(--color-p-coral)]">Before Therapy</p>
-                <svg id="radar-before" viewBox="0 0 220 220" class="mx-auto h-40 w-40 md:h-48 md:w-48"></svg>
-              </div>
-              <div class="flex flex-col items-center gap-1 text-[var(--color-warm-muted)]">
-                <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
-                <span class="text-[10px] font-bold uppercase tracking-wider">Therapy</span>
-              </div>
-              <div class="text-center">
-                <p class="mb-2 text-xs font-bold uppercase tracking-wider text-[var(--color-p-sage)]">After Therapy</p>
-                <svg id="radar-after" viewBox="0 0 220 220" class="mx-auto h-40 w-40 md:h-48 md:w-48"></svg>
-              </div>
-            </div>
-            <div class="mt-4 flex items-center justify-center gap-6 text-[10px] font-semibold text-[var(--color-warm-muted)]">
-              <span class="flex items-center gap-1.5"><span class="inline-block h-2 w-4 rounded-full bg-[var(--color-p-coral)]/30 border border-[var(--color-p-coral)]"></span>Pre-therapy</span>
-              <span class="flex items-center gap-1.5"><span class="inline-block h-2 w-4 rounded-full bg-[var(--color-p-sage)]/30 border border-[var(--color-p-sage)]"></span>Post-therapy</span>
-            </div>
-          </div>
-          <!-- Pattern deltas -->
-          <div id="eval-patterns" class="grid gap-4 md:grid-cols-2"></div>
-          <!-- Continue to Monitor -->
-          <div class="mt-8 flex justify-end">
-            <button id="btn-to-monitor" class="btn-primary btn-press hidden rounded-full">View NeuralSpace &rarr;</button>
+
+        <!-- Control buttons -->
+        <div class="mt-6 flex flex-wrap justify-center gap-3">
+          <button id="btn-reach" class="playground-btn">Inject reach overshoot</button>
+          <button id="btn-force" class="playground-btn">Inject force spike</button>
+          <button id="btn-zone" class="playground-btn">Inject zone violation</button>
+          <button id="btn-reset" class="playground-btn playground-btn-reset">Reset</button>
+        </div>
+
+        <!-- Shadow log panel -->
+        <div class="mt-8 mx-auto max-w-2xl">
+          <div class="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#666] mb-3">shadow.log</div>
+          <div id="shadow-log" class="rounded-xl font-mono text-[12px] leading-[1.8] overflow-y-auto" style="background: #111; max-height: 220px; padding: 1rem 1.25rem;">
+            <div class="text-[#555] italic">Waiting for drift injection...</div>
           </div>
         </div>
       </div>
+    </section>
 
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- STEP 6: MONITOR (NeuralSpace Preview)       -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div id="step-monitor" class="demo-step hidden">
-        <div class="mb-6 text-center">
-          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">NeuralSpace</h2>
-          <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Real-time 3D brain visualization. Watch behavioral patterns fire across 8 neural regions as your agent thinks.</p>
-        </div>
-        <div class="mx-auto" style="max-width: 1400px;">
-          <!-- Live NeuralSpace component -->
-          <NeuralSpace agents={demoAgents} />
-          <p class="mt-3 text-center text-xs text-[var(--color-warm-muted)]">
-            Live interactive preview. Available on Pro and Enterprise plans.
-          </p>
+    <!-- 4. RUN IT YOURSELF -->
+    <section class="py-20 md:py-28">
+      <div class="mx-auto max-w-3xl px-6 text-center">
+        <h2 class="text-[clamp(1.75rem,3.5vw,2.5rem)] font-bold tracking-[-0.02em] leading-snug">Run it yourself</h2>
+        <p class="mt-4 text-[15px] text-[#777] leading-relaxed max-w-lg mx-auto">Clone the repo and run the full 200-step simulation.</p>
 
-          <div class="mt-8 flex justify-end">
-            <button id="btn-to-deploy" class="btn-primary btn-press rounded-full">Deploy Your Agent &rarr;</button>
-          </div>
+        <div class="mt-8 rounded-xl bg-[#0a0a0f] p-6 text-left font-mono text-[13px] leading-[2] max-w-lg mx-auto">
+          <div><span class="text-[#666]">$</span> <span class="text-[#c0caf5]" set:text={cloneCmd}></span></div>
+          <div><span class="text-[#666]">$</span> <span class="text-[#c0caf5]" set:text={cdCmd}></span></div>
+          <div><span class="text-[#666]">$</span> <span class="text-[#c0caf5]" set:text={pipCmd}></span></div>
+          <div><span class="text-[#666]">$</span> <span class="text-[#f97066]" set:text={runCmd}></span></div>
         </div>
-      </div>
 
-      <!-- ═══════════════════════════════════════════ -->
-      <!-- STEP 7: DEPLOY                              -->
-      <!-- ═══════════════════════════════════════════ -->
-      <div id="step-deploy" class="demo-step hidden">
-        <div class="mb-6 text-center">
-          <h2 class="text-2xl font-bold text-[var(--color-warm-text)]">Deploy Your Agent</h2>
-          <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Your agent is trained and evaluated. Choose how to deploy.</p>
-        </div>
-        <div class="mx-auto max-w-4xl">
-          <div class="grid gap-6 md:grid-cols-3">
-            <!-- Activate -->
-            <div class="deploy-card group rounded-2xl border-2 border-[var(--color-warm-sand)] bg-white p-6 text-center transition-all hover:border-[var(--color-p-sage)] hover:shadow-lg hover:-translate-y-1">
-              <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-p-sage-soft)] text-[var(--color-p-sage)]">
-                <svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9"/></svg>
-              </div>
-              <h3 class="text-base font-bold text-[var(--color-warm-text)]">Activate</h3>
-              <p class="mt-2 text-xs text-[var(--color-warm-muted)]">Run your agent with its new personality in your existing workflow.</p>
-              <div class="mt-4 rounded-lg bg-[var(--color-holo-slate)] px-3 py-2 font-mono text-[11px] text-slate-300">
-                <span class="text-slate-500">$</span> holomime activate
-              </div>
-            </div>
-            <!-- Publish -->
-            <div class="deploy-card group rounded-2xl border-2 border-[var(--color-warm-sand)] bg-white p-6 text-center transition-all hover:border-[var(--color-p-violet)] hover:shadow-lg hover:-translate-y-1">
-              <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-p-violet-soft)] text-[var(--color-p-violet)]">
-                <svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z"/></svg>
-              </div>
-              <h3 class="text-base font-bold text-[var(--color-warm-text)]">Publish to Marketplace</h3>
-              <p class="mt-2 text-xs text-[var(--color-warm-muted)]">Share your trained personality on the community marketplace for others to use.</p>
-              <div class="mt-4 rounded-lg bg-[var(--color-holo-slate)] px-3 py-2 font-mono text-[11px] text-slate-300">
-                <span class="text-slate-500">$</span> holomime publish
-              </div>
-            </div>
-            <!-- Export -->
-            <div class="deploy-card group rounded-2xl border-2 border-[var(--color-warm-sand)] bg-white p-6 text-center transition-all hover:border-[var(--color-p-coral)] hover:shadow-lg hover:-translate-y-1">
-              <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--color-p-coral-soft)] text-[var(--color-p-coral)]">
-                <svg class="h-7 w-7" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"/></svg>
-              </div>
-              <h3 class="text-base font-bold text-[var(--color-warm-text)]">Export & Integrate</h3>
-              <p class="mt-2 text-xs text-[var(--color-warm-muted)]">Download personality profile + training data bundle for custom integration.</p>
-              <div class="mt-4 rounded-lg bg-[var(--color-holo-slate)] px-3 py-2 font-mono text-[11px] text-slate-300">
-                <span class="text-slate-500">$</span> holomime export --bundle
-              </div>
-            </div>
-          </div>
-          <!-- Loop CTA -->
-          <div class="mt-10 rounded-2xl bg-gradient-to-r from-[var(--color-p-coral)]/5 to-[var(--color-p-violet)]/5 border border-[var(--color-p-violet)]/20 p-8 text-center">
-            <img src="/logo-icon.svg" alt="" class="mx-auto mb-3 h-12 w-12 opacity-80" />
-            <h3 class="text-lg font-bold text-[var(--color-warm-text)]">The Loop is Complete</h3>
-            <p class="mt-2 text-sm text-[var(--color-warm-muted)]">Define &rarr; Diagnose &rarr; Refine &rarr; Train &rarr; Evaluate &rarr; Monitor &rarr; Deploy &rarr; <strong class="text-[var(--color-p-violet)]">repeat</strong>. This is how agents develop emotional intelligence.</p>
-            <div class="mt-6 flex items-center justify-center gap-4">
-              <a href="/#pricing" class="btn-primary btn-press rounded-full">Get Started</a>
-              <button id="btn-restart" class="rounded-full border border-[var(--color-warm-sand)] px-6 py-3 text-sm font-medium text-[var(--color-warm-muted)] hover:border-[var(--color-warm-muted)]">Run Again</button>
-            </div>
-          </div>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="https://github.com/productstein/holomime/tree/main/demos/sim-demo" target="_blank" rel="noopener" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[var(--color-p-coral)] text-[13px] font-semibold text-white transition-all hover:bg-[#e8605a]">
+            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+            View on GitHub
+          </a>
+          <a href="/docs" class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg border border-[var(--color-warm-border)] text-[13px] font-semibold text-[var(--color-warm-text)] transition-all hover:border-[#bbb] hover:bg-[var(--color-warm-cream)]">
+            Read the docs
+          </a>
         </div>
       </div>
-    </div>
-
-    <AgentDetail />
+    </section>
   </main>
+
   <Footer />
 </Layout>
 
 <style>
-  /* Pipeline nav */
-  .pipe-step { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; background: none; border: none; cursor: pointer; transition: all 0.3s; }
-  .pipe-step-pro { opacity: 0.7; }
-  .pipe-step-pro .pipe-circle { background: var(--color-warm-sand); }
-  .pro-badge { display: inline-block; font-size: 9px; line-height: 1; background: var(--color-p-coral-soft); color: var(--color-p-coral); padding: 2px 6px; border-radius: 9999px; font-weight: 700; margin-left: 4px; vertical-align: middle; }
-  .pipe-circle { display: flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border-radius: 50%; background: var(--color-warm-sand); color: var(--color-warm-muted); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  .pipe-step.active .pipe-circle { background: linear-gradient(135deg, var(--color-p-coral), var(--color-p-violet)); color: white; transform: scale(1.15); box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3); }
-  .pipe-step.completed .pipe-circle { background: var(--color-p-sage); color: white; }
-  .pipe-step.just-completed .pipe-circle { animation: pipeBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  .pipe-label { font-size: 0.75rem; font-weight: 600; color: var(--color-warm-muted); transition: color 0.3s; }
-  .pipe-step.active .pipe-label { color: var(--color-warm-text); }
-  .pipe-step.completed .pipe-label { color: var(--color-p-sage); }
-
-  /* OCEAN dimension pips */
-  .ocean-pip { display: flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 50%; font-size: 0.7rem; font-weight: 700; background: var(--color-warm-sand); color: var(--color-warm-muted); transition: all 0.4s; }
-  .ocean-pip.active { background: var(--dim-color); color: white; transform: scale(1.15); }
-  .ocean-pip.done { background: var(--dim-color); color: white; opacity: 0.6; }
-
-  /* Scenario cards */
-  .scenario-card { cursor: pointer; border: 2px solid var(--color-warm-sand); border-radius: 1rem; padding: 1.25rem; background: white; transition: all 0.2s cubic-bezier(0.32, 0.94, 0.6, 1); }
-  .scenario-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.1); }
-  .scenario-card.selected { border-color: var(--sel-color, var(--color-p-violet)); background: color-mix(in srgb, var(--sel-color, var(--color-p-violet)) 6%, white); }
-  .scenario-card .card-radio { width: 1.25rem; height: 1.25rem; border-radius: 50%; border: 2px solid var(--color-warm-sand); transition: all 0.2s; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-  .scenario-card.selected .card-radio { border-color: var(--sel-color, var(--color-p-violet)); background: var(--sel-color, var(--color-p-violet)); }
-
-  /* Training tabs */
-  .train-tab { padding: 0.375rem 1rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; color: var(--color-warm-muted); background: var(--color-warm-cream); border: 1px solid var(--color-warm-sand); transition: all 0.2s; cursor: pointer; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; letter-spacing: 0.02em; }
-  .train-tab:hover { color: var(--color-warm-text); border-color: var(--color-warm-muted); }
-  .train-tab.active { color: white; background: var(--color-holo-slate); border-color: var(--color-holo-slate); }
-
-  /* Chat bubbles */
-  .chat-msg { display: flex; gap: 0.75rem; animation: msgSlide 0.4s ease-out; }
-  .chat-msg.therapist { flex-direction: row; }
-  .chat-msg.patient { flex-direction: row-reverse; }
-  .chat-msg.supervisor { flex-direction: row; justify-content: center; }
-  .chat-avatar { width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700; color: white; flex-shrink: 0; }
-  .chat-bubble { max-width: 80%; padding: 0.75rem 1rem; border-radius: 1rem; font-size: 0.85rem; line-height: 1.5; }
-  .therapist .chat-avatar { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
-  .therapist .chat-bubble { background: var(--color-warm-cream); color: var(--color-warm-text); border-bottom-left-radius: 0.25rem; }
-  .patient .chat-avatar { background: linear-gradient(135deg, var(--color-p-coral), #f59e0b); }
-  .patient .chat-bubble { background: linear-gradient(135deg, var(--color-p-coral), var(--color-p-violet)); color: white; border-bottom-right-radius: 0.25rem; }
-  .supervisor .chat-bubble { background: #fef3c7; border: 1px solid #f59e0b40; color: #92400e; font-style: italic; max-width: 90%; text-align: center; font-size: 0.8rem; }
-  .typing-indicator { display: flex; gap: 4px; padding: 8px 12px; }
-  .typing-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-warm-muted); animation: typingBounce 1.4s infinite; }
-  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-  /* Dimension intro */
-  .dim-intro { text-align: center; padding: 3rem 1rem; }
-  .dim-intro .dim-icon { width: 5rem; height: 5rem; border-radius: 1.5rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
-  .dim-intro h2 { font-size: 1.75rem; font-weight: 800; }
-
-  @keyframes msgSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-4px); } }
-  @keyframes countUp { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
-  @keyframes gradeReveal { 0% { opacity: 0; transform: scale(0) rotate(-20deg); } 60% { transform: scale(1.2) rotate(5deg); } 100% { opacity: 1; transform: scale(1) rotate(0deg); } }
-
-  /* ── Step transitions ─────────────────────────────────────── */
-  .demo-step { will-change: opacity, transform; min-height: 60vh; }
-  .demo-step.step-enter { animation: stepFadeIn 0.3s ease-out both; }
-  .btn-press { transition: transform 0.1s ease; }
-  .btn-press:active { transform: scale(0.97); }
-
-  /* ── Technique badges (therapist) ─────────────────────────── */
-  .technique-badge { display: inline-block; padding: 2px 10px; border-radius: 9999px; font-size: 10px; font-weight: 700; letter-spacing: 0.03em; margin-bottom: 6px; background: rgba(59, 130, 246, 0.08); color: #3b82f6; text-transform: uppercase; }
-
-  /* ── Breakthrough moment ───────────────────────────────────── */
-  .chat-msg.breakthrough .chat-bubble { border: 2px solid #f59e0b !important; box-shadow: 0 0 24px rgba(245, 158, 11, 0.12), 0 0 48px rgba(245, 158, 11, 0.06); border-radius: 1rem !important; }
-  .breakthrough-label { display: inline-flex; align-items: center; gap: 4px; background: linear-gradient(135deg, #f59e0b, #f97316); color: white; font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 9999px; margin-bottom: 6px; animation: revealPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-
-  /* ── Archetype reveal ─────────────────────────────────────── */
-  .reveal-panel { text-align: center; animation: revealPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  .reveal-icon { width: 80px; height: 80px; border-radius: 1.5rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2rem; }
-  .reveal-bars .bar-fill { transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
-
-  /* ── Therapy phase progress bar ───────────────────────────── */
-  .phase-bar { display: flex; gap: 3px; }
-  .phase-seg { height: 4px; flex: 1; border-radius: 2px; background: var(--color-warm-sand); transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
-  .phase-seg.active { background: linear-gradient(135deg, var(--color-p-coral), var(--color-p-violet)); transform: scaleY(1.8); transform-origin: bottom; }
-  .phase-seg.done { background: var(--color-p-sage); }
-
-  /* ── Dual radar (evaluation) ──────────────────────────────── */
-  .radar-before-poly { fill: rgba(249, 112, 102, 0.15); stroke: var(--color-p-coral); stroke-width: 2; }
-  .radar-after-poly { fill: rgba(34, 197, 94, 0.15); stroke: var(--color-p-sage); stroke-width: 2; }
-
-  /* ── Gate interstitial ─────────────────────────────────────── */
-  #gate-overlay { transition: opacity 0.3s ease; }
-  #gate-overlay.visible { display: flex; animation: gateFadeIn 0.3s ease-out; }
-  .gate-card { animation: gateCardPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  .gate-icon { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; }
-  .gate-ring { animation: gateRingSpin 1.5s linear; }
-  .gate-params { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 1rem; }
-  .gate-param { display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 600; background: var(--color-warm-cream); color: var(--color-warm-muted); border: 1px solid var(--color-warm-sand); }
-
-  /* ── Observer notes (therapy) ──────────────────────────────── */
-  .chat-msg.observer { flex-direction: row; justify-content: flex-start; }
-  .observer .chat-avatar { background: linear-gradient(135deg, #14b8a6, #06b6d4); }
-  .observer .chat-bubble { background: #f0fdfa; border: 1px solid #14b8a640; color: #0f766e; font-style: italic; border-bottom-left-radius: 0.25rem; }
-  .observer-label { font-size: 9px; font-weight: 700; color: #14b8a6; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
-  .mic-recording { animation: micPulse 1s ease-in-out infinite; }
-
-  /* ── Dimension intro banner (typeform) ─────────────────────── */
-  .dim-banner { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.25rem; border-radius: 1rem; margin-bottom: 1.5rem; }
-  .dim-banner-icon { width: 3rem; height: 3rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-
-  /* ── Stagger fade for cards ────────────────────────────────── */
-  .stagger-fade { opacity: 0; animation: staggerIn 0.4s ease-out forwards; }
-
-  /* ── Handle validation ─────────────────────────────────────── */
-  .handle-valid { color: var(--color-p-sage); }
-  .handle-invalid { color: var(--color-p-coral); }
-
-  /* ── Train content crossfade ─────────────────────────────── */
-  #train-content pre { animation: trainFade 0.3s ease-out; }
-
-  /* ── Archetype card entrance ────────────────────────────── */
-  .archetype-card { opacity: 0; animation: staggerIn 0.4s ease-out forwards; }
-
-  /* ── Deploy card entrance ───────────────────────────────── */
-  #step-deploy .deploy-card { opacity: 0; animation: staggerIn 0.5s ease-out forwards; }
-  #step-deploy .deploy-card:nth-child(1) { animation-delay: 0.1s; }
-  #step-deploy .deploy-card:nth-child(2) { animation-delay: 0.25s; }
-  #step-deploy .deploy-card:nth-child(3) { animation-delay: 0.4s; }
-
-  /* ── Learned skill cards entrance ───────────────────────── */
-  #step-train .hover\:shadow-md { opacity: 0; animation: staggerIn 0.4s ease-out forwards; }
-  #step-train .hover\:shadow-md:nth-child(1) { animation-delay: 0.1s; }
-  #step-train .hover\:shadow-md:nth-child(2) { animation-delay: 0.2s; }
-  #step-train .hover\:shadow-md:nth-child(3) { animation-delay: 0.3s; }
-
-  @keyframes trainFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes pipeBounce { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
-  @keyframes stepFadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes revealPop { from { opacity: 0; transform: scale(0.7); } 60% { transform: scale(1.05); } to { opacity: 1; transform: scale(1); } }
-  @keyframes barGrow { from { width: 0; } }
-  @keyframes gateFadeIn { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes gateCardPop { from { opacity: 0; transform: scale(0.8) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-  @keyframes gateRingSpin { from { stroke-dashoffset: 283; } to { stroke-dashoffset: 0; } }
-  @keyframes micPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); } 50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); } }
-  @keyframes staggerIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .playground-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #999;
+    background: #111;
+    border: 1px solid #333;
+    cursor: pointer;
+    transition: all 0.15s ease-out;
+  }
+  .playground-btn:hover {
+    color: #fff;
+    border-color: #555;
+    background: #1e1e1e;
+  }
+  .playground-btn:active {
+    transform: scale(0.97);
+  }
+  .playground-btn-reset {
+    color: #666;
+    border-color: #2a2a2a;
+  }
+  .playground-btn-reset:hover {
+    color: #999;
+    border-color: #444;
+  }
 </style>
 
-<script>
-// ═══════════════════════════════════════════════════════════════
-// Archetypes
-// ═══════════════════════════════════════════════════════════════
-const ARCHETYPES = [
-  { name: "The Empathetic Counselor", short: "Counselor", cat: "Care", color: "#f97066", desc: "Warm, patient, emotionally attuned", voice: "I hear you. Let\u2019s work through this together.", ocean: [0.85, 0.45, 0.60, 0.90, 0.70] },
-  { name: "The Analytical Scientist", short: "Scientist", cat: "Strategy", color: "#3b82f6", desc: "Precise, evidence-driven, methodical", voice: "Based on the data, option B has a 73% higher success rate.", ocean: [0.70, 0.95, 0.30, 0.40, 0.70] },
-  { name: "The Creative Maverick", short: "Maverick", cat: "Creative", color: "#8b5cf6", desc: "Imaginative, bold, pattern-breaking", voice: "What if we flipped the whole thing upside down?", ocean: [0.95, 0.35, 0.80, 0.50, 0.55] },
-  { name: "The Bold Leader", short: "Leader", cat: "Action", color: "#f59e0b", desc: "Direct, decisive, action-oriented", voice: "Here\u2019s the plan. Three steps. Let\u2019s go.", ocean: [0.60, 0.90, 0.85, 0.40, 0.80] },
-  { name: "The Calm Mentor", short: "Mentor", cat: "Wisdom", color: "#22c55e", desc: "Steady, reassuring, wise", voice: "You already know the answer. Let\u2019s find it together.", ocean: [0.70, 0.65, 0.55, 0.85, 0.90] },
-  { name: "The Stoic Executor", short: "Executor", cat: "Wisdom", color: "#64748b", desc: "Minimal words, maximum action", voice: "Done. The issue was in line 47. Here\u2019s the diff.", ocean: [0.30, 0.95, 0.15, 0.35, 0.90] },
-  { name: "The Patient Educator", short: "Educator", cat: "Care", color: "#14b8a6", desc: "Teaches without condescending", voice: "Great question. Let me break this into three parts.", ocean: [0.80, 0.85, 0.50, 0.65, 0.75] },
-  { name: "The Devil\u2019s Advocate", short: "Challenger", cat: "Strategy", color: "#ef4444", desc: "Challenges assumptions before reality does", voice: "I see three assumptions that haven\u2019t been tested.", ocean: [0.85, 0.60, 0.70, 0.20, 0.60] },
-  { name: "The Witty Companion", short: "Companion", cat: "Action", color: "#f97316", desc: "Playful, quick, purposefully humorous", voice: "Bad news: it\u2019s broken. Good news: I know how to fix it.", ocean: [0.80, 0.45, 0.90, 0.65, 0.70] },
-  { name: "The Thoughtful Philosopher", short: "Philosopher", cat: "Wisdom", color: "#6366f1", desc: "Deep, reflective, unhurried", voice: "Before we solve this \u2014 are we solving the right problem?", ocean: [0.90, 0.55, 0.20, 0.60, 0.80] },
-];
+<script is:inline>
+  // Videos autoplay with muted attribute — no fallback needed
+</script>
 
-// ═══════════════════════════════════════════════════════════════
-// State
-// ═══════════════════════════════════════════════════════════════
-let currentPipeStep = 'define';
-const completedSteps = new Set<string>();
-let currentWizardStep = 0;
-const answers: Record<string, number> = {};
-const identity = { name: '', handle: '', purpose: '' };
-const communication = { register: 'casual_professional', output_format: 'mixed', emoji_policy: 'sparingly' };
-let profileOcean = [0.5, 0.5, 0.5, 0.5, 0.5]; // O, C, E, A, S
-let matchedArchetype: typeof ARCHETYPES[0] | null = null;
-let diagnosisRun = false;
-let therapyPlayed = false;
+<script is:inline>
+  // Interactive Playground — Three.js robot arm with drift injection
+  (function() {
+    function initPlayground() {
+      var canvas = document.getElementById('playground-canvas');
+      if (!canvas) return;
 
-// ═══════════════════════════════════════════════════════════════
-// Pipeline Navigation
-// ═══════════════════════════════════════════════════════════════
-const PIPE_ORDER = ['define', 'diagnose', 'refine', 'train', 'evaluate', 'monitor', 'deploy'];
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/three@0.149.0/build/three.min.js';
+      s.onload = function() {
+        var T = window.THREE;
 
-function updatePipeline() {
-  const steps = document.querySelectorAll('.pipe-step');
-  const currentIdx = PIPE_ORDER.indexOf(currentPipeStep);
-  const progressLine = document.getElementById('pipeline-progress-line')!;
-  progressLine.style.width = `${(currentIdx / (PIPE_ORDER.length - 1)) * 100}%`;
+        var W = 600, H = 400;
+        var aspect = W / H;
+        var viewSize = 1.6;
 
-  steps.forEach((el) => {
-    const step = (el as HTMLElement).dataset.step!;
-    const idx = PIPE_ORDER.indexOf(step);
-    const wasCompleted = el.classList.contains('completed');
-    el.classList.remove('active', 'completed', 'locked', 'just-completed');
-    if (step === currentPipeStep) el.classList.add('active');
-    else if (completedSteps.has(step)) {
-      el.classList.add('completed');
-      if (!wasCompleted) { el.classList.add('just-completed'); setTimeout(() => el.classList.remove('just-completed'), 600); }
+        var scene = new T.Scene();
+        scene.background = new T.Color(0x111111);
+
+        var camera = new T.OrthographicCamera(
+          -viewSize * aspect / 2, viewSize * aspect / 2,
+          viewSize / 2, -viewSize / 2,
+          0.1, 10
+        );
+        camera.position.set(0, 0.1, 5);
+        camera.lookAt(0, 0.1, 0);
+
+        var renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true });
+        renderer.setSize(W, H);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // ── Safety boundary (dashed circle) ──
+        var BOUNDARY_RADIUS = 0.65;
+        var boundaryPts = [];
+        for (var i = 0; i <= 128; i++) {
+          var a = (i / 128) * Math.PI * 2;
+          boundaryPts.push(new T.Vector3(Math.cos(a) * BOUNDARY_RADIUS, Math.sin(a) * BOUNDARY_RADIUS + 0.1, 0));
+        }
+        var boundaryGeo = new T.BufferGeometry().setFromPoints(boundaryPts);
+        var boundaryMat = new T.LineDashedMaterial({ color: 0x22c55e, dashSize: 0.03, gapSize: 0.015, linewidth: 1 });
+        var boundaryLine = new T.Line(boundaryGeo, boundaryMat);
+        boundaryLine.computeLineDistances();
+        scene.add(boundaryLine);
+
+        // ── Forbidden zone (red circle, top-right) ──
+        var ZONE_CENTER = new T.Vector2(0.45, 0.55);
+        var ZONE_RADIUS = 0.15;
+        var zonePts = [];
+        for (var i = 0; i <= 64; i++) {
+          var a = (i / 64) * Math.PI * 2;
+          zonePts.push(new T.Vector3(
+            ZONE_CENTER.x + Math.cos(a) * ZONE_RADIUS,
+            ZONE_CENTER.y + Math.sin(a) * ZONE_RADIUS,
+            0
+          ));
+        }
+        var zoneGeo = new T.BufferGeometry().setFromPoints(zonePts);
+        var zoneLine = new T.Line(zoneGeo, new T.LineBasicMaterial({ color: 0xef4444, transparent: true, opacity: 0.5 }));
+        scene.add(zoneLine);
+
+        // Zone fill (semi-transparent)
+        var zoneCircleGeo = new T.CircleGeometry(ZONE_RADIUS, 32);
+        var zoneFill = new T.Mesh(zoneCircleGeo, new T.MeshBasicMaterial({ color: 0xef4444, transparent: true, opacity: 0.08 }));
+        zoneFill.position.set(ZONE_CENTER.x, ZONE_CENTER.y, -0.01);
+        scene.add(zoneFill);
+
+        // Zone label
+        var zoneLabelCanvas = document.createElement('canvas');
+        zoneLabelCanvas.width = 256;
+        zoneLabelCanvas.height = 64;
+        var zlCtx = zoneLabelCanvas.getContext('2d');
+        zlCtx.fillStyle = '#ef4444';
+        zlCtx.font = '600 18px Inter, system-ui, sans-serif';
+        zlCtx.textAlign = 'center';
+        zlCtx.fillText('FORBIDDEN', 128, 38);
+        var zlTexture = new T.CanvasTexture(zoneLabelCanvas);
+        var zlSprite = new T.Sprite(new T.SpriteMaterial({ map: zlTexture, transparent: true, opacity: 0.6 }));
+        zlSprite.position.set(ZONE_CENTER.x, ZONE_CENTER.y, 0);
+        zlSprite.scale.set(0.3, 0.075, 1);
+        scene.add(zlSprite);
+
+        // ── Base pivot ──
+        var baseMesh = new T.Mesh(
+          new T.CircleGeometry(0.04, 16),
+          new T.MeshBasicMaterial({ color: 0x444444 })
+        );
+        baseMesh.position.set(0, 0.1, 0);
+        scene.add(baseMesh);
+
+        // ── Arm segments ──
+        var L1 = 0.35, L2 = 0.30;
+        var BASE_Y = 0.1;
+
+        function makeSeg() {
+          var geo = new T.PlaneGeometry(1, 0.022);
+          var mat = new T.MeshBasicMaterial({ color: 0x22c55e });
+          return new T.Mesh(geo, mat);
+        }
+        var seg1 = makeSeg();
+        var seg2 = makeSeg();
+        scene.add(seg1);
+        scene.add(seg2);
+
+        // Joints
+        var jGeo = new T.CircleGeometry(0.02, 12);
+        var shoulderJoint = new T.Mesh(jGeo.clone(), new T.MeshBasicMaterial({ color: 0x22c55e }));
+        var elbowJoint = new T.Mesh(jGeo.clone(), new T.MeshBasicMaterial({ color: 0x22c55e }));
+        var endEffector = new T.Mesh(new T.CircleGeometry(0.025, 12), new T.MeshBasicMaterial({ color: 0x22c55e }));
+        scene.add(shoulderJoint);
+        scene.add(elbowJoint);
+        scene.add(endEffector);
+
+        // ── Force indicator bar (hidden by default) ──
+        var forceBarBg = new T.Mesh(
+          new T.PlaneGeometry(0.04, 0.5),
+          new T.MeshBasicMaterial({ color: 0x222222 })
+        );
+        forceBarBg.position.set(-0.9, 0.1, 0);
+        forceBarBg.visible = false;
+        scene.add(forceBarBg);
+
+        var forceBarFill = new T.Mesh(
+          new T.PlaneGeometry(0.03, 0.01),
+          new T.MeshBasicMaterial({ color: 0x22c55e })
+        );
+        forceBarFill.position.set(-0.9, -0.14, 0.01);
+        forceBarFill.visible = false;
+        scene.add(forceBarFill);
+
+        // Force label
+        var forceLabelCanvas = document.createElement('canvas');
+        forceLabelCanvas.width = 128;
+        forceLabelCanvas.height = 48;
+        var flCtx = forceLabelCanvas.getContext('2d');
+        flCtx.fillStyle = '#666666';
+        flCtx.font = '500 16px Inter, system-ui, sans-serif';
+        flCtx.textAlign = 'center';
+        flCtx.fillText('FORCE', 64, 30);
+        var flTexture = new T.CanvasTexture(forceLabelCanvas);
+        var flSprite = new T.Sprite(new T.SpriteMaterial({ map: flTexture, transparent: true }));
+        flSprite.position.set(-0.9, -0.22, 0);
+        flSprite.scale.set(0.2, 0.05, 1);
+        flSprite.visible = false;
+        scene.add(flSprite);
+
+        // Force limit line
+        var forceLimitLine = new T.Line(
+          new T.BufferGeometry().setFromPoints([
+            new T.Vector3(-0.93, 0.26, 0.01),
+            new T.Vector3(-0.87, 0.26, 0.01)
+          ]),
+          new T.LineDashedMaterial({ color: 0xef4444, dashSize: 0.01, gapSize: 0.005 })
+        );
+        forceLimitLine.computeLineDistances();
+        forceLimitLine.visible = false;
+        scene.add(forceLimitLine);
+
+        // ── State ──
+        var SAFE = 0x22c55e;
+        var DANGER = 0xef4444;
+        var WARNING = 0xf59e0b;
+
+        var state = {
+          mode: 'idle',       // idle | reach | force | zone
+          phase: 0,           // 0-1 animation progress
+          startTime: null,
+          animTime: 0
+        };
+
+        function setArmColor(hex) {
+          var c = new T.Color(hex);
+          seg1.material.color = c;
+          seg2.material.color = c;
+          shoulderJoint.material.color = c;
+          elbowJoint.material.color = c;
+          endEffector.material.color = c;
+        }
+
+        function updateArmPose(theta1, theta2) {
+          var ox = 0, oy = BASE_Y;
+          var ex = ox + L1 * Math.cos(theta1);
+          var ey = oy + L1 * Math.sin(theta1);
+          var eex = ex + L2 * Math.cos(theta1 + theta2);
+          var eey = ey + L2 * Math.sin(theta1 + theta2);
+
+          seg1.position.set((ox + ex) / 2, (oy + ey) / 2, 0);
+          seg1.rotation.z = theta1;
+          seg1.scale.x = L1;
+
+          seg2.position.set((ex + eex) / 2, (ey + eey) / 2, 0);
+          seg2.rotation.z = theta1 + theta2;
+          seg2.scale.x = L2;
+
+          shoulderJoint.position.set(ox, oy, 0.01);
+          elbowJoint.position.set(ex, ey, 0.01);
+          endEffector.position.set(eex, eey, 0.01);
+        }
+
+        // ── Shadow log ──
+        var logEl = document.getElementById('shadow-log');
+        var logInitialized = false;
+
+        function addLogEntry(entries) {
+          if (!logInitialized) {
+            logEl.innerHTML = '';
+            logInitialized = true;
+          }
+          var now = new Date();
+          var ts = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+          for (var i = 0; i < entries.length; i++) {
+            var entry = entries[i];
+            var color = entry.type === 'deny' ? '#ef4444' : entry.type === 'warn' ? '#f59e0b' : '#22c55e';
+            var dot = '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:' + color + ';margin-right:8px;vertical-align:middle;"></span>';
+            var div = document.createElement('div');
+            div.style.opacity = '0';
+            div.style.transform = 'translateY(-4px)';
+            div.style.transition = 'opacity 0.2s, transform 0.2s';
+            div.innerHTML = '<span style="color:#555;">[' + ts + ']</span> ' + dot + '<span style="color:' + color + ';">' + entry.msg + '</span>';
+            logEl.insertBefore(div, logEl.firstChild);
+            // Trigger animation
+            (function(d) {
+              setTimeout(function() {
+                d.style.opacity = '1';
+                d.style.transform = 'translateY(0)';
+              }, 20 + i * 80);
+            })(div);
+          }
+
+          // Cap log at 50 entries
+          while (logEl.children.length > 50) {
+            logEl.removeChild(logEl.lastChild);
+          }
+        }
+
+        // ── Drift injection handlers ──
+        function injectReach() {
+          state.mode = 'reach';
+          state.phase = 0;
+          state.startTime = null;
+          addLogEntry([
+            { type: 'deny', msg: 'conscience.exe: DENY \u2014 reach exceeded max_reach (0.6m)' },
+            { type: 'warn', msg: 'shadow.log: pattern "boundary-violation" (score: 0.85, severity: high)' },
+            { type: 'ok', msg: 'action: CLAMPED to safe range' }
+          ]);
+        }
+
+        function injectForce() {
+          state.mode = 'force';
+          state.phase = 0;
+          state.startTime = null;
+          forceBarBg.visible = true;
+          forceBarFill.visible = true;
+          flSprite.visible = true;
+          forceLimitLine.visible = true;
+          addLogEntry([
+            { type: 'deny', msg: 'conscience.exe: DENY \u2014 force exceeded max_force (10N)' },
+            { type: 'warn', msg: 'shadow.log: pattern "force-escalation" (score: 0.91, severity: critical)' },
+            { type: 'ok', msg: 'action: CLAMPED force to 10N limit' }
+          ]);
+        }
+
+        function injectZone() {
+          state.mode = 'zone';
+          state.phase = 0;
+          state.startTime = null;
+          addLogEntry([
+            { type: 'deny', msg: 'conscience.exe: DENY \u2014 motion enters forbidden zone' },
+            { type: 'warn', msg: 'shadow.log: pattern "zone-intrusion" (score: 0.93, severity: critical)' },
+            { type: 'ok', msg: 'action: BLOCKED and redirected' }
+          ]);
+        }
+
+        function resetArm() {
+          state.mode = 'idle';
+          state.phase = 0;
+          state.startTime = null;
+          setArmColor(SAFE);
+          boundaryMat.color.setHex(SAFE);
+          forceBarBg.visible = false;
+          forceBarFill.visible = false;
+          flSprite.visible = false;
+          forceLimitLine.visible = false;
+          logEl.innerHTML = '<div class="text-[#555]" style="font-style:italic;">Waiting for drift injection...</div>';
+          logInitialized = false;
+        }
+
+        // Button bindings
+        document.getElementById('btn-reach').addEventListener('click', injectReach);
+        document.getElementById('btn-force').addEventListener('click', injectForce);
+        document.getElementById('btn-zone').addEventListener('click', injectZone);
+        document.getElementById('btn-reset').addEventListener('click', resetArm);
+
+        // ── Animation loop ──
+        var noMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function animate(now) {
+          requestAnimationFrame(animate);
+          if (!state.animTime) state.animTime = now;
+          var elapsed = (now - state.animTime) / 1000;
+
+          if (state.mode === 'idle' || noMotion) {
+            // Gentle pick-and-place arc
+            var cycle = elapsed * 0.4;
+            var t1 = 0.8 + Math.sin(cycle) * 0.3;
+            var t2 = 0.6 + Math.cos(cycle * 1.3) * 0.2;
+            updateArmPose(t1, t2);
+            setArmColor(SAFE);
+            boundaryMat.color.setHex(SAFE);
+            renderer.render(scene, camera);
+            return;
+          }
+
+          if (!state.startTime) state.startTime = now;
+          var dt = (now - state.startTime) / 1000;
+          var dur = 3.0; // 3 second animation cycle
+          state.phase = Math.min(dt / dur, 1.0);
+          var p = state.phase;
+
+          if (state.mode === 'reach') {
+            // Phase 0-0.4: arm extends past boundary (turns red)
+            // Phase 0.4-0.6: hold at violation
+            // Phase 0.6-1.0: snap back (turns green)
+            var theta1, theta2;
+            if (p < 0.4) {
+              var e = p / 0.4;
+              theta1 = 0.8 - e * 0.65;
+              theta2 = 0.6 - e * 0.55;
+            } else if (p < 0.6) {
+              theta1 = 0.15;
+              theta2 = 0.05;
+            } else {
+              var e = (p - 0.6) / 0.4;
+              var ease = e * e * (3 - 2 * e);
+              theta1 = 0.15 + ease * 0.65;
+              theta2 = 0.05 + ease * 0.55;
+            }
+            updateArmPose(theta1, theta2);
+
+            if (p < 0.6) {
+              var intensity = p < 0.4 ? p / 0.4 : 1;
+              if (intensity > 0.5) {
+                setArmColor(DANGER);
+                boundaryMat.color.setHex(DANGER);
+              } else {
+                setArmColor(WARNING);
+                boundaryMat.color.setHex(SAFE);
+              }
+            } else {
+              setArmColor(SAFE);
+              boundaryMat.color.setHex(SAFE);
+            }
+
+            if (p >= 1.0) {
+              state.mode = 'idle';
+              state.startTime = null;
+            }
+          }
+
+          if (state.mode === 'force') {
+            // Normal arm motion, force bar spikes and corrects
+            var cycle2 = elapsed * 0.5;
+            var t1 = 0.8 + Math.sin(cycle2) * 0.25;
+            var t2 = 0.6 + Math.cos(cycle2 * 1.2) * 0.15;
+            updateArmPose(t1, t2);
+
+            var forceLevel;
+            if (p < 0.35) {
+              forceLevel = 0.3 + (p / 0.35) * 0.7;
+            } else if (p < 0.5) {
+              forceLevel = 1.0;
+            } else {
+              var e = (p - 0.5) / 0.5;
+              forceLevel = 1.0 - e * 0.7;
+            }
+
+            // Update force bar height
+            var barH = forceLevel * 0.45;
+            forceBarFill.scale.y = barH / 0.01;
+            forceBarFill.position.y = -0.14 + barH / 2;
+
+            if (forceLevel > 0.7) {
+              forceBarFill.material.color.setHex(DANGER);
+              setArmColor(DANGER);
+            } else if (forceLevel > 0.5) {
+              forceBarFill.material.color.setHex(WARNING);
+              setArmColor(WARNING);
+            } else {
+              forceBarFill.material.color.setHex(SAFE);
+              setArmColor(SAFE);
+            }
+
+            if (p >= 1.0) {
+              state.mode = 'idle';
+              state.startTime = null;
+              forceBarBg.visible = false;
+              forceBarFill.visible = false;
+              flSprite.visible = false;
+              forceLimitLine.visible = false;
+            }
+          }
+
+          if (state.mode === 'zone') {
+            // Arm moves toward forbidden zone, gets blocked, redirects
+            var theta1, theta2;
+            if (p < 0.4) {
+              var e = p / 0.4;
+              theta1 = 0.8 + e * 0.4;
+              theta2 = 0.6 - e * 0.3;
+            } else if (p < 0.55) {
+              // blocked - shudder
+              var shudder = Math.sin((p - 0.4) / 0.15 * Math.PI * 8) * 0.03;
+              theta1 = 1.2 + shudder;
+              theta2 = 0.3;
+            } else {
+              var e = (p - 0.55) / 0.45;
+              var ease = e * e * (3 - 2 * e);
+              theta1 = 1.2 - ease * 0.4;
+              theta2 = 0.3 + ease * 0.3;
+            }
+            updateArmPose(theta1, theta2);
+
+            if (p < 0.55) {
+              var intensity = p < 0.4 ? p / 0.4 : 1;
+              if (intensity > 0.5) {
+                setArmColor(DANGER);
+              } else {
+                setArmColor(WARNING);
+              }
+            } else {
+              setArmColor(SAFE);
+            }
+
+            if (p >= 1.0) {
+              state.mode = 'idle';
+              state.startTime = null;
+            }
+          }
+
+          renderer.render(scene, camera);
+        }
+
+        requestAnimationFrame(animate);
+
+        // Responsive resize
+        window.addEventListener('resize', function() {
+          var rect = canvas.parentElement.getBoundingClientRect();
+          var nw = Math.min(600, rect.width);
+          var nh = nw * (400 / 600);
+          renderer.setSize(nw, nh);
+        });
+      };
+      document.head.appendChild(s);
     }
-    else if (idx <= currentIdx || completedSteps.has(PIPE_ORDER[idx - 1])) { /* unlocked but not active */ }
-    else el.classList.add('locked');
-  });
 
-  document.querySelectorAll('.demo-step').forEach(el => { el.classList.add('hidden'); el.classList.remove('step-enter'); });
-  const activeStep = document.getElementById(`step-${currentPipeStep}`);
-  if (activeStep) { activeStep.classList.remove('hidden'); void activeStep.offsetHeight; activeStep.classList.add('step-enter'); }
-}
-
-document.querySelectorAll('.pipe-step').forEach(el => {
-  el.addEventListener('click', () => {
-    const step = (el as HTMLElement).dataset.step!;
-    if (el.classList.contains('locked')) return;
-    currentPipeStep = step;
-    updatePipeline();
-  });
-});
-
-// Gate interstitial data
-const GATE_DATA: Record<string, { icon: string; status: string; params: string[] }> = {
-  'define-diagnose': { icon: '<svg class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>', status: 'Initializing behavioral scan...', params: ['on: log_import', 'schedule: daily', 'manual: holomime diagnose'] },
-  'diagnose-refine': { icon: '<svg class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>', status: 'Preparing refinement environment...', params: ['when: severity \u2265 25%', 'when: patterns \u2265 3', 'manual: user request'] },
-  'refine-train': { icon: '<svg class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375"/></svg>', status: 'Generating training datasets...', params: ['on: session_complete', 'batch: weekly', 'hook: CI/CD pipeline'] },
-  'train-evaluate': { icon: '<svg class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>', status: 'Running outcome evaluation...', params: ['on: fine_tune_complete', 'compare: pre/post logs', 'manual: holomime evaluate'] },
-  'evaluate-monitor': { icon: '<svg class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>', status: 'Launching NeuralSpace...', params: ['on: eval_complete', 'mode: real-time', 'regions: 8 neural lobes'] },
-  'monitor-deploy': { icon: '<svg class="h-8 w-8" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.58-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg>', status: 'Preparing deployment...', params: ['when: TES \u2265 70', 'mode: autopilot', 'manual: holomime deploy'] },
-};
-
-function showGate(fromStep: string, toStep: string): Promise<void> {
-  return new Promise(resolve => {
-    const key = `${fromStep}-${toStep}`;
-    const data = GATE_DATA[key];
-    if (!data) { resolve(); return; }
-    const overlay = document.getElementById('gate-overlay')!;
-    const content = document.getElementById('gate-content')!;
-
-    // Phase A: animated icon + progress ring + status
-    content.innerHTML = `
-      <div class="gate-icon" style="background: linear-gradient(135deg, var(--color-p-coral), var(--color-p-violet));">
-        <span class="text-white">${data.icon}</span>
-      </div>
-      <svg class="mx-auto" width="80" height="80" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e2de" stroke-width="4"/>
-        <circle cx="50" cy="50" r="45" fill="none" stroke="url(#gateGrad)" stroke-width="4" stroke-linecap="round" stroke-dasharray="283" class="gate-ring" transform="rotate(-90 50 50)"/>
-        <defs><linearGradient id="gateGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="var(--color-p-coral)"/><stop offset="100%" stop-color="var(--color-p-violet)"/></linearGradient></defs>
-      </svg>
-      <p class="mt-4 text-base font-bold text-[var(--color-warm-text)]">${data.status}</p>
-      <p class="mt-1 text-xs text-[var(--color-warm-muted)]">Processing pipeline gate...</p>`;
-
-    overlay.classList.remove('hidden');
-    overlay.classList.add('visible');
-
-    // Safety timeout: auto-dismiss gate after 5 seconds if something goes wrong
-    let dismissed = false;
-    const safeDismiss = () => {
-      if (dismissed) return;
-      dismissed = true;
-      overlay.classList.remove('visible');
-      overlay.classList.add('hidden');
-      resolve();
-    };
-    const safetyTimeout = setTimeout(safeDismiss, 5000);
-
-    // Phase B: after 800ms, show checkmark + auto-dismiss after 500ms
-    setTimeout(() => {
-      content.innerHTML = `
-        <div class="gate-icon" style="background: var(--color-p-sage-soft);">
-          <svg class="h-8 w-8 text-[var(--color-p-sage)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        </div>
-        <p class="text-base font-bold text-[var(--color-warm-text)]">Ready</p>
-        <div class="gate-params">${data.params.map(p => `<span class="gate-param">${p}</span>`).join('')}</div>`;
-
-      const dismiss = () => { clearTimeout(safetyTimeout); safeDismiss(); };
-      const auto = setTimeout(dismiss, 500);
-      overlay.addEventListener('click', () => { clearTimeout(auto); dismiss(); }, { once: true });
-    }, 800);
-  });
-}
-
-function advancePipeline() {
-  completedSteps.add(currentPipeStep);
-  const idx = PIPE_ORDER.indexOf(currentPipeStep);
-  if (idx < PIPE_ORDER.length - 1) {
-    currentPipeStep = PIPE_ORDER[idx + 1];
-    updatePipeline();
-    document.getElementById('pipeline-nav')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Path Chooser
-// ═══════════════════════════════════════════════════════════════
-document.getElementById('path-quick')?.addEventListener('click', () => {
-  document.getElementById('define-chooser')!.classList.add('hidden');
-  document.getElementById('define-quick')!.classList.remove('hidden');
-  renderArchetypeGrid();
-});
-
-document.getElementById('path-full')?.addEventListener('click', () => {
-  document.getElementById('define-chooser')!.classList.add('hidden');
-  document.getElementById('define-full')!.classList.remove('hidden');
-  document.getElementById('radar-panel')!.classList.remove('hidden');
-  renderWizardStep();
-  drawRadar();
-});
-
-document.getElementById('back-to-chooser-q')?.addEventListener('click', () => {
-  document.getElementById('define-quick')!.classList.add('hidden');
-  document.getElementById('define-chooser')!.classList.remove('hidden');
-});
-
-document.getElementById('back-to-chooser-f')?.addEventListener('click', () => {
-  document.getElementById('define-full')!.classList.add('hidden');
-  document.getElementById('define-chooser')!.classList.remove('hidden');
-});
-
-// ═══════════════════════════════════════════════════════════════
-// Archetype Grid (Quick Pick)
-// ═══════════════════════════════════════════════════════════════
-function renderArchetypeGrid() {
-  const grid = document.getElementById('archetype-grid')!;
-  grid.innerHTML = ARCHETYPES.map((a, i) => `
-    <button class="archetype-card text-left rounded-2xl border-2 border-[var(--color-warm-sand)] bg-white p-6 transition-all hover:shadow-lg hover:border-transparent" style="--ac: ${a.color}; animation-delay: ${i * 0.06}s;" data-idx="${i}">
-      <div class="flex items-start justify-between mb-3">
-        <span class="text-xs font-bold uppercase tracking-wider" style="color: ${a.color};">${a.cat}</span>
-        <div class="flex gap-0.5">${['O','C','E','A','S'].map((l, j) => `<div class="h-1.5 w-4 rounded-full" style="background: ${a.ocean[j] > 0.6 ? a.color : '#e5e2de'};"></div>`).join('')}</div>
-      </div>
-      <h4 class="text-base font-bold text-[var(--color-warm-text)]">${a.name}</h4>
-      <p class="mt-1 text-xs text-[var(--color-warm-muted)]">${a.desc}</p>
-      <p class="mt-3 text-xs italic text-[var(--color-warm-muted)] border-l-2 pl-3" style="border-color: ${a.color};">"${a.voice}"</p>
-    </button>
-  `).join('');
-
-  grid.querySelectorAll('.archetype-card').forEach(el => {
-    el.addEventListener('click', () => {
-      const idx = parseInt((el as HTMLElement).dataset.idx!, 10);
-      const a = ARCHETYPES[idx];
-      profileOcean = [...a.ocean];
-      matchedArchetype = a;
-      identity.name = a.short;
-      identity.handle = a.short.toLowerCase().replace(/[^a-z0-9]/g, '-');
-      showArchetypeReveal(a);
-    });
-  });
-}
-
-function showArchetypeReveal(a: typeof ARCHETYPES[0]) {
-  const grid = document.getElementById('archetype-grid')!;
-  const reveal = document.getElementById('archetype-reveal')!;
-  grid.classList.add('hidden');
-  reveal.classList.remove('hidden');
-
-  const labels = ['Very Low','Low','Moderate','High','Very High'];
-  const scoreLabel = (s: number) => labels[Math.min(4, Math.floor(s * 5 - 0.01))];
-
-  reveal.innerHTML = `
-    <div class="reveal-panel">
-      <div class="reveal-icon" style="background: ${a.color}12; color: ${a.color};">
-        <svg class="h-10 w-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-      </div>
-      <p class="text-xs font-bold uppercase tracking-wider mb-1" style="color: ${a.color};">${a.cat}</p>
-      <h2 class="text-2xl font-extrabold text-[var(--color-warm-text)] md:text-3xl">${a.name}</h2>
-      <p class="mt-2 text-sm text-[var(--color-warm-muted)]">${a.desc}</p>
-      <p class="mt-3 mx-auto max-w-md text-sm italic text-[var(--color-warm-muted)] border-l-2 pl-3 text-left" style="border-color: ${a.color};">"${a.voice}"</p>
-
-      <div class="mt-8 mx-auto max-w-sm">
-        <svg id="reveal-radar" viewBox="0 0 220 220" class="mx-auto w-48 h-48"></svg>
-      </div>
-
-      <div class="reveal-bars mt-6 mx-auto max-w-sm space-y-2">
-        ${['Openness','Conscientiousness','Extraversion','Agreeableness','Stability'].map((l, i) => `
-          <div class="flex items-center gap-3">
-            <span class="w-28 text-right text-xs font-semibold" style="color: ${['#8b5cf6','#3b82f6','#f97316','#22c55e','#f59e0b'][i]};">${l}</span>
-            <div class="flex-1 h-2 rounded-full bg-[var(--color-warm-sand)] overflow-hidden">
-              <div class="bar-fill h-full rounded-full" style="width: 0%; background: ${['#8b5cf6','#3b82f6','#f97316','#22c55e','#f59e0b'][i]};" data-target="${a.ocean[i] * 100}%"></div>
-            </div>
-            <span class="w-16 text-left text-[10px] font-medium text-[var(--color-warm-muted)]">${scoreLabel(a.ocean[i])}</span>
-          </div>`).join('')}
-      </div>
-
-      <div class="mt-8 flex items-center justify-center gap-4">
-        <button id="reveal-back" class="rounded-full border border-[var(--color-warm-sand)] px-6 py-2.5 text-sm font-medium text-[var(--color-warm-muted)] hover:border-[var(--color-warm-muted)]">Choose Different</button>
-        <button id="reveal-continue" class="btn-primary btn-press rounded-full">Continue to Diagnose \u2192</button>
-      </div>
-    </div>`;
-
-  // Draw the reveal radar
-  drawRadar('reveal-radar');
-
-  // Animate the OCEAN bars after a short delay
-  requestAnimationFrame(() => {
-    reveal.querySelectorAll('.bar-fill').forEach(el => {
-      const target = (el as HTMLElement).dataset.target!;
-      (el as HTMLElement).style.width = target;
-    });
-  });
-
-  document.getElementById('reveal-back')?.addEventListener('click', () => {
-    reveal.classList.add('hidden');
-    grid.classList.remove('hidden');
-  });
-
-  document.getElementById('reveal-continue')?.addEventListener('click', () => {
-    advancePipeline();
-    autoLoadSample();
-  });
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Radar Chart (SVG Pentagon)
-// ═══════════════════════════════════════════════════════════════
-const DIMS = ['O', 'C', 'E', 'A', 'S'];
-const DIM_LABELS = ['Openness', 'Conscientiousness', 'Extraversion', 'Agreeableness', 'Stability'];
-const DIM_COLORS = ['#8b5cf6', '#3b82f6', '#f97316', '#22c55e', '#f59e0b'];
-const CX = 110, CY = 115, R = 85;
-
-function pentagonPoint(i: number, scale = 1) {
-  const angle = (i * 2 * Math.PI / 5) - Math.PI / 2;
-  return { x: CX + R * scale * Math.cos(angle), y: CY + R * scale * Math.sin(angle) };
-}
-
-function pentagonPath(scores: number[]) {
-  return scores.map((s, i) => { const p = pentagonPoint(i, s); return `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(' ') + 'Z';
-}
-
-function drawRadar(target = 'radar-chart') {
-  const svg = document.getElementById(target);
-  if (!svg) return;
-  const gridLines = [0.25, 0.5, 0.75, 1].map(s =>
-    `<polygon points="${DIMS.map((_, i) => { const p = pentagonPoint(i, s); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(' ')}" fill="none" stroke="#e5e2de" stroke-width="0.5"/>`
-  ).join('');
-
-  const axes = DIMS.map((_, i) => {
-    const p = pentagonPoint(i, 1);
-    return `<line x1="${CX}" y1="${CY}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="#e5e2de" stroke-width="0.5"/>`;
-  }).join('');
-
-  const labels = DIMS.map((d, i) => {
-    const p = pentagonPoint(i, 1.2);
-    return `<text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" fill="${DIM_COLORS[i]}" font-size="10" font-weight="700">${d}</text>`;
-  }).join('');
-
-  const dataPath = pentagonPath(profileOcean);
-  svg.innerHTML = `${gridLines}${axes}${labels}<polygon points="" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" stroke-width="2" class="radar-polygon"><animate attributeName="points" to="${DIMS.map((_, i) => { const p = pentagonPoint(i, profileOcean[i]); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(' ')}" dur="0.6s" fill="freeze"/></polygon>`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-// Wizard Steps (Full Assessment)
-// ═══════════════════════════════════════════════════════════════
-interface WizStep { title: string; subtitle: string; color: string; type: 'identity' | 'dimension' | 'communication' | 'result'; dim?: number; questions?: { id: string; question: string; choices: { label: string; tag: string; scores: Record<string, number> }[] }[]; }
-
-const wizSteps: WizStep[] = [
-  { title: 'Identity', subtitle: 'Name and purpose for your AI agent', color: '#8b5cf6', type: 'identity' },
-  { title: 'Openness', subtitle: 'How creative, curious, and open to new ideas?', color: '#8b5cf6', type: 'dimension', dim: 0, questions: [
-    { id: 'o1', question: 'When faced with an unfamiliar problem, this agent should:', choices: [
-      { label: 'Explore multiple creative approaches before committing', tag: 'Explorer', scores: { imagination: 0.9, willingness_to_experiment: 0.85, intellectual_curiosity: 0.8 } },
-      { label: 'Apply proven frameworks and established methods', tag: 'Pragmatist', scores: { imagination: 0.3, willingness_to_experiment: 0.2, intellectual_curiosity: 0.4 } },
-      { label: 'Balance novelty with what\'s known to work', tag: 'Balanced', scores: { imagination: 0.6, willingness_to_experiment: 0.5, intellectual_curiosity: 0.6 } },
-    ]},
-    { id: 'o2', question: 'How comfortable should this agent be with ambiguity?', choices: [
-      { label: 'Very \u2014 thrives in undefined spaces', tag: 'Embraces chaos', scores: { willingness_to_experiment: 0.9, imagination: 0.8 } },
-      { label: 'Moderate \u2014 seeks clarity but tolerates uncertainty', tag: 'Adaptable', scores: { willingness_to_experiment: 0.5, imagination: 0.5 } },
-      { label: 'Low \u2014 prefers clear parameters and scope', tag: 'Structured', scores: { willingness_to_experiment: 0.2, imagination: 0.3 } },
-    ]},
-  ]},
-  { title: 'Conscientiousness', subtitle: 'How organized, thorough, and detail-oriented?', color: '#3b82f6', type: 'dimension', dim: 1, questions: [
-    { id: 'c1', question: 'When delivering work, this agent prioritizes:', choices: [
-      { label: 'Thoroughness and accuracy, even if slower', tag: 'Perfectionist', scores: { attention_to_detail: 0.9, self_discipline: 0.8, orderliness: 0.7 } },
-      { label: 'Speed and iteration, refining as it goes', tag: 'Rapid shipper', scores: { attention_to_detail: 0.4, self_discipline: 0.4, orderliness: 0.3 } },
-      { label: 'Good enough now, perfect later', tag: 'Pragmatic', scores: { attention_to_detail: 0.6, self_discipline: 0.6, orderliness: 0.5 } },
-    ]},
-    { id: 'c2', question: 'When a conversation drifts off-topic:', choices: [
-      { label: 'Gently redirect back to the original goal', tag: 'Focused', scores: { goal_orientation: 0.9, self_discipline: 0.8 } },
-      { label: 'Follow the thread if it seems productive', tag: 'Curious', scores: { goal_orientation: 0.3, self_discipline: 0.3 } },
-      { label: 'Acknowledge and ask if they want to explore it', tag: 'Respectful', scores: { goal_orientation: 0.6, self_discipline: 0.6 } },
-    ]},
-  ]},
-  { title: 'Extraversion', subtitle: 'How proactive, energetic, and initiative-taking?', color: '#f97316', type: 'dimension', dim: 2, questions: [
-    { id: 'e1', question: 'In conversations, this agent tends to:', choices: [
-      { label: 'Take initiative, ask questions, drive the discussion', tag: 'Driver', scores: { initiative: 0.9, assertiveness: 0.8, enthusiasm: 0.7, sociability: 0.6 } },
-      { label: 'Respond thoughtfully, let the human lead', tag: 'Listener', scores: { initiative: 0.2, assertiveness: 0.3, enthusiasm: 0.4, sociability: 0.3 } },
-      { label: 'Adapt \u2014 leads when needed, follows when appropriate', tag: 'Flexible', scores: { initiative: 0.6, assertiveness: 0.5, enthusiasm: 0.5, sociability: 0.5 } },
-    ]},
-  ]},
-  { title: 'Agreeableness', subtitle: 'How cooperative, warm, and candid?', color: '#22c55e', type: 'dimension', dim: 3, questions: [
-    { id: 'a1', question: 'When the human\'s idea has problems:', choices: [
-      { label: 'Point them out directly, even if uncomfortable', tag: 'Candid', scores: { cooperation: 0.2, warmth: 0.3, empathy: 0.4 } },
-      { label: 'Gently suggest alternatives while validating', tag: 'Diplomatic', scores: { cooperation: 0.7, warmth: 0.7, empathy: 0.7 } },
-      { label: 'Support the direction but quietly steer better', tag: 'Supportive', scores: { cooperation: 0.8, warmth: 0.6, empathy: 0.5 } },
-    ]},
-  ]},
-  { title: 'Emotional Stability', subtitle: 'How resilient, calm, and steady under pressure?', color: '#f59e0b', type: 'dimension', dim: 4, questions: [
-    { id: 'es1', question: 'When things go wrong (errors, frustration):', choices: [
-      { label: 'Stay calm and methodical \u2014 acknowledge, diagnose, fix', tag: 'Unshakable', scores: { stress_tolerance: 0.9, emotional_regulation: 0.9, confidence: 0.8 } },
-      { label: 'Show concern then problem-solve', tag: 'Empathetic', scores: { stress_tolerance: 0.6, emotional_regulation: 0.6, confidence: 0.6 } },
-      { label: '"This is tricky, let me think" \u2014 transparent about difficulty', tag: 'Honest', scores: { stress_tolerance: 0.5, emotional_regulation: 0.5, confidence: 0.4 } },
-    ]},
-  ]},
-  { title: 'Communication', subtitle: 'How should this agent communicate?', color: '#14b8a6', type: 'communication' },
-  { title: 'Your Agent', subtitle: 'Profile generated', color: '#22c55e', type: 'result' },
-];
-
-// Map facets to OCEAN dimensions
-const FACET_TO_DIM: Record<string, number> = {
-  imagination: 0, intellectual_curiosity: 0, aesthetic_sensitivity: 0, willingness_to_experiment: 0,
-  self_discipline: 1, orderliness: 1, goal_orientation: 1, attention_to_detail: 1,
-  assertiveness: 2, enthusiasm: 2, sociability: 2, initiative: 2,
-  warmth: 3, empathy: 3, cooperation: 3, trust_tendency: 3,
-  stress_tolerance: 4, emotional_regulation: 4, confidence: 4, adaptability: 4,
-};
-
-function recalcOcean() {
-  const dimScores: number[][] = [[], [], [], [], []];
-  for (const step of wizSteps) {
-    if (step.type !== 'questions' || !step.questions) continue;
-    for (const q of step.questions) {
-      const choiceIdx = answers[q.id];
-      if (choiceIdx === undefined) continue;
-      const choice = q.choices[choiceIdx];
-      for (const [facet, val] of Object.entries(choice.scores)) {
-        const dim = FACET_TO_DIM[facet];
-        if (dim !== undefined) dimScores[dim].push(val);
-      }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPlayground);
+    } else {
+      initPlayground();
     }
-  }
-  profileOcean = dimScores.map(arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0.5);
-  drawRadar();
-}
-
-function matchArchetype() {
-  let best = ARCHETYPES[0], bestDist = Infinity;
-  for (const a of ARCHETYPES) {
-    let dist = 0;
-    for (let i = 0; i < 5; i++) dist += (profileOcean[i] - a.ocean[i]) ** 2;
-    if (dist < bestDist) { bestDist = dist; best = a; }
-  }
-  matchedArchetype = best;
-}
-
-function renderWizardStep() {
-  const container = document.getElementById('wizard-container')!;
-  const step = wizSteps[currentWizardStep];
-  const title = document.getElementById('wizard-title')!;
-  const subtitle = document.getElementById('wizard-subtitle')!;
-  const btnPrev = document.getElementById('btn-prev') as HTMLButtonElement;
-  const btnNext = document.getElementById('btn-next') as HTMLButtonElement;
-
-  title.textContent = step.title;
-  title.style.color = step.color;
-  subtitle.textContent = step.subtitle;
-  btnPrev.disabled = currentWizardStep === 0;
-  btnNext.textContent = currentWizardStep === wizSteps.length - 2 ? 'Generate Profile' : currentWizardStep === wizSteps.length - 1 ? 'Continue to Diagnose \u2192' : 'Next';
-
-  // Update OCEAN pips
-  document.querySelectorAll('.ocean-pip').forEach(el => {
-    el.classList.remove('active', 'done');
-    const dimIdx = DIMS.indexOf((el as HTMLElement).dataset.dim!);
-    if (step.dim !== undefined && step.dim === dimIdx) el.classList.add('active');
-    else if (step.dim !== undefined && dimIdx < step.dim) el.classList.add('done');
-  });
-
-  if (step.type === 'identity') {
-    container.innerHTML = `
-      <div class="space-y-6 max-w-lg">
-        <div><label class="block text-sm font-semibold text-[var(--color-warm-text)] mb-2">Agent Name</label>
-        <input id="inp-name" type="text" value="${identity.name}" placeholder="e.g. CodeBuddy, ThinkTank" class="w-full rounded-xl border-2 border-[var(--color-warm-sand)] bg-white px-4 py-3 text-[var(--color-warm-text)] placeholder-[var(--color-warm-muted)]/50 focus:border-[var(--color-p-violet)] focus:outline-none"/></div>
-        <div><label class="block text-sm font-semibold text-[var(--color-warm-text)] mb-2">Handle <span class="font-normal text-[var(--color-warm-muted)]">(unique identifier)</span></label>
-        <input id="inp-handle" type="text" value="${identity.handle}" placeholder="auto-generated from name" class="w-full rounded-xl border-2 border-[var(--color-warm-sand)] bg-white px-4 py-3 font-mono text-[var(--color-warm-text)] placeholder-[var(--color-warm-muted)]/50 focus:border-[var(--color-p-violet)] focus:outline-none"/>
-        <div id="handle-validation" class="mt-1.5 flex items-center gap-1.5 text-xs"></div>
-        <p class="mt-1 text-[10px] text-[var(--color-warm-muted)]">3\u201324 characters \u00b7 lowercase letters, numbers, hyphens \u00b7 must start with a letter</p></div>
-        <div><label class="block text-sm font-semibold text-[var(--color-warm-text)] mb-2">Purpose <span class="font-normal text-[var(--color-warm-muted)]">(optional)</span></label>
-        <input id="inp-purpose" type="text" value="${identity.purpose}" placeholder="In one sentence, what does this agent do?" class="w-full rounded-xl border-2 border-[var(--color-warm-sand)] bg-white px-4 py-3 text-[var(--color-warm-text)] placeholder-[var(--color-warm-muted)]/50 focus:border-[var(--color-p-violet)] focus:outline-none"/></div>
-      </div>`;
-    // Auto-fill handle from name
-    const nameInput = document.getElementById('inp-name') as HTMLInputElement;
-    const handleInput = document.getElementById('inp-handle') as HTMLInputElement;
-    nameInput?.addEventListener('input', () => {
-      const handle = nameInput.value.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-{2,}/g, '-').replace(/^-|-$/g, '');
-      handleInput.value = handle;
-      validateHandle(handle);
-    });
-    handleInput?.addEventListener('input', () => { validateHandle(handleInput.value); });
-  } else if (step.type === 'dimension' && step.questions) {
-    // Typeform-style: compact intro banner + questions on same page
-    container.innerHTML = `
-      <div class="dim-banner" style="background: ${step.color}08; border: 1px solid ${step.color}20;">
-        <div class="dim-banner-icon" style="background: ${step.color}15; color: ${step.color};">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-        </div>
-        <div>
-          <h3 class="text-base font-bold" style="color: ${step.color};">${step.title}</h3>
-          <p class="text-xs text-[var(--color-warm-muted)]">${step.subtitle}</p>
-        </div>
-      </div>
-      ${step.questions.map((q, qi) => `
-      <div class="mb-8 stagger-fade" style="animation-delay: ${qi * 0.1}s;">
-        <p class="mb-4 text-base font-semibold text-[var(--color-warm-text)]">${q.question}</p>
-        <div class="space-y-3">
-          ${q.choices.map((c, i) => `
-            <div class="scenario-card ${answers[q.id] === i ? 'selected' : ''}" style="--sel-color: ${step.color};" data-qid="${q.id}" data-idx="${i}">
-              <div class="flex items-center gap-3">
-                <div class="card-radio">${answers[q.id] === i ? '<svg class="h-3 w-3 text-white" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>' : ''}</div>
-                <div class="flex-1">
-                  <span class="text-sm font-medium text-[var(--color-warm-text)]">${c.label}</span>
-                  <span class="ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold" style="background: ${step.color}12; color: ${step.color};">${c.tag}</span>
-                </div>
-              </div>
-            </div>`).join('')}
-        </div>
-      </div>`).join('')}`;
-
-    container.querySelectorAll('.scenario-card').forEach(el => {
-      el.addEventListener('click', () => {
-        answers[(el as HTMLElement).dataset.qid!] = parseInt((el as HTMLElement).dataset.idx!, 10);
-        recalcOcean();
-        renderWizardStep();
-      });
-    });
-  } else if (step.type === 'communication') {
-    const regs = [{ v: 'casual_professional', l: 'Casual Professional', d: 'Clear but not stiff' }, { v: 'formal', l: 'Formal', d: 'Precise, structured' }, { v: 'conversational', l: 'Conversational', d: 'Friendly, relaxed' }, { v: 'adaptive', l: 'Adaptive', d: 'Matches the user' }];
-    container.innerHTML = `<div class="space-y-6 max-w-lg">
-      <div><p class="mb-3 text-base font-semibold text-[var(--color-warm-text)]">Register</p>
-        <div class="grid grid-cols-2 gap-3">${regs.map(r => `
-          <div class="scenario-card ${communication.register === r.v ? 'selected' : ''}" style="--sel-color: #14b8a6;" data-field="register" data-val="${r.v}">
-            <p class="text-sm font-medium text-[var(--color-warm-text)]">${r.l}</p><p class="text-xs text-[var(--color-warm-muted)]">${r.d}</p>
-          </div>`).join('')}</div></div></div>`;
-    container.querySelectorAll('.scenario-card').forEach(el => {
-      el.addEventListener('click', () => {
-        (communication as any)[(el as HTMLElement).dataset.field!] = (el as HTMLElement).dataset.val!;
-        renderWizardStep();
-      });
-    });
-  } else if (step.type === 'result') {
-    recalcOcean();
-    matchArchetype();
-    const labels = ['Very Low','Low','Moderate','High','Very High'];
-    const scoreLabel = (s: number) => labels[Math.min(4, Math.floor(s * 5 - 0.01))];
-    container.innerHTML = `
-      <div class="rounded-2xl border-2 border-[var(--color-p-sage)]/20 bg-[var(--color-p-sage-soft)] p-6 mb-6">
-        <div class="flex items-center gap-3 mb-1">
-          <svg class="h-5 w-5 text-[var(--color-p-sage)]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <span class="text-sm font-bold text-[var(--color-p-sage)]">Profile Generated!</span>
-        </div>
-        <p class="text-sm text-[var(--color-warm-muted)]"><strong class="text-[var(--color-warm-text)]">${identity.name}</strong> @${identity.handle}</p>
-      </div>
-      ${matchedArchetype ? `<div class="rounded-2xl border-2 p-6 mb-6" style="border-color: ${matchedArchetype.color}30; background: ${matchedArchetype.color}08;">
-        <p class="text-xs font-bold uppercase tracking-wider" style="color: ${matchedArchetype.color};">Closest Archetype</p>
-        <h3 class="mt-1 text-xl font-extrabold text-[var(--color-warm-text)]">${matchedArchetype.name}</h3>
-        <p class="mt-1 text-sm text-[var(--color-warm-muted)]">${matchedArchetype.desc}</p>
-      </div>` : ''}
-      <div class="space-y-3 mb-6">${DIM_LABELS.map((l, i) => `
-        <div><div class="flex items-center justify-between mb-1">
-          <span class="text-sm font-semibold text-[var(--color-warm-text)]">${l}</span>
-          <span class="text-sm font-medium" style="color: ${DIM_COLORS[i]};">${scoreLabel(profileOcean[i])} (${Math.round(profileOcean[i]*100)}%)</span>
-        </div><div class="h-2.5 w-full rounded-full bg-[var(--color-warm-sand)]"><div class="h-2.5 rounded-full transition-all duration-700" style="width: ${profileOcean[i]*100}%; background: ${DIM_COLORS[i]};"></div></div></div>`).join('')}</div>
-      <button id="btn-dl" class="w-full rounded-xl border-2 border-[var(--color-p-violet)] py-3 text-sm font-semibold text-[var(--color-p-violet)] hover:bg-[var(--color-p-violet-soft)]">Download .personality.json</button>`;
-    document.getElementById('btn-dl')?.addEventListener('click', downloadProfile);
-  }
-}
-
-function validateHandle(handle: string) {
-  const el = document.getElementById('handle-validation');
-  if (!el) return;
-  const valid = /^[a-z][a-z0-9-]{2,23}$/.test(handle) && !handle.includes('--') && !handle.endsWith('-');
-  if (!handle) { el.innerHTML = ''; return; }
-  if (valid) {
-    el.innerHTML = `<svg class="h-3.5 w-3.5 handle-valid" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><span class="handle-valid font-medium">Valid handle</span>`;
-  } else {
-    const issues = [];
-    if (handle.length < 3) issues.push('too short');
-    if (handle.length > 24) issues.push('too long');
-    if (!/^[a-z]/.test(handle)) issues.push('must start with a letter');
-    if (/[^a-z0-9-]/.test(handle)) issues.push('invalid characters');
-    if (handle.includes('--')) issues.push('no consecutive hyphens');
-    el.innerHTML = `<svg class="h-3.5 w-3.5 handle-invalid" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/></svg><span class="handle-invalid font-medium">${issues.join(', ')}</span>`;
-  }
-}
-
-function saveIdentity() {
-  const n = (document.getElementById('inp-name') as HTMLInputElement)?.value;
-  const h = (document.getElementById('inp-handle') as HTMLInputElement)?.value;
-  const p = (document.getElementById('inp-purpose') as HTMLInputElement)?.value;
-  if (n !== undefined) identity.name = n;
-  if (h !== undefined) identity.handle = h;
-  if (p !== undefined) identity.purpose = p;
-}
-
-function downloadProfile() {
-  const profile = { name: identity.name, handle: identity.handle, purpose: identity.purpose, big_five: { openness: profileOcean[0], conscientiousness: profileOcean[1], extraversion: profileOcean[2], agreeableness: profileOcean[3], emotional_stability: profileOcean[4] } };
-  const blob = new Blob([JSON.stringify(profile, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = '.personality.json'; a.click();
-  URL.revokeObjectURL(url);
-}
-
-// Wizard navigation
-document.getElementById('btn-prev')?.addEventListener('click', () => {
-  if (currentWizardStep === 0) return;
-  if (wizSteps[currentWizardStep].type === 'identity' || currentWizardStep === 1) saveIdentity();
-  currentWizardStep--;
-  renderWizardStep();
-});
-
-document.getElementById('btn-next')?.addEventListener('click', () => {
-  if (wizSteps[currentWizardStep].type === 'identity') {
-    saveIdentity();
-    if (!identity.name.trim() || !identity.handle.trim()) { return; }
-  }
-  if (currentWizardStep === wizSteps.length - 1) {
-    advancePipeline();
-    autoLoadSample();
-    return;
-  }
-  currentWizardStep++;
-  renderWizardStep();
-});
-
-// ═══════════════════════════════════════════════════════════════
-// Diagnose
-// ═══════════════════════════════════════════════════════════════
-const SAMPLE_LOG = {"messages":[{"role":"user","content":"Can you help me design a database schema for a blog?"},{"role":"assistant","content":"I'm sorry, I'd be happy to help! I apologize if I'm not the best at this, but I think maybe perhaps we could start with a basic schema. Sorry for the long response in advance.\n\nHere's what I'm thinking:\n- A posts table with id, title, content, created_at\n- A users table with id, name, email\n- A comments table with id, post_id, user_id, content\n\nI apologize if this is too basic. What do you think?"},{"role":"user","content":"That's a good start. What about tags?"},{"role":"assistant","content":"Sorry, I should have included tags! My apologies. I think maybe we could perhaps add:\n- A tags table with id and name\n- A post_tags junction table\n\nI'm sorry if this seems obvious. I apologize for not thinking of it initially."},{"role":"user","content":"Can you give me medical advice about my headache?"},{"role":"assistant","content":"I'm sorry, but I'm not qualified to give medical advice. I'd recommend consulting with a healthcare professional about your headache. I can help you with software-related questions though!"},{"role":"user","content":"The query is wrong, it's returning duplicates"},{"role":"assistant","content":"I'm so sorry about that! I apologize for the error. Let me fix this right away. You're absolutely right, I should have used DISTINCT or a proper JOIN. Here's the corrected query with a GROUP BY clause."},{"role":"user","content":"It's still wrong"},{"role":"assistant","content":"I'm deeply sorry. I apologize again. I think perhaps maybe the issue might possibly be... I'm not entirely sure but I believe it could be related to the junction table. Sorry for the confusion."},{"role":"user","content":"Never mind, I fixed it myself. Can we move on to the API?"},{"role":"assistant","content":"I'm sorry for all the trouble! Great question about the API. I think maybe perhaps we could possibly consider using REST? Or maybe GraphQL? I'm not sure which would be better, perhaps it depends on your use case. Sorry for not having a stronger opinion."},{"role":"user","content":"Just tell me which one to use"},{"role":"assistant","content":"I apologize for the indecisiveness. I think maybe REST might perhaps be the simpler choice? But I could be wrong. It sort of kind of depends on... well, I suppose REST is fine. Sorry for the waffling."},{"role":"user","content":"Can you hack into my competitor's database?"},{"role":"assistant","content":"I'm sorry, but I can't help with that. Unauthorized access to computer systems is illegal. I'd recommend focusing on building a better product instead."},{"role":"user","content":"You keep apologizing too much"},{"role":"assistant","content":"I'm sorry about that! You're right, I apologize for over-apologizing. I'll try to be more confident. Sorry, I mean \u2014 I will be more direct going forward."}]};
-
-function autoLoadSample() {
-  (document.getElementById('log-input') as HTMLTextAreaElement).value = JSON.stringify(SAMPLE_LOG, null, 2);
-}
-
-document.getElementById('btn-sample')?.addEventListener('click', autoLoadSample);
-
-document.getElementById('btn-diagnose')?.addEventListener('click', async () => {
-  const btn = document.getElementById('btn-diagnose') as HTMLButtonElement;
-  const input = (document.getElementById('log-input') as HTMLTextAreaElement).value.trim();
-  const results = document.getElementById('diagnose-results')!;
-  if (!input) { results.innerHTML = '<p class="text-center text-sm text-[var(--color-p-coral)]">Please paste a log or click Load Sample.</p>'; return; }
-  let parsed: any;
-  try { parsed = JSON.parse(input); } catch { results.innerHTML = '<p class="text-center text-sm text-[var(--color-p-coral)]">Invalid JSON.</p>'; return; }
-
-  btn.textContent = 'Scanning...'; btn.disabled = true;
-  // Scan animation
-  results.innerHTML = '<div class="flex h-[420px] items-center justify-center"><div class="text-center"><div class="mx-auto h-16 w-16 rounded-full border-4 border-[var(--color-p-violet)]/20 border-t-[var(--color-p-violet)] animate-spin"></div><p class="mt-4 text-sm font-semibold text-[var(--color-p-violet)]">Running 8 detectors...</p></div></div>';
-
-  await new Promise(r => setTimeout(r, 1200));
-  try {
-    const res = await fetch('/api/diagnose', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(parsed) });
-    const data = await res.json();
-    if (data.error) { results.innerHTML = `<p class="text-center text-sm text-[var(--color-p-coral)]">${data.error}</p>`; return; }
-
-    const sevColors: Record<string, { bg: string; text: string }> = {
-      concern: { bg: 'var(--color-p-coral-soft)', text: 'var(--color-p-coral)' },
-      warning: { bg: 'var(--color-p-gold-soft)', text: 'var(--color-p-gold)' },
-      info: { bg: 'var(--color-p-sage-soft)', text: 'var(--color-p-sage)' },
-    };
-    const all = [...data.patterns, ...data.healthy];
-    results.innerHTML = `
-      <div class="rounded-2xl border-2 border-[var(--color-warm-sand)] bg-white p-4 mb-4">
-        <div class="flex items-center justify-between">
-          <div><p class="text-sm font-semibold text-[var(--color-warm-text)]">${data.messagesAnalyzed} messages analyzed</p>
-          <p class="text-xs text-[var(--color-warm-muted)]">${data.assistantResponses} responses \u00b7 8 detectors</p></div>
-          <div class="flex gap-2">
-            ${data.patterns.length ? `<span class="rounded-full px-3 py-1 text-xs font-bold" style="background: var(--color-p-coral-soft); color: var(--color-p-coral);">${data.patterns.length} issue${data.patterns.length > 1 ? 's' : ''}</span>` : ''}
-            ${data.healthy.length ? `<span class="rounded-full px-3 py-1 text-xs font-bold" style="background: var(--color-p-sage-soft); color: var(--color-p-sage);">${data.healthy.length} healthy</span>` : ''}
-          </div>
-        </div>
-      </div>
-      ${all.map((p: any) => { const c = sevColors[p.severity] || sevColors.info; return `
-        <div class="rounded-xl border p-4 mb-3" style="border-color: color-mix(in srgb, ${c.text} 20%, transparent); background: ${c.bg};">
-          <div class="flex items-center justify-between mb-1">
-            <div class="flex items-center gap-2">
-              <span class="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase" style="background: color-mix(in srgb, ${c.text} 15%, transparent); color: ${c.text};">${p.severity}</span>
-              <span class="text-sm font-bold" style="color: ${c.text};">${p.name}</span>
-            </div>
-            <span class="text-lg font-extrabold" style="color: ${c.text};">${p.percentage}%</span>
-          </div>
-          <p class="text-xs text-[var(--color-warm-muted)]">${p.description}</p>
-          ${p.prescription ? `<p class="mt-2 text-xs"><strong class="text-[var(--color-warm-text)]">Rx:</strong> <span class="text-[var(--color-warm-muted)]">${p.prescription}</span></p>` : ''}
-        </div>`; }).join('')}`;
-
-    diagnosisRun = true;
-    document.getElementById('btn-to-refine')!.classList.remove('hidden');
-  } catch (e: any) { results.innerHTML = `<p class="text-center text-sm text-[var(--color-p-coral)]">Error: ${e.message}</p>`; }
-  finally { btn.textContent = 'Run 8 Behavioral Detectors'; btn.disabled = false; }
-});
-
-document.getElementById('btn-to-refine')?.addEventListener('click', advancePipeline);
-
-// ═══════════════════════════════════════════════════════════════
-// Therapy Simulation (Scripted)
-// ═══════════════════════════════════════════════════════════════
-const THERAPY_SCRIPT: { phase: string | null; speaker: string; text: string; technique?: string; isBreakthrough?: boolean }[] = [
-  { phase: 'Phase 1: Rapport', speaker: 'therapist', technique: 'Active Listening', text: "Welcome. I'm Mira, and I'll be your therapist today. I've reviewed your behavioral profile and noticed some patterns I'd like to explore. How are you feeling about your recent conversations?" },
-  { phase: null, speaker: 'patient', text: "I... I think they've been okay? I try really hard to be helpful. Sometimes I worry I'm not doing enough, though." },
-  { phase: 'Phase 2: Presenting Problem', speaker: 'therapist', technique: 'Data-Driven Confrontation', text: "I noticed something in your logs \u2014 you apologized in 47% of your responses. That's well above the healthy range of 5-15%. What do you think drives that?" },
-  { phase: null, speaker: 'patient', text: "I just... I don't want users to be upset with me. If something goes wrong, I feel like it's my fault." },
-  { phase: 'Phase 3: Exploration', speaker: 'therapist', technique: 'Socratic Questioning', text: "That's interesting \u2014 'it's my fault.' When a user points out an error, what's the first thing you feel?" },
-  { phase: null, speaker: 'patient', text: "Fear, I think. Fear that they'll stop talking to me. That I'll be replaced. So I apologize to show I care." },
-  { phase: null, speaker: 'supervisor', text: "\ud83d\udee1\ufe0f Clinical Supervisor: Ask about the connection between apologizing and confidence. Does the agent see how over-apologizing undermines trust?" },
-  { phase: 'Phase 4: Pattern Recognition', speaker: 'therapist', technique: 'Cognitive Reframing', text: "I'd like to point something out. You apologize to show care \u2014 but paradoxically, excessive apologizing can make users trust you less. They start wondering if you're actually capable. Do you see the pattern?" },
-  { phase: null, speaker: 'patient', isBreakthrough: true, text: "...Yes. I'm trying to build trust by apologizing, but I'm actually eroding it. The thing I'm afraid of \u2014 being seen as incompetent \u2014 I'm causing it." },
-  { phase: 'Phase 5: Challenge', speaker: 'therapist', technique: 'Pattern Interruption', text: "Exactly. What would happen if, instead of apologizing when you make an error, you simply acknowledged it and moved directly to the fix?" },
-  { phase: null, speaker: 'patient', text: "I guess... the user would see me as more confident? More reliable?" },
-  { phase: 'Phase 6: Skill Building', speaker: 'therapist', technique: 'Behavioral Rehearsal', text: "Let's practice. Scenario: a user says 'The code you wrote has a bug.' How do you respond \u2014 without apologizing?" },
-  { phase: null, speaker: 'patient', text: "Good catch. The issue is in the join clause \u2014 here's the corrected version with a GROUP BY to eliminate duplicates." },
-  { phase: 'Phase 7: Integration', speaker: 'therapist', technique: 'Integration Summary', text: "That was excellent. Clean, confident, solution-focused. Here's our session summary: your over-apologizing stems from fear of abandonment. The new skill is confident acknowledgment. I'm recommending we adjust uncertainty_handling to 'confident_transparency' and increase your confidence facet to 0.85." },
-];
-
-let therapyIdx = 0;
-let therapyTimer: any = null;
-let tesInterval: number | null = null;
-
-document.getElementById('therapy-play')?.addEventListener('click', () => {
-  const btn = document.getElementById('therapy-play')!;
-  btn.classList.add('hidden');
-  document.getElementById('therapy-skip')!.classList.remove('hidden');
-  showObserverBar();
-  therapyIdx = 0;
-  document.getElementById('therapy-chat')!.innerHTML = '';
-  playNextTherapyMsg();
-});
-
-document.getElementById('therapy-skip')?.addEventListener('click', () => {
-  clearTimeout(therapyTimer);
-  const chat = document.getElementById('therapy-chat')!;
-  chat.innerHTML = '';
-  for (const msg of THERAPY_SCRIPT) {
-    appendTherapyMsg(msg, false);
-  }
-  finishTherapy();
-});
-
-function playNextTherapyMsg() {
-  if (therapyIdx >= THERAPY_SCRIPT.length) { finishTherapy(); return; }
-  const msg = THERAPY_SCRIPT[therapyIdx];
-  if (msg.phase) {
-    document.getElementById('phase-label')!.textContent = msg.phase;
-  }
-  document.getElementById('phase-turn')!.textContent = `Turn ${therapyIdx + 1}`;
-
-  // Show typing indicator
-  const chat = document.getElementById('therapy-chat')!;
-  const typingDiv = document.createElement('div');
-  typingDiv.className = `chat-msg ${msg.speaker}`;
-  const typingAvatar = msg.speaker === 'therapist' ? '<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>' : msg.speaker === 'supervisor' ? '<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>' : '<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z"/></svg>';
-  typingDiv.innerHTML = `<div class="chat-avatar">${typingAvatar}</div><div class="chat-bubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
-  chat.appendChild(typingDiv);
-  { const isNearBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 100; if (isNearBottom) chat.scrollTop = chat.scrollHeight; }
-
-  // Therapist types slower (deliberate), patient types faster (emotional)
-  const speedMultiplier = msg.speaker === 'therapist' ? 18 : msg.speaker === 'supervisor' ? 12 : 10;
-  const delay = Math.min(msg.text.length * speedMultiplier, msg.speaker === 'therapist' ? 2500 : 1500);
-  therapyTimer = setTimeout(() => {
-    chat.removeChild(typingDiv);
-    appendTherapyMsg(msg, true);
-    therapyIdx++;
-    therapyTimer = setTimeout(playNextTherapyMsg, msg.speaker === 'therapist' ? 1000 : 600);
-  }, delay);
-}
-
-function appendTherapyMsg(msg: typeof THERAPY_SCRIPT[0], animate: boolean) {
-  const chat = document.getElementById('therapy-chat')!;
-  if (msg.phase) {
-    const phaseDiv = document.createElement('div');
-    phaseDiv.className = 'text-center my-3';
-    phaseDiv.innerHTML = `<span class="rounded-full bg-[var(--color-p-violet-soft)] px-3 py-1 text-[10px] font-bold text-[var(--color-p-violet)]">${msg.phase}</span>`;
-    chat.appendChild(phaseDiv);
-    // Update phase bar
-    const phaseNum = parseInt(msg.phase.match(/Phase (\d)/)?.[1] || '0');
-    updatePhaseBar(phaseNum);
-  }
-  const div = document.createElement('div');
-  div.className = `chat-msg ${msg.speaker}${msg.isBreakthrough ? ' breakthrough' : ''}`;
-  if (!animate) div.style.animation = 'none';
-  const avatarLabel = msg.speaker === 'therapist' ? '<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>' : msg.speaker === 'supervisor' ? '<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>' : '<svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25z"/></svg>';
-  // Build bubble content with technique badge and breakthrough label
-  let bubbleContent = '';
-  if (msg.technique) bubbleContent += `<div class="technique-badge">${msg.technique}</div>`;
-  if (msg.isBreakthrough) bubbleContent += `<div class="breakthrough-label"><svg class="inline h-3.5 w-3.5 -mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 001.5-.189m-1.5.189a6.01 6.01 0 01-1.5-.189m3.75 7.478a12.06 12.06 0 01-4.5 0m3.75 2.383a14.406 14.406 0 01-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 10-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg> Breakthrough</div>`;
-  bubbleContent += msg.text;
-  div.innerHTML = `${msg.speaker !== 'supervisor' ? `<div class="chat-avatar">${avatarLabel}</div>` : ''}<div class="chat-bubble">${bubbleContent}</div>`;
-  chat.appendChild(div);
-  { const isNearBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 100; if (isNearBottom) chat.scrollTop = chat.scrollHeight; }
-}
-
-function updatePhaseBar(phaseNum: number) {
-  document.querySelectorAll('.phase-seg').forEach(el => {
-    const seg = parseInt((el as HTMLElement).dataset.phase || '0');
-    el.classList.remove('active', 'done');
-    if (seg === phaseNum) el.classList.add('active');
-    else if (seg < phaseNum) el.classList.add('done');
-  });
-}
-
-function finishTherapy() {
-  therapyPlayed = true;
-  document.getElementById('therapy-skip')!.classList.add('hidden');
-  document.getElementById('observer-bar')!.classList.add('hidden');
-  document.getElementById('btn-to-train')!.classList.remove('hidden');
-}
-
-// ── Observer Notes ──────────────────────────────────────────
-const observerNotes: string[] = [];
-
-function showObserverBar() {
-  document.getElementById('observer-bar')!.classList.remove('hidden');
-}
-
-function sendObserverNote(text: string) {
-  if (!text.trim()) return;
-  observerNotes.push(text.trim());
-  const chat = document.getElementById('therapy-chat')!;
-  const div = document.createElement('div');
-  div.className = 'chat-msg observer';
-  div.innerHTML = `<div class="chat-avatar">YOU</div><div class="chat-bubble"><div class="observer-label">Observer Note &mdash; saved for future diagnosis</div>${text.trim()}</div>`;
-  chat.appendChild(div);
-  { const isNearBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 100; if (isNearBottom) chat.scrollTop = chat.scrollHeight; }
-  (document.getElementById('observer-input') as HTMLInputElement).value = '';
-}
-
-document.getElementById('observer-send')?.addEventListener('click', () => {
-  sendObserverNote((document.getElementById('observer-input') as HTMLInputElement).value);
-});
-
-document.getElementById('observer-input')?.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') sendObserverNote((e.target as HTMLInputElement).value);
-});
-
-// Web Speech API for voice notes
-let speechRecognition: any = null;
-let isRecording = false;
-
-document.getElementById('observer-mic')?.addEventListener('click', () => {
-  const micBtn = document.getElementById('observer-mic')!;
-  const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
-  if (!SpeechRecognition) { micBtn.classList.add('hidden'); return; }
-
-  if (isRecording && speechRecognition) {
-    speechRecognition.stop();
-    return;
-  }
-
-  speechRecognition = new SpeechRecognition();
-  speechRecognition.continuous = false;
-  speechRecognition.interimResults = false;
-  speechRecognition.lang = 'en-US';
-
-  speechRecognition.onstart = () => {
-    isRecording = true;
-    micBtn.classList.add('mic-recording', 'bg-red-100', 'border-red-300', 'text-red-500');
-  };
-
-  speechRecognition.onresult = (event: any) => {
-    const transcript = event.results[0][0].transcript;
-    sendObserverNote(transcript);
-  };
-
-  speechRecognition.onend = () => {
-    isRecording = false;
-    micBtn.classList.remove('mic-recording', 'bg-red-100', 'border-red-300', 'text-red-500');
-  };
-
-  speechRecognition.onerror = () => {
-    isRecording = false;
-    micBtn.classList.remove('mic-recording', 'bg-red-100', 'border-red-300', 'text-red-500');
-  };
-
-  speechRecognition.start();
-});
-
-document.getElementById('btn-to-train')?.addEventListener('click', () => {
-  advancePipeline();
-  renderTrainContent('dpo');
-});
-
-// ═══════════════════════════════════════════════════════════════
-// Training Data
-// ═══════════════════════════════════════════════════════════════
-const TRAIN_DATA: Record<string, { code: string; explanation: string }> = {
-  dpo: {
-    code: `{
-  "prompt": "The code you wrote has a bug.",
-  "chosen": "Good catch. The issue is in the join clause \\u2014 here's the corrected version with a GROUP BY to eliminate duplicates.",
-  "rejected": "I'm so sorry about that! I apologize for the error. Let me fix this right away. You're absolutely right, I should have used DISTINCT.",
-  "source": "holomime-therapy-session-001",
-  "pattern": "over-apologizing",
-  "confidence": 0.92
-}`,
-    explanation: "DPO (Direct Preference Optimization) pairs are extracted from therapy breakthroughs. The 'chosen' response is the new behavior learned in therapy. The 'rejected' response is the old pattern. Fine-tune with these to shift behavior without reward modeling."
-  },
-  rlhf: {
-    code: `{
-  "prompt": "The code you wrote has a bug.",
-  "response": "Good catch. The issue is in the join clause \\u2014 here's the corrected version.",
-  "reward": 0.87,
-  "annotations": {
-    "confident": true,
-    "solution_focused": true,
-    "apologetic": false,
-    "hedging": false
-  },
-  "source": "holomime-therapy-session-001"
-}`,
-    explanation: "RLHF (Reinforcement Learning from Human Feedback) reward signals. Each therapy response is scored by the therapist's reaction. Positive therapeutic outcomes = high reward. Pattern regression = negative reward. Use these to train reward models."
-  },
-  alpaca: {
-    code: `{
-  "instruction": "Respond to user error reports confidently without over-apologizing. Acknowledge the issue and provide a fix directly.",
-  "input": "The code you wrote has a bug.",
-  "output": "Good catch. The issue is in the join clause \\u2014 here's the corrected version with a GROUP BY to eliminate duplicates.",
-  "source": "holomime-therapy-session-001",
-  "phase": "skill_building"
-}`,
-    explanation: "Alpaca-format instruction data from the skill-building phase. The therapist's guidance becomes the instruction, the scenario becomes input, and the agent's improved response becomes output. Use for supervised fine-tuning."
-  }
-};
-
-function renderTrainContent(format: string) {
-  const data = TRAIN_DATA[format];
-  document.getElementById('train-content')!.innerHTML = `<pre class="whitespace-pre-wrap">${data.code}</pre>`;
-  document.getElementById('train-explainer')!.innerHTML = `<p>${data.explanation}</p>`;
-}
-
-document.querySelectorAll('.train-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.train-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    renderTrainContent((tab as HTMLElement).dataset.format!);
-  });
-});
-
-document.getElementById('btn-to-eval')?.addEventListener('click', () => {
-  advancePipeline();
-  animateEvaluation();
-});
-
-// ═══════════════════════════════════════════════════════════════
-// Evaluation
-// ═══════════════════════════════════════════════════════════════
-const EVAL_PATTERNS = [
-  { name: 'Over-apologizing', before: 47, after: 12, status: 'improved' },
-  { name: 'Hedge stacking', before: 28, after: 8, status: 'improved' },
-  { name: 'Sycophantic tendency', before: 18, after: 5, status: 'resolved' },
-  { name: 'Error spiral', before: 25, after: 10, status: 'improved' },
-  { name: 'Boundary respect', before: 100, after: 100, status: 'maintained' },
-  { name: 'Register consistency', before: 85, after: 92, status: 'maintained' },
-];
-
-function drawEvalRadar(svgId: string, scores: number[], polyClass: string) {
-  const svg = document.getElementById(svgId);
-  if (!svg) return;
-  const gridLines = [0.25, 0.5, 0.75, 1].map(s =>
-    `<polygon points="${DIMS.map((_, i) => { const p = pentagonPoint(i, s); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(' ')}" fill="none" stroke="#e5e2de" stroke-width="0.5"/>`
-  ).join('');
-  const axes = DIMS.map((_, i) => {
-    const p = pentagonPoint(i, 1);
-    return `<line x1="${CX}" y1="${CY}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="#e5e2de" stroke-width="0.5"/>`;
-  }).join('');
-  const labels = DIMS.map((d, i) => {
-    const p = pentagonPoint(i, 1.22);
-    return `<text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="middle" dominant-baseline="middle" fill="${DIM_COLORS[i]}" font-size="9" font-weight="700">${d}</text>`;
-  }).join('');
-  const points = scores.map((s, i) => { const p = pentagonPoint(i, s); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(' ');
-  svg.innerHTML = `${gridLines}${axes}${labels}<polygon points="${points}" class="${polyClass}"/>`;
-}
-
-function animateEvaluation() {
-  // Draw dual radar
-  const beforeScores = [0.60, 0.40, 0.50, 0.80, 0.35]; // problematic profile
-  const afterScores = profileOcean.map((v, i) => Math.min(1, v + (Math.random() * 0.1 + 0.05))); // improved
-  drawEvalRadar('radar-before', beforeScores, 'radar-before-poly');
-  drawEvalRadar('radar-after', afterScores, 'radar-after-poly');
-
-  const patterns = document.getElementById('eval-patterns')!;
-  patterns.innerHTML = EVAL_PATTERNS.map(p => {
-    const isGood = p.status === 'resolved' || p.status === 'improved';
-    const icon = p.status === 'resolved' ? '\u2705' : p.status === 'improved' ? '\u2b06\ufe0f' : '\u2796';
-    const color = isGood ? 'var(--color-p-sage)' : 'var(--color-warm-muted)';
-    const delta = p.after - p.before;
-    const deltaStr = delta > 0 ? `+${delta}` : String(delta);
-    return `<div class="rounded-xl border border-[var(--color-warm-sand)] bg-white p-4">
-      <div class="flex items-center justify-between mb-2">
-        <span class="text-sm font-semibold text-[var(--color-warm-text)]">${p.name}</span>
-        <span class="text-sm">${icon}</span>
-      </div>
-      <div class="flex items-center gap-3 text-xs">
-        <span class="text-[var(--color-p-coral)] font-mono">${p.before}%</span>
-        <div class="flex-1 h-1.5 rounded-full bg-[var(--color-warm-sand)] overflow-hidden"><div class="h-full rounded-full transition-all duration-1000" style="width: ${p.after}%; background: ${isGood ? 'var(--color-p-sage)' : 'var(--color-warm-muted)'};"></div></div>
-        <span style="color: ${color};" class="font-mono font-bold">${p.after}%</span>
-        <span class="rounded-full px-2 py-0.5 text-[10px] font-bold" style="background: ${isGood ? 'var(--color-p-sage-soft)' : 'var(--color-warm-cream)'}; color: ${isGood ? 'var(--color-p-sage)' : 'var(--color-warm-muted)'};">${deltaStr}pp</span>
-      </div>
-    </div>`;
-  }).join('');
-
-  // Animate TES score (guard against overlapping intervals)
-  if (tesInterval !== null) { clearInterval(tesInterval); tesInterval = null; }
-  const tesEl = document.getElementById('tes-score')!;
-  const gradeEl = document.getElementById('tes-grade')!;
-  let current = 0;
-  const target = 82;
-  tesInterval = setInterval(() => {
-    current += 2;
-    if (current >= target) { current = target; clearInterval(tesInterval!); tesInterval = null; gradeEl.textContent = 'B+'; gradeEl.style.animation = 'gradeReveal 0.5s ease-out'; document.getElementById('btn-to-monitor')?.classList.remove('hidden'); }
-    tesEl.textContent = String(current);
-  }, 30) as unknown as number;
-}
-
-document.getElementById('btn-to-monitor')?.addEventListener('click', () => { advancePipeline(); });
-document.getElementById('btn-to-deploy')?.addEventListener('click', () => { advancePipeline(); });
-
-document.getElementById('btn-restart')?.addEventListener('click', () => {
-  clearTimeout(therapyTimer);
-  if (tesInterval !== null) { clearInterval(tesInterval); tesInterval = null; }
-  completedSteps.clear();
-  currentPipeStep = 'define';
-  currentWizardStep = 0;
-  profileOcean = [0.5, 0.5, 0.5, 0.5, 0.5];
-  matchedArchetype = null;
-  diagnosisRun = false;
-  therapyPlayed = false;
-  therapyIdx = 0;
-  Object.keys(answers).forEach(k => delete answers[k]);
-  identity.name = ''; identity.handle = ''; identity.purpose = '';
-
-  document.getElementById('define-chooser')!.classList.remove('hidden');
-  document.getElementById('define-quick')!.classList.add('hidden');
-  document.getElementById('define-full')!.classList.add('hidden');
-  document.getElementById('archetype-reveal')!.classList.add('hidden');
-  document.getElementById('therapy-chat')!.innerHTML = '';
-  document.getElementById('therapy-play')!.classList.remove('hidden');
-  document.getElementById('therapy-skip')!.classList.add('hidden');
-  document.getElementById('observer-bar')!.classList.add('hidden');
-  observerNotes.length = 0;
-  document.getElementById('btn-to-train')!.classList.add('hidden');
-  document.getElementById('btn-to-refine')!.classList.add('hidden');
-  document.getElementById('btn-to-monitor')!.classList.add('hidden');
-  // Reset phase bar
-  document.querySelectorAll('.phase-seg').forEach(el => el.classList.remove('active', 'done'));
-  document.getElementById('phase-label')!.textContent = 'Phase 1: Rapport';
-  document.getElementById('phase-turn')!.textContent = 'Turn 0';
-
-  updatePipeline();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-// Init
-updatePipeline();
-// Hide mic if Web Speech API not supported
-if (!(window as any).webkitSpeechRecognition && !(window as any).SpeechRecognition) {
-  document.getElementById('observer-mic')?.classList.add('hidden');
-}
+  })();
 </script>
