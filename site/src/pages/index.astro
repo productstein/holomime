@@ -340,29 +340,26 @@ const stackCards = [
       // Brain — coral base particles
       group.add(makeMesh(brain, 0xf97066, 0.028, 0.9));
 
-      // Neurons — colored dots in lobe colors scattered through brain
-      var neuronColors = [0xff8844, 0xffcc22, 0x44dd88, 0x22ccaa, 0x8b5cf6, 0xff5555];
-      var neuronPts = [], neuronPositions = [];
-      for (var i = 0; i < 30; i++) {
-        var u = Math.random(), v = Math.random(), theta = 2*Math.PI*u, phi = Math.acos(2*v-1);
-        var rr = 0.12 * Math.random();
-        var nx = rr*Math.sin(phi)*Math.cos(theta)*1.1;
-        var ny = bCy + 0.02 + Math.abs(rr*Math.cos(phi))*0.6;
-        var nz = rr*Math.sin(phi)*Math.sin(theta);
-        neuronPts.push(nx, ny, nz);
-        neuronPositions.push(new T.Vector3(nx, ny, nz));
-      }
-      group.add(makeMesh(neuronPts, 0xffffff, 0.04, 1.0));
-
-      // Synaptic connections — thin lines between nearby neurons
-      var lineMat = new T.LineBasicMaterial({ color: 0xf97066, transparent: true, opacity: 0.3 });
-      for (var i = 0; i < neuronPositions.length; i++) {
-        for (var j = i+1; j < neuronPositions.length; j++) {
-          if (neuronPositions[i].distanceTo(neuronPositions[j]) < 0.12) {
-            var lg = new T.BufferGeometry().setFromPoints([neuronPositions[i], neuronPositions[j]]);
-            group.add(new T.Line(lg, lineMat));
-          }
-        }
+      // Animated neurons — colored particles drifting inside brain
+      var NC = 40; // neuron count
+      var nColors = [0xff8844, 0xffcc22, 0x44dd88, 0x22ccaa, 0x8b5cf6, 0xff5555];
+      var neuronMeshes = [];
+      var neuronVel = [];
+      for (var i = 0; i < NC; i++) {
+        var rr = 0.08 * Math.random();
+        var theta = Math.random() * Math.PI * 2;
+        var phi = Math.acos(Math.random()); // upper hemisphere
+        var nx = rr * Math.sin(phi) * Math.cos(theta);
+        var ny = bCy + 0.02 + rr * Math.cos(phi) * 0.5;
+        var nz = rr * Math.sin(phi) * Math.sin(theta);
+        var geo = new T.BufferGeometry();
+        geo.setAttribute('position', new T.Float32BufferAttribute([nx, ny, nz], 3));
+        var col = nColors[i % nColors.length];
+        var mat = new T.PointsMaterial({ color: col, size: 0.035, sizeAttenuation: true, transparent: true, opacity: 0.95 });
+        var mesh = new T.Points(geo, mat);
+        group.add(mesh);
+        neuronMeshes.push(mesh);
+        neuronVel.push({ x: (Math.random()-0.5)*0.003, y: (Math.random()-0.5)*0.002, z: (Math.random()-0.5)*0.003 });
       }
 
       scene.add(group);
@@ -372,6 +369,22 @@ const stackCards = [
         requestAnimationFrame(animate);
         if (!noMotion) {
           group.rotation.y += 0.004;
+          // Animate neurons — drift inside brain dome
+          for (var i = 0; i < NC; i++) {
+            var pos = neuronMeshes[i].geometry.attributes.position;
+            var px = pos.getX(0) + neuronVel[i].x;
+            var py = pos.getY(0) + neuronVel[i].y;
+            var pz = pos.getZ(0) + neuronVel[i].z;
+            // Bounce inside brain dome (r=0.12 from center bCy)
+            var dx = px, dy = py - bCy - 0.04, dz = pz;
+            var dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+            if (dist > 0.10 || py < bCy) {
+              neuronVel[i].x *= -1; neuronVel[i].y *= -1; neuronVel[i].z *= -1;
+              px = pos.getX(0); py = pos.getY(0); pz = pos.getZ(0);
+            }
+            pos.setXYZ(0, px, py, pz);
+            pos.needsUpdate = true;
+          }
         }
         renderer.render(scene, camera);
       }
