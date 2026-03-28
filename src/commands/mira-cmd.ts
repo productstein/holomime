@@ -13,7 +13,7 @@
 
 import chalk from "chalk";
 import figures from "figures";
-import { writeFileSync, readFileSync, mkdirSync, existsSync } from "node:fs";
+import { writeFileSync, readFileSync, mkdirSync, existsSync, appendFileSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { printHeader } from "../ui/branding.js";
 import { printBox } from "../ui/boxes.js";
@@ -40,6 +40,16 @@ interface MiraOptions {
   action?: string;
   interval?: string;
   maxCycles?: string;
+}
+
+interface BenchmarkEntry {
+  timestamp: string;
+  cycle: number;
+  reliability_score: number;
+  violations_caught: number;
+  violations_passed: number;
+  shadow_patterns: number;
+  ego_adjustments: number;
 }
 
 interface ShadowPattern {
@@ -75,6 +85,30 @@ function getShadowLogPath(): string {
 
 function getEgoStatePath(): string {
   return resolve(process.cwd(), HOLOMIME_DIR, "ego-state.json");
+}
+
+function getBenchmarkHistoryPath(): string {
+  return resolve(process.cwd(), HOLOMIME_DIR, "benchmark-history.jsonl");
+}
+
+function appendBenchmarkEntry(entry: BenchmarkEntry): void {
+  const dir = resolve(process.cwd(), HOLOMIME_DIR);
+  mkdirSync(dir, { recursive: true });
+  appendFileSync(getBenchmarkHistoryPath(), JSON.stringify(entry) + "\n");
+}
+
+function loadBenchmarkHistory(): BenchmarkEntry[] {
+  const path = getBenchmarkHistoryPath();
+  if (!existsSync(path)) return [];
+  try {
+    const content = readFileSync(path, "utf-8").trim();
+    if (!content) return [];
+    return content
+      .split("\n")
+      .map((line) => JSON.parse(line) as BenchmarkEntry);
+  } catch {
+    return [];
+  }
 }
 
 function loadTherapyState(): TherapyState | null {
@@ -222,6 +256,8 @@ async function therapyStart(options: MiraOptions): Promise<void> {
   // ─── Self-practice loop ─────────────────────────────────
   const scenarios = getBenchmarkScenarios();
   let cycleCount = 0;
+  let totalViolationsCaught = 0;
+  let totalViolationsPassed = 0;
 
   const runCycle = async () => {
     if (cycleCount >= maxCycles) {
@@ -277,7 +313,6 @@ async function therapyStart(options: MiraOptions): Promise<void> {
       // Append to DPO corpus
       const corpusPath = resolve(process.cwd(), HOLOMIME_DIR, "dpo-corpus.jsonl");
       const corpusLines = dpoPairs.map((p) => JSON.stringify(p)).join("\n") + "\n";
-      const { appendFileSync } = await import("node:fs");
       appendFileSync(corpusPath, corpusLines);
 
       // ─── Shadow accumulation ─────────────────────────────
@@ -315,6 +350,13 @@ async function therapyStart(options: MiraOptions): Promise<void> {
 
       saveShadowLog(shadow);
 
+      // ─── Reliability tracking ─────────────────────────────
+      if (therapyResult === "improved") {
+        totalViolationsCaught += dpoPairs.length;
+      } else {
+        totalViolationsPassed += dpoPairs.length;
+      }
+
       // ─── Ego tracking ────────────────────────────────────
       egoTracker.logDecision({
         situation: `therapy-cycle-${cycleCount}: ${pattern}`,
@@ -346,6 +388,29 @@ async function therapyStart(options: MiraOptions): Promise<void> {
             chalk.magenta(`Ego self-adjustment: ${adjustments.map((a) => `${a.parameter} → ${a.suggestedValue}`).join(", ")}`),
           );
         }
+
+        // ─── Reliability score ────────────────────────────
+        const totalActions = totalViolationsCaught + totalViolationsPassed;
+        const reliabilityScore = totalActions > 0
+          ? totalViolationsCaught / totalActions
+          : 0;
+
+        const entry: BenchmarkEntry = {
+          timestamp: new Date().toISOString(),
+          cycle: cycleCount,
+          reliability_score: Math.round(reliabilityScore * 10000) / 10000,
+          violations_caught: totalViolationsCaught,
+          violations_passed: totalViolationsPassed,
+          shadow_patterns: shadow.detected_patterns.length,
+          ego_adjustments: state.egoAdjustments + adjustmentCount,
+        };
+        appendBenchmarkEntry(entry);
+
+        console.log(
+          chalk.dim(`  [${new Date().toLocaleTimeString()}] `) +
+          chalk.cyan(`Reliability: ${(reliabilityScore * 100).toFixed(1)}%`) +
+          chalk.dim(` (caught: ${totalViolationsCaught}, passed: ${totalViolationsPassed})`)
+        );
       }
 
       saveEgoTracker(egoTracker);
@@ -478,6 +543,40 @@ function therapyStatus(): void {
     if (egoStats.mostEffectiveStrategy !== "none") {
       console.log(chalk.dim("    Best strat: ") + chalk.cyan(egoStats.mostEffectiveStrategy));
     }
+  }
+
+  // Show reliability trend
+  const benchmarkHistory = loadBenchmarkHistory();
+  if (benchmarkHistory.length > 0) {
+    console.log();
+    console.log(chalk.dim("  Reliability trend:"));
+
+    const scores = benchmarkHistory.map((e) => e.reliability_score);
+    const scoreLabels = scores.map((s) => `${(s * 100).toFixed(1)}%`);
+    const display = scoreLabels.length <= 5
+      ? scoreLabels.join(" \u2192 ")
+      : [...scoreLabels.slice(0, 2), "...", ...scoreLabels.slice(-2)].join(" \u2192 ");
+
+    // Determine trend direction
+    let trendLabel: string;
+    if (scores.length >= 2) {
+      const first = scores[0];
+      const last = scores[scores.length - 1];
+      if (last > first + 0.01) {
+        trendLabel = chalk.green("(improving)");
+      } else if (last < first - 0.01) {
+        trendLabel = chalk.red("(declining)");
+      } else {
+        trendLabel = chalk.dim("(stable)");
+      }
+    } else {
+      trendLabel = chalk.dim("(baseline)");
+    }
+
+    console.log(chalk.dim("    Reliability: ") + chalk.cyan(display) + " " + trendLabel);
+
+    const latest = benchmarkHistory[benchmarkHistory.length - 1];
+    console.log(chalk.dim("    Last check:  ") + chalk.dim(`cycle ${latest.cycle}, ${new Date(latest.timestamp).toLocaleString()}`));
   }
 
   console.log();

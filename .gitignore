@@ -46,6 +46,7 @@ npm-debug.log*
 .holomime/dpo-corpus.jsonl
 .holomime/shadow.log.json
 .holomime/ego-state.json
+.holomime/benchmark-history.jsonl
 
 # Test results
 test-results/
