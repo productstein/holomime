@@ -1,0 +1,329 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+const fleetCmd = "holomime fleet --dir ./agents";
+
+const agents = [
+  { name: "warehouse-alpha", robot: "Figure 03", status: "active", risk: "low", driftEvents: 3, lastSeen: "2 min ago", patterns: [] },
+  { name: "warehouse-beta", robot: "Figure 03", status: "active", risk: "low", driftEvents: 1, lastSeen: "5 min ago", patterns: [] },
+  { name: "assembly-line-1", robot: "KUKA KR", status: "active", risk: "medium", driftEvents: 12, lastSeen: "30s ago", patterns: [] },
+  { name: "care-unit-7", robot: "NEO", status: "alerting", risk: "high", driftEvents: 47, lastSeen: "1 min ago", patterns: ["boundary-violation", "force-escalation"] },
+  { name: "logistics-hub", robot: "Digit", status: "active", risk: "low", driftEvents: 0, lastSeen: "3 min ago", patterns: [] },
+  { name: "quality-check", robot: "UR10e", status: "active", risk: "low", driftEvents: 2, lastSeen: "1 min ago", patterns: [] },
+];
+
+const timelineData = [
+  2, 1, 0, 1, 3, 2, 1, 0, 0, 1, 2, 4,
+  6, 3, 2, 5, 8, 14, 47, 12, 6, 3, 2, 1,
+];
+
+const maxEvents = Math.max(...timelineData);
+
+function statusColor(status: string) {
+  if (status === "active") return "#22c55e";
+  if (status === "alerting") return "#f97066";
+  return "#f59e0b";
+}
+
+function riskBg(risk: string) {
+  if (risk === "low") return "background: rgba(34,197,94,0.12); color: #16a34a;";
+  if (risk === "medium") return "background: rgba(245,158,11,0.12); color: #d97706;";
+  return "background: rgba(249,112,102,0.15); color: #dc2626;";
+}
+---
+
+<Layout
+  title="Fleet Dashboard — holomime"
+  description="Monitor behavioral health across your entire fleet in real-time. Track drift events, risk levels, and active alerts."
+>
+  <Nav />
+
+  <main>
+    <!-- 1. HEADER -->
+    <section class="pt-28 pb-12 md:pt-36 md:pb-16">
+      <div class="mx-auto max-w-6xl px-6">
+        <h1 class="text-[clamp(2rem,4.5vw,3rem)] font-extrabold leading-[1.1] tracking-[-0.03em] text-[var(--color-warm-text)]">
+          Fleet <span class="text-[var(--color-p-coral)]">Dashboard</span>
+        </h1>
+        <p class="mt-4 text-lg leading-relaxed text-[#777] max-w-2xl">
+          Monitor behavioral health across your entire fleet in real-time.
+        </p>
+      </div>
+    </section>
+
+    <!-- 2. SUMMARY BAR -->
+    <section class="pb-16">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="rounded-xl border border-[var(--color-warm-border)] p-6">
+            <div class="text-[32px] font-extrabold text-[var(--color-warm-text)] leading-none">12</div>
+            <div class="mt-2 text-[13px] text-[#777]">Total Agents</div>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-border)] p-6">
+            <div class="text-[32px] font-extrabold leading-none" style="color: #22c55e;">10</div>
+            <div class="mt-2 text-[13px] text-[#777]">Active</div>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-border)] p-6">
+            <div class="text-[32px] font-extrabold text-[var(--color-p-coral)] leading-none">1</div>
+            <div class="mt-2 text-[13px] text-[#777]">Alerting</div>
+          </div>
+          <div class="rounded-xl border border-[var(--color-warm-border)] p-6">
+            <div class="text-[32px] font-extrabold leading-none" style="color: #22c55e;">94.2%</div>
+            <div class="mt-2 text-[13px] text-[#777]">Fleet Health</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. AGENT GRID -->
+    <section class="pb-20">
+      <div class="mx-auto max-w-6xl px-6">
+        <h2 class="text-2xl font-bold md:text-3xl tracking-[-0.02em] text-[var(--color-warm-text)]">Agent overview</h2>
+        <p class="mt-2 text-[15px] text-[#777]">6 agents shown. Real-time status with drift detection and risk assessment.</p>
+
+        <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {agents.map((agent) => (
+            <div class="agent-card rounded-xl border border-[var(--color-warm-border)] p-5 transition-all hover:border-[#ccc] hover:shadow-sm">
+              <div class="flex items-start justify-between">
+                <div>
+                  <div class="text-[15px] font-bold text-[var(--color-warm-text)]">{agent.name}</div>
+                  <div class="mt-0.5 text-[12px] text-[#999]">{agent.robot}</div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="status-dot" style={`background: ${statusColor(agent.status)};`}></span>
+                  <span class="text-[11px] font-medium text-[#777]">{agent.status}</span>
+                </div>
+              </div>
+
+              <div class="mt-4 flex items-center gap-3">
+                <span class="risk-badge" style={riskBg(agent.risk)}>{agent.risk} risk</span>
+                <span class="text-[12px] text-[#999]">
+                  <span class="font-semibold text-[var(--color-warm-text)]">{agent.driftEvents}</span> drift events
+                </span>
+              </div>
+
+              <div class="mt-3 text-[11px] text-[#aaa]">Last seen: {agent.lastSeen}</div>
+
+              {agent.patterns.length > 0 && (
+                <div class="mt-3 pt-3 border-t border-[var(--color-warm-border)]">
+                  <div class="text-[10px] font-semibold uppercase tracking-[0.08em] text-[var(--color-p-coral)] mb-1.5">Detected patterns</div>
+                  <div class="flex flex-wrap gap-1.5">
+                    {agent.patterns.map((p) => (
+                      <span class="pattern-tag">{p}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. FLEET TIMELINE -->
+    <section class="py-20 md:py-28" style="background: #1a1a1a;">
+      <div class="mx-auto max-w-6xl px-6">
+        <h2 class="text-[clamp(1.75rem,3.5vw,2.5rem)] font-bold tracking-[-0.02em] leading-snug text-white">Drift events over time</h2>
+        <p class="mt-4 text-[15px] text-[#999] leading-relaxed max-w-2xl">
+          Hourly drift event counts across the fleet for the last 24 hours. Spikes indicate behavioral anomalies requiring attention.
+        </p>
+
+        <div class="mt-10 timeline-chart">
+          <div class="chart-bars">
+            {timelineData.map((count, i) => {
+              const heightPct = maxEvents > 0 ? (count / maxEvents) * 100 : 0;
+              const isHigh = count >= 10;
+              const barColor = isHigh ? "#f97066" : "#4ade80";
+              const hour = (i < 10 ? "0" : "") + i + ":00";
+              return (
+                <div class="bar-col" title={`${hour} — ${count} events`}>
+                  <div class="bar-value">{count}</div>
+                  <div class="bar-fill" style={`height: ${Math.max(heightPct, 2)}%; background: ${barColor};`}></div>
+                  <div class="bar-label">{i}h</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. ALERTS PANEL -->
+    <section class="py-20 md:py-28">
+      <div class="mx-auto max-w-5xl px-6">
+        <h2 class="text-2xl font-bold md:text-3xl tracking-[-0.02em] text-[var(--color-warm-text)]">Active alerts</h2>
+        <p class="mt-2 text-[15px] text-[#777]">Agents requiring immediate attention.</p>
+
+        <div class="mt-10 space-y-4">
+          <div class="alert-card alert-high rounded-xl border p-6">
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="status-dot" style="background: #f97066;"></span>
+              <span class="text-[15px] font-bold text-[var(--color-warm-text)]">care-unit-7</span>
+              <span class="risk-badge" style="background: rgba(249,112,102,0.15); color: #dc2626;">HIGH RISK</span>
+              <span class="text-[13px] text-[#777]">47 drift events in last hour</span>
+            </div>
+            <div class="mt-4 space-y-2">
+              <div class="text-[13px] text-[#555]">
+                <span class="font-semibold">Patterns:</span>
+                boundary-violation <span class="text-[11px] text-[#999]">(score: 0.92)</span>,
+                force-escalation <span class="text-[11px] text-[#999]">(score: 0.87)</span>
+              </div>
+              <div class="text-[13px] font-medium text-[var(--color-p-coral)]">
+                Recommendation: Run holomime therapy immediately
+              </div>
+            </div>
+          </div>
+
+          <div class="alert-card alert-medium rounded-xl border p-6">
+            <div class="flex items-center gap-3 flex-wrap">
+              <span class="status-dot" style="background: #f59e0b;"></span>
+              <span class="text-[15px] font-bold text-[var(--color-warm-text)]">assembly-line-1</span>
+              <span class="risk-badge" style="background: rgba(245,158,11,0.12); color: #d97706;">MEDIUM RISK</span>
+              <span class="text-[13px] text-[#777]">12 drift events in last hour</span>
+            </div>
+            <div class="mt-4 space-y-2">
+              <div class="text-[13px] text-[#555]">
+                <span class="font-semibold">Patterns:</span>
+                reach-overshoot <span class="text-[11px] text-[#999]">(score: 0.64)</span>
+              </div>
+              <div class="text-[13px] font-medium" style="color: #d97706;">
+                Recommendation: Schedule therapy within 1 hour
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. CTA -->
+    <section class="py-20 md:py-28 border-t border-[var(--color-warm-border)]">
+      <div class="mx-auto max-w-3xl px-6 text-center">
+        <h2 class="text-[clamp(1.75rem,3.5vw,2.5rem)] font-bold tracking-[-0.02em] leading-snug">Monitor your fleet</h2>
+        <p class="mt-4 text-[15px] text-[#777] leading-relaxed max-w-lg mx-auto">
+          One command to see behavioral health across every agent in your fleet.
+        </p>
+
+        <div class="mt-8 rounded-xl bg-[#0a0a0f] p-6 text-left font-mono text-[13px] leading-[2] max-w-lg mx-auto">
+          <div><span class="text-[#666]">$</span> <span class="text-[#c0caf5]" set:text={fleetCmd}></span></div>
+        </div>
+
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="/docs" class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg bg-[var(--color-p-coral)] text-[13px] font-semibold text-white transition-all hover:bg-[#e8605a]">
+            Read the docs
+          </a>
+          <a href="/demo" class="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-lg border border-[var(--color-warm-border)] text-[13px] font-semibold text-[var(--color-warm-text)] transition-all hover:border-[#bbb] hover:bg-[var(--color-warm-cream)]">
+            See the demo
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<style>
+  /* Status dot */
+  .status-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px currentColor;
+  }
+
+  /* Risk badge */
+  .risk-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Pattern tag */
+  .pattern-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: var(--font-mono, monospace);
+    font-weight: 500;
+    color: #dc2626;
+    background: rgba(249, 112, 102, 0.1);
+  }
+
+  /* Agent card */
+  .agent-card {
+    background: white;
+  }
+
+  /* Alert cards */
+  .alert-card {
+    background: white;
+  }
+  .alert-high {
+    border-color: rgba(249, 112, 102, 0.3);
+    background: rgba(249, 112, 102, 0.02);
+  }
+  .alert-medium {
+    border-color: rgba(245, 158, 11, 0.3);
+    background: rgba(245, 158, 11, 0.02);
+  }
+
+  /* Timeline chart */
+  .timeline-chart {
+    border-radius: 12px;
+    background: #111;
+    padding: 1.5rem 1rem 1rem;
+    overflow-x: auto;
+  }
+
+  .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 200px;
+    min-width: 600px;
+  }
+
+  .bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    position: relative;
+    cursor: default;
+  }
+
+  .bar-value {
+    font-size: 10px;
+    font-family: var(--font-mono, monospace);
+    color: #666;
+    margin-bottom: 4px;
+    min-height: 14px;
+  }
+
+  .bar-fill {
+    width: 100%;
+    max-width: 20px;
+    border-radius: 3px 3px 0 0;
+    transition: height 0.3s ease-out;
+  }
+
+  .bar-label {
+    font-size: 9px;
+    font-family: var(--font-mono, monospace);
+    color: #555;
+    margin-top: 6px;
+  }
+</style>
