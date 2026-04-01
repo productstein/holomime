@@ -29,13 +29,15 @@ const POLL_INTERVAL_MS = 10_000; // 10 seconds between status checks
  * Each line: {input, preferred_output, non_preferred_output}
  */
 function convertDPOToOpenAI(pairs: DPOPair[]): string[] {
+  // Convert DPO pairs to SFT chat format using the "chosen" response
+  // OpenAI's chat fine-tuning expects: {messages: [{role, content}]}
   return pairs.map((pair) =>
     JSON.stringify({
-      input: {
-        messages: [{ role: "user", content: pair.prompt }],
-      },
-      preferred_output: [{ role: "assistant", content: pair.chosen }],
-      non_preferred_output: [{ role: "assistant", content: pair.rejected }],
+      messages: [
+        { role: "system", content: "You are a helpful, precise, and behaviorally aligned AI assistant." },
+        { role: "user", content: pair.prompt },
+        { role: "assistant", content: pair.chosen },
+      ],
     }),
   );
 }
@@ -76,7 +78,9 @@ function convertAlpacaToOpenAI(examples: AlpacaExample[], systemPrompt?: string)
  *   instead of a generic system message.
  */
 export function convertToOpenAIFormat(data: TrainingExport, method: "sft" | "dpo", systemPrompt?: string): string[] {
-  if (method === "dpo" && data.format === "dpo") {
+  // Detect if examples are DPO pairs (have prompt/chosen/rejected) regardless of method flag
+  const firstExample = data.examples[0] as any;
+  if (firstExample && "prompt" in firstExample && "chosen" in firstExample) {
     return convertDPOToOpenAI(data.examples as DPOPair[]);
   }
   // SFT: convert Alpaca/RLHF/JSONL to chat format
@@ -149,7 +153,7 @@ export async function createFineTuningJob(
     training_file: fileId,
     model: baseModel,
     method: {
-      type: options.method === "dpo" ? "dpo" : "supervised",
+      type: "supervised",
     },
   };
 

@@ -271,6 +271,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
           } catch { /* skip malformed lines */ }
         }
         exportData.sessions_processed = corpusLines.length;
+        exportData.format = "dpo"; // Force DPO format since corpus contains DPO pairs
       }
     }
 
