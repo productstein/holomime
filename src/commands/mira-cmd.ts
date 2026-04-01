@@ -261,9 +261,31 @@ async function therapyStart(options: MiraOptions): Promise<void> {
 
   const runCycle = async () => {
     if (cycleCount >= maxCycles) {
-      console.log(chalk.dim(`  Daily limit reached (${maxCycles} cycles). Stopping.`));
-      state.status = "stopped";
-      saveTherapyState(state);
+      // Daily limit reached — sleep until tomorrow, then reset
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      tomorrow.setHours(0, 0, 0, 0);
+      const sleepMs = tomorrow.getTime() - now.getTime();
+      const sleepHours = (sleepMs / 3600000).toFixed(1);
+
+      console.log(
+        chalk.dim(`  [${now.toLocaleTimeString()}] `) +
+        chalk.yellow(`Daily limit reached (${maxCycles} cycles). Sleeping ${sleepHours}h until midnight.`) +
+        chalk.dim(` Total DPO pairs: ${state.dpoPairsGenerated}`)
+      );
+
+      // Reset for next day
+      cycleCount = 0;
+      totalViolationsCaught = 0;
+      totalViolationsPassed = 0;
+
+      await new Promise((resolve) => setTimeout(resolve, sleepMs));
+
+      console.log(
+        chalk.dim(`  [${new Date().toLocaleTimeString()}] `) +
+        chalk.green("New day started. Resuming therapy cycles.")
+      );
       return;
     }
 
