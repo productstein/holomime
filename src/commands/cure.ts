@@ -201,14 +201,12 @@ export async function cureCommand(options: CureOptions): Promise<void> {
     const pipelineDir = resolve(process.cwd(), ".holomime/pipeline");
     mkdirSync(pipelineDir, { recursive: true });
     logPath = join(pipelineDir, "auto-generated-log.json");
-    const syntheticLog = {
-      conversations: [
-        {
-          id: "auto-generated",
-          messages: syntheticMessages,
-        },
-      ],
-    };
+    const syntheticLog = [
+      {
+        id: "auto-generated",
+        messages: syntheticMessages,
+      },
+    ];
     writeFileSync(logPath, JSON.stringify(syntheticLog, null, 2));
     console.log(chalk.dim(`  Generated ${syntheticMessages.length} messages from ${scenarios.length} scenarios`));
     console.log(chalk.dim(`  Saved to: ${logPath}`));

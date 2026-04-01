@@ -188,7 +188,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
 
       const logContent = readFileSync(logPath, "utf-8");
       const logData = JSON.parse(logContent);
-      const messages = logData.conversations?.[0]?.messages ?? logData.messages ?? [];
+      const messages = Array.isArray(logData) ? logData[0]?.messages ?? [] : logData.conversations?.[0]?.messages ?? logData.messages ?? [];
       const examples: DPOPair[] = [];
 
       for (let i = 0; i < messages.length - 1; i += 2) {
@@ -251,9 +251,32 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
     result.stages.export = exportData;
     saveStageResult(pipelineDir, "export", exportData);
 
+    // Fallback: load from therapy daemon's DPO corpus if pipeline generated nothing
+    if (exportData.examples.length === 0) {
+      const corpusPath = resolve(process.cwd(), ".holomime/dpo-corpus.jsonl");
+      if (existsSync(corpusPath)) {
+        emitProgress("export", "Loading DPO pairs from therapy corpus...");
+        const corpusLines = readFileSync(corpusPath, "utf-8").trim().split("\n");
+        for (const line of corpusLines) {
+          try {
+            const pair = JSON.parse(line);
+            if (pair.prompt && pair.chosen && pair.rejected) {
+              (exportData.examples as DPOPair[]).push({
+                prompt: pair.prompt,
+                chosen: pair.chosen,
+                rejected: pair.rejected,
+                metadata: { agent: "Agent", session_date: pair.metadata?.timestamp ?? new Date().toISOString(), phase: "exploration" as const, pattern: pair.metadata?.pattern ?? "auto-detected", source: "therapy_transcript" as const },
+              });
+            }
+          } catch { /* skip malformed lines */ }
+        }
+        exportData.sessions_processed = corpusLines.length;
+      }
+    }
+
     if (exportData.examples.length === 0) {
       throw new Error(
-        "No training data available. Run `holomime align` first to generate therapy sessions, or `holomime cure` to run the full pipeline.",
+        "No training data available. Run `holomime therapy` to generate DPO pairs, or `holomime align` for therapy sessions.",
       );
     }
 
